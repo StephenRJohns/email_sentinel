@@ -1,0 +1,37 @@
+<b>MailAlert</b> watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by Google Gemini.<br><br>
+
+<b>Quick start</b><br>
+1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>
+2. (Optional) Configure SMS — pick Twilio or a generic webhook provider and fill in the credentials.<br>
+3. Open <b>Rules</b> and click <b>+ New rule</b>.<br>
+4. Back on the home card, click <b>Start monitoring</b>. A time-driven trigger will run in the background even when Gmail is closed.<br><br>
+
+<b>Writing a rule</b><br>
+Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>
+• "Any email from anyone @tma.com that has a PDF attachment that looks like an invoice or purchase order."<br>
+• "Subject contains URGENT or CRITICAL."<br>
+• "Email from boss@company.com asking for a status update."<br><br>
+
+Each rule has an <b>Alert message format</b> field — plain-English instructions that tell Gemini how to format the alert that recipients receive. The default includes date, sender, subject, summary, and any action items.<br><br>
+
+<b>Labels (vs. folders)</b><br>
+Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as it appears in Gmail. Labels containing spaces are fine — type them exactly as shown. Multiple labels: comma-separated.<br><br>
+
+<b>Alert channels</b><br>
+<b>Email</b> — sent from your own Gmail account. No SMTP server required.<br>
+<b>SMS</b> — Google Workspace doesn't ship an SMS API, so MailAlert delegates to your provider. <b>Twilio</b> works out of the box (paste Account SID, Auth Token, and "From" number in Settings). For other providers (MessageBird, Vonage, AWS SNS, in-house gateway, …) pick the <b>Generic webhook</b> provider and point it at any HTTPS endpoint that accepts a JSON body of {"to":"+15551234567","body":"…"}.<br><br>
+
+<b>Business hours</b><br>
+Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>
+
+<b>Polling</b><br>
+Apps Script time-driven triggers fire every 1, 5, 10, 15, or 30 minutes. The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message.<br><br>
+
+<b>Privacy</b><br>
+Settings, rules, the seen-message baseline, and the activity log are all stored in <i>UserProperties</i>, which is private to your own Google account. Email contents are sent only to Google's Gemini API and to whatever SMS provider you configure — never anywhere else.<br><br>
+
+<b>Troubleshooting</b><br>
+• <i>"No Gemini API key configured"</i> — open Settings and paste a key, then click <b>Test Gemini</b>.<br>
+• <i>"Label '…' fetch failed"</i> — verify the label exists in Gmail with that exact name (case-insensitive).<br>
+• <i>SMS not delivered</i> — open the Activity Log to see the provider's error response.<br>
+• <i>Alerts firing for old mail after install</i> — open Settings and click <b>Reset baseline</b>; the next run will re-baseline.<br>

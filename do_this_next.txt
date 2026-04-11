@@ -1,0 +1,252 @@
+================================================================================
+MailAlert — Do This Next
+================================================================================
+
+The codebase is converted and ready. Nothing has been deployed to Google yet —
+that step has to happen from your machine because it requires you to log in
+to your own Google account.
+
+Below is everything to do next, in order.
+
+
+--------------------------------------------------------------------------------
+0. One-time prerequisites
+--------------------------------------------------------------------------------
+
+You need three things before you can deploy:
+
+  a) A Google account (personal Gmail or Workspace) — the one that will run
+     the add-on.
+
+  b) A Gemini API key (free).
+       https://aistudio.google.com/app/apikey
+       Click "Create API key" → copy it somewhere safe. You'll paste it into
+       the add-on Settings card after install.
+
+  c) Node.js 18+ and npm (only needed for the clasp CLI install path).
+       Check with:  node --version && npm --version
+       If missing:  sudo apt install nodejs npm     (or use nvm)
+
+  (Optional, only if you want SMS alerts) — a Twilio account with:
+     - Account SID
+     - Auth Token
+     - A verified "From" phone number in E.164 format (+15551234567)
+     OR an HTTPS endpoint of your own that accepts POST {"to":"...","body":"..."}.
+
+
+--------------------------------------------------------------------------------
+1. Install clasp and log in
+--------------------------------------------------------------------------------
+
+Run from anywhere:
+
+    npm install -g @google/clasp
+    clasp login
+
+`clasp login` opens a browser tab — sign in with the Google account that will
+own the add-on. This writes credentials to ~/.clasprc.json (already gitignored).
+
+
+--------------------------------------------------------------------------------
+2. Create the Apps Script project
+--------------------------------------------------------------------------------
+
+    cd /home/stephen-johns/github/mailalert
+    clasp create --type standalone --title "MailAlert" --rootDir .
+
+This creates a real Apps Script project in your Google account and writes
+the new scriptId into .clasp.json (replacing the placeholder).
+
+If clasp complains that .clasp.json already exists, delete it first:
+    rm .clasp.json && clasp create --type standalone --title "MailAlert" --rootDir .
+
+If you get a "User has not enabled the Apps Script API" error, visit
+https://script.google.com/home/usersettings and turn the API on, then retry.
+
+
+--------------------------------------------------------------------------------
+3. Push the code
+--------------------------------------------------------------------------------
+
+    clasp push
+
+This uploads every .gs file, Help.html, and appsscript.json into the new
+Apps Script project. You should see roughly 11 files pushed.
+
+To open the editor in a browser:
+
+    clasp open
+
+
+--------------------------------------------------------------------------------
+4. Install the add-on as a test deployment
+--------------------------------------------------------------------------------
+
+In the Apps Script editor (the tab `clasp open` just opened):
+
+  1. Top right → Deploy ▸ Test deployments
+  2. Under "Application(s): Gmail" click Install
+  3. Click Done
+
+This installs MailAlert into the Gmail of the same Google account.
+
+The first time you click anything inside the add-on, Google will show an
+OAuth consent screen listing the scopes from appsscript.json:
+  - Read, compose, send Gmail
+  - Manage Gmail labels
+  - Connect to external services (Gemini, Twilio)
+  - Run as you (for the time-driven trigger)
+Click "Allow". Because the add-on is unverified and only published to
+yourself, you may see an "unverified app" warning — click Advanced →
+Go to MailAlert (unsafe). It is safe; it is your own code.
+
+
+--------------------------------------------------------------------------------
+5. Configure it inside Gmail
+--------------------------------------------------------------------------------
+
+  1. Open https://mail.google.com (refresh if it was already open).
+  2. The MailAlert icon appears in the right-hand add-on rail.
+  3. Click it. The home card opens.
+  4. Click "Settings" (or use the … menu → Settings).
+  5. Paste your Gemini API key.
+  6. Click "Test Gemini" — you should see the "Gemini OK" notification.
+     If not, open the Activity Log card to see the error.
+  7. (Optional) Set SMS provider, Twilio creds, business hours, etc.
+  8. Click "Save settings".
+
+
+--------------------------------------------------------------------------------
+6. Create a test rule
+--------------------------------------------------------------------------------
+
+  1. From the home card → Rules → "+ New rule".
+  2. Fill in:
+       Name:    "Test rule"
+       Labels:  INBOX
+       Rule:    "Any email from anyone — match everything for testing."
+       Email:   <your own email address>
+  3. Save.
+
+You can leave SMS empty for the first test.
+
+
+--------------------------------------------------------------------------------
+7. Run the first check (baseline)
+--------------------------------------------------------------------------------
+
+  1. Back on the home card, click "Run check now".
+  2. Open Activity Log. You should see:
+       Label "INBOX": baseline set (N existing message(s)). Watching for new mail.
+  3. This first run is intentional — it records every existing inbox message
+     so you don't get an alert flood for old mail.
+
+
+--------------------------------------------------------------------------------
+8. Trigger a real alert
+--------------------------------------------------------------------------------
+
+  1. Send yourself an email from another account (or use Gmail's "Send to
+     yourself" — any new message will do, since the test rule matches all).
+  2. Wait a few seconds, then click "Run check now" again.
+  3. Activity Log should show:
+       Label "INBOX": 1 new message(s).
+       From: ... | Subject: ...
+       Evaluating against rule "Test rule" ...
+       MATCH! ...
+       Email alert sent to: <your address>
+  4. Check your inbox for the "[MailAlert] Test rule: ..." email.
+
+
+--------------------------------------------------------------------------------
+9. Turn on background monitoring
+--------------------------------------------------------------------------------
+
+  1. Home card → "Start monitoring".
+  2. This installs a time-driven trigger (default every 5 minutes) that runs
+     server-side on Google's infrastructure. It runs whether or not Gmail is
+     open in your browser, whether or not your computer is on.
+  3. To verify it's installed, in the Apps Script editor click the clock icon
+     ("Triggers") in the left rail. You should see runMailCheck listed.
+  4. To stop, click "Stop monitoring" on the home card.
+
+
+--------------------------------------------------------------------------------
+10. (Optional) Test SMS
+--------------------------------------------------------------------------------
+
+  1. Settings → SMS provider → Twilio (or Generic webhook).
+  2. Fill in credentials → Save settings.
+  3. Edit your test rule → add a phone number in E.164 format (+15551234567).
+  4. Send yourself another email → Run check now.
+  5. Activity Log will show "SMS alert sent to: +1555..." or the provider's
+     error response. Twilio errors usually mean: bad SID/token (HTTP 401),
+     unverified destination on a trial account (21608), or non-E.164 format
+     (21211).
+
+
+--------------------------------------------------------------------------------
+11. Iterating on the code
+--------------------------------------------------------------------------------
+
+After any local edit:
+
+    clasp push
+
+The next trigger fire (or the next "Run check now") uses the new code
+immediately — no redeploy needed for test deployments.
+
+If you change appsscript.json (scopes, manifest), you must re-authorize:
+Apps Script editor → Deploy ▸ Test deployments → Install (it'll prompt for
+the new scopes).
+
+To see live execution logs from the trigger:
+Apps Script editor → "Executions" (left rail) — every runMailCheck run is
+listed with its console output.
+
+
+--------------------------------------------------------------------------------
+12. Cleanup / uninstall
+--------------------------------------------------------------------------------
+
+To remove the add-on:
+  Apps Script editor → Deploy ▸ Test deployments → Uninstall
+
+To delete every trace of stored state from your account:
+  Apps Script editor → Run a one-off function from the editor that calls
+  PropertiesService.getUserProperties().deleteAllProperties()
+  (or just uninstall — the properties are scoped to the script and become
+  inaccessible.)
+
+To delete the Apps Script project entirely:
+  https://script.google.com → find MailAlert → ⋮ → Remove.
+
+
+================================================================================
+Quick reference — what got built
+================================================================================
+
+Files in this directory:
+
+  appsscript.json     Manifest: scopes, homepage trigger, universal actions
+  Code.gs             Add-on entry points (onHomepage, universal actions)
+  Cards.gs            All CardService UI
+  MailWatcher.gs      Time-driven trigger; Gmail polling; seen-ID baselining
+  RuleEvaluator.gs    Gemini REST calls (rule eval + alert formatting)
+  AlertDispatcher.gs  GmailApp.sendEmail + Twilio + generic webhook SMS
+  RulesManager.gs     Rule CRUD in UserProperties
+  SettingsManager.gs  Settings storage + business-hours helper
+  ActivityLog.gs      Ring-buffered activity log
+  Help.html           Help card content
+  README.md           Full project documentation
+  .clasp.json         clasp config (scriptId placeholder until step 2)
+  .claspignore        Limits clasp push to .gs/.html/manifest
+
+State (created at runtime in your Google account, not on disk):
+
+  mailalert.settings  Gemini key, model, poll interval, business hours, SMS
+  mailalert.rules     JSON array of your rules
+  mailalert.seen      Per-label seen-message IDs (so we alert exactly once)
+  mailalert.log       Last ~80 activity log lines
+
+================================================================================

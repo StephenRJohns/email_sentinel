@@ -1,0 +1,39 @@
+{
+  "timeZone": "America/Chicago",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/gmail.addons.execute",
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.labels",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.scriptapp",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ],
+  "addOns": {
+    "common": {
+      "name": "MailAlert",
+      "logoUrl": "https://www.gstatic.com/images/icons/material/system/2x/notifications_active_black_48dp.png",
+      "homepageTrigger": {
+        "runFunction": "onHomepage",
+        "enabled": true
+      },
+      "universalActions": [
+        { "label": "Rules",          "runFunction": "actionShowRules" },
+        { "label": "Settings",       "runFunction": "actionShowSettings" },
+        { "label": "Activity Log",   "runFunction": "actionShowActivity" },
+        { "label": "Help",           "runFunction": "actionShowHelp" },
+        { "label": "Run check now",  "runFunction": "actionRunCheckNow" }
+      ]
+    },
+    "gmail": {
+      "homepageTrigger": {
+        "runFunction": "onHomepage",
+        "enabled": true
+      }
+    }
+  }
+}

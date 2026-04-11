@@ -1,0 +1,5 @@
+# Files NOT to push to Apps Script
+**/**
+!appsscript.json
+!*.gs
+!*.html
