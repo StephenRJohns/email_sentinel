@@ -1,0 +1,201 @@
+================================================================================
+MailAlert — Legal To-Do List
+================================================================================
+
+What's already done (in this repo):
+
+  [x] LICENSE           Proprietary license, all rights reserved
+  [x] TERMS.md          Terms of Service (disclaimers, limitation of liability,
+                         indemnification, acceptable use, governing law)
+  [x] PRIVACY.md        Privacy Policy (data collected, third-party sharing,
+                         retention, GDPR/CCPA, Google API User Data Policy)
+  [x] DISCLAIMER.md     No-warranty, AI accuracy, no-reliance notice
+  [x] Copyright headers  Added to every .gs source file
+  [x] README legal section  Links to all legal docs
+
+
+================================================================================
+What still needs to be done
+================================================================================
+
+Every item below is something a lawyer should review or handle. The templates
+already in this repo are reasonable starting points but are NOT legal counsel.
+
+
+1. HAVE A LAWYER REVIEW EVERYTHING
+---------------------------------------------------------------------------
+   Priority: HIGH — do this before publishing to anyone outside your org.
+
+   • Review LICENSE, TERMS.md, PRIVACY.md, DISCLAIMER.md for completeness
+     and enforceability under your state's law.
+   • Confirm the governing law clause (currently "State of Texas") matches
+     the state of formation/principal office of JJJJJ Enterprises, LLC.
+   • Decide: arbitration clause vs. court jurisdiction for dispute resolution
+     (TERMS.md Section 15 has a placeholder note about this).
+
+
+2. REPLACE PLACEHOLDER CONTACT INFO
+---------------------------------------------------------------------------
+   Priority: HIGH
+
+   Every legal doc currently says:
+     legal@jjjjjenterprises.example  (replace with real address)
+
+   Replace with your real contact email or a legal@ alias.
+
+
+3. GOOGLE WORKSPACE MARKETPLACE — REQUIRED LEGAL DOCS
+---------------------------------------------------------------------------
+   Priority: HIGH (only if you ever plan to list on the Marketplace)
+
+   Google Workspace Marketplace requires:
+   • A publicly accessible Privacy Policy URL
+   • A publicly accessible Terms of Service URL
+   • Compliance with the Google API Services User Data Policy
+     https://developers.google.com/terms/api-services-user-data-policy
+   • OAuth consent screen with a verified domain
+   • App verification (security assessment for sensitive scopes like
+     gmail.modify and gmail.send — Google may require a third-party
+     security assessment, which costs money and takes weeks)
+
+   You need to host TERMS.md and PRIVACY.md at public URLs (even a GitHub
+   Pages site or a page on your company website). The Marketplace listing
+   form asks for these URLs.
+
+
+4. TRADEMARK — "MAILALERT"
+---------------------------------------------------------------------------
+   Priority: MEDIUM
+
+   If you want exclusive rights to the name "MailAlert":
+   • Search the USPTO TESS database (tess2.uspto.gov) to check if
+     "MailAlert" or similar marks are already registered in class 9
+     (software) or class 42 (SaaS).
+   • If clear, file a federal trademark application via the USPTO
+     (currently $250–$350 per class online).
+   • Consider also registering with your state.
+   • Until registered, use "TM" (unregistered trademark claim); switch to
+     "®" only after the USPTO issues the registration.
+
+   Note: "MailAlert" is fairly generic/descriptive. A trademark attorney
+   can advise on likelihood of registration.
+
+
+5. CONTRIBUTOR LICENSE AGREEMENT (CLA)
+---------------------------------------------------------------------------
+   Priority: MEDIUM (only if others will contribute code)
+
+   If anyone besides you (or employees of JJJJJ Enterprises) will submit
+   code, you need a CLA to ensure the LLC owns or has a license to all
+   contributions. Options:
+   • A simple Individual CLA (one-page "I assign copyright to JJJJJ
+     Enterprises for any code I contribute to this project").
+   • Use a CLA bot on GitHub (e.g. cla-assistant.io) to collect signatures
+     automatically before merging PRs.
+
+   Without a CLA, contributors retain copyright to their code, which
+   creates a messy IP situation.
+
+
+6. DMCA AGENT REGISTRATION
+---------------------------------------------------------------------------
+   Priority: LOW (only relevant if you host user-generated content)
+
+   MailAlert doesn't host user content on your servers, so DMCA safe-harbor
+   probably doesn't apply. BUT if you ever add a web portal, user community,
+   or shared rule library, register a DMCA agent at:
+     https://www.copyright.gov/dmca-directory/
+
+   Cost: $6 filing fee, renewed every 3 years.
+
+
+7. EXPORT CONTROL / ENCRYPTION NOTICE
+---------------------------------------------------------------------------
+   Priority: LOW
+
+   The software uses HTTPS (TLS) for all external calls but does not
+   implement its own encryption. Under EAR/BIS rules, using TLS alone
+   typically qualifies for the TSU (Technology and Software Unrestricted)
+   exception, but:
+   • If you ever add end-to-end encryption features, review EAR Part 740.13.
+   • If distributing outside the U.S., verify compliance with the
+     destination country's import rules.
+
+
+8. DATA PROCESSING AGREEMENT (DPA)
+---------------------------------------------------------------------------
+   Priority: LOW (only if selling to enterprise / EU customers)
+
+   GDPR Article 28 requires a DPA between a data controller (your customer)
+   and a data processor (you, if you process their employees' email). Since
+   MailAlert runs entirely in the user's own Google account and you don't
+   operate a backend, you're arguably NOT a data processor — the user is
+   both controller and processor. But enterprise legal teams may still ask
+   for a DPA as a formality. Have one ready.
+
+
+9. ACCEPTABLE USE POLICY (STANDALONE)
+---------------------------------------------------------------------------
+   Priority: LOW
+
+   TERMS.md Section 4 covers acceptable use inline. Some companies prefer a
+   standalone AUP they can update independently without revising the full
+   ToS. Talk to your lawyer about whether to split it out.
+
+
+10. COOKIE / TRACKING POLICY
+---------------------------------------------------------------------------
+    Priority: N/A
+
+    MailAlert sets no cookies and includes no analytics. If you ever add a
+    marketing website, you'll need a cookie banner and policy, but the
+    add-on itself doesn't need one.
+
+
+11. INSURANCE
+---------------------------------------------------------------------------
+    Priority: MEDIUM (not a document, but important legal protection)
+
+    Consider:
+    • Errors & Omissions (E&O) / Professional Liability insurance — covers
+      claims that your software caused financial harm (e.g. a missed alert
+      cost someone money).
+    • Cyber Liability insurance — covers data breach response, notification
+      costs, regulatory fines.
+    • General Commercial Liability — standard business insurance.
+
+    Even with strong disclaimers, insurance is the backstop if someone sues.
+
+
+12. OPEN-SOURCE LICENSING AUDIT
+---------------------------------------------------------------------------
+    Priority: LOW
+
+    MailAlert has no npm dependencies at runtime (it's pure Apps Script),
+    so there are no third-party license obligations to track today. If you
+    ever add bundled libraries, run an audit (e.g. license-checker for npm)
+    to confirm compatibility with your proprietary license.
+
+
+================================================================================
+Summary — in priority order
+================================================================================
+
+  NOW (before publishing):
+    [ ] 1. Lawyer review of LICENSE, TERMS, PRIVACY, DISCLAIMER
+    [ ] 2. Replace placeholder contact info
+    [ ] 3. Host TERMS + PRIVACY at public URLs (for Marketplace listing)
+    [ ] 11. Get E&O / cyber liability insurance quotes
+
+  SOON (before adding contributors or going to market):
+    [ ] 4. Trademark search and filing for "MailAlert"
+    [ ] 5. Set up a CLA (if accepting outside contributions)
+
+  LATER (as the product grows):
+    [ ] 6. DMCA agent registration (if adding user-generated content features)
+    [ ] 7. Export control review (if adding encryption or international sales)
+    [ ] 8. DPA template (if selling to enterprise / EU customers)
+    [ ] 9. Standalone AUP (if preferred over inline ToS section)
+    [ ] 12. Open-source license audit (if adding npm dependencies)
+
+================================================================================

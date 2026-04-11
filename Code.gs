@@ -1,3 +1,6 @@
+// Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
+// Proprietary — see LICENSE for terms.
+
 /**
  * Code.gs — Add-on entry points (homepage triggers and universal actions).
  *

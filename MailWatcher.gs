@@ -1,3 +1,6 @@
+// Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
+// Proprietary — see LICENSE for terms.
+
 /**
  * MailWatcher.gs — Time-driven trigger that polls Gmail labels for new
  * messages and dispatches alerts when a Gemini-evaluated rule matches.

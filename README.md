@@ -20,6 +20,7 @@ This is the Google Workspace port of the original [`bb_mailalerter`](../mailaler
 10. [Privacy and storage](#10-privacy-and-storage)
 11. [Troubleshooting](#11-troubleshooting)
 12. [Why an Add-on instead of a Chrome extension?](#12-why-an-add-on-instead-of-a-chrome-extension)
+13. [Legal](#13-legal)
 
 ---
 
@@ -234,3 +235,18 @@ You can also peek at the trigger execution history in the Apps Script editor und
 A Chrome extension only runs while a Chrome tab is open. The original Python app was a background daemon — the equivalent in Google's world is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings, which is exactly what MailAlert needs.
 
 If you'd rather have an in-Gmail browser-only experience too, the same `.gs` files can also be deployed as a **Gmail Add-on web app** through Google Workspace Marketplace; the manifest is already compatible.
+
+---
+
+## 13. Legal
+
+Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
+
+| Document | Description |
+|---|---|
+| [LICENSE](LICENSE) | Proprietary software license |
+| [TERMS.md](TERMS.md) | Terms of Service |
+| [PRIVACY.md](PRIVACY.md) | Privacy Policy (required for Google Workspace Marketplace) |
+| [DISCLAIMER.md](DISCLAIMER.md) | Warranty disclaimer, AI accuracy, no-reliance notice |
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. See [DISCLAIMER.md](DISCLAIMER.md) and Section 9 of the [Terms of Service](TERMS.md) for details.

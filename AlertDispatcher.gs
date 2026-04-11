@@ -1,3 +1,6 @@
+// Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
+// Proprietary — see LICENSE for terms.
+
 /**
  * AlertDispatcher.gs — Send alerts via Gmail email and (optionally) SMS.
  *

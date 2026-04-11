@@ -1,3 +1,6 @@
+// Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
+// Proprietary — see LICENSE for terms.
+
 /**
  * Cards.gs — All CardService UI for the MailAlert add-on.
  *

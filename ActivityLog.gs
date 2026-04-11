@@ -1,3 +1,6 @@
+// Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
+// Proprietary — see LICENSE for terms.
+
 /**
  * ActivityLog.gs — A small ring-buffer log persisted in UserProperties.
  *

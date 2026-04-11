@@ -1,0 +1,107 @@
+# MailAlert — Privacy Policy
+
+**Effective date:** 2026-04-11
+**Operator:** JJJJJ Enterprises, LLC ("we", "us", "our")
+**Service:** MailAlert, a Google Workspace Add-on for Gmail (the "Service")
+
+This Privacy Policy explains what data the Service accesses, how it is used, and with whom it is shared. By installing or using the Service you consent to the practices described below.
+
+---
+
+## 1. Architecture Summary
+
+MailAlert runs entirely inside your own Google Apps Script environment, under your own Google account credentials. We do not operate any server, database, or backend that receives or stores your data. All persistent data resides in `PropertiesService.getUserProperties()`, which is private to your Google account and script project.
+
+## 2. Data We Access
+
+When you enable the Service, the following data from your Gmail account is accessed during each check cycle:
+
+| Data | How it is used |
+|---|---|
+| **Email metadata** — sender ("From"), subject line, received date, attachment filenames | Read from Gmail messages in labels you configure. Sent to the Google Gemini API for rule evaluation and alert formatting. Included in alert emails and SMS you configure. |
+| **Email body** — first 2,000 characters of the plain-text body | Read from Gmail messages. Sent to the Google Gemini API only. May be summarized in alert emails and SMS if your alert-message format instructs Gemini to include a body summary. |
+| **Gmail message IDs** | Stored in `UserProperties` to distinguish new messages from ones already seen. Not shared with any third party. |
+
+The Service does **not** read or transmit:
+- attachment file contents (only filenames);
+- email body text beyond the first 2,000 characters;
+- email addresses from your contacts list;
+- messages outside the labels you explicitly configure.
+
+## 3. Data You Provide
+
+| Data | Where it is stored |
+|---|---|
+| **Gemini API key** | Encrypted-at-rest in `UserProperties` (per-user, per-script). Sent only to `generativelanguage.googleapis.com` (Google) in HTTPS request headers. |
+| **Twilio credentials** (Account SID, Auth Token, From number) | Encrypted-at-rest in `UserProperties`. Sent only to `api.twilio.com` (Twilio) in HTTPS request headers/body. |
+| **Generic webhook URL** | Stored in `UserProperties`. The Service sends HTTPS POST requests to whatever endpoint you configure. |
+| **Alert recipients** (email addresses, phone numbers) | Stored as part of your rules in `UserProperties`. Email addresses are passed to `GmailApp.sendEmail()`. Phone numbers are passed to your configured SMS provider. |
+| **Rules** (names, label filters, rule text, alert format) | Stored in `UserProperties`. Rule text and alert format instructions are sent to the Google Gemini API. |
+| **Settings** (model choice, poll interval, business hours) | Stored in `UserProperties`. Not shared with any third party. |
+
+## 4. Third-Party Data Sharing
+
+The Service shares data with third-party services only when you explicitly enable the integration:
+
+| Third party | What is shared | When |
+|---|---|---|
+| **Google Gemini API** (`generativelanguage.googleapis.com`) | Email metadata, body excerpt, rule text, alert format prompt | Every time a new email is evaluated against a rule |
+| **Twilio** (`api.twilio.com`) | Recipient phone number, alert message text, Twilio credentials | When a rule matches AND the rule has SMS numbers AND you configured Twilio as your SMS provider |
+| **Generic webhook** (your URL) | Recipient phone number, alert message text | When a rule matches AND the rule has SMS numbers AND you configured a generic webhook |
+| **Gmail** (outgoing email) | Recipient address, alert subject, alert message body | When a rule matches AND the rule has email recipients |
+
+We do not share any data with analytics services, advertising networks, data brokers, or any party not listed above.
+
+## 5. Data Retention
+
+| Data | Retention |
+|---|---|
+| **Rules, settings, credentials** | Stored in `UserProperties` until you delete them or uninstall the add-on |
+| **Activity log** | Last ~80 entries; older entries are automatically overwritten (ring buffer) |
+| **Seen-message IDs** | Per-label set, capped at 200 IDs per label; older IDs are automatically evicted |
+| **Email content** | NOT stored by the Service. Processed in-memory during each check cycle and discarded. |
+
+When you uninstall the add-on via the Apps Script editor ("Test deployments → Uninstall"), the `UserProperties` store associated with the script is no longer accessible from any application.
+
+To explicitly delete all stored data before uninstalling, run the following one-liner in the Apps Script editor:
+```
+PropertiesService.getUserProperties().deleteAllProperties();
+```
+
+## 6. Data Security
+
+- All `UserProperties` values are encrypted at rest by Google.
+- All outbound network calls from the Service use HTTPS (TLS).
+- Your Gemini API key and Twilio credentials are never exposed in the add-on UI after you save them (displayed masked or as "Configured").
+- The Service has no external backend. There is no attack surface beyond your own Google account and the third-party APIs you configure.
+
+## 7. Google API Services User Data Policy
+
+The Service's use and transfer of information received from Google APIs adheres to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements. Specifically:
+
+- The Service only accesses, uses, stores, and shares Google user data for the purposes described in this Privacy Policy and that are necessary to provide or improve the Service.
+- The Service does not use Google user data for advertising.
+- The Service does not transfer Google user data to third parties except as necessary to provide the Service (Gemini rule evaluation, outgoing alerts), as directed by the user, or as required by law.
+
+## 8. Children
+
+The Service is not directed to, and we do not knowingly collect data from, individuals under the age of 18 (or the applicable age of majority in their jurisdiction).
+
+## 9. International Users
+
+Your data is processed by Google (Apps Script, Gemini) and, if you enable SMS, by your chosen SMS provider. Data may be processed in any country where Google or your SMS provider operates data centers. By using the Service you consent to such processing.
+
+If you are located in the European Economic Area (EEA), United Kingdom, or Switzerland, you may have additional rights under the General Data Protection Regulation (GDPR), including the rights of access, rectification, erasure, restriction, and data portability. Because all data is stored in `UserProperties` within your own Google account, you can exercise these rights directly by viewing, editing, or deleting your data through the Apps Script editor.
+
+If you are a California resident, the California Consumer Privacy Act (CCPA/CPRA) grants you similar rights. We do not sell personal information.
+
+## 10. Changes to This Policy
+
+We may update this Privacy Policy from time to time. The "Effective date" at the top will reflect the latest revision. Your continued use of the Service after a change becomes effective constitutes acceptance of the revised policy.
+
+## 11. Contact
+
+For questions about this Privacy Policy or to exercise your data rights, contact:
+
+JJJJJ Enterprises, LLC
+legal@jjjjjenterprises.example  *(replace with a real address)*
