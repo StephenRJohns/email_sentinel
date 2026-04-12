@@ -18,11 +18,29 @@ const DEFAULT_SETTINGS = {
   businessHoursStart: '9:00 AM',
   businessHoursEnd: '9:00 PM',
   smsProvider: 'none',
+  // Textbelt
+  textbeltApiKey: '',
+  // Telnyx
+  telnyxApiKey: '',
+  telnyxFromNumber: '',
+  // Plivo
+  plivoAuthId: '',
+  plivoAuthToken: '',
+  plivoFromNumber: '',
+  // Twilio
   twilioAccountSid: '',
   twilioAuthToken: '',
   twilioFromNumber: '',
+  // ClickSend
+  clicksendUsername: '',
+  clicksendApiKey: '',
+  // Vonage
+  vonageApiKey: '',
+  vonageApiSecret: '',
+  // Generic webhook
   smsWebhookUrl: '',
-  smsToNumbers: '',
+  // SMS test number
+  smsTestNumber: '',
   alertFromAlias: ''
 };
 

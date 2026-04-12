@@ -4,20 +4,121 @@
 /**
  * AlertDispatcher.gs — Send alerts via Gmail email and (optionally) SMS.
  *
- * Email is sent through the running user's own Gmail account via
- * GmailApp.sendEmail — no SMTP server, no app password, nothing to host.
+ * Email: GmailApp.sendEmail — no SMTP server, no app password.
  *
- * SMS uses the user-configured provider. Google does not offer a first-party
- * SMS API, so we support Twilio (most common) plus a generic webhook for
- * other providers (MessageBird, Vonage, AWS SNS via Lambda, self-hosted, ...).
+ * SMS: Google doesn't offer a first-party SMS API, so MailAlert supports
+ * six options. Pick one in Settings → SMS Provider:
+ *
+ *   Provider     Auth method       Needs phone #?   Free trial?
+ *   ─────────────────────────────────────────────────────────────
+ *   Textbelt     API key           No               1 free/day
+ *   Telnyx       API key (Bearer)  Yes ($1/mo)      Free credits
+ *   Plivo        Auth ID + token   Yes ($0.80/mo)   $10 free credit
+ *   Twilio       SID + token       Yes ($1.15/mo)   $15 free credit
+ *   ClickSend    Username + key    No (shared #)    Free trial credits
+ *   Vonage       API key + secret  No (shared #)    €2 free credit
+ *   Webhook      (your endpoint)   (your choice)    N/A
  */
 
-const SMS_PROVIDERS = ['none', 'twilio', 'webhook'];
+const SMS_PROVIDERS = [
+  'none', 'textbelt', 'telnyx', 'plivo', 'twilio', 'clicksend', 'vonage', 'webhook'
+];
+
+const SMS_PROVIDER_INFO = {
+  textbelt: {
+    label: 'Textbelt',
+    cost: '~$0.04/SMS, 1 free/day',
+    signupUrl: 'https://textbelt.com/',
+    needsPhoneNumber: false,
+    fields: ['textbeltApiKey'],
+    setup: [
+      '1. Go to textbelt.com',
+      '2. Click "Get an API key" (or use the free key "textbelt" for 1 msg/day)',
+      '3. Paste the API key below'
+    ]
+  },
+  telnyx: {
+    label: 'Telnyx',
+    cost: '~$0.004/SMS US',
+    signupUrl: 'https://telnyx.com/sign-up',
+    needsPhoneNumber: true,
+    fields: ['telnyxApiKey', 'telnyxFromNumber'],
+    setup: [
+      '1. Sign up at telnyx.com/sign-up',
+      '2. In the portal: Numbers > Buy Numbers > pick a number (~$1/mo)',
+      '3. Go to Auth V2 > API Keys > create a key',
+      '4. Paste the API key and your Telnyx number below'
+    ]
+  },
+  plivo: {
+    label: 'Plivo',
+    cost: '~$0.005/SMS US',
+    signupUrl: 'https://console.plivo.com/accounts/register/',
+    needsPhoneNumber: true,
+    fields: ['plivoAuthId', 'plivoAuthToken', 'plivoFromNumber'],
+    setup: [
+      '1. Sign up at console.plivo.com/accounts/register (free $10 credit)',
+      '2. Dashboard shows Auth ID and Auth Token — copy both',
+      '3. Go to Phone Numbers > Buy Numbers > pick a number (~$0.80/mo)',
+      '4. Paste Auth ID, Auth Token, and the number below'
+    ]
+  },
+  twilio: {
+    label: 'Twilio',
+    cost: '~$0.0079/SMS US',
+    signupUrl: 'https://www.twilio.com/try-twilio',
+    needsPhoneNumber: true,
+    fields: ['twilioAccountSid', 'twilioAuthToken', 'twilioFromNumber'],
+    setup: [
+      '1. Sign up at twilio.com/try-twilio (free $15 credit)',
+      '2. Console shows Account SID and Auth Token — copy both',
+      '3. Go to Phone Numbers > Buy a Number (~$1.15/mo)',
+      '4. Paste Account SID, Auth Token, and the number below'
+    ]
+  },
+  clicksend: {
+    label: 'ClickSend',
+    cost: '~$0.0226/SMS US (volume discounts)',
+    signupUrl: 'https://dashboard.clicksend.com/signup',
+    needsPhoneNumber: false,
+    fields: ['clicksendUsername', 'clicksendApiKey'],
+    setup: [
+      '1. Sign up at dashboard.clicksend.com/signup (free trial credits)',
+      '2. Go to Developers > API Credentials',
+      '3. Username is your email; API key is shown on that page',
+      '4. Paste both below — no phone number purchase needed'
+    ]
+  },
+  vonage: {
+    label: 'Vonage (Nexmo)',
+    cost: '~$0.0068/SMS US',
+    signupUrl: 'https://dashboard.nexmo.com/sign-up',
+    needsPhoneNumber: false,
+    fields: ['vonageApiKey', 'vonageApiSecret'],
+    setup: [
+      '1. Sign up at dashboard.nexmo.com/sign-up (free credits, no CC required)',
+      '2. Dashboard shows API Key and API Secret — copy both',
+      '3. Paste both below — no phone number purchase needed',
+      '(Note: trial messages append "[FREE SMS DEMO]" text)'
+    ]
+  },
+  webhook: {
+    label: 'Generic webhook (custom)',
+    cost: 'Depends on your endpoint',
+    signupUrl: '',
+    needsPhoneNumber: false,
+    fields: ['smsWebhookUrl'],
+    setup: [
+      '1. Set up an HTTPS endpoint that accepts POST requests',
+      '2. MailAlert sends: {"to": "+15551234567", "body": "..."}',
+      '3. Paste the URL below'
+    ]
+  }
+};
 
 function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
   const message = alertContent || matchReason || '';
 
-  // ── Email ──────────────────────────────────────────────────────────────
   const emailAddrs = (rule.alerts.emailAddresses || [])
     .map(s => s.trim()).filter(Boolean);
   if (emailAddrs.length) {
@@ -29,7 +130,6 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
     }
   }
 
-  // ── SMS ────────────────────────────────────────────────────────────────
   const smsNumbers = (rule.alerts.smsNumbers || [])
     .map(s => s.trim()).filter(Boolean);
   if (smsNumbers.length) {
@@ -62,18 +162,103 @@ function sendEmailAlert_(toAddresses, rule, emailData, alertContent, settings) {
 }
 
 function sendSmsAlert_(toNumber, rule, emailData, alertContent, settings) {
-  // SMS bodies are short — keep things to ~600 chars max so two-segment
-  // messages aren't ten segments.
   const text = ('[MailAlert] ' + rule.name + '\n' + alertContent).substring(0, 600);
+  const provider = settings.smsProvider;
+  const dispatch = {
+    textbelt:  sendTextbeltSms_,
+    telnyx:    sendTelnyxSms_,
+    plivo:     sendPlivoSms_,
+    twilio:    sendTwilioSms_,
+    clicksend: sendClickSendSms_,
+    vonage:    sendVonageSms_,
+    webhook:   sendWebhookSms_
+  };
+  const fn = dispatch[provider];
+  if (!fn) throw new Error('Unknown SMS provider: ' + provider);
+  fn(toNumber, text, settings);
+}
 
-  if (settings.smsProvider === 'twilio') {
-    sendTwilioSms_(toNumber, text, settings);
-  } else if (settings.smsProvider === 'webhook') {
-    sendWebhookSms_(toNumber, text, settings);
-  } else {
-    throw new Error('Unknown SMS provider: ' + settings.smsProvider);
+// ── Textbelt ────────────────────────────────────────────────────────────────
+
+function sendTextbeltSms_(toNumber, text, settings) {
+  if (!settings.textbeltApiKey) {
+    throw new Error('Textbelt API key not set. Use "textbelt" for 1 free msg/day or buy a key at textbelt.com.');
+  }
+  const resp = UrlFetchApp.fetch('https://textbelt.com/text', {
+    method: 'post',
+    payload: {
+      phone: toNumber,
+      message: text,
+      key: settings.textbeltApiKey
+    },
+    muteHttpExceptions: true
+  });
+  const code = resp.getResponseCode();
+  const body = resp.getContentText();
+  if (code < 200 || code >= 300) {
+    throw new Error('Textbelt HTTP ' + code + ': ' + body.substring(0, 200));
+  }
+  try {
+    const result = JSON.parse(body);
+    if (!result.success) {
+      throw new Error('Textbelt: ' + (result.error || 'unknown error') +
+        (result.quotaRemaining !== undefined ? ' (quota remaining: ' + result.quotaRemaining + ')' : ''));
+    }
+  } catch (e) {
+    if (e.message.indexOf('Textbelt') === 0) throw e;
   }
 }
+
+// ── Telnyx ──────────────────────────────────────────────────────────────────
+
+function sendTelnyxSms_(toNumber, text, settings) {
+  if (!settings.telnyxApiKey || !settings.telnyxFromNumber) {
+    throw new Error('Telnyx settings incomplete (API key and From number required).');
+  }
+  const resp = UrlFetchApp.fetch('https://api.telnyx.com/v2/messages', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + settings.telnyxApiKey },
+    payload: JSON.stringify({
+      from: settings.telnyxFromNumber,
+      to: toNumber,
+      text: text
+    }),
+    muteHttpExceptions: true
+  });
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error('Telnyx HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
+  }
+}
+
+// ── Plivo ───────────────────────────────────────────────────────────────────
+
+function sendPlivoSms_(toNumber, text, settings) {
+  if (!settings.plivoAuthId || !settings.plivoAuthToken || !settings.plivoFromNumber) {
+    throw new Error('Plivo settings incomplete (Auth ID, Auth Token, and From number required).');
+  }
+  const url = 'https://api.plivo.com/v1/Account/' +
+    encodeURIComponent(settings.plivoAuthId) + '/Message/';
+  const auth = Utilities.base64Encode(settings.plivoAuthId + ':' + settings.plivoAuthToken);
+  const resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Basic ' + auth },
+    payload: JSON.stringify({
+      src: settings.plivoFromNumber,
+      dst: toNumber,
+      text: text
+    }),
+    muteHttpExceptions: true
+  });
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error('Plivo HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
+  }
+}
+
+// ── Twilio ──────────────────────────────────────────────────────────────────
 
 function sendTwilioSms_(toNumber, text, settings) {
   if (!settings.twilioAccountSid || !settings.twilioAuthToken || !settings.twilioFromNumber) {
@@ -82,11 +267,9 @@ function sendTwilioSms_(toNumber, text, settings) {
   const url =
     'https://api.twilio.com/2010-04-01/Accounts/' +
     encodeURIComponent(settings.twilioAccountSid) + '/Messages.json';
-
   const auth = Utilities.base64Encode(
     settings.twilioAccountSid + ':' + settings.twilioAuthToken
   );
-
   const resp = UrlFetchApp.fetch(url, {
     method: 'post',
     headers: { Authorization: 'Basic ' + auth },
@@ -103,6 +286,67 @@ function sendTwilioSms_(toNumber, text, settings) {
   }
 }
 
+// ── ClickSend ───────────────────────────────────────────────────────────────
+
+function sendClickSendSms_(toNumber, text, settings) {
+  if (!settings.clicksendUsername || !settings.clicksendApiKey) {
+    throw new Error('ClickSend settings incomplete (Username and API key required).');
+  }
+  const auth = Utilities.base64Encode(settings.clicksendUsername + ':' + settings.clicksendApiKey);
+  const resp = UrlFetchApp.fetch('https://rest.clicksend.com/v3/sms/send', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Basic ' + auth },
+    payload: JSON.stringify({
+      messages: [{
+        source: 'MailAlert',
+        to: toNumber,
+        body: text
+      }]
+    }),
+    muteHttpExceptions: true
+  });
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error('ClickSend HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
+  }
+}
+
+// ── Vonage (Nexmo) ──────────────────────────────────────────────────────────
+
+function sendVonageSms_(toNumber, text, settings) {
+  if (!settings.vonageApiKey || !settings.vonageApiSecret) {
+    throw new Error('Vonage settings incomplete (API Key and API Secret required).');
+  }
+  const resp = UrlFetchApp.fetch('https://rest.nexmo.com/sms/json', {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      from: 'MailAlert',
+      to: toNumber.replace(/[^0-9]/g, ''),
+      text: text,
+      api_key: settings.vonageApiKey,
+      api_secret: settings.vonageApiSecret
+    }),
+    muteHttpExceptions: true
+  });
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error('Vonage HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
+  }
+  try {
+    const body = JSON.parse(resp.getContentText());
+    const msg = (body.messages || [])[0];
+    if (msg && msg.status !== '0') {
+      throw new Error('Vonage: ' + (msg['error-text'] || 'status ' + msg.status));
+    }
+  } catch (e) {
+    if (e.message.indexOf('Vonage') === 0) throw e;
+  }
+}
+
+// ── Generic webhook ─────────────────────────────────────────────────────────
+
 function sendWebhookSms_(toNumber, text, settings) {
   if (!settings.smsWebhookUrl) {
     throw new Error('Webhook URL not set in Settings → SMS.');
@@ -116,5 +360,20 @@ function sendWebhookSms_(toNumber, text, settings) {
   const code = resp.getResponseCode();
   if (code < 200 || code >= 300) {
     throw new Error('Webhook HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
+  }
+}
+
+// ── Test helper ─────────────────────────────────────────────────────────────
+
+function testSms(toNumber) {
+  const settings = loadSettings();
+  if (settings.smsProvider === 'none' || !settings.smsProvider) {
+    return 'No SMS provider configured. Open Settings → SMS Provider.';
+  }
+  try {
+    sendSmsAlert_(toNumber, { name: 'Test' }, {}, 'This is a test message from MailAlert.', settings);
+    return 'Test SMS sent to ' + toNumber + ' via ' + settings.smsProvider + '.';
+  } catch (e) {
+    return 'Test SMS FAILED: ' + e.message;
   }
 }

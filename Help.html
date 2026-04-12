@@ -2,7 +2,7 @@
 
 <b>Quick start</b><br>
 1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>
-2. (Optional) Configure SMS — pick Twilio or a generic webhook provider and fill in the credentials.<br>
+2. (Optional) Configure SMS — pick a provider in Settings (click <b>SMS setup guide</b> for a comparison).<br>
 3. Open <b>Rules</b> and click <b>+ New rule</b>.<br>
 4. Back on the home card, click <b>Start monitoring</b>. A time-driven trigger will run in the background even when Gmail is closed.<br><br>
 
@@ -19,7 +19,15 @@ Gmail uses labels rather than folders. Use INBOX for the inbox, or any label nam
 
 <b>Alert channels</b><br>
 <b>Email</b> — sent from your own Gmail account. No SMTP server required.<br>
-<b>SMS</b> — Google Workspace doesn't ship an SMS API, so MailAlert delegates to your provider. <b>Twilio</b> works out of the box (paste Account SID, Auth Token, and "From" number in Settings). For other providers (MessageBird, Vonage, AWS SNS, in-house gateway, …) pick the <b>Generic webhook</b> provider and point it at any HTTPS endpoint that accepts a JSON body of {"to":"+15551234567","body":"…"}.<br><br>
+<b>SMS</b> — Google doesn't ship an SMS API, so MailAlert supports six providers natively. Click <b>SMS setup guide</b> in Settings for a full comparison with sign-up links. Quick overview:<br>
+• <b>Textbelt</b> — easiest: 1 free SMS/day with API key "textbelt", no sign-up needed<br>
+• <b>ClickSend</b> — free trial, just username + API key, no phone number needed<br>
+• <b>Vonage</b> — free trial credits, no credit card required<br>
+• <b>Telnyx</b> — cheapest per message (~$0.004/SMS), requires a phone number (~$1/mo)<br>
+• <b>Plivo</b> — $10 free credit, phone number ~$0.80/mo<br>
+• <b>Twilio</b> — most popular, $15 free credit, phone number ~$1.15/mo<br>
+• <b>Generic webhook</b> — POST to any HTTPS endpoint you control<br>
+After configuring, click <b>Send test SMS</b> to verify it works.<br><br>
 
 <b>Business hours</b><br>
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>

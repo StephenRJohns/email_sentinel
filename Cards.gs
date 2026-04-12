@@ -354,19 +354,48 @@ function buildSettingsCard() {
   const smsSection = CardService.newCardSection()
     .setHeader('<b>SMS provider</b>')
     .addWidget(CardService.newTextParagraph().setText(
-      'Google Workspace does not provide a first-party SMS API. Choose a ' +
-      'third-party provider below to enable SMS alerts.'));
+      'Google doesn\'t provide a first-party SMS API. Pick a provider below. ' +
+      'Click <b>SMS setup guide</b> at the bottom for a comparison and sign-up links.'));
   const smsSelect = CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.DROPDOWN)
     .setFieldName('smsProvider')
     .setTitle('Provider');
-  [
-    ['none',    'None (disable SMS)'],
-    ['twilio',  'Twilio'],
-    ['webhook', 'Generic webhook (custom)']
-  ].forEach(([val, label]) => smsSelect.addItem(label, val, s.smsProvider === val));
+  SMS_PROVIDERS.forEach(key => {
+    const info = SMS_PROVIDER_INFO[key];
+    const label = key === 'none' ? 'None (disable SMS)' : info.label + ' (' + info.cost + ')';
+    smsSelect.addItem(label, key, s.smsProvider === key);
+  });
   smsSection.addWidget(smsSelect);
 
+  // Textbelt
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('textbeltApiKey')
+    .setTitle('Textbelt API key')
+    .setHint('Use "textbelt" for 1 free msg/day, or buy at textbelt.com')
+    .setValue(s.textbeltApiKey || ''));
+  // Telnyx
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('telnyxApiKey')
+    .setTitle('Telnyx API key')
+    .setValue(s.telnyxApiKey || ''));
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('telnyxFromNumber')
+    .setTitle('Telnyx "From" number (E.164)')
+    .setValue(s.telnyxFromNumber || ''));
+  // Plivo
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('plivoAuthId')
+    .setTitle('Plivo Auth ID')
+    .setValue(s.plivoAuthId || ''));
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('plivoAuthToken')
+    .setTitle('Plivo Auth Token')
+    .setValue(s.plivoAuthToken || ''));
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('plivoFromNumber')
+    .setTitle('Plivo "From" number (E.164)')
+    .setValue(s.plivoFromNumber || ''));
+  // Twilio
   smsSection.addWidget(CardService.newTextInput()
     .setFieldName('twilioAccountSid')
     .setTitle('Twilio Account SID')
@@ -377,13 +406,38 @@ function buildSettingsCard() {
     .setValue(s.twilioAuthToken || ''));
   smsSection.addWidget(CardService.newTextInput()
     .setFieldName('twilioFromNumber')
-    .setTitle('Twilio "From" number (E.164: +15551234567)')
+    .setTitle('Twilio "From" number (E.164)')
     .setValue(s.twilioFromNumber || ''));
+  // ClickSend
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('clicksendUsername')
+    .setTitle('ClickSend username (your email)')
+    .setValue(s.clicksendUsername || ''));
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('clicksendApiKey')
+    .setTitle('ClickSend API key')
+    .setValue(s.clicksendApiKey || ''));
+  // Vonage
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('vonageApiKey')
+    .setTitle('Vonage API key')
+    .setValue(s.vonageApiKey || ''));
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('vonageApiSecret')
+    .setTitle('Vonage API secret')
+    .setValue(s.vonageApiSecret || ''));
+  // Webhook
   smsSection.addWidget(CardService.newTextInput()
     .setFieldName('smsWebhookUrl')
-    .setTitle('Generic webhook URL (for "Generic webhook" provider)')
+    .setTitle('Generic webhook URL')
     .setHint('Receives POST {"to": "+15551234567", "body": "..."}')
     .setValue(s.smsWebhookUrl || ''));
+  // Test number
+  smsSection.addWidget(CardService.newTextInput()
+    .setFieldName('smsTestNumber')
+    .setTitle('Test phone number (for Send test SMS button)')
+    .setHint('E.164 format: +15551234567')
+    .setValue(s.smsTestNumber || ''));
 
   const aliasSection = CardService.newCardSection()
     .setHeader('<b>Alert "From" name</b>')
@@ -392,17 +446,25 @@ function buildSettingsCard() {
       .setTitle('Display name on outgoing email alerts')
       .setValue(s.alertFromAlias || 'MailAlert'));
 
-  const buttons = CardService.newCardSection().addWidget(CardService.newButtonSet()
-    .addButton(CardService.newTextButton()
-      .setText('Save settings')
-      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-      .setOnClickAction(action_('handleSaveSettings')))
-    .addButton(CardService.newTextButton()
-      .setText('Test Gemini')
-      .setOnClickAction(action_('handleTestGemini')))
-    .addButton(CardService.newTextButton()
-      .setText('Reset baseline')
-      .setOnClickAction(action_('handleResetBaseline'))));
+  const buttons = CardService.newCardSection()
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Save settings')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(action_('handleSaveSettings')))
+      .addButton(CardService.newTextButton()
+        .setText('Test Gemini')
+        .setOnClickAction(action_('handleTestGemini'))))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Send test SMS')
+        .setOnClickAction(action_('handleTestSms')))
+      .addButton(CardService.newTextButton()
+        .setText('SMS setup guide')
+        .setOnClickAction(action_('handleShowSmsGuide')))
+      .addButton(CardService.newTextButton()
+        .setText('Reset baseline')
+        .setOnClickAction(action_('handleResetBaseline'))));
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Settings'))
@@ -436,10 +498,21 @@ function handleSaveSettings(e) {
     businessHoursStart: get('businessHoursStart') || '9:00 AM',
     businessHoursEnd: get('businessHoursEnd') || '9:00 PM',
     smsProvider: get('smsProvider') || 'none',
+    textbeltApiKey: get('textbeltApiKey'),
+    telnyxApiKey: get('telnyxApiKey'),
+    telnyxFromNumber: get('telnyxFromNumber'),
+    plivoAuthId: get('plivoAuthId'),
+    plivoAuthToken: get('plivoAuthToken'),
+    plivoFromNumber: get('plivoFromNumber'),
     twilioAccountSid: get('twilioAccountSid'),
     twilioAuthToken: get('twilioAuthToken'),
     twilioFromNumber: get('twilioFromNumber'),
+    clicksendUsername: get('clicksendUsername'),
+    clicksendApiKey: get('clicksendApiKey'),
+    vonageApiKey: get('vonageApiKey'),
+    vonageApiSecret: get('vonageApiSecret'),
     smsWebhookUrl: get('smsWebhookUrl'),
+    smsTestNumber: get('smsTestNumber'),
     alertFromAlias: get('alertFromAlias') || 'MailAlert'
   };
 
@@ -477,9 +550,85 @@ function handleTestGemini(e) {
   return notificationResponse_('Gemini test failed — see Activity Log.');
 }
 
+function handleTestSms(e) {
+  const s = loadSettings();
+  if (s.smsProvider === 'none' || !s.smsProvider) {
+    return notificationResponse_('No SMS provider selected. Choose one, save, then test.');
+  }
+  if (!s.smsTestNumber) {
+    return notificationResponse_('Enter a test phone number in the Settings SMS section first.');
+  }
+  const result = testSms(s.smsTestNumber);
+  return notificationResponse_(result);
+}
+
+function handleShowSmsGuide(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(buildSmsGuideCard()))
+    .build();
+}
+
 function handleResetBaseline(e) {
   resetSeen();
   return notificationResponse_('Seen-mail baseline cleared.');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SMS Setup Guide card
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildSmsGuideCard() {
+  const card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('SMS provider guide'));
+
+  // Comparison table as text
+  card.addSection(CardService.newCardSection()
+    .setHeader('<b>Which provider should I pick?</b>')
+    .addWidget(CardService.newTextParagraph().setText(
+      '<b>Easiest to start (no phone number needed):</b><br>' +
+      '1. <b>Textbelt</b> — 1 free SMS/day with key "textbelt", or buy more at textbelt.com<br>' +
+      '2. <b>ClickSend</b> — free trial credits, just username + API key<br>' +
+      '3. <b>Vonage</b> — free credits, no credit card for trial<br><br>' +
+      '<b>Cheapest per message (need to buy a phone number):</b><br>' +
+      '4. <b>Telnyx</b> — ~$0.004/SMS, number ~$1/mo<br>' +
+      '5. <b>Plivo</b> — ~$0.005/SMS, number ~$0.80/mo, $10 free credit<br>' +
+      '6. <b>Twilio</b> — ~$0.0079/SMS, number ~$1.15/mo, $15 free credit<br><br>' +
+      '<b>Already have your own SMS gateway?</b><br>' +
+      '7. <b>Generic webhook</b> — POST to any HTTPS endpoint you control'
+    )));
+
+  // Per-provider sections with sign-up links and step-by-step
+  var providers = ['textbelt', 'telnyx', 'plivo', 'twilio', 'clicksend', 'vonage', 'webhook'];
+  providers.forEach(function(key) {
+    var info = SMS_PROVIDER_INFO[key];
+    var section = CardService.newCardSection()
+      .setHeader('<b>' + info.label + '</b> — ' + info.cost);
+
+    var steps = info.setup.join('<br>');
+    section.addWidget(CardService.newTextParagraph().setText(steps));
+
+    if (info.signupUrl) {
+      section.addWidget(CardService.newTextButton()
+        .setText('Open ' + info.label + ' sign-up page')
+        .setOpenLink(CardService.newOpenLink()
+          .setUrl(info.signupUrl)
+          .setOpenAs(CardService.OpenAs.FULL_SIZE)));
+    }
+    card.addSection(section);
+  });
+
+  // Tips section
+  card.addSection(CardService.newCardSection()
+    .setHeader('<b>Tips</b>')
+    .addWidget(CardService.newTextParagraph().setText(
+      '• Phone numbers everywhere must be in E.164 format: +15551234567<br>' +
+      '• Most providers have a free trial — start there before committing<br>' +
+      '• After entering credentials, click <b>Save settings</b> then <b>Send test SMS</b><br>' +
+      '• If the test fails, check the Activity Log for the provider\'s error message<br>' +
+      '• You only need to fill in the fields for your chosen provider — the rest are ignored'
+    )));
+
+  return card.build();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -193,12 +193,27 @@ Sent via `GmailApp.sendEmail` from your own Gmail account. The display name on t
 > **Quota:** consumer Gmail allows ~100 outgoing add-on emails/day; Workspace allows ~1,500/day. MailAlert is well under this for normal use.
 
 ### SMS
-Google Workspace does not provide a first-party SMS API, so MailAlert lets you plug in your own provider:
+Google Workspace does not provide a first-party SMS API, so MailAlert ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
 
-- **Twilio** — paste Account SID, Auth Token, and a verified "From" number. MailAlert posts to `https://api.twilio.com/2010-04-01/Accounts/{SID}/Messages.json`.
-- **Generic webhook** — for MessageBird, Vonage, AWS SNS via Lambda, an in-house gateway, etc. MailAlert POSTs JSON of the form `{"to": "+15551234567", "body": "..."}` to whatever URL you configure.
+| Provider | Cost (US domestic) | Phone # needed? | Free trial? | Auth method |
+|---|---|---|---|---|
+| **Textbelt** | ~$0.04/SMS | No | 1 free/day (key: `textbelt`) | API key |
+| **Telnyx** | ~$0.004/SMS | Yes (~$1/mo) | Free credits | Bearer token |
+| **Plivo** | ~$0.005/SMS | Yes (~$0.80/mo) | $10 free credit | Basic auth |
+| **Twilio** | ~$0.0079/SMS | Yes (~$1.15/mo) | $15 free credit | Basic auth |
+| **ClickSend** | ~$0.0226/SMS | No | Free trial credits | Basic auth |
+| **Vonage** | ~$0.0068/SMS | No | Free credits (no CC) | API key + secret |
+| **Generic webhook** | (your endpoint) | (your choice) | N/A | (your choice) |
+
+**Recommendations:**
+- **Quickest start (no sign-up):** Textbelt with the free key `textbelt` — 1 free SMS/day, no account needed.
+- **Cheapest at scale:** Telnyx (~$0.004/SMS), then Plivo (~$0.005/SMS).
+- **No phone number to manage:** Textbelt, ClickSend, or Vonage send from a shared/system number.
+- **Already have an SMS gateway:** Generic webhook POSTs `{"to": "+15551234567", "body": "..."}` to any HTTPS URL.
 
 Phone numbers in rules and settings should be in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+15551234567`.
+
+After configuring a provider in Settings, click **Send test SMS** to verify it works.
 
 ---
 
@@ -206,7 +221,7 @@ Phone numbers in rules and settings should be in [E.164 format](https://en.wikip
 
 | What | Where it lives |
 |---|---|
-| Your Gemini API key, Twilio credentials, rules, seen-mail baseline, activity log | `PropertiesService.getUserProperties()` — per-user, per-script, private |
+| Your Gemini API key, SMS provider credentials, rules, seen-mail baseline, activity log | `PropertiesService.getUserProperties()` — per-user, per-script, private |
 | Email contents (sender, subject, body excerpt, attachment names) | Sent to **Gemini** for evaluation; sent to **your SMS provider** as part of the alert body if SMS is enabled. Not sent anywhere else. |
 | Outgoing alert emails | Sent from your own Gmail account |
 

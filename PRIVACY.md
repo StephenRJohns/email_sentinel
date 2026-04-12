@@ -46,7 +46,7 @@ The Service shares data with third-party services only when you explicitly enabl
 | Third party | What is shared | When |
 |---|---|---|
 | **Google Gemini API** (`generativelanguage.googleapis.com`) | Email metadata, body excerpt, rule text, alert format prompt | Every time a new email is evaluated against a rule |
-| **Twilio** (`api.twilio.com`) | Recipient phone number, alert message text, Twilio credentials | When a rule matches AND the rule has SMS numbers AND you configured Twilio as your SMS provider |
+| **SMS provider** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, or Vonage — whichever you choose) | Recipient phone number, alert message text, your provider credentials | When a rule matches AND the rule has SMS numbers AND you have configured an SMS provider |
 | **Generic webhook** (your URL) | Recipient phone number, alert message text | When a rule matches AND the rule has SMS numbers AND you configured a generic webhook |
 | **Gmail** (outgoing email) | Recipient address, alert subject, alert message body | When a rule matches AND the rule has email recipients |
 
@@ -72,7 +72,7 @@ PropertiesService.getUserProperties().deleteAllProperties();
 
 - All `UserProperties` values are encrypted at rest by Google.
 - All outbound network calls from the Service use HTTPS (TLS).
-- Your Gemini API key and Twilio credentials are never exposed in the add-on UI after you save them (displayed masked or as "Configured").
+- Your Gemini API key and SMS provider credentials are never exposed in the add-on UI after you save them (displayed masked or as "Configured").
 - The Service has no external backend. There is no attack surface beyond your own Google account and the third-party APIs you configure.
 
 ## 7. Google API Services User Data Policy

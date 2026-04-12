@@ -18,184 +18,481 @@ What's already done (in this repo):
 What still needs to be done
 ================================================================================
 
-Every item below is something a lawyer should review or handle. The templates
-already in this repo are reasonable starting points but are NOT legal counsel.
+Each item below is tagged:
+
+  [DIY]     You can do this yourself, right now, no special skills needed.
+  [ONLINE]  You can do this yourself through an online service or government
+            website — no lawyer required, but follow the steps carefully.
+  [LAWYER]  You need a lawyer for this one. The "what to ask for" section
+            tells you exactly what to say when you contact them.
 
 
-1. HAVE A LAWYER REVIEW EVERYTHING
----------------------------------------------------------------------------
-   Priority: HIGH — do this before publishing to anyone outside your org.
-
-   • Review LICENSE, TERMS.md, PRIVACY.md, DISCLAIMER.md for completeness
-     and enforceability under your state's law.
-   • Confirm the governing law clause (currently "State of Texas") matches
-     the state of formation/principal office of JJJJJ Enterprises, LLC.
-   • Decide: arbitration clause vs. court jurisdiction for dispute resolution
-     (TERMS.md Section 15 has a placeholder note about this).
-
-
-2. REPLACE PLACEHOLDER CONTACT INFO
----------------------------------------------------------------------------
+================================================================================
+1. REPLACE PLACEHOLDER CONTACT INFO
+================================================================================
    Priority: HIGH
+   Who: [DIY] — 10 minutes, text editor
 
    Every legal doc currently says:
      legal@jjjjjenterprises.example  (replace with real address)
 
-   Replace with your real contact email or a legal@ alias.
+   What to do:
+     1. Decide on a contact email. Options:
+        - A real email like legal@yourdomain.com
+        - A forwarding alias (Google Workspace lets you create these free)
+        - Even a personal email works, but a legal@ alias looks more legit
+     2. Find-and-replace "legal@jjjjjenterprises.example" across these files:
+        - LICENSE
+        - TERMS.md
+        - PRIVACY.md
+     3. Also update "JJJJJ Enterprises, LLC" if that's a placeholder too,
+        and confirm "State of Texas" in TERMS.md matches where the LLC is
+        actually formed.
 
 
-3. GOOGLE WORKSPACE MARKETPLACE — REQUIRED LEGAL DOCS
----------------------------------------------------------------------------
-   Priority: HIGH (only if you ever plan to list on the Marketplace)
+================================================================================
+2. HOST TERMS + PRIVACY AT PUBLIC URLs
+================================================================================
+   Priority: HIGH (required before Marketplace listing)
+   Who: [DIY] — 30 minutes if using GitHub Pages, longer if building a site
 
-   Google Workspace Marketplace requires:
-   • A publicly accessible Privacy Policy URL
-   • A publicly accessible Terms of Service URL
-   • Compliance with the Google API Services User Data Policy
-     https://developers.google.com/terms/api-services-user-data-policy
-   • OAuth consent screen with a verified domain
-   • App verification (security assessment for sensitive scopes like
-     gmail.modify and gmail.send — Google may require a third-party
-     security assessment, which costs money and takes weeks)
+   Google Workspace Marketplace requires publicly accessible URLs for your
+   Privacy Policy and Terms of Service. They won't accept "see GitHub repo."
 
-   You need to host TERMS.md and PRIVACY.md at public URLs (even a GitHub
-   Pages site or a page on your company website). The Marketplace listing
-   form asks for these URLs.
+   Option A — GitHub Pages (free, easiest):
+     1. Go to your mailalert repo → Settings → Pages
+     2. Set source to "Deploy from a branch" → main → / (root)
+     3. GitHub will serve your repo at:
+          https://stephenrjohns.github.io/mailalert/
+     4. Your URLs become:
+          https://stephenrjohns.github.io/mailalert/TERMS
+          https://stephenrjohns.github.io/mailalert/PRIVACY
+        (GitHub Pages renders .md files as HTML automatically if you add
+        a Jekyll front matter line or rename them to .html — or just link
+        to the GitHub rendered view of the .md file)
+     5. Simpler: just use the GitHub raw rendered URLs:
+          https://github.com/StephenRJohns/mailalert/blob/main/TERMS.md
+          https://github.com/StephenRJohns/mailalert/blob/main/PRIVACY.md
+        These are publicly visible and work for Marketplace review.
+
+   Option B — Your own website:
+     1. Copy TERMS.md and PRIVACY.md content to pages on your site.
+     2. Use whatever URL structure you want.
+
+   Option C — Free hosted legal page services:
+     - Termly (termly.io) — free tier, generates hosted pages with a URL
+     - iubenda (iubenda.com) — same idea
+     These are fine but mean your legal docs live on someone else's site.
 
 
+================================================================================
+3. GOOGLE WORKSPACE MARKETPLACE — APP VERIFICATION
+================================================================================
+   Priority: HIGH (only if listing on Marketplace)
+   Who: [ONLINE] — you do most of this yourself through Google's console,
+        but the security assessment part may require a paid third-party firm
+
+   Steps you do yourself:
+     1. Go to Google Cloud Console → APIs & Services → OAuth consent screen
+     2. Fill in app name, support email, developer contact, privacy policy
+        URL, terms of service URL (from step 2 above)
+     3. Add the scopes from appsscript.json
+     4. Submit for verification
+
+   What Google may require:
+     - For sensitive scopes (gmail.modify, gmail.send, gmail.readonly):
+       Google will likely require a security assessment by an approved
+       third-party assessor. Current approved firms are listed at:
+         https://support.google.com/cloud/answer/9110914
+     - Cost: typically $2,000–$15,000 depending on the assessor and scope.
+     - Timeline: 2–6 weeks for the assessment, then Google's review on top.
+
+   You do NOT need a lawyer for this — it's a technical/process step. But
+   if Google's reviewer asks about your privacy policy or data handling,
+   having a lawyer-reviewed PRIVACY.md makes that go smoothly.
+
+
+================================================================================
 4. TRADEMARK — "MAILALERT"
----------------------------------------------------------------------------
+================================================================================
    Priority: MEDIUM
+   Who: Steps 1-2 are [ONLINE] (you do it yourself). Step 3 depends on
+        what you find — may need [LAWYER] if it's complicated.
 
-   If you want exclusive rights to the name "MailAlert":
-   • Search the USPTO TESS database (tess2.uspto.gov) to check if
-     "MailAlert" or similar marks are already registered in class 9
-     (software) or class 42 (SaaS).
-   • If clear, file a federal trademark application via the USPTO
-     (currently $250–$350 per class online).
-   • Consider also registering with your state.
-   • Until registered, use "TM" (unregistered trademark claim); switch to
-     "®" only after the USPTO issues the registration.
+   Step 1 — Search (free, do it yourself):
+     1. Go to https://tess2.uspto.gov (USPTO trademark search)
+     2. Click "Basic Word Mark Search (New User)"
+     3. Search for: MailAlert
+     4. Also search for: Mail Alert (two words)
+     5. Look at results in International Class 009 (software) and
+        International Class 042 (SaaS / software services)
+     6. If you find existing registrations that are live (not dead/cancelled)
+        and cover software — that's a conflict. Stop and talk to a lawyer.
+     7. If the search comes back clean or only shows dead marks, proceed.
 
-   Note: "MailAlert" is fairly generic/descriptive. A trademark attorney
-   can advise on likelihood of registration.
+   Step 2 — File the application yourself (if search is clean):
+     1. Go to https://www.uspto.gov/trademarks/apply
+     2. Choose TEAS Standard ($350/class) or TEAS Plus ($250/class,
+        more restrictive on goods/services description)
+     3. You'll need:
+        - The mark: "MailAlert" (standard characters)
+        - Owner: JJJJJ Enterprises, LLC
+        - Class: 009 (computer software) and/or 042 (SaaS)
+        - Goods/services description, e.g.: "Downloadable computer
+          software in the nature of a Gmail add-on for monitoring email
+          and sending alerts based on user-defined rules"
+        - Filing basis: 1(a) "use in commerce" if the product is live,
+          or 1(b) "intent to use" if not yet launched
+        - A specimen showing the mark in use (screenshot of the add-on
+          with "MailAlert" visible) — required for 1(a), deferred for 1(b)
+     4. Pay and submit. Timeline: 3-4 months for an examining attorney
+        to review. If approved, published for 30-day opposition period.
+        Total timeline to registration: 8-12 months if no issues.
+
+   Step 3 — When you need a lawyer:
+     If you get an "Office Action" (rejection or request for clarification)
+     from the USPTO examining attorney, that's when to call a trademark
+     attorney. Common issues:
+       - "Likelihood of confusion" with an existing mark
+       - "Merely descriptive" refusal (MailAlert describes what it does)
+     A trademark attorney typically charges $500–$1,500 to respond to an
+     Office Action.
+
+   What to ask a trademark lawyer:
+     "I want to register the trademark 'MailAlert' for a Gmail add-on
+     that monitors email and sends alerts. The LLC is JJJJJ Enterprises.
+     I've done a TESS search and [found / didn't find] potential conflicts.
+     Can you:
+       (a) do a comprehensive search (including common law and state marks),
+       (b) advise on whether the mark is registrable given it may be
+           considered descriptive, and
+       (c) file the application and handle any Office Actions?"
 
 
-5. CONTRIBUTOR LICENSE AGREEMENT (CLA)
----------------------------------------------------------------------------
+================================================================================
+5. HAVE A LAWYER REVIEW THE LEGAL DOCS
+================================================================================
+   Priority: HIGH (before publishing to anyone outside your org)
+   Who: [LAWYER]
+
+   The LICENSE, TERMS.md, PRIVACY.md, and DISCLAIMER.md in this repo are
+   AI-generated templates. They cover the right topics but have not been
+   reviewed by a licensed attorney. A lawyer needs to:
+     - Confirm they're enforceable in your state
+     - Tighten language that may be too vague
+     - Add anything specific to your business situation
+
+   What to ask for (send them the four files and say this):
+
+     "I operate a Google Workspace Gmail Add-on called MailAlert through
+     my LLC (JJJJJ Enterprises, LLC, formed in [STATE]). The add-on runs
+     inside the user's own Google account — I don't operate a backend or
+     store user data on my servers. It reads their Gmail, sends email
+     content to the Google Gemini API for AI evaluation, and can send
+     alerts via the user's Gmail and optionally via Twilio SMS.
+
+     I need you to review and finalize these four documents:
+
+     1. LICENSE — Proprietary software license. Confirm it's enforceable
+        and that making the source code publicly visible on GitHub does
+        NOT constitute an implied license grant.
+
+     2. TERMS.md — Terms of Service. Specifically:
+        - Is the limitation of liability cap ($100) appropriate and
+          enforceable in [STATE]?
+        - Should I use an arbitration clause instead of court jurisdiction
+          (Section 15)? What are the tradeoffs?
+        - Is the indemnification clause (Section 11) enforceable against
+          consumers in [STATE]?
+        - Are there any mandatory consumer protection disclosures required
+          in [STATE] that I'm missing?
+
+     3. PRIVACY.md — Privacy Policy. Specifically:
+        - Does it satisfy Google's API Services User Data Policy
+          (the 'Limited Use' requirements)?
+        - Is the GDPR section adequate, or do I need a more detailed
+          data processing description if EU users install it?
+        - Does the CCPA section need a 'Do Not Sell My Personal
+          Information' link even though I don't sell data?
+
+     4. DISCLAIMER.md — No-warranty / AI accuracy disclaimer. Specifically:
+        - Is the AI accuracy disclaimer strong enough to protect against
+          a claim that a missed alert caused harm?
+        - Should the 'no life-safety use' prohibition be in a separate
+          click-through agreement?
+
+     My budget for this review is roughly [$$$ - state your budget].
+     Please quote a flat fee to review, mark up, and finalize all four."
+
+   Where to find a lawyer:
+     - LegalZoom (legalzoom.com) — attorney review packages, $200-$500
+       for document review
+     - Rocket Lawyer (rocketlawyer.com) — similar, subscription model
+     - Your state bar association's lawyer referral service (usually a
+       $35 consultation fee): google "[STATE] bar lawyer referral"
+     - Upwork / Contra — freelance attorneys, $100-$300/hr, good for
+       one-off reviews
+     - If you already have a business attorney from forming the LLC,
+       start there
+
+   Expected cost: $300–$1,500 depending on the attorney and thoroughness.
+
+
+================================================================================
+6. CONTRIBUTOR LICENSE AGREEMENT (CLA)
+================================================================================
    Priority: MEDIUM (only if others will contribute code)
+   Who: [ONLINE] — you can set this up yourself using a free service
 
-   If anyone besides you (or employees of JJJJJ Enterprises) will submit
-   code, you need a CLA to ensure the LLC owns or has a license to all
-   contributions. Options:
-   • A simple Individual CLA (one-page "I assign copyright to JJJJJ
-     Enterprises for any code I contribute to this project").
-   • Use a CLA bot on GitHub (e.g. cla-assistant.io) to collect signatures
-     automatically before merging PRs.
+   If nobody else will ever commit code, skip this entirely.
 
-   Without a CLA, contributors retain copyright to their code, which
-   creates a messy IP situation.
+   If you want to accept contributions:
+
+   Option A — Use CLA Assistant (free, GitHub-integrated):
+     1. Go to https://cla-assistant.io
+     2. Sign in with GitHub
+     3. Link your StephenRJohns/mailalert repo
+     4. It will ask you to provide the CLA text. Use this template:
+
+        ---
+        Individual Contributor License Agreement
+
+        By submitting a pull request or other contribution ("Contribution")
+        to the MailAlert project, you agree to the following terms:
+
+        1. You grant JJJJJ Enterprises, LLC a perpetual, worldwide,
+           non-exclusive, royalty-free, irrevocable license to use,
+           reproduce, modify, distribute, sublicense, and otherwise
+           exploit your Contribution, in any form, for any purpose.
+
+        2. You represent that you are the sole author of the Contribution
+           and have the legal right to grant this license.
+
+        3. You understand that your Contribution will be incorporated into
+           proprietary software and that you will receive no compensation.
+        ---
+
+     5. Every PR author will be asked to sign before merging.
+
+   Option B — A lawyer writes a proper CLA:
+     Only needed if you expect corporate contributors or want assignment
+     (full copyright transfer) instead of a license grant.
+
+     What to ask a lawyer:
+       "I need a Contributor License Agreement for my proprietary software
+       project. Contributors submit code via GitHub pull requests. I want
+       [copyright assignment / a broad license grant] so that JJJJJ
+       Enterprises, LLC owns or can freely use all contributed code.
+       Please draft an individual CLA and a corporate CLA."
+
+     Expected cost: $300–$800.
 
 
-6. DMCA AGENT REGISTRATION
----------------------------------------------------------------------------
-   Priority: LOW (only relevant if you host user-generated content)
+================================================================================
+7. INSURANCE
+================================================================================
+   Priority: MEDIUM
+   Who: [ONLINE] — you buy this yourself through an insurance broker or
+        online portal. No lawyer needed.
 
-   MailAlert doesn't host user content on your servers, so DMCA safe-harbor
-   probably doesn't apply. BUT if you ever add a web portal, user community,
-   or shared rule library, register a DMCA agent at:
-     https://www.copyright.gov/dmca-directory/
+   What to get:
+     a) Errors & Omissions (E&O) / Professional Liability
+        - Covers claims that your software caused financial harm
+          (e.g. "your add-on missed an alert and I lost a deal")
+        - Typical cost for a small software LLC: $500–$1,500/year
+        - Typical coverage: $1M per occurrence / $2M aggregate
 
-   Cost: $6 filing fee, renewed every 3 years.
+     b) Cyber Liability (optional, but smart)
+        - Covers data breach response, notification costs, regulatory fines
+        - Typical cost: $500–$1,000/year for a small software LLC
+        - Less critical for MailAlert since you don't store user data,
+          but still protects if a Twilio key leak or similar occurs
+
+   Where to buy:
+     - Hiscox (hiscox.com) — online quotes for tech/software businesses,
+       you can get a quote and buy in 15 minutes
+     - Hartford (thehartford.com) — same
+     - Embroker (embroker.com) — specializes in tech startups
+     - A local insurance broker — they shop multiple carriers for you
+
+   Steps:
+     1. Go to one of the above sites
+     2. Select "Technology" or "Software" as your business type
+     3. Select "Errors & Omissions / Professional Liability"
+     4. Fill in: revenue (even if $0 right now), number of employees,
+        what the software does (email monitoring add-on)
+     5. Get a quote → buy the policy → save the certificate of insurance
 
 
-7. EXPORT CONTROL / ENCRYPTION NOTICE
----------------------------------------------------------------------------
+================================================================================
+8. DMCA AGENT REGISTRATION
+================================================================================
+   Priority: LOW (only if you add user-generated content features later)
+   Who: [ONLINE] — you file it yourself on a government website
+
+   Not needed today. MailAlert doesn't host any user content on your
+   servers. Only do this if you later add a shared rule library, community
+   portal, or any feature where users publish content you host.
+
+   When the time comes:
+     1. Go to https://www.copyright.gov/dmca-directory/
+     2. Create an account
+     3. Fill in the form: your LLC name, the DMCA agent's name and email
+        (can be you), the service provider name (MailAlert)
+     4. Pay the $6 filing fee
+     5. Renew every 3 years
+     6. Add a DMCA notice procedure to your TERMS.md (a section that says
+        "to report copyright infringement, send a notice to [email] with
+        [required DMCA elements]")
+
+
+================================================================================
+9. EXPORT CONTROL / ENCRYPTION NOTICE
+================================================================================
    Priority: LOW
+   Who: [DIY] for the self-classification. [LAWYER] if you add real
+        encryption features later.
 
-   The software uses HTTPS (TLS) for all external calls but does not
-   implement its own encryption. Under EAR/BIS rules, using TLS alone
-   typically qualifies for the TSU (Technology and Software Unrestricted)
-   exception, but:
-   • If you ever add end-to-end encryption features, review EAR Part 740.13.
-   • If distributing outside the U.S., verify compliance with the
-     destination country's import rules.
+   Current status: MailAlert uses HTTPS (TLS) for all external calls but
+   does not implement its own encryption. Under BIS/EAR rules, using only
+   standard TLS libraries qualifies for the TSU exception (EAR 740.13(e)).
+   No filing is required.
 
+   What you can do yourself right now:
+     Nothing — you're already in the clear. Just don't add custom
+     encryption (AES, PGP, etc.) without revisiting this.
 
-8. DATA PROCESSING AGREEMENT (DPA)
----------------------------------------------------------------------------
-   Priority: LOW (only if selling to enterprise / EU customers)
+   When you'd need a lawyer:
+     If you later add end-to-end encryption for stored rules, encrypted
+     backup/export, or PGP-signed alerts. At that point:
 
-   GDPR Article 28 requires a DPA between a data controller (your customer)
-   and a data processor (you, if you process their employees' email). Since
-   MailAlert runs entirely in the user's own Google account and you don't
-   operate a backend, you're arguably NOT a data processor — the user is
-   both controller and processor. But enterprise legal teams may still ask
-   for a DPA as a formality. Have one ready.
+     What to ask:
+       "I'm adding [describe encryption feature] to my software product.
+       It's distributed as a Google Workspace Add-on, potentially to users
+       outside the U.S. Do I need a BIS self-classification (CCATS) or an
+       encryption registration? What ECCN does this fall under?"
 
-
-9. ACCEPTABLE USE POLICY (STANDALONE)
----------------------------------------------------------------------------
-   Priority: LOW
-
-   TERMS.md Section 4 covers acceptable use inline. Some companies prefer a
-   standalone AUP they can update independently without revising the full
-   ToS. Talk to your lawyer about whether to split it out.
+     Expected cost: $500–$2,000 for an export control opinion letter.
 
 
-10. COOKIE / TRACKING POLICY
----------------------------------------------------------------------------
-    Priority: N/A
+================================================================================
+10. DATA PROCESSING AGREEMENT (DPA)
+================================================================================
+    Priority: LOW (only if selling to enterprise or EU customers)
+    Who: [LAWYER] — a DPA is a legal contract, not a checkbox
 
-    MailAlert sets no cookies and includes no analytics. If you ever add a
-    marketing website, you'll need a cookie banner and policy, but the
-    add-on itself doesn't need one.
+    Not needed today. Only relevant if enterprise customers or their legal
+    teams ask "where's your DPA?" during procurement.
+
+    Why it's complicated for MailAlert:
+      You don't operate a backend. The user's data stays in their Google
+      account. Arguably you're not a "data processor" at all — the user
+      processes their own data. But enterprise legal teams don't always
+      care about that distinction.
+
+    When the time comes, what to ask a lawyer:
+      "Enterprise customers are asking for a Data Processing Agreement.
+      My software is a Google Workspace Add-on that runs entirely in the
+      customer's own Google account. I don't operate a server or database.
+      Email content is sent from the user's account to Google's Gemini API
+      and optionally to Twilio for SMS.
+
+      I need:
+        (a) An opinion on whether I'm a 'data processor' under GDPR
+            given this architecture.
+        (b) If yes, a DPA template I can offer to enterprise customers
+            that accurately reflects what I do and don't control.
+        (c) Standard contractual clauses (SCCs) if needed for
+            cross-border transfers."
+
+    Expected cost: $1,000–$3,000 for a DPA template.
 
 
-11. INSURANCE
----------------------------------------------------------------------------
-    Priority: MEDIUM (not a document, but important legal protection)
-
-    Consider:
-    • Errors & Omissions (E&O) / Professional Liability insurance — covers
-      claims that your software caused financial harm (e.g. a missed alert
-      cost someone money).
-    • Cyber Liability insurance — covers data breach response, notification
-      costs, regulatory fines.
-    • General Commercial Liability — standard business insurance.
-
-    Even with strong disclaimers, insurance is the backstop if someone sues.
-
-
-12. OPEN-SOURCE LICENSING AUDIT
----------------------------------------------------------------------------
+================================================================================
+11. ACCEPTABLE USE POLICY (STANDALONE)
+================================================================================
     Priority: LOW
+    Who: [DIY] — if you decide to split it out, it's a copy-paste from
+         TERMS.md Section 4 into a new file, no lawyer needed.
 
-    MailAlert has no npm dependencies at runtime (it's pure Apps Script),
-    so there are no third-party license obligations to track today. If you
-    ever add bundled libraries, run an audit (e.g. license-checker for npm)
-    to confirm compatibility with your proprietary license.
+    Currently the acceptable use rules are in TERMS.md Section 4. That's
+    fine for most purposes. The only reason to split it into a standalone
+    document is if you want to update the AUP without bumping the ToS
+    version (some companies do this for faster policy changes).
+
+    If you decide to do it:
+      1. Create AUP.md
+      2. Move the content from TERMS.md Section 4 into it
+      3. Replace Section 4 in TERMS.md with: "Your use of the Service is
+         subject to the Acceptable Use Policy in AUP.md, incorporated
+         into these Terms by reference."
+      4. Link AUP.md from README.md
 
 
 ================================================================================
-Summary — in priority order
+12. OPEN-SOURCE LICENSING AUDIT
+================================================================================
+    Priority: LOW
+    Who: [DIY] — only needed if you add dependencies later
+
+    Right now MailAlert is pure Apps Script with zero third-party libraries.
+    There is nothing to audit. If you ever add bundled libraries:
+
+    Steps:
+      1. Install license-checker: npm install -g license-checker
+      2. Run: license-checker --summary
+      3. Look for anything that is GPL, AGPL, or SSPL — those are
+         "copyleft" licenses that would require you to open-source your
+         own code if you distribute it combined with theirs.
+      4. MIT, BSD, Apache-2.0, ISC are all fine with proprietary software.
+      5. If you find a copyleft dependency, either remove it or replace it
+         with a permissively-licensed alternative.
+
+
+================================================================================
+Summary — by who does it
 ================================================================================
 
-  NOW (before publishing):
-    [ ] 1. Lawyer review of LICENSE, TERMS, PRIVACY, DISCLAIMER
-    [ ] 2. Replace placeholder contact info
-    [ ] 3. Host TERMS + PRIVACY at public URLs (for Marketplace listing)
-    [ ] 11. Get E&O / cyber liability insurance quotes
+  THINGS YOU DO YOURSELF (DIY, no cost):
+    [ ] 1.  Replace placeholder contact info in LICENSE, TERMS, PRIVACY
+    [ ] 11. Split out AUP.md (only if you want to, not required)
+    [ ] 12. Open-source license audit (only if you add dependencies)
 
-  SOON (before adding contributors or going to market):
-    [ ] 4. Trademark search and filing for "MailAlert"
-    [ ] 5. Set up a CLA (if accepting outside contributions)
+  THINGS YOU DO YOURSELF ONLINE (small cost, no lawyer):
+    [ ] 2.  Host TERMS + PRIVACY at public URLs (free via GitHub Pages)
+    [ ] 3.  Google Workspace Marketplace app verification ($0 to apply,
+            $2K-$15K if Google requires a third-party security assessment)
+    [ ] 4a. Trademark search on USPTO TESS (free)
+    [ ] 4b. Trademark filing on USPTO ($250-$350 per class)
+    [ ] 6a. Set up CLA via cla-assistant.io (free, GitHub-integrated)
+    [ ] 7.  Buy E&O + cyber liability insurance ($500-$1,500/year)
+    [ ] 8.  DMCA agent registration ($6, only if hosting user content)
 
-  LATER (as the product grows):
-    [ ] 6. DMCA agent registration (if adding user-generated content features)
-    [ ] 7. Export control review (if adding encryption or international sales)
-    [ ] 8. DPA template (if selling to enterprise / EU customers)
-    [ ] 9. Standalone AUP (if preferred over inline ToS section)
-    [ ] 12. Open-source license audit (if adding npm dependencies)
+  THINGS THAT NEED A LAWYER:
+    [ ] 5.  Review of LICENSE, TERMS, PRIVACY, DISCLAIMER ($300–$1,500)
+            Ask for: "Review and finalize four legal documents for a
+            Google Workspace Gmail add-on. Proprietary license, Terms of
+            Service, Privacy Policy, and Disclaimer. Advise on liability
+            cap, arbitration vs. court, AI disclaimer adequacy, and
+            Google API User Data Policy compliance."
+
+    [ ] 4c. Trademark: respond to USPTO Office Action if you get one
+            ($500-$1,500 per Office Action)
+            Ask for: "I filed a trademark application for 'MailAlert' and
+            received an Office Action. Can you review it and file a
+            response?"
+
+    [ ] 6b. CLA: only if you want a lawyer-drafted version ($300-$800)
+            Ask for: "Draft an individual and corporate CLA for a
+            proprietary software project accepting GitHub pull requests."
+
+    [ ] 9.  Export control opinion (only if adding encryption) ($500-$2,000)
+            Ask for: "I'm adding [encryption feature] to software
+            distributed internationally. Do I need a BIS classification?"
+
+    [ ] 10. DPA template (only if enterprise customers ask) ($1,000-$3,000)
+            Ask for: "Draft a GDPR-compliant DPA for a Workspace add-on
+            that runs in the customer's own Google account with no
+            external backend."
 
 ================================================================================
