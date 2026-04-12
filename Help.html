@@ -64,7 +64,7 @@ Gmail uses labels rather than folders. Use INBOX for the inbox, or any label nam
 • <b>Telnyx</b> — cheapest per message (~$0.004/SMS), requires a phone number (~$1/mo)<br>
 • <b>Plivo</b> — $10 free credit, phone number ~$0.80/mo<br>
 • <b>Twilio</b> — most popular, $15 free credit, phone number ~$1.15/mo<br>
-• <b>Generic webhook</b> — POST to any HTTPS endpoint you control<br>
+• <b>Generic webhook</b> — POST to any HTTPS endpoint you control (self-deployed installs only; not available in Marketplace-published version)<br>
 After configuring, click <b>Send test SMS</b> to verify it works.<br><br>
 
 <b>Google-native alert channels (free)</b><br>
@@ -73,6 +73,39 @@ These use your existing Google account — no third-party sign-up, no cost:<br>
 • <b>Google Calendar</b> — creates a 15-minute calendar event with the alert details. Your phone will notify you if calendar notifications are on. Enable per rule with a checkbox.<br>
 • <b>Google Sheets</b> — appends a row to a spreadsheet (auto-created on first alert if you don't specify one). Great for an audit trail. Enable per rule with a checkbox.<br>
 • <b>Google Tasks</b> — creates a task in Google Tasks with the alert details. Shows in Gmail sidebar and the Tasks app. Enable per rule with a checkbox.<br><br>
+
+<b>Gemini pricing and model tiers</b><br>
+mAIl Alert calls the Gemini API twice per evaluated email per rule: once to check if the email matches the rule, and once to format the alert message. Understanding the cost tiers helps you pick the right model and avoid unexpected quota hits.<br><br>
+
+<b>Models (select in Settings)</b><br>
+• <b>Gemini 2.0 Flash</b> (default) — fastest, most affordable, 1,500 free requests/day. Best for most users.<br>
+• <b>Gemini 2.0 Flash Lite</b> — ultra-low-cost variant of 2.0 Flash; slightly less capable but even cheaper on the paid tier. Good for simple rules at very high volume.<br>
+• <b>Gemini 1.5 Flash</b> — same free quota and pricing as 2.0 Flash; a reliable fallback.<br>
+• <b>Gemini 1.5 Pro</b> — highest accuracy for complex or nuanced rules, but only 50 free requests/day and roughly 17× the cost of Flash. Not recommended for high email volume.<br><br>
+
+<b>Free tier (no billing required)</b><br>
+A key from <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> is free — no credit card needed. Flash models allow 1,500 requests/day and 1,000,000 tokens/day, resetting at midnight Pacific Time. When you hit the limit, Gemini returns a 429 error and mAIl Alert logs "Gemini quota exceeded" in the Activity Log. Calls resume automatically the next day — you are never charged on a free key.<br><br>
+
+<b>How many calls will you use per day?</b><br>
+Each <i>new</i> email in a watched label triggers one Gemini evaluation per active rule. Already-seen messages are skipped entirely.<br>
+Estimate: <b>new emails/day × active rules × 2 = daily API calls</b><br>
+• 20 new emails/day × 1 rule = 40 calls — well within free<br>
+• 50 new emails/day × 3 rules = 300 calls — well within free<br>
+• 100 new emails/day × 5 rules ≈ 1,000 calls — approaching free limit; consider billing<br>
+• 200 new emails/day × 10 rules = 4,000 calls — needs paid tier<br><br>
+
+<b>Paid usage</b><br>
+If you regularly hit the free limit, enable billing at <a href="https://aistudio.google.com">aistudio.google.com</a> → your API key → <b>Enable billing</b>. The same API key continues to work — no change in mAIl Alert settings is needed. Approximate paid rates (verify current prices at <a href="https://ai.google.dev/pricing">ai.google.dev/pricing</a>):<br>
+• <b>Flash models (2.0 Flash, 1.5 Flash):</b> ~$0.075/million input tokens, ~$0.30/million output tokens<br>
+• <b>Flash Lite (2.0 Flash Lite):</b> ~$0.04/million input tokens, ~$0.15/million output tokens<br>
+• <b>Pro models (1.5 Pro):</b> ~$1.25/million input tokens, ~$5.00/million output tokens<br>
+At Flash rates, a typical user (50 emails/day, 3 rules) costs under <b>$1/month</b>. Even a power user (100 emails/day, 5 rules) typically stays under <b>$3/month</b>.<br><br>
+
+<b>Tips to minimize Gemini usage</b><br>
+• Enable <b>Business hours</b> — skips checks outside your configured time window (supports overnight windows too)<br>
+• Watch specific labels (e.g. <i>Vendors/Invoices</i>) instead of INBOX — only emails in that label are evaluated<br>
+• Combine related conditions into one rule instead of creating two separate rules for the same email type<br>
+• Keep your <b>Alert message format</b> prompt concise — shorter instructions produce shorter (cheaper) output<br><br>
 
 <b>Business hours</b><br>
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>

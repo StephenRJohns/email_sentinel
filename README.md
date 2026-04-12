@@ -2,7 +2,7 @@
 
 A Gmail Workspace Add-on that watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by **Google Gemini**.
 
-This is the Google Workspace port of the original [`bb_mailalerter`](../mailalerter) Windows desktop app — same idea, but it lives entirely inside your Google account: no machine to keep running, no Outlook, no Teams, no Anthropic key.
+This is the Google Workspace port of the original `bb_mailalerter` Windows desktop app — same idea, but it lives entirely inside your Google account: no machine to keep running, no Outlook, no Teams, no Anthropic key.
 
 ---
 
@@ -16,11 +16,12 @@ This is the Google Workspace port of the original [`bb_mailalerter`](../mailaler
 6. [Install via the Apps Script editor (no CLI)](#6-install-via-the-apps-script-editor-no-cli)
 7. [First-run configuration](#7-first-run-configuration)
 8. [Writing rules](#8-writing-rules)
-9. [Alert channels](#9-alert-channels)
-10. [Privacy and storage](#10-privacy-and-storage)
-11. [Troubleshooting](#11-troubleshooting)
-12. [Why an Add-on instead of a Chrome extension?](#12-why-an-add-on-instead-of-a-chrome-extension)
-13. [Legal](#13-legal)
+9. [Gemini pricing and model tiers](#9-gemini-pricing-and-model-tiers)
+10. [Alert channels](#10-alert-channels)
+11. [Privacy and storage](#11-privacy-and-storage)
+12. [Troubleshooting](#12-troubleshooting)
+13. [Why an Add-on instead of a Chrome extension?](#13-why-an-add-on-instead-of-a-chrome-extension)
+14. [Legal](#14-legal)
 
 ---
 
@@ -29,7 +30,8 @@ This is the Google Workspace port of the original [`bb_mailalerter`](../mailaler
 When a new email arrives in a watched Gmail label, mAIl Alert asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
 
 - **Email** to one or more addresses, sent from your own Gmail account.
-- **SMS** via your configured provider (Twilio out of the box, or any provider via a generic webhook).
+- **SMS** via your configured provider (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or a generic webhook).
+- **Google Chat**, **Google Calendar**, **Google Sheets**, or **Google Tasks** — all within your own Google account, no extra sign-up needed.
 
 Rules are plain English. No regex, no code:
 
@@ -50,7 +52,7 @@ Rules are plain English. No regex, no code:
 │  │    – New messages × matching rules:                    │  │
 │  │      → Gemini: does this match the rule?               │  │
 │  │      → If YES: Gemini formats the alert message        │  │
-│  │      → GmailApp.sendEmail() / Twilio / webhook         │  │
+│  │      → GmailApp.sendEmail() / SMS provider / Chat / …   │  │
 │  └────────────────────────────────────────────────────────┘  │
 │                                                              │
 │  Add-on UI (Cards) — Rules, Settings, Activity log, Help     │
@@ -64,7 +66,7 @@ All state lives in `PropertiesService.getUserProperties()`:
 | `mailalert.settings` | Gemini key, model, poll interval, business hours, SMS config |
 | `mailalert.rules`    | JSON array of rule objects |
 | `mailalert.seen`     | Per-label list of recently-seen Gmail message IDs |
-| `mailalert.log`      | Ring buffer of the last ~80 activity log lines |
+| `mailalert.log`      | Ring buffer of the last ~60 activity log lines |
 
 `UserProperties` is **private to the running user** and **per-script** — nobody but you (and the add-on running in your account) can read it.
 
@@ -74,21 +76,32 @@ All state lives in `PropertiesService.getUserProperties()`:
 
 ```
 mailalert/
-├── appsscript.json        # Add-on manifest (scopes, homepage trigger, universal actions)
+├── appsscript.json        # Add-on manifest (scopes, triggers, URL whitelists)
 ├── .clasp.json            # clasp project config — paste your scriptId here
 ├── .claspignore           # Limits clasp push to .gs / .html / appsscript.json
+├── .gitignore
 │
-├── Code.gs                # Entry points: onHomepage, universal actions
+├── Code.gs                # Entry points: onHomepage, universal actions, onUninstall
 ├── Cards.gs               # All CardService UI (home, rules, editor, settings, log, help)
 ├── MailWatcher.gs         # Time-driven trigger handler — polls Gmail, dispatches matches
 ├── RuleEvaluator.gs       # Gemini REST calls (rule evaluation + alert formatting)
-├── AlertDispatcher.gs     # Sends alerts via Gmail and Twilio / generic webhook
+├── AlertDispatcher.gs     # Alert dispatch: Email, 6 SMS providers, Chat, Calendar, Sheets, Tasks
 ├── RulesManager.gs        # CRUD for rules in UserProperties
 ├── SettingsManager.gs     # CRUD for settings; business-hours helpers
-├── ActivityLog.gs         # Ring-buffered activity log
+├── ActivityLog.gs         # Ring-buffered activity log with batch-write support
 │
 ├── Help.html              # Help content rendered inside the help card
-└── README.md              # You are here
+├── README.md              # You are here
+│
+├── LICENSE                # Proprietary software license
+├── TERMS.md               # Terms of Service
+├── PRIVACY.md             # Privacy Policy
+├── DISCLAIMER.md          # Warranty disclaimer, AI accuracy, no-reliance notice
+│
+└── images/                # Add-on icons and card banner
+    ├── MA_128.png         # 128×128 icon
+    ├── MA_32.png          # 32×32 icon
+    └── MA_Card_Banner.png # 220×140 card banner
 ```
 
 There is no build step, no `requirements.txt`, no installer. The whole thing is JavaScript that runs on Google's servers.
@@ -99,7 +112,7 @@ There is no build step, no `requirements.txt`, no installer. The whole thing is 
 
 - A Google account (personal Gmail or Google Workspace).
 - A free **Gemini API key** from [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
-- (Optional) A **Twilio** account or any HTTPS endpoint for SMS alerts.
+- (Optional) An SMS provider account for SMS alerts — see [Alert channels](#10-alert-channels) for the six supported providers.
 - For the `clasp` install path: [Node.js 18+](https://nodejs.org) and `npm`.
 
 ---
@@ -154,7 +167,7 @@ After installation, open Gmail and click the mAIl Alert icon in the right rail.
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
 2. **Settings ▸ Polling** — pick how often to check (default 5 minutes).
-3. **Settings ▸ SMS provider** *(optional)* — choose Twilio or a generic webhook and fill in credentials.
+3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison.
 4. **Settings ▸ Save settings**.
 5. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and pick alert recipients.
 6. Back on the home card, click **Start monitoring**. This installs a time-driven trigger that runs in the background even when Gmail is closed.
@@ -245,7 +258,73 @@ The real power is mixing channels:
 
 ---
 
-## 9. Alert channels
+## 9. Gemini pricing and model tiers
+
+mAIl Alert calls the Gemini API **twice per new email per active rule**: once to evaluate whether the email matches, and once to format the alert message. Already-seen messages are skipped entirely.
+
+### Models (select in Settings)
+
+| Model | Speed | Free quota | Paid input cost | Paid output cost | Best for |
+|---|---|---|---|---|---|
+| **Gemini 2.0 Flash** *(default)* | Fastest | 1,500 req/day · 1M tokens/day | ~$0.075 / 1M tokens | ~$0.30 / 1M tokens | Most users — best balance of speed, cost, and accuracy |
+| **Gemini 2.0 Flash Lite** | Fastest | 1,500 req/day · 1M tokens/day | ~$0.04 / 1M tokens | ~$0.15 / 1M tokens | Simple rules at very high volume; slightly less capable |
+| **Gemini 1.5 Flash** | Fast | 1,500 req/day · 1M tokens/day | ~$0.075 / 1M tokens | ~$0.30 / 1M tokens | Same as 2.0 Flash; reliable fallback |
+| **Gemini 1.5 Pro** | Slower | 50 req/day | ~$1.25 / 1M tokens | ~$5.00 / 1M tokens | Complex or nuanced rules where accuracy is critical; not suited for high email volume |
+
+> Verify current prices at [ai.google.dev/pricing](https://ai.google.dev/pricing). Prices shown are as of April 2026 and may change.
+
+### Free tier (no billing required)
+
+A key from [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) is free — no credit card required. Flash model free limits reset daily at midnight Pacific Time:
+
+- **Flash models:** 1,500 requests/day and 1,000,000 tokens/day
+- **Pro models:** 50 requests/day
+
+When you hit a limit, Gemini returns HTTP 429 and mAIl Alert logs `"Gemini quota exceeded"` in the Activity Log. Monitoring resumes automatically the next day — you are never charged on a free key.
+
+### Estimating your daily usage
+
+**Gemini calls per day ≈ new emails/day × active rules × 2**
+
+Each call consumes roughly 600–1,500 tokens depending on email length and the complexity of your alert format prompt.
+
+| Scenario | New emails/day | Active rules | API calls/day | Tokens/day (est.) | Free tier? |
+|---|---|---|---|---|---|
+| Light personal | 20 | 1 | 40 | ~50K | Well within |
+| Typical personal | 50 | 3 | 300 | ~375K | Well within |
+| Power user | 100 | 5 | 1,000 | ~1.25M | At / over limit — consider billing |
+| Small business | 200 | 10 | 4,000 | ~5M | Needs paid tier |
+| High volume | 500 | 20 | 20,000 | ~25M | Needs paid tier |
+
+### Enabling paid usage
+
+If you regularly hit the free limit:
+
+1. Go to [aistudio.google.com](https://aistudio.google.com) → select your API key → **Enable billing**.
+2. Link a Google Cloud project that has a billing account attached.
+3. The same API key continues to work in mAIl Alert — no settings change needed.
+
+**Example monthly cost (Flash model, paid tier):**
+
+| Usage | Input tokens/mo | Input cost | Output tokens/mo | Output cost | Monthly total |
+|---|---|---|---|---|---|
+| Typical personal (50 emails/day × 3 rules) | ~7M | ~$0.53 | ~1M | ~$0.30 | **~$0.83** |
+| Power user (100 emails/day × 5 rules) | ~23M | ~$1.73 | ~4M | ~$1.20 | **~$2.93** |
+| Small business (200 emails/day × 10 rules) | ~90M | ~$6.75 | ~14M | ~$4.20 | **~$10.95** |
+
+> These are rough upper bounds. Emails that don't match a rule still cost one evaluation call; alerts that fire cost a second (formatting) call. Most rules match only a small fraction of emails, so real costs are typically lower.
+
+### Tips to reduce Gemini spend
+
+- **Enable Business hours** — restricts checks to your configured time window (supports overnight windows too).
+- **Watch specific labels** (e.g. `Vendors/Invoices`) instead of INBOX — only emails in that label are evaluated against the rule.
+- **Combine conditions** — one rule "Invoice OR purchase order from any vendor" is cheaper than two separate rules.
+- **Keep alert format prompts short** — concise format instructions produce shorter output responses and lower output-token costs.
+- **Raise the polling interval** — checking every 15 or 30 minutes instead of every 5 minutes reduces calls proportionally when email arrives in bursts.
+
+---
+
+## 10. Alert channels
 
 ### Email
 Sent via `GmailApp.sendEmail` from your own Gmail account. The display name on the outgoing message is configurable in **Settings ▸ Alert "From" name**. There is no SMTP server to host or app password to manage.
@@ -263,13 +342,15 @@ Google Workspace does not provide a first-party SMS API, so mAIl Alert ships wit
 | **Twilio** | ~$0.0079/SMS | Yes (~$1.15/mo) | $15 free credit | Basic auth |
 | **ClickSend** | ~$0.0226/SMS | No | Free trial credits | Basic auth |
 | **Vonage** | ~$0.0068/SMS | No | Free credits (no CC) | API key + secret |
-| **Generic webhook** | (your endpoint) | (your choice) | N/A | (your choice) |
+| **Generic webhook**¹ | (your endpoint) | (your choice) | N/A | (your choice) |
+
+¹ Generic webhook is available in self-deployed installs only. Google's Marketplace `urlFetchWhitelist` blocks `UrlFetchApp` calls to arbitrary endpoints.
 
 **Recommendations:**
 - **Quickest start (no sign-up):** Textbelt with the free key `textbelt` — 1 free SMS/day, no account needed.
 - **Cheapest at scale:** Telnyx (~$0.004/SMS), then Plivo (~$0.005/SMS).
 - **No phone number to manage:** Textbelt, ClickSend, or Vonage send from a shared/system number.
-- **Already have an SMS gateway:** Generic webhook POSTs `{"to": "+15551234567", "body": "..."}` to any HTTPS URL.
+- **Already have an SMS gateway:** Generic webhook POSTs `{"to": "+15551234567", "body": "..."}` to any HTTPS URL. *(Self-deployed installs only — Google's Marketplace URL whitelist blocks arbitrary endpoints.)*
 
 Phone numbers in rules and settings should be in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+15551234567`.
 
@@ -290,7 +371,7 @@ Each Google channel is enabled per rule via a checkbox in the rule editor, so yo
 
 ---
 
-## 10. Privacy and storage
+## 11. Privacy and storage
 
 | What | Where it lives |
 |---|---|
@@ -304,7 +385,7 @@ Nothing is stored on any third-party server. The add-on has no backend. The Goog
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 | Symptom | Fix |
 |---|---|
@@ -320,7 +401,7 @@ You can also peek at the trigger execution history in the Apps Script editor und
 
 ---
 
-## 12. Why an Add-on instead of a Chrome extension?
+## 13. Why an Add-on instead of a Chrome extension?
 
 A Chrome extension only runs while a Chrome tab is open. The original Python app was a background daemon — the equivalent in Google's world is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings, which is exactly what mAIl Alert needs.
 
@@ -328,7 +409,7 @@ If you'd rather have an in-Gmail browser-only experience too, the same `.gs` fil
 
 ---
 
-## 13. Legal
+## 14. Legal
 
 Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
 

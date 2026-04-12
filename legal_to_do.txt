@@ -100,7 +100,7 @@ Each item below is tagged:
      4. Submit for verification
 
    What Google may require:
-     - For sensitive scopes (gmail.modify, gmail.send, gmail.readonly):
+     - For sensitive scopes (gmail.send, gmail.readonly):
        Google will likely require a security assessment by an approved
        third-party assessor. Current approved firms are listed at:
          https://support.google.com/cloud/answer/9110914

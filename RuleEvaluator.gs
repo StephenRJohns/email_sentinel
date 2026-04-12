@@ -105,6 +105,10 @@ function callGemini_(apiKey, model, prompt, maxTokens) {
       muteHttpExceptions: true
     });
     const code = resp.getResponseCode();
+    if (code === 429) {
+      log('Gemini quota exceeded (HTTP 429). Calls will resume when the daily limit resets.');
+      return null;
+    }
     if (code < 200 || code >= 300) {
       log('Gemini HTTP ' + code + ': ' + resp.getContentText().substring(0, 300));
       return null;

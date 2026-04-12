@@ -1,5 +1,6 @@
 # mAIl Alert™ — Disclaimer
 
+**Effective date:** 2026-04-11
 **Operator:** JJJJJ Enterprises, LLC
 
 ---
@@ -18,7 +19,7 @@ mAIl Alert reads the metadata and body of Gmail messages in the labels you confi
 
 ## Third-Party Services
 
-JJJJJ Enterprises, LLC is not affiliated with Google, Twilio, or any other third-party service provider. Use of third-party services through mAIl Alert is governed by those providers' own terms. We are not responsible for any charges, data handling, availability, or conduct by third-party providers.
+JJJJJ Enterprises, LLC is not affiliated with Google, Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or any other third-party service provider. Use of third-party services through mAIl Alert is governed by those providers' own terms. We are not responsible for any charges, data handling, availability, or conduct by third-party providers.
 
 ## No Legal, Tax, Financial, or Medical Advice
 

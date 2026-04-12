@@ -256,6 +256,7 @@ function sendTextbeltSms_(toNumber, text, settings) {
     }
   } catch (e) {
     if (e.message.indexOf('Textbelt') === 0) throw e;
+    throw new Error('Textbelt: unexpected response — ' + body.substring(0, 200));
   }
 }
 
@@ -392,14 +393,18 @@ function sendVonageSms_(toNumber, text, settings) {
     }
   } catch (e) {
     if (e.message.indexOf('Vonage') === 0) throw e;
+    throw new Error('Vonage: unexpected response — ' + resp.getContentText().substring(0, 200));
   }
 }
 
-// ── Generic webhook ─────────────────────────────────────────────────────────
+// ── Generic webhook (self-deployed installs only; Marketplace urlFetchWhitelist blocks arbitrary URLs) ──
 
 function sendWebhookSms_(toNumber, text, settings) {
   if (!settings.smsWebhookUrl) {
     throw new Error('Webhook URL not set in Settings → SMS.');
+  }
+  if (!/^https:\/\//i.test(settings.smsWebhookUrl)) {
+    throw new Error('Webhook URL must use HTTPS.');
   }
   const resp = UrlFetchApp.fetch(settings.smsWebhookUrl, {
     method: 'post',
@@ -441,7 +446,9 @@ function parseChatSpaces_(raw) {
     const arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
     if (!Array.isArray(arr)) return {};
     const map = {};
-    arr.forEach(function(item) { if (item.name && item.url) map[item.name] = item.url; });
+    arr.forEach(function(item) {
+      if (item.name && item.url && /^https:\/\//i.test(item.url)) map[item.name] = item.url;
+    });
     return map;
   } catch (e) { return {}; }
 }
@@ -539,7 +546,11 @@ function testSms(toNumber) {
     return 'No SMS provider configured. Open Settings → SMS Provider.';
   }
   try {
-    sendSmsAlert_(toNumber, { name: 'Test' }, {}, 'This is a test message from mAIl Alert.', settings);
+    sendSmsAlert_(toNumber,
+      { name: 'Test' },
+      { subject: 'Test message', from: 'mAIl Alert', receivedDateTime: new Date().toISOString() },
+      'This is a test message from mAIl Alert.',
+      settings);
     return 'Test SMS sent to ' + toNumber + ' via ' + settings.smsProvider + '.';
   } catch (e) {
     return 'Test SMS FAILED: ' + e.message;

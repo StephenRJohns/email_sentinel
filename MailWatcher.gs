@@ -20,85 +20,101 @@ const SEEN_KEY = 'mailalert.seen';
 const SEEN_MAX_PER_LABEL = 200;
 
 function runMailCheck() {
-  const settings = loadSettings();
-  if (!isInBusinessHours(settings, new Date())) {
-    log('Outside business hours — skipping check.');
+  const lock = LockService.getUserLock();
+  if (!lock.tryLock(0)) {
+    console.info('Another check is still running — skipping.');
     return;
   }
-
-  const rules = loadRules().filter(r => r.enabled);
-  if (!rules.length) {
-    log('No enabled rules — nothing to watch.');
-    return;
-  }
-  if (!settings.geminiApiKey) {
-    log('No Gemini API key configured — open Settings to add one.');
-    return;
-  }
-
-  // Build the unique set of labels referenced by enabled rules
-  const labelSet = {};
-  rules.forEach(r => (r.labels || []).forEach(l => (labelSet[l] = true)));
-  const labels = Object.keys(labelSet);
-
-  const seenAll = loadSeen_();
-
-  labels.forEach(labelName => {
-    let messages;
-    try {
-      messages = fetchRecentMessages_(labelName);
-    } catch (e) {
-      log('Label "' + labelName + '" fetch failed: ' + e);
+  startLogBuffering();
+  try {
+    const settings = loadSettings();
+    if (!isInBusinessHours(settings, new Date())) {
+      log('Outside business hours — skipping check.');
       return;
     }
 
-    const seen = seenAll[labelName] ? new Set(seenAll[labelName]) : null;
-    const isFirstRun = seen === null;
-    const currentSeen = new Set();
+    const rules = loadRules().filter(r => r.enabled);
+    if (!rules.length) {
+      log('No enabled rules — nothing to watch.');
+      return;
+    }
+    if (!settings.geminiApiKey) {
+      log('No Gemini API key configured — open Settings to add one.');
+      return;
+    }
 
-    const newMessages = [];
-    messages.forEach(m => {
-      currentSeen.add(m.id);
-      if (!isFirstRun && !seen.has(m.id)) newMessages.push(m);
+    const labelSet = {};
+    rules.forEach(r => (r.labels || []).forEach(l => (labelSet[l] = true)));
+    const labels = Object.keys(labelSet);
+
+    const seenAll = loadSeen_();
+
+    // Prune seen-data for labels no longer referenced by any rule
+    const activeLabels = new Set(labels);
+    Object.keys(seenAll).forEach(k => {
+      if (!activeLabels.has(k)) delete seenAll[k];
     });
 
-    seenAll[labelName] = Array.from(currentSeen).slice(-SEEN_MAX_PER_LABEL);
+    labels.forEach(labelName => {
+      let messages;
+      try {
+        messages = fetchRecentMessages_(labelName);
+      } catch (e) {
+        log('Label "' + labelName + '" fetch failed: ' + e);
+        return;
+      }
 
-    if (isFirstRun) {
-      log('Label "' + labelName + '": baseline set (' + messages.length +
-          ' existing message(s)). Watching for new mail.');
-      return;
-    }
+      const seen = seenAll[labelName] ? new Set(seenAll[labelName]) : null;
+      const isFirstRun = seen === null;
+      const currentSeen = new Set();
 
-    if (!newMessages.length) {
-      log('Label "' + labelName + '": no new messages.');
-      return;
-    }
+      const newMessages = [];
+      messages.forEach(m => {
+        currentSeen.add(m.id);
+        if (!isFirstRun && !seen.has(m.id)) newMessages.push(m);
+      });
 
-    log('Label "' + labelName + '": ' + newMessages.length + ' new message(s).');
+      seenAll[labelName] = Array.from(currentSeen).slice(-SEEN_MAX_PER_LABEL);
+      // Save after each label so partial progress survives a timeout
+      saveSeen_(seenAll);
 
-    const matchingRules = rules.filter(r => (r.labels || []).indexOf(labelName) >= 0);
-    newMessages.forEach(msg => {
-      log('  From: ' + msg.from + '  |  Subject: ' + (msg.subject || '').substring(0, 60));
-      matchingRules.forEach(rule => {
-        log('  Evaluating against rule "' + rule.name + '" ...');
-        const evalResult = evaluateEmailAgainstRule(
-          msg, rule, settings.geminiApiKey, settings.geminiModel
-        );
-        if (evalResult.matched) {
-          log('  MATCH! ' + evalResult.reason);
-          const alertContent = generateAlertMessage(
+      if (isFirstRun) {
+        log('Label "' + labelName + '": baseline set (' + messages.length +
+            ' existing message(s)). Watching for new mail.');
+        return;
+      }
+
+      if (!newMessages.length) {
+        log('Label "' + labelName + '": no new messages.');
+        return;
+      }
+
+      log('Label "' + labelName + '": ' + newMessages.length + ' new message(s).');
+
+      const matchingRules = rules.filter(r => (r.labels || []).indexOf(labelName) >= 0);
+      newMessages.forEach(msg => {
+        log('  From: ' + msg.from + '  |  Subject: ' + (msg.subject || '').substring(0, 60));
+        matchingRules.forEach(rule => {
+          log('  Evaluating against rule "' + rule.name + '" ...');
+          const evalResult = evaluateEmailAgainstRule(
             msg, rule, settings.geminiApiKey, settings.geminiModel
           );
-          dispatchAlerts(rule, msg, alertContent, evalResult.reason, settings);
-        } else {
-          log('  No match. ' + evalResult.reason);
-        }
+          if (evalResult.matched) {
+            log('  MATCH! ' + evalResult.reason);
+            const alertContent = generateAlertMessage(
+              msg, rule, settings.geminiApiKey, settings.geminiModel
+            );
+            dispatchAlerts(rule, msg, alertContent, evalResult.reason, settings);
+          } else {
+            log('  No match. ' + evalResult.reason);
+          }
+        });
       });
     });
-  });
-
-  saveSeen_(seenAll);
+  } finally {
+    flushLog();
+    lock.releaseLock();
+  }
 }
 
 /**
@@ -117,15 +133,11 @@ function fetchRecentMessages_(labelName) {
   threads.forEach(t => {
     t.getMessages().forEach(m => out.push(normalizeMessage_(m)));
   });
-  // Newest first
   out.sort((a, b) => (b.receivedMillis || 0) - (a.receivedMillis || 0));
   return out.slice(0, 50);
 }
 
 function quoteLabel_(name) {
-  // Gmail search syntax requires hyphens in labels to be replaced with the
-  // exact label string and spaces replaced with hyphens. Wrap in quotes for
-  // labels containing spaces or other punctuation.
   if (/[^A-Za-z0-9_\/-]/.test(name)) {
     return '"' + name.replace(/"/g, '\\"') + '"';
   }
@@ -136,10 +148,14 @@ function normalizeMessage_(m) {
   let body = '';
   try { body = m.getPlainBody() || ''; }
   catch (e) { body = m.getBody() || ''; }
-  const attachmentNames = m.getAttachments({
-    includeInlineImages: false,
-    includeAttachments: true
-  }).map(a => a.getName()).filter(Boolean);
+
+  let attachmentNames = [];
+  try {
+    attachmentNames = m.getAttachments({
+      includeInlineImages: false,
+      includeAttachments: true
+    }).map(a => a.getName()).filter(Boolean);
+  } catch (e) { /* malformed MIME */ }
 
   return {
     id: m.getId(),
@@ -161,7 +177,11 @@ function loadSeen_() {
 }
 
 function saveSeen_(seen) {
-  PropertiesService.getUserProperties().setProperty(SEEN_KEY, JSON.stringify(seen));
+  const json = JSON.stringify(seen);
+  if (json.length > 8500) {
+    log('Warning: seen-ID store at ' + json.length + ' bytes — approaching 9 KB limit.');
+  }
+  PropertiesService.getUserProperties().setProperty(SEEN_KEY, json);
 }
 
 function resetSeen() {

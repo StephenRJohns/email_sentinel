@@ -27,10 +27,10 @@ You need three things before you can deploy:
        Check with:  node --version && npm --version
        If missing:  sudo apt install nodejs npm     (or use nvm)
 
-  (Optional, only if you want SMS alerts) — a Twilio account with:
-     - Account SID
-     - Auth Token
-     - A verified "From" phone number in E.164 format (+15551234567)
+  (Optional, only if you want SMS alerts) — an account with any of the six
+     supported SMS providers: Textbelt, Telnyx, Plivo, Twilio, ClickSend, or
+     Vonage. Credentials vary by provider (API key, SID+token, etc.). See the
+     SMS setup guide in the add-on Settings for details and sign-up links.
      OR an HTTPS endpoint of your own that accepts POST {"to":"...","body":"..."}.
 
 
@@ -71,7 +71,7 @@ https://script.google.com/home/usersettings and turn the API on, then retry.
     clasp push
 
 This uploads every .gs file, Help.html, and appsscript.json into the new
-Apps Script project. You should see roughly 11 files pushed.
+Apps Script project. You should see roughly 10 files pushed.
 
 To open the editor in a browser:
 
@@ -92,9 +92,9 @@ This installs mAIl Alert into the Gmail of the same Google account.
 
 The first time you click anything inside the add-on, Google will show an
 OAuth consent screen listing the scopes from appsscript.json:
-  - Read, compose, send Gmail
-  - Manage Gmail labels
-  - Connect to external services (Gemini, Twilio)
+  - Read and send Gmail
+  - Google Calendar, Sheets, Tasks access
+  - Connect to external services (Gemini, SMS providers)
   - Run as you (for the time-driven trigger)
 Click "Allow". Because the add-on is unverified and only published to
 yourself, you may see an "unverified app" warning — click Advanced →
@@ -112,7 +112,7 @@ Go to mAIl Alert (unsafe). It is safe; it is your own code.
   5. Paste your Gemini API key.
   6. Click "Test Gemini" — you should see the "Gemini OK" notification.
      If not, open the Activity Log card to see the error.
-  7. (Optional) Set SMS provider, Twilio creds, business hours, etc.
+  7. (Optional) Set SMS provider, enter credentials, configure business hours, etc.
   8. Click "Save settings".
 
 
@@ -175,14 +175,15 @@ You can leave SMS empty for the first test.
 10. (Optional) Test SMS
 --------------------------------------------------------------------------------
 
-  1. Settings → SMS provider → Twilio (or Generic webhook).
+  1. Settings → SMS provider → pick any of the six supported providers
+     (or Generic webhook). See the SMS setup guide for a comparison.
   2. Fill in credentials → Save settings.
-  3. Edit your test rule → add a phone number in E.164 format (+15551234567).
-  4. Send yourself another email → Run check now.
-  5. Activity Log will show "SMS alert sent to: +1555..." or the provider's
-     error response. Twilio errors usually mean: bad SID/token (HTTP 401),
-     unverified destination on a trial account (21608), or non-E.164 format
-     (21211).
+  3. Click "Send test SMS" to verify it works before creating a rule.
+  4. Edit your test rule → add a phone number in E.164 format (+15551234567).
+  5. Send yourself another email → Run check now.
+  6. Activity Log will show "SMS alert sent to: +1555..." or the provider's
+     error response. Common issues: bad credentials (HTTP 401), unverified
+     destination on a trial account, or non-E.164 phone number format.
 
 
 --------------------------------------------------------------------------------
@@ -233,7 +234,7 @@ Files in this directory:
   Cards.gs            All CardService UI
   MailWatcher.gs      Time-driven trigger; Gmail polling; seen-ID baselining
   RuleEvaluator.gs    Gemini REST calls (rule eval + alert formatting)
-  AlertDispatcher.gs  GmailApp.sendEmail + Twilio + generic webhook SMS
+  AlertDispatcher.gs  Email, 6 SMS providers, Chat, Calendar, Sheets, Tasks
   RulesManager.gs     Rule CRUD in UserProperties
   SettingsManager.gs  Settings storage + business-hours helper
   ActivityLog.gs      Ring-buffered activity log
@@ -247,6 +248,6 @@ State (created at runtime in your Google account, not on disk):
   mailalert.settings  Gemini key, model, poll interval, business hours, SMS
   mailalert.rules     JSON array of your rules
   mailalert.seen      Per-label seen-message IDs (so we alert exactly once)
-  mailalert.log       Last ~80 activity log lines
+  mailalert.log       Last ~60 activity log lines
 
 ================================================================================

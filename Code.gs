@@ -36,6 +36,10 @@ function universalCardResponse_(card) {
     .build();
 }
 
+function onUninstall(e) {
+  removeTriggers();
+}
+
 function notificationResponse_(text) {
   return CardService.newActionResponseBuilder()
     .setNotification(CardService.newNotification().setText(text))

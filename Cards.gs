@@ -28,16 +28,15 @@ function buildHomeCard() {
 
   const statusSection = CardService.newCardSection()
     .setHeader('<b>Status</b>')
-    .addWidget(CardService.newKeyValue()
+    .addWidget(CardService.newDecoratedText()
       .setTopLabel('Monitoring')
-      .setContent(monitoring ? 'Running' : 'Stopped')
-      .setIcon(monitoring ? CardService.Icon.CLOCK : CardService.Icon.NONE))
-    .addWidget(CardService.newKeyValue()
+      .setText(monitoring ? 'Running' : 'Stopped'))
+    .addWidget(CardService.newDecoratedText()
       .setTopLabel('Rules')
-      .setContent(enabledCount + ' enabled / ' + rules.length + ' total'))
-    .addWidget(CardService.newKeyValue()
+      .setText(enabledCount + ' enabled / ' + rules.length + ' total'))
+    .addWidget(CardService.newDecoratedText()
       .setTopLabel('Gemini API key')
-      .setContent(settings.geminiApiKey ? 'Configured' : 'NOT configured'));
+      .setText(settings.geminiApiKey ? 'Configured' : 'NOT configured'));
 
   if (monitoring) {
     statusSection.addWidget(CardService.newTextButton()
@@ -91,7 +90,7 @@ function handleStopMonitoring(e) {
 
 function handleRunCheckNow(e) {
   try { runMailCheck(); }
-  catch (err) { return notificationResponse_('Check failed: ' + err); }
+  catch (err) { return notificationResponse_('Check failed: ' + (err.message || err)); }
   return refreshHome_('Check complete — see Activity Log.');
 }
 
@@ -146,12 +145,12 @@ function buildRuleSummarySection_(rule) {
 
   const section = CardService.newCardSection()
     .setHeader('<b>' + escapeHtml_(rule.name) + '</b> &nbsp; ' + status)
-    .addWidget(CardService.newKeyValue().setTopLabel('Labels').setContent(escapeHtml_(labels)))
-    .addWidget(CardService.newKeyValue().setTopLabel('Rule').setContent(escapeHtml_(ruleText)))
-    .addWidget(CardService.newKeyValue().setTopLabel('Email').setContent(escapeHtml_(emails)))
-    .addWidget(CardService.newKeyValue().setTopLabel('SMS').setContent(escapeHtml_(sms)))
-    .addWidget(CardService.newKeyValue().setTopLabel('Chat').setContent(escapeHtml_(chat)))
-    .addWidget(CardService.newKeyValue().setTopLabel('Google').setContent(escapeHtml_(google)));
+    .addWidget(CardService.newDecoratedText().setTopLabel('Labels').setText(escapeHtml_(labels)))
+    .addWidget(CardService.newDecoratedText().setTopLabel('Rule').setText(escapeHtml_(ruleText)))
+    .addWidget(CardService.newDecoratedText().setTopLabel('Email').setText(escapeHtml_(emails)))
+    .addWidget(CardService.newDecoratedText().setTopLabel('SMS').setText(escapeHtml_(sms)))
+    .addWidget(CardService.newDecoratedText().setTopLabel('Chat').setText(escapeHtml_(chat)))
+    .addWidget(CardService.newDecoratedText().setTopLabel('Google').setText(escapeHtml_(google)));
 
   const buttons = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
@@ -490,7 +489,7 @@ function buildSettingsCard() {
   smsSection.addWidget(CardService.newTextInput()
     .setFieldName('smsWebhookUrl')
     .setTitle('Generic webhook URL')
-    .setHint('Receives POST {"to": "+15551234567", "body": "..."}')
+    .setHint('Receives POST {"to":"+15551234567","body":"..."}. Self-deploy only — not available in Marketplace installs.')
     .setValue(s.smsWebhookUrl || ''));
   // Test number
   smsSection.addWidget(CardService.newTextInput()
@@ -629,11 +628,23 @@ function handleSaveSettings(e) {
     }
   }
 
+  if (next.chatSpaces && next.chatSpaces !== '[]') {
+    try {
+      const parsed = JSON.parse(next.chatSpaces);
+      if (!Array.isArray(parsed)) {
+        return notificationResponse_('Chat spaces must be a JSON array, e.g. [{"name":"...","url":"https://..."}]');
+      }
+    } catch (e) {
+      return notificationResponse_('Chat spaces is not valid JSON. Use format: [{"name":"...","url":"https://..."}]');
+    }
+  }
+
+  const prev = loadSettings();
   saveSettings(next);
 
-  // If monitoring is currently active and the poll interval changed,
-  // re-install the trigger so the new interval takes effect.
-  if (isMonitoringActive()) installTrigger(next.pollMinutes);
+  if (isMonitoringActive() && next.pollMinutes !== prev.pollMinutes) {
+    installTrigger(next.pollMinutes);
+  }
 
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().updateCard(buildSettingsCard()))
@@ -839,5 +850,6 @@ function escapeHtml_(s) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

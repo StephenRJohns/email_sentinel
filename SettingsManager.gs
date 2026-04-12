@@ -96,5 +96,8 @@ function isInBusinessHours(settings, now) {
   const nowMin = now.getHours() * 60 + now.getMinutes();
   const startMin = start[0] * 60 + start[1];
   const endMin = end[0] * 60 + end[1];
+  if (startMin > endMin) {
+    return nowMin >= startMin || nowMin < endMin;
+  }
   return nowMin >= startMin && nowMin < endMin;
 }

@@ -10,7 +10,7 @@ By installing or using the Service you ("you", "your") agree to these Terms of S
 
 ## 1. Description of the Service
 
-mAIl Alert is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via your own Gmail account and (optionally) via a third-party SMS provider you configure (such as Twilio).
+mAIl Alert is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via your own Gmail account and (optionally) via a third-party SMS provider you configure (such as those listed in Section 5).
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 
@@ -106,7 +106,7 @@ These Terms are governed by the laws of the State of Texas, USA, without regard 
 
 ## 15. Dispute Resolution
 
-Any dispute arising out of or relating to these Terms or the Service will be resolved exclusively in the state or federal courts located in the State of Texas, USA, and you consent to the personal jurisdiction of those courts. *(Or substitute an arbitration clause if preferred — talk to a lawyer.)*
+Any dispute arising out of or relating to these Terms or the Service will be resolved exclusively in the state or federal courts located in the State of Texas, USA, and you consent to the personal jurisdiction of those courts.
 
 ## 16. Export Controls
 

@@ -5,10 +5,8 @@
   "runtimeVersion": "V8",
   "oauthScopes": [
     "https://www.googleapis.com/auth/gmail.addons.execute",
-    "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/gmail.labels",
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/tasks",
@@ -29,6 +27,16 @@
         { "label": "Activity Log",   "runFunction": "actionShowActivity" },
         { "label": "Help",           "runFunction": "actionShowHelp" },
         { "label": "Run check now",  "runFunction": "actionRunCheckNow" }
+      ],
+      "openLinkUrlPrefixes": [
+        "https://textbelt.com/",
+        "https://telnyx.com/",
+        "https://console.plivo.com/",
+        "https://www.twilio.com/",
+        "https://dashboard.clicksend.com/",
+        "https://dashboard.nexmo.com/",
+        "https://aistudio.google.com/",
+        "https://ai.google.dev/"
       ]
     },
     "gmail": {

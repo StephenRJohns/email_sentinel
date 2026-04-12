@@ -234,8 +234,8 @@ project linked to your Apps Script:
 
 13. OAUTH VERIFICATION
 ---------------------------------------------------------------------------
-    Because mAIl Alert uses sensitive scopes (gmail.modify, gmail.send,
-    gmail.readonly), you must submit for OAuth verification:
+    Because mAIl Alert uses sensitive scopes (gmail.send, gmail.readonly),
+    you must submit for OAuth verification:
 
     Google Cloud Console → APIs & Services → OAuth consent screen →
     Verification status
@@ -248,17 +248,17 @@ project linked to your Apps Script:
     Scope justifications for mAIl Alert:
 
       gmail.addons.execute    Required to run as a Gmail add-on.
-      gmail.modify            Required to search and read messages in
-                              user-selected labels for rule evaluation.
       gmail.send              Required to send alert emails from the
                               user's Gmail account when a rule matches.
       gmail.readonly          Required to read message content (sender,
                               subject, body, attachments) for AI
                               evaluation against user-defined rules.
-      gmail.labels            Required to list Gmail labels so users can
-                              select which labels to monitor.
       calendar                Required to create calendar events as
                               alerts when users enable this channel.
+                              CalendarApp requires the full calendar
+                              scope; the narrower calendar.events scope
+                              is only compatible with the advanced
+                              Calendar service.
       spreadsheets            Required to log alert data to Google
                               Sheets when users enable this channel.
       tasks                   Required to create Google Tasks as alerts
