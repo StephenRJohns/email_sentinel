@@ -34,14 +34,14 @@ Each item below is tagged:
    Who: [DIY] — 10 minutes, text editor
 
    Every legal doc currently says:
-     legal@jjjjjenterprises.example  (replace with real address)
+     admin@jjjjjenterprises.com  [DONE]
 
    What to do:
      1. Decide on a contact email. Options:
         - A real email like legal@yourdomain.com
         - A forwarding alias (Google Workspace lets you create these free)
         - Even a personal email works, but a legal@ alias looks more legit
-     2. Find-and-replace "legal@jjjjjenterprises.example" across these files:
+     2. Find-and-replace "admin@jjjjjenterprises.com" across these files:
         - LICENSE
         - TERMS.md
         - PRIVACY.md

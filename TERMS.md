@@ -118,4 +118,4 @@ These Terms, together with the LICENSE and PRIVACY.md files, are the entire agre
 
 ---
 
-**Contact:** legal@jjjjjenterprises.example  *(replace with a real address)*
+**Contact:** admin@jjjjjenterprises.com

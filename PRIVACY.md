@@ -112,4 +112,4 @@ We may update this Privacy Policy from time to time. The "Effective date" at the
 For questions about this Privacy Policy or to exercise your data rights, contact:
 
 JJJJJ Enterprises, LLC
-legal@jjjjjenterprises.example  *(replace with a real address)*
+admin@jjjjjenterprises.com
