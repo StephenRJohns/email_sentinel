@@ -42,7 +42,7 @@ function loadRules() {
     if (!Array.isArray(data)) return [];
     return data.map(migrateRule_);
   } catch (e) {
-    log('Rules corrupt, returning empty list: ' + e);
+    activityLog('Rules corrupt, returning empty list: ' + e);
     return [];
   }
 }

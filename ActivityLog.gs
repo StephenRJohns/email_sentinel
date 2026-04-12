@@ -45,7 +45,7 @@ function flushLog() {
   _logBuffering = false;
 }
 
-function log(message) {
+function activityLog(message) {
   const stamp = Utilities.formatDate(
     new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'
   );
@@ -70,7 +70,7 @@ function log(message) {
     }
     props.setProperty(LOG_KEY, JSON.stringify(entries));
   } catch (e) {
-    console.error('log() failed: ' + e);
+    console.error('activityLog() failed: ' + e);
   }
   console.info(message);
 }

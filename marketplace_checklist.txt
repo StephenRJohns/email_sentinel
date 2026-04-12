@@ -1,5 +1,5 @@
 ================================================================================
-mAIl Alert ��� Google Workspace Marketplace Checklist
+mAIl Alert -- Google Workspace Marketplace Checklist
 ================================================================================
 
 This file lists everything needed to publish mAIl Alert on the Google

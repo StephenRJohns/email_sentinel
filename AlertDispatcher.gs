@@ -124,9 +124,9 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
   if (emailAddrs.length) {
     try {
       sendEmailAlert_(emailAddrs, rule, emailData, message, settings);
-      log('  Email alert sent to: ' + emailAddrs.join(', '));
+      activityLog('  Email alert sent to: ' + emailAddrs.join(', '));
     } catch (e) {
-      log('  Email alert FAILED: ' + e);
+      activityLog('  Email alert FAILED: ' + e);
     }
   }
 
@@ -134,14 +134,14 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
     .map(s => s.trim()).filter(Boolean);
   if (smsNumbers.length) {
     if (settings.smsProvider === 'none' || !settings.smsProvider) {
-      log('  SMS alert skipped — no SMS provider configured in Settings.');
+      activityLog('  SMS alert skipped — no SMS provider configured in Settings.');
     } else {
       smsNumbers.forEach(num => {
         try {
           sendSmsAlert_(num, rule, emailData, message, settings);
-          log('  SMS alert sent to: ' + num);
+          activityLog('  SMS alert sent to: ' + num);
         } catch (e) {
-          log('  SMS alert to ' + num + ' FAILED: ' + e);
+          activityLog('  SMS alert to ' + num + ' FAILED: ' + e);
         }
       });
     }
@@ -155,14 +155,14 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
     chatNames.forEach(name => {
       const url = registry[name];
       if (!url) {
-        log('  Chat: no webhook configured for "' + name + '" — add it in Settings.');
+        activityLog('  Chat: no webhook configured for "' + name + '" — add it in Settings.');
         return;
       }
       try {
         sendChatAlert_(url, rule, emailData, message);
-        log('  Chat alert sent to: ' + name);
+        activityLog('  Chat alert sent to: ' + name);
       } catch (e) {
-        log('  Chat alert to "' + name + '" FAILED: ' + e);
+        activityLog('  Chat alert to "' + name + '" FAILED: ' + e);
       }
     });
   }
@@ -171,9 +171,9 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
   if (rule.alerts.calendarEnabled) {
     try {
       sendCalendarAlert_(rule, emailData, message, settings);
-      log('  Calendar event created.');
+      activityLog('  Calendar event created.');
     } catch (e) {
-      log('  Calendar alert FAILED: ' + e);
+      activityLog('  Calendar alert FAILED: ' + e);
     }
   }
 
@@ -181,9 +181,9 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
   if (rule.alerts.sheetsEnabled) {
     try {
       sendSheetsAlert_(rule, emailData, message, settings);
-      log('  Sheets row appended.');
+      activityLog('  Sheets row appended.');
     } catch (e) {
-      log('  Sheets alert FAILED: ' + e);
+      activityLog('  Sheets alert FAILED: ' + e);
     }
   }
 
@@ -191,9 +191,9 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
   if (rule.alerts.tasksEnabled) {
     try {
       sendTasksAlert_(rule, emailData, message, settings);
-      log('  Task created.');
+      activityLog('  Task created.');
     } catch (e) {
-      log('  Tasks alert FAILED: ' + e);
+      activityLog('  Tasks alert FAILED: ' + e);
     }
   }
 }
@@ -483,7 +483,7 @@ function sendSheetsAlert_(rule, emailData, message, settings) {
     const s = loadSettings();
     s.sheetsId = ssId;
     saveSettings(s);
-    log('  Auto-created alert spreadsheet: ' + ssId);
+    activityLog('  Auto-created alert spreadsheet: ' + ssId);
   }
   const ss = SpreadsheetApp.openById(ssId);
   let sheet = ss.getSheetByName('Alerts');

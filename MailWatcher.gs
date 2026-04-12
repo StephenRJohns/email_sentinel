@@ -29,17 +29,17 @@ function runMailCheck() {
   try {
     const settings = loadSettings();
     if (!isInBusinessHours(settings, new Date())) {
-      log('Outside business hours — skipping check.');
+      activityLog('Outside business hours \u2014 skipping check.');
       return;
     }
 
     const rules = loadRules().filter(r => r.enabled);
     if (!rules.length) {
-      log('No enabled rules — nothing to watch.');
+      activityLog('No enabled rules \u2014 nothing to watch.');
       return;
     }
     if (!settings.geminiApiKey) {
-      log('No Gemini API key configured — open Settings to add one.');
+      activityLog('No Gemini API key configured — open Settings to add one.');
       return;
     }
 
@@ -55,12 +55,21 @@ function runMailCheck() {
       if (!activeLabels.has(k)) delete seenAll[k];
     });
 
+    const MAX_EVALS_PER_RUN = 100;
+    const runStart = Date.now();
+    const MAX_RUN_MS = 240000; // 4 minutes (leave headroom for 6-min Apps Script limit)
+    var evalCount = 0;
+    var matchCount = 0;
+    var msgCount = 0;
+    var hitLimit = false;
+
     labels.forEach(labelName => {
+      if (hitLimit) return;
       let messages;
       try {
         messages = fetchRecentMessages_(labelName);
       } catch (e) {
-        log('Label "' + labelName + '" fetch failed: ' + e);
+        activityLog('Label "' + labelName + '" fetch failed: ' + e);
         return;
       }
 
@@ -79,38 +88,61 @@ function runMailCheck() {
       saveSeen_(seenAll);
 
       if (isFirstRun) {
-        log('Label "' + labelName + '": baseline set (' + messages.length +
+        activityLog('Label "' + labelName + '": baseline set (' + messages.length +
             ' existing message(s)). Watching for new mail.');
         return;
       }
 
       if (!newMessages.length) {
-        log('Label "' + labelName + '": no new messages.');
+        activityLog('Label "' + labelName + '": no new messages.');
         return;
       }
 
-      log('Label "' + labelName + '": ' + newMessages.length + ' new message(s).');
+      activityLog('Label "' + labelName + '": ' + newMessages.length + ' new message(s).');
 
       const matchingRules = rules.filter(r => (r.labels || []).indexOf(labelName) >= 0);
+      const failedIds = [];
+      msgCount += newMessages.length;
       newMessages.forEach(msg => {
-        log('  From: ' + msg.from + '  |  Subject: ' + (msg.subject || '').substring(0, 60));
+        activityLog('  From: ' + msg.from + '  |  Subject: ' + (msg.subject || '').substring(0, 60));
+        let anyFailed = false;
         matchingRules.forEach(rule => {
-          log('  Evaluating against rule "' + rule.name + '" ...');
+          if (hitLimit) return;
+          if (evalCount >= MAX_EVALS_PER_RUN || (Date.now() - runStart) > MAX_RUN_MS) {
+            hitLimit = true;
+            activityLog('  Run limit reached (' + evalCount + ' evaluations, ' +
+              Math.round((Date.now() - runStart) / 1000) + 's). Remaining messages will be checked next run.');
+            return;
+          }
+          activityLog('  Evaluating against rule "' + rule.name + '" ...');
+          evalCount++;
           const evalResult = evaluateEmailAgainstRule(
             msg, rule, settings.geminiApiKey, settings.geminiModel
           );
-          if (evalResult.matched) {
-            log('  MATCH! ' + evalResult.reason);
+          if (evalResult.failed) {
+            anyFailed = true;
+            activityLog('  Evaluation failed \u2014 will retry next run.');
+          } else if (evalResult.matched) {
+            matchCount++;
+            activityLog('  MATCH! ' + evalResult.reason);
             const alertContent = generateAlertMessage(
               msg, rule, settings.geminiApiKey, settings.geminiModel
             );
             dispatchAlerts(rule, msg, alertContent, evalResult.reason, settings);
           } else {
-            log('  No match. ' + evalResult.reason);
+            activityLog('  No match. ' + evalResult.reason);
           }
         });
+        if (anyFailed || hitLimit) failedIds.push(msg.id);
       });
+      if (failedIds.length) {
+        seenAll[labelName] = seenAll[labelName].filter(
+          function(id) { return failedIds.indexOf(id) < 0; }
+        );
+        saveSeen_(seenAll);
+      }
     });
+    return { messagesChecked: msgCount, matchesFound: matchCount };
   } finally {
     flushLog();
     lock.releaseLock();
@@ -127,7 +159,7 @@ function runMailCheck() {
  * Returns up to 50 messages, newest first, in normalized form.
  */
 function fetchRecentMessages_(labelName) {
-  const query = 'label:' + quoteLabel_(labelName) + ' newer_than:1d';
+  const query = 'label:' + quoteLabel_(labelName) + ' newer_than:3d';
   const threads = GmailApp.search(query, 0, 50);
   const out = [];
   threads.forEach(t => {
@@ -177,16 +209,27 @@ function loadSeen_() {
 }
 
 function saveSeen_(seen) {
-  const json = JSON.stringify(seen);
+  var json = JSON.stringify(seen);
   if (json.length > 8500) {
-    log('Warning: seen-ID store at ' + json.length + ' bytes — approaching 9 KB limit.');
+    var labels = Object.keys(seen);
+    var limit = SEEN_MAX_PER_LABEL;
+    while (json.length > 8000 && limit > 20) {
+      limit = Math.floor(limit * 0.6);
+      labels.forEach(function(k) {
+        if (seen[k].length > limit) {
+          seen[k] = seen[k].slice(-limit);
+        }
+      });
+      json = JSON.stringify(seen);
+    }
+    activityLog('Seen-ID store trimmed to ' + json.length + ' bytes (max ' + limit + ' IDs per label).');
   }
   PropertiesService.getUserProperties().setProperty(SEEN_KEY, json);
 }
 
 function resetSeen() {
   PropertiesService.getUserProperties().deleteProperty(SEEN_KEY);
-  log('Seen-ID baseline cleared. Next run will re-baseline all labels.');
+  activityLog('Seen-ID baseline cleared. Next run will re-baseline all labels.');
 }
 
 // ── Trigger management ──────────────────────────────────────────────────────
@@ -196,7 +239,7 @@ function installTrigger(everyMinutes) {
   const allowed = [1, 5, 10, 15, 30];
   const m = allowed.indexOf(everyMinutes) >= 0 ? everyMinutes : 5;
   ScriptApp.newTrigger('runMailCheck').timeBased().everyMinutes(m).create();
-  log('Installed time-driven trigger: every ' + m + ' minute(s).');
+  activityLog('Installed time-driven trigger: every ' + m + ' minute(s).');
 }
 
 function removeTriggers() {
@@ -208,7 +251,7 @@ function removeTriggers() {
       removed++;
     }
   });
-  if (removed) log('Removed ' + removed + ' existing trigger(s).');
+  if (removed) activityLog('Removed ' + removed + ' existing trigger(s).');
 }
 
 function isMonitoringActive() {

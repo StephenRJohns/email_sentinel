@@ -176,7 +176,7 @@ Each item below is tagged:
    Who: [LAWYER]
 
    The LICENSE, TERMS.md, PRIVACY.md, and DISCLAIMER.md in this repo are
-   AI-generated templates. They cover the right topics but have not been
+   draft templates. They cover the right topics but have not been
    reviewed by a licensed attorney. A lawyer needs to:
      - Confirm they're enforceable in your state
      - Tighten language that may be too vague

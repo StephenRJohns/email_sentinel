@@ -120,6 +120,13 @@ Go to mAIl Alert (unsafe). It is safe; it is your own code.
 6. Create a test rule
 --------------------------------------------------------------------------------
 
+  Option A — Starter rules (quickest):
+  1. From the home card → "Starter rules".
+  2. Review the 5 pre-built rules and click "Create starter rules".
+  3. They are created disabled. Edit each one to add your email address,
+     then enable the ones you want.
+
+  Option B — Custom rule:
   1. From the home card → Rules → "+ New rule".
   2. Fill in:
        Name:    "Test rule"

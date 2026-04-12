@@ -61,7 +61,7 @@ function loadSettings() {
     const parsed = JSON.parse(raw);
     return Object.assign({}, DEFAULT_SETTINGS, parsed);
   } catch (e) {
-    log('Settings corrupt, resetting: ' + e);
+    activityLog('Settings corrupt, resetting: ' + e);
     return Object.assign({}, DEFAULT_SETTINGS);
   }
 }

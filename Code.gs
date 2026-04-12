@@ -25,8 +25,13 @@ function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard());
  * brand new rule without waiting for the next time-driven trigger.
  */
 function actionRunCheckNow(e) {
-  try { runMailCheck(); }
-  catch (err) { log('Manual check failed: ' + err); }
+  try {
+    var result = runMailCheck() || {};
+    activityLog('Manual check: ' + (result.messagesChecked || 0) + ' new email(s), ' +
+      (result.matchesFound || 0) + ' match(es).');
+  } catch (err) {
+    activityLog('Manual check failed: ' + err);
+  }
   return universalCardResponse_(buildActivityCard());
 }
 

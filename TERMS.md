@@ -10,7 +10,7 @@ By installing or using the Service you ("you", "your") agree to these Terms of S
 
 ## 1. Description of the Service
 
-mAIl Alert is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via your own Gmail account and (optionally) via a third-party SMS provider you configure (such as those listed in Section 5).
+mAIl Alert is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via your own Gmail account and (optionally) via Google Chat, Google Calendar, Google Sheets, Google Tasks, or a third-party SMS provider you configure (such as those listed in Section 5).
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 
@@ -114,7 +114,7 @@ You may not use, export, or re-export the Service in violation of any U.S. or ot
 
 ## 17. Miscellaneous
 
-These Terms, together with the LICENSE and PRIVACY.md files, are the entire agreement between you and JJJJJ Enterprises, LLC concerning the Service and supersede any prior agreement on the subject. If any provision is held unenforceable, the remaining provisions will continue in full force and effect. Our failure to enforce any right or provision is not a waiver of that right or provision.
+These Terms, together with the LICENSE, PRIVACY.md, and DISCLAIMER.md files, are the entire agreement between you and JJJJJ Enterprises, LLC concerning the Service and supersede any prior agreement on the subject. If any provision is held unenforceable, the remaining provisions will continue in full force and effect. Our failure to enforce any right or provision is not a waiver of that right or provision.
 
 ---
 

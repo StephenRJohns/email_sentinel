@@ -36,7 +36,8 @@
         "https://dashboard.clicksend.com/",
         "https://dashboard.nexmo.com/",
         "https://aistudio.google.com/",
-        "https://ai.google.dev/"
+        "https://ai.google.dev/",
+        "https://chat.google.com/"
       ]
     },
     "gmail": {

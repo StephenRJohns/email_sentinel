@@ -76,7 +76,7 @@ All state lives in `PropertiesService.getUserProperties()`:
 
 ```
 mailalert/
-├── appsscript.json        # Add-on manifest (scopes, triggers, URL whitelists)
+├── appsscript.json        # Add-on manifest (scopes, triggers, link prefixes)
 ├── .clasp.json            # clasp project config — paste your scriptId here
 ├── .claspignore           # Limits clasp push to .gs / .html / appsscript.json
 ├── .gitignore
@@ -169,7 +169,7 @@ After installation, open Gmail and click the mAIl Alert icon in the right rail.
 2. **Settings ▸ Polling** — pick how often to check (default 5 minutes).
 3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison.
 4. **Settings ▸ Save settings**.
-5. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and pick alert recipients.
+5. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and pick alert recipients. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can add your email and enable them at your own pace.
 6. Back on the home card, click **Start monitoring**. This installs a time-driven trigger that runs in the background even when Gmail is closed.
 
 The **first** check for any new label is treated as a baseline (no alerts) so you don't get a flood of notifications for existing mail. Alerts start with the next new message.
@@ -362,7 +362,7 @@ These use your existing Google account — no third-party sign-up, no cost.
 
 | Channel | What it does | How to set up |
 |---|---|---|
-| **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. | Create a Space in Google Chat. Space menu ▸ Apps & integrations ▸ Manage webhooks ▸ create one. Copy the URL into **Settings ▸ Google Chat spaces** as `[{"name":"My Alerts","url":"https://..."}]`. Select the space name in each rule. |
+| **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. **Requires a Google Workspace paid account** (webhooks are not available on free Gmail accounts). | Create a Space at [chat.google.com](https://chat.google.com). Open the space, click the space name in the top header bar ▸ Apps & integrations ▸ Webhooks ▸ create one. Copy the URL into **Settings ▸ Google Chat spaces** as `[{"name":"My Alerts","url":"https://..."}]`. Select the space name in each rule. |
 | **Google Calendar** | Creates a 15-minute calendar event with the alert details. Phone/desktop notifications fire automatically if you have calendar notifications on. | (Optional) Enter a calendar ID in Settings, or leave blank for your primary calendar. In the rule editor, check "Create a Google Calendar event on match." |
 | **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — mAIl Alert auto-creates one called "mAIl Alert — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
 | **Google Tasks** | Creates a task in Google Tasks with the alert subject and details. Shows in the Gmail sidebar and the Google Tasks app. | Leave the Tasks list ID blank for "My Tasks" (the default list). In the rule editor, check "Create a Google Task on match." |
@@ -421,3 +421,7 @@ Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
 | [DISCLAIMER.md](DISCLAIMER.md) | Warranty disclaimer, AI accuracy, no-reliance notice |
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. See [DISCLAIMER.md](DISCLAIMER.md) and Section 9 of the [Terms of Service](TERMS.md) for details.
+
+---
+
+Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. This project is not affiliated with or endorsed by Google.

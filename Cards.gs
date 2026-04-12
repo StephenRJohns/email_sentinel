@@ -53,10 +53,37 @@ function buildHomeCard() {
     .setText('Run check now')
     .setOnClickAction(action_('handleRunCheckNow')));
 
+  // First-use onboarding
+  var setupSection = null;
+  if (!settings.geminiApiKey || rules.length === 0) {
+    setupSection = CardService.newCardSection()
+      .setHeader('<b>Quick setup</b>');
+    var steps = [];
+    if (!settings.geminiApiKey) {
+      steps.push('\u2610 Open <b>Settings</b> and paste your Gemini API key');
+    } else {
+      steps.push('\u2611 Gemini API key configured');
+    }
+    if (rules.length === 0) {
+      steps.push('\u2610 Create a rule or click <b>Starter rules</b> below');
+    } else {
+      steps.push('\u2611 ' + rules.length + ' rule(s) created');
+    }
+    if (!monitoring) {
+      steps.push('\u2610 Click <b>Start monitoring</b> above');
+    } else {
+      steps.push('\u2611 Monitoring active');
+    }
+    setupSection.addWidget(CardService.newTextParagraph().setText(steps.join('<br>')));
+  }
+
   const navSection = CardService.newCardSection()
     .addWidget(CardService.newTextButton()
       .setText('Rules')
       .setOnClickAction(navAction_('buildRulesCard')))
+    .addWidget(CardService.newTextButton()
+      .setText('Starter rules')
+      .setOnClickAction(navAction_('buildStarterRulesCard')))
     .addWidget(CardService.newTextButton()
       .setText('Settings')
       .setOnClickAction(navAction_('buildSettingsCard')))
@@ -67,11 +94,12 @@ function buildHomeCard() {
       .setText('Help')
       .setOnClickAction(navAction_('buildHelpCard')));
 
-  return CardService.newCardBuilder()
+  var builder = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('mAIl Alert\u2122'))
-    .addSection(statusSection)
-    .addSection(navSection)
-    .build();
+    .addSection(statusSection);
+  if (setupSection) builder.addSection(setupSection);
+  builder.addSection(navSection);
+  return builder.build();
 }
 
 function handleStartMonitoring(e) {
@@ -89,9 +117,14 @@ function handleStopMonitoring(e) {
 }
 
 function handleRunCheckNow(e) {
-  try { runMailCheck(); }
-  catch (err) { return notificationResponse_('Check failed: ' + (err.message || err)); }
-  return refreshHome_('Check complete — see Activity Log.');
+  try {
+    var result = runMailCheck() || {};
+    var msg = 'Check complete: ' + (result.messagesChecked || 0) + ' new email(s), ' +
+      (result.matchesFound || 0) + ' match(es).';
+    return refreshHome_(msg);
+  } catch (err) {
+    return notificationResponse_('Check failed: ' + (err.message || err));
+  }
 }
 
 function refreshHome_(message) {
@@ -143,14 +176,18 @@ function buildRuleSummarySection_(rule) {
     ? rule.ruleText.substring(0, 137) + '…'
     : rule.ruleText;
 
+  const channels = [];
+  if (emails !== '\u2014') channels.push('Email');
+  if (sms !== '\u2014') channels.push('SMS');
+  if (chat !== '\u2014') channels.push('Chat');
+  if (google !== '\u2014') channels.push(google);
+  const channelSummary = channels.length > 0 ? channels.join(', ') : 'None configured';
+
   const section = CardService.newCardSection()
     .setHeader('<b>' + escapeHtml_(rule.name) + '</b> &nbsp; ' + status)
     .addWidget(CardService.newDecoratedText().setTopLabel('Labels').setText(escapeHtml_(labels)))
     .addWidget(CardService.newDecoratedText().setTopLabel('Rule').setText(escapeHtml_(ruleText)))
-    .addWidget(CardService.newDecoratedText().setTopLabel('Email').setText(escapeHtml_(emails)))
-    .addWidget(CardService.newDecoratedText().setTopLabel('SMS').setText(escapeHtml_(sms)))
-    .addWidget(CardService.newDecoratedText().setTopLabel('Chat').setText(escapeHtml_(chat)))
-    .addWidget(CardService.newDecoratedText().setTopLabel('Google').setText(escapeHtml_(google)));
+    .addWidget(CardService.newDecoratedText().setTopLabel('Channels').setText(escapeHtml_(channelSummary)));
 
   const buttons = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
@@ -174,10 +211,39 @@ function handleToggleRule(e) {
 }
 
 function handleDeleteRule(e) {
+  const rule = getRuleById(e.parameters.ruleId);
+  const name = rule ? rule.name : 'this rule';
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Delete <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Delete')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(actionWithRule_('handleConfirmDeleteRule', e.parameters.ruleId)))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handleCancelDelete'))));
+  const card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Confirm delete'))
+    .addSection(section)
+    .build();
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(card))
+    .build();
+}
+
+function handleConfirmDeleteRule(e) {
   deleteRule(e.parameters.ruleId);
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().updateCard(buildRulesCard()))
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildRulesCard()))
     .setNotification(CardService.newNotification().setText('Rule deleted.'))
+    .build();
+}
+
+function handleCancelDelete(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard())
     .build();
 }
 
@@ -348,9 +414,14 @@ function handleSaveRule(e) {
   try { upsertRule(rule); }
   catch (err) { return notificationResponse_('Save failed: ' + err); }
 
+  const hasChannel = emailAddresses.length > 0 || smsNumbers.length > 0 ||
+    chatSpaces.length > 0 || calendarEnabled || sheetsEnabled || tasksEnabled;
+  const msg = hasChannel ? 'Rule saved.'
+    : 'Rule saved, but no alert channels configured. Edit the rule to add at least one.';
+
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popCard().updateCard(buildRulesCard()))
-    .setNotification(CardService.newNotification().setText('Rule saved.'))
+    .setNotification(CardService.newNotification().setText(msg))
     .build();
 }
 
@@ -368,12 +439,23 @@ function buildSettingsCard() {
   const s = loadSettings();
 
   const aiSection = CardService.newCardSection()
-    .setHeader('<b>Gemini (rule evaluation)</b>')
-    .addWidget(CardService.newTextInput()
+    .setHeader('<b>Gemini (rule evaluation)</b>');
+  if (s.geminiApiKey) {
+    aiSection.addWidget(CardService.newDecoratedText()
+      .setTopLabel('Current key')
+      .setText('....' + s.geminiApiKey.slice(-4)));
+    aiSection.addWidget(CardService.newTextInput()
+      .setFieldName('geminiApiKey')
+      .setTitle('New API key (leave blank to keep current)')
+      .setHint('Only fill in to replace the current key')
+      .setValue(''));
+  } else {
+    aiSection.addWidget(CardService.newTextInput()
       .setFieldName('geminiApiKey')
       .setTitle('Gemini API key')
       .setHint('Get one free at aistudio.google.com/app/apikey')
-      .setValue(s.geminiApiKey || ''));
+      .setValue(''));
+  }
 
   const modelSelect = CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.DROPDOWN)
@@ -400,25 +482,37 @@ function buildSettingsCard() {
     .addWidget(CardService.newSelectionInput()
       .setType(CardService.SelectionInputType.CHECK_BOX)
       .setFieldName('businessHoursEnabled')
-      .addItem('Only check during business hours', 'true', !!s.businessHoursEnabled))
-    .addWidget(CardService.newTextInput()
-      .setFieldName('businessHoursStart')
-      .setTitle('Start (e.g. 9:00 AM)')
-      .setValue(s.businessHoursStart || '9:00 AM'))
-    .addWidget(CardService.newTextInput()
-      .setFieldName('businessHoursEnd')
-      .setTitle('End (e.g. 9:00 PM)')
-      .setValue(s.businessHoursEnd || '9:00 PM'));
+      .addItem('Only check during business hours', 'true', !!s.businessHoursEnabled));
+  var bizStart = CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.DROPDOWN)
+    .setFieldName('businessHoursStart')
+    .setTitle('Start');
+  var bizEnd = CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.DROPDOWN)
+    .setFieldName('businessHoursEnd')
+    .setTitle('End');
+  var savedStart = s.businessHoursStart || '9:00 AM';
+  var savedEnd = s.businessHoursEnd || '9:00 PM';
+  for (var bh = 0; bh < 24; bh++) {
+    for (var bm = 0; bm < 60; bm += 30) {
+      var h12 = bh === 0 ? 12 : bh > 12 ? bh - 12 : bh;
+      var ap = bh < 12 ? 'AM' : 'PM';
+      var tLabel = h12 + ':' + (bm === 0 ? '00' : '30') + ' ' + ap;
+      bizStart.addItem(tLabel, tLabel, tLabel === savedStart);
+      bizEnd.addItem(tLabel, tLabel, tLabel === savedEnd);
+    }
+  }
+  bizSection.addWidget(bizStart).addWidget(bizEnd);
 
   const smsSection = CardService.newCardSection()
     .setHeader('<b>SMS provider</b>')
     .addWidget(CardService.newTextParagraph().setText(
-      'Google doesn\'t provide a first-party SMS API. Pick a provider below. ' +
-      'Click <b>SMS setup guide</b> at the bottom for a comparison and sign-up links.'));
+      'Pick a provider below. Click <b>SMS setup guide</b> at the bottom for a comparison and sign-up links.'));
   const smsSelect = CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.DROPDOWN)
     .setFieldName('smsProvider')
-    .setTitle('Provider');
+    .setTitle('Provider')
+    .setOnChangeAction(action_('handleSmsProviderChange'));
   SMS_PROVIDERS.forEach(key => {
     const info = SMS_PROVIDER_INFO[key];
     const label = key === 'none' ? 'None (disable SMS)' : info.label + ' (' + info.cost + ')';
@@ -426,77 +520,31 @@ function buildSettingsCard() {
   });
   smsSection.addWidget(smsSelect);
 
-  // Textbelt
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('textbeltApiKey')
-    .setTitle('Textbelt API key')
-    .setHint('Use "textbelt" for 1 free msg/day, or buy at textbelt.com')
-    .setValue(s.textbeltApiKey || ''));
-  // Telnyx
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('telnyxApiKey')
-    .setTitle('Telnyx API key')
-    .setValue(s.telnyxApiKey || ''));
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('telnyxFromNumber')
-    .setTitle('Telnyx "From" number (E.164)')
-    .setValue(s.telnyxFromNumber || ''));
-  // Plivo
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('plivoAuthId')
-    .setTitle('Plivo Auth ID')
-    .setValue(s.plivoAuthId || ''));
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('plivoAuthToken')
-    .setTitle('Plivo Auth Token')
-    .setValue(s.plivoAuthToken || ''));
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('plivoFromNumber')
-    .setTitle('Plivo "From" number (E.164)')
-    .setValue(s.plivoFromNumber || ''));
-  // Twilio
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('twilioAccountSid')
-    .setTitle('Twilio Account SID')
-    .setValue(s.twilioAccountSid || ''));
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('twilioAuthToken')
-    .setTitle('Twilio Auth Token')
-    .setValue(s.twilioAuthToken || ''));
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('twilioFromNumber')
-    .setTitle('Twilio "From" number (E.164)')
-    .setValue(s.twilioFromNumber || ''));
-  // ClickSend
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('clicksendUsername')
-    .setTitle('ClickSend username (your email)')
-    .setValue(s.clicksendUsername || ''));
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('clicksendApiKey')
-    .setTitle('ClickSend API key')
-    .setValue(s.clicksendApiKey || ''));
-  // Vonage
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('vonageApiKey')
-    .setTitle('Vonage API key')
-    .setValue(s.vonageApiKey || ''));
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('vonageApiSecret')
-    .setTitle('Vonage API secret')
-    .setValue(s.vonageApiSecret || ''));
-  // Webhook
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('smsWebhookUrl')
-    .setTitle('Generic webhook URL')
-    .setHint('Receives POST {"to":"+15551234567","body":"..."}. Self-deploy only — not available in Marketplace installs.')
-    .setValue(s.smsWebhookUrl || ''));
-  // Test number
-  smsSection.addWidget(CardService.newTextInput()
-    .setFieldName('smsTestNumber')
-    .setTitle('Test phone number (for Send test SMS button)')
-    .setHint('E.164 format: +15551234567')
-    .setValue(s.smsTestNumber || ''));
+  const provider = s.smsProvider || 'none';
+  const SMS_FIELD_DEFS_ = {
+    textbelt: [{ field: 'textbeltApiKey', title: 'Textbelt API key', hint: 'Use "textbelt" for 1 free msg/day, or buy at textbelt.com' }],
+    telnyx: [{ field: 'telnyxApiKey', title: 'Telnyx API key' }, { field: 'telnyxFromNumber', title: 'Telnyx "From" number (E.164)' }],
+    plivo: [{ field: 'plivoAuthId', title: 'Plivo Auth ID' }, { field: 'plivoAuthToken', title: 'Plivo Auth Token' }, { field: 'plivoFromNumber', title: 'Plivo "From" number (E.164)' }],
+    twilio: [{ field: 'twilioAccountSid', title: 'Twilio Account SID' }, { field: 'twilioAuthToken', title: 'Twilio Auth Token' }, { field: 'twilioFromNumber', title: 'Twilio "From" number (E.164)' }],
+    clicksend: [{ field: 'clicksendUsername', title: 'ClickSend username (your email)' }, { field: 'clicksendApiKey', title: 'ClickSend API key' }],
+    vonage: [{ field: 'vonageApiKey', title: 'Vonage API key' }, { field: 'vonageApiSecret', title: 'Vonage API secret' }],
+    webhook: [{ field: 'smsWebhookUrl', title: 'Generic webhook URL', hint: 'Receives POST {"to":"...","body":"..."}. Self-deploy only.' }]
+  };
+  if (provider !== 'none' && SMS_FIELD_DEFS_[provider]) {
+    SMS_FIELD_DEFS_[provider].forEach(function(f) {
+      var w = CardService.newTextInput()
+        .setFieldName(f.field)
+        .setTitle(f.title)
+        .setValue(s[f.field] || '');
+      if (f.hint) w.setHint(f.hint);
+      smsSection.addWidget(w);
+    });
+    smsSection.addWidget(CardService.newTextInput()
+      .setFieldName('smsTestNumber')
+      .setTitle('Test phone number')
+      .setHint('E.164 format: +15551234567')
+      .setValue(s.smsTestNumber || ''));
+  }
 
   // ── Google-native alert channels (free) ─────────────────────────────
   const googleSection = CardService.newCardSection()
@@ -504,17 +552,28 @@ function buildSettingsCard() {
     .addWidget(CardService.newTextParagraph().setText(
       'These use your existing Google account — no third-party sign-up, no cost.'));
 
-  // Google Chat
-  googleSection.addWidget(CardService.newTextInput()
-    .setFieldName('chatSpaces')
-    .setTitle('Google Chat spaces (JSON array)')
-    .setMultiline(true)
-    .setHint('[{"name":"My Alerts","url":"https://chat.googleapis.com/..."}]')
-    .setValue(s.chatSpaces || '[]'));
+  // Google Chat — individual name/URL pairs (up to 3 spaces)
+  var chatSpacesArr = [];
+  try { chatSpacesArr = JSON.parse(s.chatSpaces || '[]'); } catch (e) {}
+  if (!Array.isArray(chatSpacesArr)) chatSpacesArr = [];
+  var chatSlots = Math.min(Math.max(chatSpacesArr.length + 1, 1), 3);
+  for (var ci = 0; ci < chatSlots; ci++) {
+    var cs = chatSpacesArr[ci] || {};
+    googleSection.addWidget(CardService.newTextInput()
+      .setFieldName('chatSpaceName' + ci)
+      .setTitle('Chat space ' + (ci + 1) + ' name')
+      .setHint(ci === 0 ? 'e.g. "mAIl Alerts"' : '')
+      .setValue(cs.name || ''));
+    googleSection.addWidget(CardService.newTextInput()
+      .setFieldName('chatSpaceUrl' + ci)
+      .setTitle('Chat space ' + (ci + 1) + ' webhook URL')
+      .setHint(ci === 0 ? 'Paste the webhook URL from Google Chat' : '')
+      .setValue(cs.url || ''));
+  }
   googleSection.addWidget(CardService.newTextParagraph().setText(
-    '<font color="#888888">Create a Space in Google Chat, then click the dropdown arrow next to ' +
-    'the space name > Apps & integrations > Manage webhooks > create one. ' +
-    'Copy the URL and add an entry above.</font>'));
+    '<font color="#888888">Requires a Google Workspace paid account. ' +
+    'Open a Space at <a href="https://chat.google.com">chat.google.com</a>, ' +
+    'click the space name in the header \u25b8 Apps & integrations \u25b8 Webhooks \u25b8 create one.</font>'));
 
   // Calendar
   googleSection.addWidget(CardService.newTextInput()
@@ -589,30 +648,47 @@ function handleSaveSettings(e) {
     return v.stringInputs.value.indexOf('true') >= 0;
   };
 
+  const prev = loadSettings();
+  const smsProvider = get('smsProvider') || 'none';
+
+  // Build chat spaces JSON from individual name/URL pairs
+  var chatSpacesArr = [];
+  for (var ci = 0; ci < 3; ci++) {
+    var csName = get('chatSpaceName' + ci);
+    var csUrl = get('chatSpaceUrl' + ci);
+    if (csName && csUrl) {
+      if (csUrl.indexOf('https://') !== 0) {
+        return notificationResponse_('Chat space ' + (ci + 1) + ' URL must start with https://');
+      }
+      chatSpacesArr.push({ name: csName, url: csUrl });
+    }
+  }
+
   const next = {
-    geminiApiKey: get('geminiApiKey'),
+    geminiApiKey: get('geminiApiKey') || prev.geminiApiKey || '',
     geminiModel: get('geminiModel') || GEMINI_DEFAULT_MODEL,
     pollMinutes: parseInt(get('pollMinutes') || '5', 10),
     businessHoursEnabled: getCheckbox('businessHoursEnabled'),
     businessHoursStart: get('businessHoursStart') || '9:00 AM',
     businessHoursEnd: get('businessHoursEnd') || '9:00 PM',
-    smsProvider: get('smsProvider') || 'none',
-    textbeltApiKey: get('textbeltApiKey'),
-    telnyxApiKey: get('telnyxApiKey'),
-    telnyxFromNumber: get('telnyxFromNumber'),
-    plivoAuthId: get('plivoAuthId'),
-    plivoAuthToken: get('plivoAuthToken'),
-    plivoFromNumber: get('plivoFromNumber'),
-    twilioAccountSid: get('twilioAccountSid'),
-    twilioAuthToken: get('twilioAuthToken'),
-    twilioFromNumber: get('twilioFromNumber'),
-    clicksendUsername: get('clicksendUsername'),
-    clicksendApiKey: get('clicksendApiKey'),
-    vonageApiKey: get('vonageApiKey'),
-    vonageApiSecret: get('vonageApiSecret'),
-    smsWebhookUrl: get('smsWebhookUrl'),
-    smsTestNumber: get('smsTestNumber'),
-    chatSpaces: get('chatSpaces') || '[]',
+    smsProvider: smsProvider,
+    // Only update the selected provider's fields; preserve all others
+    textbeltApiKey: smsProvider === 'textbelt' ? get('textbeltApiKey') : (prev.textbeltApiKey || ''),
+    telnyxApiKey: smsProvider === 'telnyx' ? get('telnyxApiKey') : (prev.telnyxApiKey || ''),
+    telnyxFromNumber: smsProvider === 'telnyx' ? get('telnyxFromNumber') : (prev.telnyxFromNumber || ''),
+    plivoAuthId: smsProvider === 'plivo' ? get('plivoAuthId') : (prev.plivoAuthId || ''),
+    plivoAuthToken: smsProvider === 'plivo' ? get('plivoAuthToken') : (prev.plivoAuthToken || ''),
+    plivoFromNumber: smsProvider === 'plivo' ? get('plivoFromNumber') : (prev.plivoFromNumber || ''),
+    twilioAccountSid: smsProvider === 'twilio' ? get('twilioAccountSid') : (prev.twilioAccountSid || ''),
+    twilioAuthToken: smsProvider === 'twilio' ? get('twilioAuthToken') : (prev.twilioAuthToken || ''),
+    twilioFromNumber: smsProvider === 'twilio' ? get('twilioFromNumber') : (prev.twilioFromNumber || ''),
+    clicksendUsername: smsProvider === 'clicksend' ? get('clicksendUsername') : (prev.clicksendUsername || ''),
+    clicksendApiKey: smsProvider === 'clicksend' ? get('clicksendApiKey') : (prev.clicksendApiKey || ''),
+    vonageApiKey: smsProvider === 'vonage' ? get('vonageApiKey') : (prev.vonageApiKey || ''),
+    vonageApiSecret: smsProvider === 'vonage' ? get('vonageApiSecret') : (prev.vonageApiSecret || ''),
+    smsWebhookUrl: smsProvider === 'webhook' ? get('smsWebhookUrl') : (prev.smsWebhookUrl || ''),
+    smsTestNumber: smsProvider !== 'none' ? get('smsTestNumber') : (prev.smsTestNumber || ''),
+    chatSpaces: JSON.stringify(chatSpacesArr),
     calendarId: get('calendarId'),
     sheetsId: get('sheetsId'),
     tasksListId: get('tasksListId'),
@@ -628,18 +704,6 @@ function handleSaveSettings(e) {
     }
   }
 
-  if (next.chatSpaces && next.chatSpaces !== '[]') {
-    try {
-      const parsed = JSON.parse(next.chatSpaces);
-      if (!Array.isArray(parsed)) {
-        return notificationResponse_('Chat spaces must be a JSON array, e.g. [{"name":"...","url":"https://..."}]');
-      }
-    } catch (e) {
-      return notificationResponse_('Chat spaces is not valid JSON. Use format: [{"name":"...","url":"https://..."}]');
-    }
-  }
-
-  const prev = loadSettings();
   saveSettings(next);
 
   if (isMonitoringActive() && next.pollMinutes !== prev.pollMinutes) {
@@ -684,8 +748,44 @@ function handleShowSmsGuide(e) {
 }
 
 function handleResetBaseline(e) {
+  var section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Reset the seen-message baseline? The next check will re-scan all labels and skip alerting on existing messages.'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Reset')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(action_('handleConfirmResetBaseline')))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handlePopCard'))));
+  var card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Confirm reset'))
+    .addSection(section)
+    .build();
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(card))
+    .build();
+}
+
+function handleConfirmResetBaseline(e) {
   resetSeen();
-  return notificationResponse_('Seen-mail baseline cleared.');
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard())
+    .setNotification(CardService.newNotification().setText('Seen-mail baseline cleared.'))
+    .build();
+}
+
+function handleSmsProviderChange(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const v = inputs.smsProvider;
+  const provider = (v && v.stringInputs && v.stringInputs.value && v.stringInputs.value[0]) || 'none';
+  const settings = loadSettings();
+  settings.smsProvider = provider;
+  saveSettings(settings);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().updateCard(buildSettingsCard()))
+    .build();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -750,7 +850,8 @@ function buildSmsGuideCard() {
 // Activity log
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildActivityCard() {
+function buildActivityCard(offset) {
+  offset = offset || 0;
   const entries = loadLog();
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Activity log'));
@@ -771,12 +872,22 @@ function buildActivityCard() {
     return card.build();
   }
 
-  // Show newest first; CardService doesn't support a true scrollable text
-  // area, so we render entries as paragraphs in chunks.
-  const reversed = entries.slice().reverse().slice(0, 60);
-  const body = reversed.map(escapeHtml_).join('<br>');
+  const LOG_PAGE_SIZE = 20;
+  const reversed = entries.slice().reverse();
+  var pageEntries = reversed.slice(offset, offset + LOG_PAGE_SIZE);
+  var body = pageEntries.map(escapeHtml_).join('<br>');
   card.addSection(CardService.newCardSection().addWidget(
     CardService.newTextParagraph().setText(body)));
+
+  var hasMore = reversed.length > offset + LOG_PAGE_SIZE;
+  if (hasMore) {
+    card.addSection(CardService.newCardSection().addWidget(
+      CardService.newTextButton()
+        .setText('Show older (' + (reversed.length - offset - LOG_PAGE_SIZE) + ' more)')
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleShowOlderLog')
+          .setParameters({ offset: String(offset + LOG_PAGE_SIZE) }))));
+  }
   return card.build();
 }
 
@@ -786,11 +897,45 @@ function handleRefreshLog(e) {
     .build();
 }
 
+function handleShowOlderLog(e) {
+  var offset = parseInt(e.parameters.offset || '0', 10);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(offset)))
+    .build();
+}
+
 function handleClearLog(e) {
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Clear the entire activity log? This cannot be undone.'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Clear')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(action_('handleConfirmClearLog')))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handleCancelClearLog'))));
+  const card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Confirm clear'))
+    .addSection(section)
+    .build();
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(card))
+    .build();
+}
+
+function handleConfirmClearLog(e) {
   clearLog();
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard()))
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildActivityCard()))
     .setNotification(CardService.newNotification().setText('Log cleared.'))
+    .build();
+}
+
+function handleCancelClearLog(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard())
     .build();
 }
 
@@ -799,12 +944,251 @@ function handleClearLog(e) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function buildHelpCard() {
-  const html = HtmlService.createHtmlOutputFromFile('Help').getContent();
-  return CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('mAIl Alert help'))
+  var card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('mAIl Alert\u2122 Help'));
+  var section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph().setText(
+      'Tap a topic below for details.'));
+  var topics = [
+    { id: 'quickstart', label: 'Quick start & writing rules' },
+    { id: 'examples',   label: 'Rule examples by channel' },
+    { id: 'channels',   label: 'Alert channel setup' },
+    { id: 'pricing',    label: 'Gemini pricing & models' },
+    { id: 'settings',   label: 'Settings & troubleshooting' }
+  ];
+  topics.forEach(function(t) {
+    section.addWidget(CardService.newTextButton()
+      .setText(t.label)
+      .setOnClickAction(CardService.newAction()
+        .setFunctionName('handleShowHelpTopic')
+        .setParameters({ topic: t.id })));
+  });
+  card.addSection(section);
+  return card.build();
+}
+
+function handleShowHelpTopic(e) {
+  var topicId = e.parameters.topic;
+  var topics = helpTopics_();
+  var topic = topics[topicId] || { title: 'Help', content: 'Topic not found.' };
+  var card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle(topic.title))
     .addSection(CardService.newCardSection()
-      .addWidget(CardService.newTextParagraph().setText(html)))
+      .addWidget(CardService.newTextParagraph().setText(topic.content)))
     .build();
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(card))
+    .build();
+}
+
+function helpTopics_() {
+  return {
+    quickstart: {
+      title: 'Quick start & rules',
+      content:
+        '<b>Quick start</b><br>' +
+        '1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>' +
+        '2. (Optional) Configure SMS \u2014 pick a provider in Settings.<br>' +
+        '3. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to add your email and enable it.<br>' +
+        '4. Click <b>Start monitoring</b>. A time-driven trigger runs in the background even when Gmail is closed.<br><br>' +
+        '<b>Writing a rule</b><br>' +
+        'Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>' +
+        '\u2022 "Any email from @tma.com with a PDF that looks like an invoice."<br>' +
+        '\u2022 "Subject contains URGENT or CRITICAL."<br>' +
+        '\u2022 "Email from boss@company.com asking for a status update."<br><br>' +
+        'Each rule has an <b>Alert message format</b> field \u2014 plain-English instructions that tell Gemini how to format the alert. The default includes date, sender, subject, summary, and action items.<br><br>' +
+        '<b>Labels</b><br>' +
+        'Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as shown in Gmail. Multiple labels: comma-separated.'
+    },
+    examples: {
+      title: 'Rule examples',
+      content:
+        '<b>Email alerts</b><br>' +
+        '\u2022 <b>Invoice tracker:</b> "Any email from a vendor with a PDF attachment that looks like an invoice." \u2192 Email to accounting<br>' +
+        '\u2022 <b>Job updates:</b> "Any email about a job application or interview invitation." \u2192 Email to yourself<br><br>' +
+        '<b>SMS alerts</b> \u2014 urgent, time-sensitive<br>' +
+        '\u2022 <b>Server down:</b> "Automated email about a server outage or critical alert." \u2192 SMS to on-call<br>' +
+        '\u2022 <b>Wire transfer:</b> "Email from the bank confirming a wire transfer over $10,000." \u2192 SMS to CFO<br><br>' +
+        '<b>Google Chat</b> \u2014 team-visible<br>' +
+        '\u2022 <b>Sales lead:</b> "Email from a new contact mentioning pricing or demo." \u2192 Chat "Sales Leads"<br>' +
+        '\u2022 <b>Support escalation:</b> "Subject contains ESCALATION or P1." \u2192 Chat "Escalations"<br><br>' +
+        '<b>Calendar</b> \u2014 time-based follow-ups<br>' +
+        '\u2022 <b>Meeting request:</b> "Any email asking to schedule a meeting." \u2192 Calendar event<br>' +
+        '\u2022 <b>Deadline:</b> "Email mentioning a deadline or due date." \u2192 Calendar event<br><br>' +
+        '<b>Sheets</b> \u2014 audit trails<br>' +
+        '\u2022 <b>Compliance log:</b> "Email from a regulatory body or auditor." \u2192 Sheets row<br>' +
+        '\u2022 <b>Expense tracking:</b> "Emails with receipts or payment confirmations." \u2192 Sheets + Email<br><br>' +
+        '<b>Tasks</b> \u2014 to-do items<br>' +
+        '\u2022 <b>Action items:</b> "Email explicitly asking me to do, review, or approve something." \u2192 Task<br>' +
+        '\u2022 <b>Follow-up:</b> "Email saying \'let me know\' or \'awaiting your response\'." \u2192 Task<br><br>' +
+        '<b>Combining channels</b><br>' +
+        '\u2022 <b>Critical vendor issue:</b> SMS + Chat + Calendar + Sheets<br>' +
+        '\u2022 <b>New hire onboarding:</b> Task + Sheets + Chat'
+    },
+    channels: {
+      title: 'Alert channel setup',
+      content:
+        '<b>Email</b> \u2014 sent from your own Gmail. No SMTP server needed.<br><br>' +
+        '<b>SMS</b> \u2014 six providers supported. Click <b>SMS setup guide</b> in Settings for a comparison.<br>' +
+        '\u2022 <b>Textbelt</b> \u2014 easiest: 1 free SMS/day with key "textbelt", no sign-up<br>' +
+        '\u2022 <b>ClickSend</b> \u2014 free trial, username + API key, no phone number<br>' +
+        '\u2022 <b>Vonage</b> \u2014 free trial credits, no credit card<br>' +
+        '\u2022 <b>Telnyx</b> \u2014 cheapest (~$0.004/SMS), needs a phone number (~$1/mo)<br>' +
+        '\u2022 <b>Plivo</b> \u2014 $10 free credit, phone number ~$0.80/mo<br>' +
+        '\u2022 <b>Twilio</b> \u2014 most popular, $15 free credit, phone number ~$1.15/mo<br>' +
+        '\u2022 <b>Generic webhook</b> \u2014 self-deployed installs only<br>' +
+        'After configuring, click <b>Send test SMS</b> to verify.<br><br>' +
+        '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
+        '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +
+        '2. Click the space name in the header \u25b8 Apps & integrations \u25b8 Webhooks<br>' +
+        '3. Add a webhook, copy the URL, paste into Settings<br>' +
+        '4. Select the space name in each rule<br><br>' +
+        '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
+        '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
+        '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.'
+    },
+    pricing: {
+      title: 'Gemini pricing & models',
+      content:
+        'mAIl Alert calls Gemini twice per email per rule: once to evaluate, once to format the alert.<br><br>' +
+        '<b>Models (select in Settings)</b><br>' +
+        '\u2022 <b>2.0 Flash</b> (default) \u2014 fastest, 1,500 free requests/day<br>' +
+        '\u2022 <b>2.0 Flash Lite</b> \u2014 ultra-low-cost, slightly less capable<br>' +
+        '\u2022 <b>1.5 Flash</b> \u2014 same pricing as 2.0 Flash, reliable fallback<br>' +
+        '\u2022 <b>1.5 Pro</b> \u2014 highest accuracy, 50 free requests/day, 17\u00d7 cost<br><br>' +
+        '<b>Free tier</b> (no billing needed)<br>' +
+        'Get a key at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> \u2014 no credit card. Flash: 1,500 requests/day. At the limit, Gemini returns 429; calls resume next day.<br><br>' +
+        '<b>Estimate your usage</b><br>' +
+        'new emails/day \u00d7 active rules \u00d7 2 = daily API calls<br>' +
+        '\u2022 20 emails \u00d7 1 rule = 40 calls \u2014 well within free<br>' +
+        '\u2022 50 emails \u00d7 3 rules = 300 calls \u2014 well within free<br>' +
+        '\u2022 100 emails \u00d7 5 rules = 1,000 calls \u2014 approaching limit<br><br>' +
+        '<b>Paid rates</b> (verify at <a href="https://ai.google.dev/pricing">ai.google.dev/pricing</a>)<br>' +
+        '\u2022 Flash: ~$0.075/M input, ~$0.30/M output<br>' +
+        '\u2022 Flash Lite: ~$0.04/M input, ~$0.15/M output<br>' +
+        '\u2022 Pro: ~$1.25/M input, ~$5.00/M output<br>' +
+        '50 emails/day, 3 rules \u2248 under <b>$1/month</b>.<br><br>' +
+        '<b>Tips to minimize usage</b><br>' +
+        '\u2022 Enable <b>Business hours</b> \u2014 skips checks outside your window<br>' +
+        '\u2022 Watch specific labels instead of INBOX<br>' +
+        '\u2022 Combine related conditions into one rule<br>' +
+        '\u2022 Keep alert format prompts concise'
+    },
+    settings: {
+      title: 'Settings & troubleshooting',
+      content:
+        '<b>Business hours</b><br>' +
+        'Restrict checks to a daily window. Outside hours, the trigger fires but skips the check \u2014 no Gemini quota used.<br><br>' +
+        '<b>Polling</b><br>' +
+        'Time-driven triggers fire every 1\u201330 minutes. The first run baselines existing messages so you don\'t get a flood of alerts.<br><br>' +
+        '<b>Privacy</b><br>' +
+        'Settings, rules, seen messages, and the activity log are stored in UserProperties \u2014 private to your Google account. Email content goes only to Gemini and your configured alert channels.<br><br>' +
+        '<b>Troubleshooting</b><br>' +
+        '\u2022 <i>"No Gemini API key configured"</i> \u2014 open Settings, paste a key, click <b>Test Gemini</b><br>' +
+        '\u2022 <i>"Label \'...\' fetch failed"</i> \u2014 verify the label exists in Gmail (case-insensitive)<br>' +
+        '\u2022 <i>SMS not delivered</i> \u2014 check Activity Log for the provider\'s error<br>' +
+        '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br><br>' +
+        '<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. Not affiliated with or endorsed by Google.</font>'
+    }
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Starter rules
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STARTER_RULES_ = [
+  {
+    name: 'Urgent emails',
+    ruleText: 'Any email marked as urgent or high priority, or with URGENT, CRITICAL, or ASAP in the subject or body.'
+  },
+  {
+    name: 'Invoices & payment requests',
+    ruleText: 'Any email that appears to be an invoice, bill, or request for payment.'
+  },
+  {
+    name: 'Shipping & delivery updates',
+    ruleText: 'Any email from a shipping carrier such as FedEx, UPS, USPS, DHL, or Amazon with a tracking number or delivery status update.'
+  },
+  {
+    name: 'Security & account alerts',
+    ruleText: 'Any email about a password reset, suspicious login attempt, unauthorized access, or security alert for any account.'
+  },
+  {
+    name: 'Bills & subscription renewals',
+    ruleText: 'Any email about a subscription renewal, billing statement, or upcoming charge to a payment method.'
+  }
+];
+
+function buildStarterRulesCard() {
+  const existing = loadRules();
+  const existingNames = existing.map(function(r) { return r.name; });
+  const toCreate = STARTER_RULES_.filter(function(sr) {
+    return existingNames.indexOf(sr.name) < 0;
+  });
+
+  const section = CardService.newCardSection();
+
+  if (toCreate.length === 0) {
+    section.setHeader('All starter rules already exist.');
+    section.addWidget(CardService.newTextButton()
+      .setText('Back')
+      .setOnClickAction(action_('handlePopCard')));
+    return CardService.newCardBuilder()
+      .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
+      .addSection(section)
+      .build();
+  }
+
+  section.setHeader(toCreate.length + ' rules will be created (disabled) watching your INBOX. Enable each rule and add your email address after creation.');
+
+  toCreate.forEach(function(r) {
+    section.addWidget(CardService.newTextParagraph()
+      .setText('\u2022 <b>' + r.name + '</b><br>' + r.ruleText));
+  });
+
+  section
+    .addWidget(CardService.newTextButton()
+      .setText('Create starter rules')
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setOnClickAction(action_('handleCreateStarterRules')))
+    .addWidget(CardService.newTextButton()
+      .setText('Cancel')
+      .setOnClickAction(action_('handlePopCard')));
+
+  return CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
+    .addSection(section)
+    .build();
+}
+
+function handlePopCard(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard())
+    .build();
+}
+
+function handleCreateStarterRules(e) {
+  try {
+    const rules = loadRules();
+    const existingNames = rules.map(function(r) { return r.name; });
+    let count = 0;
+    STARTER_RULES_.forEach(function(sr) {
+      if (existingNames.indexOf(sr.name) >= 0) return;
+      const rule = createRule(sr.name, ['INBOX'], sr.ruleText, {});
+      rule.enabled = false;
+      rules.push(rule);
+      count++;
+    });
+    saveRules(rules);
+    return CardService.newActionResponseBuilder()
+      .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildRulesCard()))
+      .setNotification(CardService.newNotification()
+        .setText(count + ' starter rules created (disabled). Edit each to add your email and enable.'))
+      .build();
+  } catch (err) {
+    return notificationResponse_('Could not create starter rules: ' + (err.message || err));
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -831,7 +1215,8 @@ function handleNavTo(e) {
     buildSettingsCard: buildSettingsCard,
     buildActivityCard: buildActivityCard,
     buildHelpCard: buildHelpCard,
-    buildHomeCard: buildHomeCard
+    buildHomeCard: buildHomeCard,
+    buildStarterRulesCard: buildStarterRulesCard
   };
   const builderFn = map[builder] || buildHomeCard;
   return CardService.newActionResponseBuilder()
