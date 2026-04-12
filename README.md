@@ -183,6 +183,66 @@ Good examples:
 
 Each rule also has an **Alert message format** field — plain-English instructions Gemini uses to compose the alert message itself. The default produces a date / sender / subject / summary / action items block; override it per rule when you want something different (a one-liner, a bullet list, …).
 
+### Rule examples by alert channel
+
+Every rule works with every channel — just enable the ones you want in the rule editor. Here are real-world examples showing which channels make sense for each use case.
+
+#### Email alerts — detailed notifications you read on your own time
+
+| Use case | Rule | Alert format | Channels |
+|---|---|---|---|
+| **Invoice tracker** | "Any email from a vendor with a PDF attachment that looks like an invoice or purchase order." | "List the vendor name, invoice number, amount due, and due date." | Email to accounting@yourcompany.com |
+| **Job application updates** | "Any email about a job application, interview invitation, or offer letter." | "Include the company name, role, and any action needed with deadlines." | Email to yourself |
+| **Daily digest delegate** | "Any email from a C-level executive that contains a request, question, or action item directed at me." | "Summarize what they're asking and the urgency level." | Email to your assistant |
+
+#### SMS alerts — urgent, time-sensitive notifications
+
+| Use case | Rule | Alert format | Channels |
+|---|---|---|---|
+| **Server down** | "Any automated email about a server outage, service degradation, or critical alert from our monitoring system." | "One line: service name, severity, and what's affected." | SMS to the on-call engineer |
+| **Wire transfer** | "Email from the bank confirming a wire transfer, ACH payment, or large transaction over $10,000." | "Amount, sender/recipient, and date only." | SMS to the CFO |
+| **Security alert** | "Any email about a failed login attempt, password reset request, or suspicious activity on any of our accounts." | "Which account, what happened, and when." | SMS + Email to security team |
+
+#### Google Chat alerts — team-visible notifications
+
+| Use case | Rule | Alert format | Channels |
+|---|---|---|---|
+| **Sales lead** | "Any email from a new contact (not in our company domain) that mentions pricing, demo, trial, or buying." | "Company name, contact name, what they're interested in, and their email." | Chat → "Sales Leads" space |
+| **Support escalation** | "Any email with subject containing ESCALATION, P1, or CRITICAL from a customer." | "Customer name, issue summary, and severity." | Chat → "Support Escalations" + Email to support-lead |
+| **Shipping notification** | "Email from FedEx, UPS, USPS, or DHL with a tracking number or delivery confirmation." | "Carrier, tracking number, and expected delivery date." | Chat → "Office Operations" space |
+
+#### Google Calendar alerts — time-based follow-ups and phone notifications
+
+| Use case | Rule | Alert format | Channels |
+|---|---|---|---|
+| **Meeting request** | "Any email asking me to schedule a meeting, call, or demo." | "Who's asking, what they want to meet about, and any suggested times." | Calendar event + Email |
+| **Deadline reminder** | "Any email that mentions a deadline, due date, or 'by end of day/week'." | "What's due, when, and who's asking." | Calendar event |
+| **Travel itinerary** | "Emails from airlines, hotels, or booking services with a confirmation or itinerary." | "Confirmation number, dates, and location." | Calendar event + Sheets log |
+
+#### Google Sheets alerts — audit trails, reporting, and team visibility
+
+| Use case | Rule | Alert format | Channels |
+|---|---|---|---|
+| **Compliance log** | "Any email from a regulatory body, auditor, or containing 'compliance', 'audit', or 'regulation'." | "Date, sender, subject, and a one-sentence summary." | Sheets log |
+| **Expense tracking** | "Emails containing receipts, invoices, or payment confirmations." | "Vendor, amount, date, and category." | Sheets log + Email to accounting |
+| **Hiring pipeline** | "Any email from job candidates or recruiting platforms." | "Candidate name, position applied for, and current stage." | Sheets log + Chat → "Hiring" space |
+
+#### Google Tasks alerts — to-do items that need follow-up
+
+| Use case | Rule | Alert format | Channels |
+|---|---|---|---|
+| **Action item catcher** | "Any email that explicitly asks me to do something, review something, or approve something." | "What's being asked, by whom, and any deadline." | Task |
+| **Contract review** | "Email with an attachment that looks like a contract, NDA, agreement, or legal document." | "From whom, document type, and any stated deadline." | Task + Email to legal team |
+| **Follow-up needed** | "Any email where someone says 'let me know', 'please confirm', 'get back to me', or 'awaiting your response'." | "Who's waiting, what they need, and when they sent it." | Task |
+
+#### Combining multiple channels on one rule
+
+The real power is mixing channels:
+
+- **Critical vendor issue:** Rule: *"Email from any @bigclient.com address marked urgent or mentioning an outage."* → SMS (instant phone buzz) + Chat "Client Escalations" (team sees it) + Calendar event (blocks your time) + Sheets (audit trail)
+- **New hire onboarding:** Rule: *"Email from HR containing 'new hire', 'onboarding', or 'start date'."* → Task (to-do list) + Sheets (track all new hires) + Chat "People Ops" (team visibility)
+- **Legal filing deadline:** Rule: *"Email from outside counsel or the court mentioning a filing deadline or hearing date."* → Calendar event (date on your calendar) + Task (action item) + SMS (don't miss it) + Sheets (matter log)
+
 ---
 
 ## 9. Alert channels
