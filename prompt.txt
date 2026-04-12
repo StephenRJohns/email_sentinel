@@ -1,8 +1,0 @@
-convert the project in ../mailalerter to this dir.
-rename the main app from mailalerter to mailalert
-replace claude/anthropic with google AI
-covert the project to a chrome/gmail plugin (or whatever type of thing is best for this to be in the google eco-system)
-if google can't send text messages, update to allow the user to configure their own SMS server, such as twilio, etc.
-
-Update docs and help to match format of chrome plugin
-I doubt we need the installer anymore, but maybe in someway so that it can be added to chrome as a plugin

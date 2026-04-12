@@ -1,0 +1,486 @@
+================================================================================
+MailAlert ��� Google Workspace Marketplace Checklist
+================================================================================
+
+This file lists everything needed to publish MailAlert on the Google
+Workspace Marketplace. Items are grouped by what you need to prepare
+(assets, text, config) and what Google will check during review.
+
+Reference docs:
+  https://developers.google.com/workspace/marketplace/create-listing
+  https://developers.google.com/workspace/marketplace/about-app-review
+  https://developers.google.com/workspace/add-ons/how-tos/publish-add-on-overview
+
+
+================================================================================
+PART 1 — LISTING ASSETS YOU NEED TO CREATE
+================================================================================
+
+These are required fields in the Google Cloud Console → Google Workspace
+Marketplace SDK → Store Listing page.
+
+
+1. APPLICATION NAME
+---------------------------------------------------------------------------
+   Max 50 characters. Title case. No version numbers. No "Google" or
+   Google product names. Must match the OAuth consent screen app name
+   exactly.
+
+   Recommended:  MailAlert
+
+   (Short, title-case, no Google trademarks, under 50 chars.)
+
+
+2. SHORT DESCRIPTION
+---------------------------------------------------------------------------
+   Max 200 characters. Appears in search results and the app card.
+
+   Recommended:
+
+     "AI-powered email monitoring for Gmail. Write rules in plain
+     English — Gemini evaluates every new message and alerts you
+     via email, Chat, Calendar, Sheets, Tasks, or SMS."
+
+   (198 characters. Hits all the key search terms.)
+
+
+3. DETAILED DESCRIPTION
+---------------------------------------------------------------------------
+   Max 16,000 characters. Appears on the listing page below screenshots.
+   This is your sales copy and your biggest SEO surface.
+
+   Recommended (customize as needed):
+
+     MailAlert watches your Gmail for new messages and sends alerts
+     when one matches a rule you describe in plain English. Rules
+     are evaluated by Google Gemini — no regex, no code.
+
+     ALERT CHANNELS (mix and match per rule):
+     • Email — sent from your own Gmail, no SMTP server needed
+     • Google Chat ��� post to any Chat Space via webhook
+     • Google Calendar — creates an event with phone/desktop notification
+     • Google Sheets — appends a row for audit trails and searchable history
+     • Google Tasks — creates a task in your Gmail sidebar
+     • SMS — via Twilio, Telnyx, Plivo, Textbelt, ClickSend, Vonage, or
+       any custom webhook
+
+     HOW IT WORKS:
+     A background trigger checks Gmail every 1-30 minutes (you choose),
+     even when your browser is closed. For each new message in a watched
+     label, Gemini reads the sender, subject, body, and attachment names
+     and decides whether it matches your rule. If yes, it formats an
+     alert message and fires every channel you configured.
+
+     EXAMPLE RULES:
+     • "Any email from tma.com with a PDF that looks like an invoice."
+     • "Subject contains URGENT or CRITICAL."
+     • "An email from boss@company.com asking for a status update."
+
+     PRIVACY:
+     Everything stays in your Google account. Rules, settings, and alert
+     history are stored in per-user UserProperties — private to you.
+     Email content is sent only to Google Gemini for evaluation and to
+     whichever alert channels you enable. Nothing else.
+
+     SETUP:
+     1. Install the add-on.
+     2. Paste a free Gemini API key (aistudio.google.com/app/apikey).
+     3. Create a rule.
+     4. Click Start Monitoring.
+
+   (Adjust tone/length to taste. Include keywords people search for:
+   "gmail alert", "email notification", "email monitoring", "gemini",
+   "ai email filter", "sms alert", "google chat notification".)
+
+
+4. CATEGORY
+---------------------------------------------------------------------------
+   Choose one from Google's list. Best fit:
+
+     "Productivity" or "Communication"
+
+   Pick whichever has less competition in your niche. "Productivity"
+   is broader; "Communication" is more specific.
+
+
+5. ICONS
+---------------------------------------------------------------------------
+   Google requires multiple sizes. All must be:
+   - Square
+   - Colored (not grayscale)
+   - Transparent background (PNG)
+   - No Google trademarks or brand assets
+
+   Required sizes:
+     128 x 128 px  (main listing icon)
+      32 x 32 px   (small icon)
+
+   What to put on it:
+     A notification bell, an envelope with a bell, or a shield with a
+     mail icon. Use your brand color. Keep it simple — it will be tiny
+     at 32px.
+
+   Tools:
+     - Canva (canva.com) — free, has icon templates at exact pixel sizes
+     - Figma (figma.com) — free, precise pixel control
+     - DALL-E or Gemini image generation — generate concepts, then clean
+       up in Canva/Figma
+
+   IMPORTANT: After creating the icon, you must host it at a public URL
+   that starts with https://lh3.googleusercontent.com/ for the manifest
+   logoUrl field. The easiest way:
+     1. Upload the 128px PNG to Google Drive
+     2. Share it publicly ("Anyone with the link")
+     3. Get the file ID from the share URL
+     4. The lh3 URL is:
+        https://lh3.googleusercontent.com/d/<FILE_ID>
+     5. Replace the logoUrl in appsscript.json with this URL
+
+
+6. CARD BANNER
+---------------------------------------------------------------------------
+   220 x 140 pixels. Appears on the marketplace card.
+   Use the same visual language as the icon. Include the app name.
+
+
+7. SCREENSHOTS
+---------------------------------------------------------------------------
+   Minimum 1, maximum 5. Size: 1280 x 800 pixels.
+   Square corners, no padding. Must accurately show real app functionality.
+
+   Recommended screenshots (in order):
+     1. Home card — showing monitoring status, rule count, Start button
+     2. Rules list — showing 2-3 rules with status, labels, channels
+     3. Rule editor — showing a filled-in rule with all fields
+     4. Settings card — showing Gemini config and SMS provider dropdown
+     5. Activity log — showing a successful match and alert dispatch
+
+   How to take them:
+     1. Deploy the add-on and configure it with real rules
+     2. Open Gmail → click the MailAlert icon in the right rail
+     3. Take a full-page screenshot of the browser (the add-on panel
+        will be on the right)
+     4. Crop to 1280x800 focusing on the add-on panel
+     5. Or use Chrome DevTools → device toolbar to set a fixed viewport
+
+
+8. TERMS OF SERVICE URL
+---------------------------------------------------------------------------
+   Must be a publicly accessible HTTPS URL.
+
+   Easiest: use the GitHub rendered view:
+     https://github.com/StephenRJohns/mailalert/blob/main/TERMS.md
+
+   Better: host on your own domain (looks more professional):
+     https://yourdomain.com/mailalert/terms
+
+
+9. PRIVACY POLICY URL
+---------------------------------------------------------------------------
+   Must be a publicly accessible HTTPS URL.
+
+     https://github.com/StephenRJohns/mailalert/blob/main/PRIVACY.md
+
+   Or on your domain:
+     https://yourdomain.com/mailalert/privacy
+
+
+10. SUPPORT URL
+---------------------------------------------------------------------------
+    Must be a publicly accessible HTTPS URL where users can get help.
+
+    Options:
+      a) GitHub Issues page:
+         https://github.com/StephenRJohns/mailalert/issues
+      b) A simple support page on your website with a contact form
+      c) A mailto: link (less ideal but accepted)
+
+    Recommendation: use GitHub Issues. It's free, organized, and you
+    can see what's breaking.
+
+
+================================================================================
+PART 2 — GOOGLE CLOUD CONSOLE CONFIGURATION
+================================================================================
+
+Before submitting, configure these in the Google Cloud Console for the
+project linked to your Apps Script:
+
+
+11. OAUTH CONSENT SCREEN
+---------------------------------------------------------------------------
+    Google Cloud Console → APIs & Services → OAuth consent screen
+
+    - User type: External (for public listing)
+    - Publishing status: In Production (NOT Testing)
+    - App name: "MailAlert" (must exactly match appsscript.json name)
+    - User support email: your email
+    - Developer contact: your email
+    - App logo: upload your 128px icon
+    - Authorized domains: your domain (if hosting legal docs there)
+    - Scopes: add all scopes from appsscript.json
+
+    IMPORTANT: If your consent screen is still in "Testing" status,
+    Google will reject your listing.
+
+
+12. ENABLE THE MARKETPLACE SDK
+---------------------------------------------------------------------------
+    Google Cloud Console → APIs & Services → Library
+
+    Search for "Google Workspace Marketplace SDK" → Enable it.
+    Then go to the SDK configuration page and fill in the store listing.
+
+
+13. OAUTH VERIFICATION
+---------------------------------------------------------------------------
+    Because MailAlert uses sensitive scopes (gmail.modify, gmail.send,
+    gmail.readonly), you must submit for OAuth verification:
+
+    Google Cloud Console → APIs & Services → OAuth consent screen →
+    Verification status
+
+    Google may require:
+    - A video walkthrough of how the add-on uses each scope
+    - A written justification for each scope
+    - A link to your privacy policy
+
+    Scope justifications for MailAlert:
+
+      gmail.addons.execute    Required to run as a Gmail add-on.
+      gmail.modify            Required to search and read messages in
+                              user-selected labels for rule evaluation.
+      gmail.send              Required to send alert emails from the
+                              user's Gmail account when a rule matches.
+      gmail.readonly          Required to read message content (sender,
+                              subject, body, attachments) for AI
+                              evaluation against user-defined rules.
+      gmail.labels            Required to list Gmail labels so users can
+                              select which labels to monitor.
+      calendar                Required to create calendar events as
+                              alerts when users enable this channel.
+      spreadsheets            Required to log alert data to Google
+                              Sheets when users enable this channel.
+      tasks                   Required to create Google Tasks as alerts
+                              when users enable this channel.
+      script.external_request Required to call the Google Gemini API
+                              for rule evaluation, and to call
+                              third-party SMS providers (Twilio, etc.)
+                              when users enable SMS alerts.
+      script.scriptapp        Required to create and manage time-driven
+                              triggers for background email monitoring.
+
+    If Google requires a third-party security assessment:
+    - Cost: $2,000-$15,000
+    - Timeline: 2-6 weeks
+    - Approved assessors: https://support.google.com/cloud/answer/9110914
+
+
+================================================================================
+PART 3 — WHAT GOOGLE CHECKS DURING REVIEW
+================================================================================
+
+Google's review team will verify the following. Make sure each is true
+before submitting.
+
+
+14. BRANDING COMPLIANCE
+---------------------------------------------------------------------------
+    [ ] App name does not contain "Google", "Gmail", "Workspace", or
+        any other Google trademark
+    [ ] Icon does not use Google brand colors or logos
+    [ ] Description does not imply Google endorsement
+    [ ] "Google Chat", "Google Calendar", etc. are used as proper nouns
+        with capitalization, not as generic terms
+
+    Current status: MailAlert — PASSES. The name is original and doesn't
+    contain Google trademarks.
+
+
+15. FUNCTIONALITY
+---------------------------------------------------------------------------
+    [ ] All buttons and actions work (no dead buttons, no errors)
+    [ ] Loading states are handled (user sees feedback, not a hang)
+    [ ] Error messages are clear and suggest a fix
+    [ ] Edge cases: what happens with 0 rules? No API key? Bad API key?
+    [ ] First-run experience is smooth (home card, setup guidance)
+    [ ] After authorization, the home card displays immediately
+
+    Current status: mostly good. Test thoroughly after deploying.
+
+
+16. USER EXPERIENCE
+---------------------------------------------------------------------------
+    [ ] Home page card exists and is useful
+    [ ] Universal actions all work (Rules, Settings, Activity Log, Help,
+        Run check now)
+    [ ] UI fits within the ~300px add-on panel without horizontal scroll
+    [ ] Text is not cut off with "..."
+    [ ] No duplicate UI elements
+    [ ] Back/refresh/update buttons work correctly
+    [ ] Confirmation feedback for every action (save, delete, toggle)
+
+    Current status: cards use TextParagraph and TextInput which auto-wrap.
+    Test in a real Gmail panel to verify nothing overflows.
+
+
+17. LINKS
+---------------------------------------------------------------------------
+    [ ] All URLs in the code are HTTPS (not HTTP)
+    [ ] All URLs are valid and not localhost/staging
+    [ ] Privacy policy link is live and accessible
+    [ ] Terms of service link is live and accessible
+    [ ] Support link is live and accessible
+    [ ] SMS setup guide sign-up links all work
+
+
+18. OAUTH
+---------------------------------------------------------------------------
+    [ ] Consent screen is in "In Production" status (not Testing)
+    [ ] Consent screen app name matches manifest name exactly
+    [ ] All scopes are justified (see section 13 above)
+    [ ] OAuth verification is complete (or submitted)
+    [ ] User only sees the consent screen once (not on every action)
+
+
+================================================================================
+PART 4 — SEO (MARKETPLACE SEARCH OPTIMIZATION)
+================================================================================
+
+The Marketplace has its own search algorithm. Here's how to rank well:
+
+
+19. KEYWORD STRATEGY
+---------------------------------------------------------------------------
+    People search for these terms in the Marketplace. Include them
+    naturally in your short description, detailed description, and
+    (where appropriate) your app name:
+
+    Primary keywords (high intent):
+      gmail alert, email alert, email notification, email monitoring,
+      gmail add-on, email watcher
+
+    Secondary keywords (feature-specific):
+      ai email filter, gemini email, smart email alert,
+      sms email notification, google chat alert,
+      email to calendar, email to sheets, email to tasks
+
+    Long-tail keywords (specific use cases):
+      alert when email arrives, notify me of important emails,
+      email rule plain english, ai email rule, email trigger alert
+
+    Where to use them:
+      - Short description: 1-2 primary keywords
+      - Detailed description: all of them, naturally woven into the text
+      - DO NOT keyword-stuff. Google penalizes this.
+      - The detailed description I wrote in section 3 above already
+        includes most of these naturally.
+
+
+20. SCREENSHOTS MATTER FOR CONVERSION
+---------------------------------------------------------------------------
+    Screenshots are the first thing users see after the title. They
+    directly affect install rate (which affects ranking).
+
+    Tips:
+      - First screenshot should show the clearest value proposition
+        (a rule matching and alert firing)
+      - Use real content in screenshots, not "Lorem ipsum"
+      - Consider adding brief captions/annotations to screenshots
+        (but don't violate the "must accurately represent app" rule)
+
+
+21. REVIEWS AND RATINGS
+---------------------------------------------------------------------------
+    Google factors ratings into search ranking. After launch:
+      - Ask early users to leave a review
+      - Respond to every review (shows active maintenance)
+      - Fix issues reported in reviews promptly
+      - A 4.5+ star rating significantly improves discoverability
+
+
+22. GITHUB REPO SEO (for discoverability outside the Marketplace)
+---------------------------------------------------------------------------
+    People also find add-ons via Google web search, not just the
+    Marketplace. Optimize your GitHub repo:
+
+    [ ] Set a GitHub repo description:
+        "Gmail add-on that monitors your inbox with AI (Gemini) and
+        sends alerts via email, Chat, Calendar, Sheets, Tasks, or SMS."
+
+    [ ] Add GitHub topics (tags):
+        gmail, gmail-addon, google-workspace, google-apps-script,
+        gemini, email-alerts, email-monitoring, sms-alerts,
+        google-chat, twilio, workspace-addon
+
+    How:
+        gh repo edit --description "Gmail add-on: AI-powered email monitoring with alerts via email, Chat, Calendar, Sheets, Tasks, or SMS"
+        gh repo edit --add-topic gmail,gmail-addon,google-workspace,google-apps-script,gemini,email-alerts,email-monitoring,sms-alerts,google-chat,twilio,workspace-addon
+
+
+23. WEB PRESENCE (optional but helps)
+---------------------------------------------------------------------------
+    A simple landing page on your own domain significantly boosts
+    credibility with both Google's review team and end users:
+
+      https://yourdomain.com/mailalert
+
+    Include:
+      - One-sentence description
+      - 2-3 screenshots
+      - "Install from Google Workspace Marketplace" button
+      - Links to Privacy Policy, Terms, Support
+      - Structured data (JSON-LD SoftwareApplication schema)
+
+    If you don't have a domain, GitHub Pages works fine:
+      https://stephenrjohns.github.io/mailalert/
+
+
+================================================================================
+PART 5 — SUBMISSION CHECKLIST
+================================================================================
+
+Run through this before clicking "Publish":
+
+  ASSETS:
+    [ ] 128x128 icon (colored, transparent BG, no Google marks)
+    [ ] 32x32 icon
+    [ ] 220x140 card banner
+    [ ] 1-5 screenshots at 1280x800
+    [ ] Short description (under 200 chars)
+    [ ] Detailed description (under 16,000 chars)
+
+  URLS:
+    [ ] Privacy Policy URL is live and HTTPS
+    [ ] Terms of Service URL is live and HTTPS
+    [ ] Support URL is live and HTTPS
+    [ ] All SMS provider sign-up links are live
+
+  GOOGLE CLOUD CONSOLE:
+    [ ] OAuth consent screen: External, In Production
+    [ ] OAuth consent screen app name = "MailAlert" (exact match)
+    [ ] OAuth verification submitted (may take weeks)
+    [ ] Marketplace SDK enabled
+    [ ] Store listing filled in completely
+
+  CODE:
+    [ ] All placeholder text replaced (contact email, company name)
+    [ ] clasp push completed with final code
+    [ ] Tested in real Gmail (not just the script editor)
+    [ ] Tested all alert channels (email, SMS, Chat, Calendar,
+        Sheets, Tasks)
+    [ ] Tested edge cases (no rules, no API key, bad API key,
+        nonexistent label)
+    [ ] Tested with monitoring running for at least 24 hours
+
+  LEGAL:
+    [ ] Lawyer has reviewed LICENSE, TERMS, PRIVACY, DISCLAIMER
+    [ ] Contact email is real
+    [ ] Company name is correct throughout
+
+  SEO:
+    [ ] GitHub repo description and topics set
+    [ ] Description includes target keywords naturally
+    [ ] Screenshots are clear and compelling
+
+================================================================================
