@@ -102,7 +102,7 @@ We may update these Terms from time to time. The "Effective date" at the top wil
 
 ## 14. Governing Law
 
-These Terms are governed by the laws of the State of Texas, USA, without regard to its conflict-of-laws principles. *(Replace with the state of formation of JJJJJ Enterprises, LLC if different.)*
+These Terms are governed by the laws of the State of Texas, USA, without regard to its conflict-of-laws principles.
 
 ## 15. Dispute Resolution
 
