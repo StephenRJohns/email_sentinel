@@ -1,8 +1,8 @@
 ================================================================================
-MailAlert ��� Google Workspace Marketplace Checklist
+mAIl Alert ��� Google Workspace Marketplace Checklist
 ================================================================================
 
-This file lists everything needed to publish MailAlert on the Google
+This file lists everything needed to publish mAIl Alert on the Google
 Workspace Marketplace. Items are grouped by what you need to prepare
 (assets, text, config) and what Google will check during review.
 
@@ -26,7 +26,7 @@ Marketplace SDK → Store Listing page.
    Google product names. Must match the OAuth consent screen app name
    exactly.
 
-   Recommended:  MailAlert
+   Recommended:  mAIl Alert
 
    (Short, title-case, no Google trademarks, under 50 chars.)
 
@@ -51,7 +51,7 @@ Marketplace SDK → Store Listing page.
 
    Recommended (customize as needed):
 
-     MailAlert watches your Gmail for new messages and sends alerts
+     mAIl Alert watches your Gmail for new messages and sends alerts
      when one matches a rule you describe in plain English. Rules
      are evaluated by Google Gemini — no regex, no code.
 
@@ -157,7 +157,7 @@ Marketplace SDK → Store Listing page.
 
    How to take them:
      1. Deploy the add-on and configure it with real rules
-     2. Open Gmail → click the MailAlert icon in the right rail
+     2. Open Gmail → click the mAIl Alert icon in the right rail
      3. Take a full-page screenshot of the browser (the add-on panel
         will be on the right)
      4. Crop to 1280x800 focusing on the add-on panel
@@ -213,7 +213,7 @@ project linked to your Apps Script:
 
     - User type: External (for public listing)
     - Publishing status: In Production (NOT Testing)
-    - App name: "MailAlert" (must exactly match appsscript.json name)
+    - App name: "mAIl Alert" (must exactly match appsscript.json name)
     - User support email: your email
     - Developer contact: your email
     - App logo: upload your 128px icon
@@ -234,7 +234,7 @@ project linked to your Apps Script:
 
 13. OAUTH VERIFICATION
 ---------------------------------------------------------------------------
-    Because MailAlert uses sensitive scopes (gmail.modify, gmail.send,
+    Because mAIl Alert uses sensitive scopes (gmail.modify, gmail.send,
     gmail.readonly), you must submit for OAuth verification:
 
     Google Cloud Console → APIs & Services → OAuth consent screen →
@@ -245,7 +245,7 @@ project linked to your Apps Script:
     - A written justification for each scope
     - A link to your privacy policy
 
-    Scope justifications for MailAlert:
+    Scope justifications for mAIl Alert:
 
       gmail.addons.execute    Required to run as a Gmail add-on.
       gmail.modify            Required to search and read messages in
@@ -293,7 +293,7 @@ before submitting.
     [ ] "Google Chat", "Google Calendar", etc. are used as proper nouns
         with capitalization, not as generic terms
 
-    Current status: MailAlert — PASSES. The name is original and doesn't
+    Current status: mAIl Alert — PASSES. The name is original and doesn't
     contain Google trademarks.
 
 
@@ -458,7 +458,7 @@ Run through this before clicking "Publish":
 
   GOOGLE CLOUD CONSOLE:
     [ ] OAuth consent screen: External, In Production
-    [ ] OAuth consent screen app name = "MailAlert" (exact match)
+    [ ] OAuth consent screen app name = "mAIl Alert" (exact match)
     [ ] OAuth verification submitted (may take weeks)
     [ ] Marketplace SDK enabled
     [ ] Store listing filled in completely

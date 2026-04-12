@@ -1,8 +1,8 @@
-# MailAlert — Privacy Policy
+# mAIl Alert™ — Privacy Policy
 
 **Effective date:** 2026-04-11
 **Operator:** JJJJJ Enterprises, LLC ("we", "us", "our")
-**Service:** MailAlert, a Google Workspace Add-on for Gmail (the "Service")
+**Service:** mAIl Alert, a Google Workspace Add-on for Gmail (the "Service")
 
 This Privacy Policy explains what data the Service accesses, how it is used, and with whom it is shared. By installing or using the Service you consent to the practices described below.
 
@@ -10,7 +10,7 @@ This Privacy Policy explains what data the Service accesses, how it is used, and
 
 ## 1. Architecture Summary
 
-MailAlert runs entirely inside your own Google Apps Script environment, under your own Google account credentials. We do not operate any server, database, or backend that receives or stores your data. All persistent data resides in `PropertiesService.getUserProperties()`, which is private to your Google account and script project.
+mAIl Alert runs entirely inside your own Google Apps Script environment, under your own Google account credentials. We do not operate any server, database, or backend that receives or stores your data. All persistent data resides in `PropertiesService.getUserProperties()`, which is private to your Google account and script project.
 
 ## 2. Data We Access
 

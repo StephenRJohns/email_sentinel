@@ -1,5 +1,5 @@
 ================================================================================
-MailAlert — Do This Next
+mAIl Alert — Do This Next
 ================================================================================
 
 The codebase is converted and ready. Nothing has been deployed to Google yet —
@@ -52,13 +52,13 @@ own the add-on. This writes credentials to ~/.clasprc.json (already gitignored).
 --------------------------------------------------------------------------------
 
     cd /home/stephen-johns/github/mailalert
-    clasp create --type standalone --title "MailAlert" --rootDir .
+    clasp create --type standalone --title "mAIl Alert" --rootDir .
 
 This creates a real Apps Script project in your Google account and writes
 the new scriptId into .clasp.json (replacing the placeholder).
 
 If clasp complains that .clasp.json already exists, delete it first:
-    rm .clasp.json && clasp create --type standalone --title "MailAlert" --rootDir .
+    rm .clasp.json && clasp create --type standalone --title "mAIl Alert" --rootDir .
 
 If you get a "User has not enabled the Apps Script API" error, visit
 https://script.google.com/home/usersettings and turn the API on, then retry.
@@ -88,7 +88,7 @@ In the Apps Script editor (the tab `clasp open` just opened):
   2. Under "Application(s): Gmail" click Install
   3. Click Done
 
-This installs MailAlert into the Gmail of the same Google account.
+This installs mAIl Alert into the Gmail of the same Google account.
 
 The first time you click anything inside the add-on, Google will show an
 OAuth consent screen listing the scopes from appsscript.json:
@@ -98,7 +98,7 @@ OAuth consent screen listing the scopes from appsscript.json:
   - Run as you (for the time-driven trigger)
 Click "Allow". Because the add-on is unverified and only published to
 yourself, you may see an "unverified app" warning — click Advanced →
-Go to MailAlert (unsafe). It is safe; it is your own code.
+Go to mAIl Alert (unsafe). It is safe; it is your own code.
 
 
 --------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ Go to MailAlert (unsafe). It is safe; it is your own code.
 --------------------------------------------------------------------------------
 
   1. Open https://mail.google.com (refresh if it was already open).
-  2. The MailAlert icon appears in the right-hand add-on rail.
+  2. The mAIl Alert icon appears in the right-hand add-on rail.
   3. Click it. The home card opens.
   4. Click "Settings" (or use the … menu → Settings).
   5. Paste your Gemini API key.
@@ -155,7 +155,7 @@ You can leave SMS empty for the first test.
        Evaluating against rule "Test rule" ...
        MATCH! ...
        Email alert sent to: <your address>
-  4. Check your inbox for the "[MailAlert] Test rule: ..." email.
+  4. Check your inbox for the "[mAIl Alert] Test rule: ..." email.
 
 
 --------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ To delete every trace of stored state from your account:
   inaccessible.)
 
 To delete the Apps Script project entirely:
-  https://script.google.com → find MailAlert → ⋮ → Remove.
+  https://script.google.com → find mAIl Alert → ⋮ → Remove.
 
 
 ================================================================================

@@ -1,4 +1,4 @@
-# MailAlert
+# mAIl Alert™
 
 A Gmail Workspace Add-on that watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by **Google Gemini**.
 
@@ -26,7 +26,7 @@ This is the Google Workspace port of the original [`bb_mailalerter`](../mailaler
 
 ## 1. What it does
 
-When a new email arrives in a watched Gmail label, MailAlert asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
+When a new email arrives in a watched Gmail label, mAIl Alert asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
 
 - **Email** to one or more addresses, sent from your own Gmail account.
 - **SMS** via your configured provider (Twilio out of the box, or any provider via a generic webhook).
@@ -117,7 +117,7 @@ clasp login
 
 # 3. From this directory, create a new Apps Script project
 cd mailalert
-clasp create --type standalone --title "MailAlert" --rootDir .
+clasp create --type standalone --title "mAIl Alert" --rootDir .
 #   ↑ this writes a real scriptId into .clasp.json
 
 # 4. Push all the .gs / .html / appsscript.json files
@@ -133,7 +133,7 @@ Inside the Apps Script editor:
 2. Click **Install** under "Test the latest code".
 3. Choose **Gmail** as the host.
 4. Approve the OAuth consent screen.
-5. Open Gmail in another tab — the MailAlert icon appears in the right-hand add-on rail.
+5. Open Gmail in another tab — the mAIl Alert icon appears in the right-hand add-on rail.
 
 ---
 
@@ -150,7 +150,7 @@ If you'd rather not install `clasp`:
 
 ## 7. First-run configuration
 
-After installation, open Gmail and click the MailAlert icon in the right rail.
+After installation, open Gmail and click the mAIl Alert icon in the right rail.
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
 2. **Settings ▸ Polling** — pick how often to check (default 5 minutes).
@@ -250,10 +250,10 @@ The real power is mixing channels:
 ### Email
 Sent via `GmailApp.sendEmail` from your own Gmail account. The display name on the outgoing message is configurable in **Settings ▸ Alert "From" name**. There is no SMTP server to host or app password to manage.
 
-> **Quota:** consumer Gmail allows ~100 outgoing add-on emails/day; Workspace allows ~1,500/day. MailAlert is well under this for normal use.
+> **Quota:** consumer Gmail allows ~100 outgoing add-on emails/day; Workspace allows ~1,500/day. mAIl Alert is well under this for normal use.
 
 ### SMS
-Google Workspace does not provide a first-party SMS API, so MailAlert ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
+Google Workspace does not provide a first-party SMS API, so mAIl Alert ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
 
 | Provider | Cost (US domestic) | Phone # needed? | Free trial? | Auth method |
 |---|---|---|---|---|
@@ -283,7 +283,7 @@ These use your existing Google account — no third-party sign-up, no cost.
 |---|---|---|
 | **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. | Create a Space in Google Chat. Space menu ▸ Apps & integrations ▸ Manage webhooks ▸ create one. Copy the URL into **Settings ▸ Google Chat spaces** as `[{"name":"My Alerts","url":"https://..."}]`. Select the space name in each rule. |
 | **Google Calendar** | Creates a 15-minute calendar event with the alert details. Phone/desktop notifications fire automatically if you have calendar notifications on. | (Optional) Enter a calendar ID in Settings, or leave blank for your primary calendar. In the rule editor, check "Create a Google Calendar event on match." |
-| **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — MailAlert auto-creates one called "MailAlert — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
+| **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — mAIl Alert auto-creates one called "mAIl Alert — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
 | **Google Tasks** | Creates a task in Google Tasks with the alert subject and details. Shows in the Gmail sidebar and the Google Tasks app. | Leave the Tasks list ID blank for "My Tasks" (the default list). In the rule editor, check "Create a Google Task on match." |
 
 Each Google channel is enabled per rule via a checkbox in the rule editor, so you can have some rules post to Chat and others log to Sheets, or combine all four.
@@ -322,7 +322,7 @@ You can also peek at the trigger execution history in the Apps Script editor und
 
 ## 12. Why an Add-on instead of a Chrome extension?
 
-A Chrome extension only runs while a Chrome tab is open. The original Python app was a background daemon — the equivalent in Google's world is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings, which is exactly what MailAlert needs.
+A Chrome extension only runs while a Chrome tab is open. The original Python app was a background daemon — the equivalent in Google's world is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings, which is exactly what mAIl Alert needs.
 
 If you'd rather have an in-Gmail browser-only experience too, the same `.gs` files can also be deployed as a **Gmail Add-on web app** through Google Workspace Marketplace; the manifest is already compatible.
 

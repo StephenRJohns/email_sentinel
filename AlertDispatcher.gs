@@ -6,7 +6,7 @@
  *
  * Email: GmailApp.sendEmail — no SMTP server, no app password.
  *
- * SMS: Google doesn't offer a first-party SMS API, so MailAlert supports
+ * SMS: Google doesn't offer a first-party SMS API, so mAIl Alert supports
  * six options. Pick one in Settings → SMS Provider:
  *
  *   Provider     Auth method       Needs phone #?   Free trial?
@@ -110,7 +110,7 @@ const SMS_PROVIDER_INFO = {
     fields: ['smsWebhookUrl'],
     setup: [
       '1. Set up an HTTPS endpoint that accepts POST requests',
-      '2. MailAlert sends: {"to": "+15551234567", "body": "..."}',
+      '2. mAIl Alert sends: {"to": "+15551234567", "body": "..."}',
       '3. Paste the URL below'
     ]
   }
@@ -200,19 +200,19 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
 
 function sendEmailAlert_(toAddresses, rule, emailData, alertContent, settings) {
   const subject =
-    '[MailAlert] ' + rule.name + ': ' +
+    '[mAIl Alert] ' + rule.name + ': ' +
     (emailData.subject || '(no subject)');
   const body =
-    'MailAlert Rule Fired: ' + rule.name + '\n' +
+    'mAIl Alert Rule Fired: ' + rule.name + '\n' +
     '============================================================\n\n' +
     alertContent + '\n';
 
-  const opts = { name: settings.alertFromAlias || 'MailAlert' };
+  const opts = { name: settings.alertFromAlias || 'mAIl Alert' };
   GmailApp.sendEmail(toAddresses.join(','), subject, body, opts);
 }
 
 function sendSmsAlert_(toNumber, rule, emailData, alertContent, settings) {
-  const text = ('[MailAlert] ' + rule.name + '\n' + alertContent).substring(0, 600);
+  const text = ('[mAIl Alert] ' + rule.name + '\n' + alertContent).substring(0, 600);
   const provider = settings.smsProvider;
   const dispatch = {
     textbelt:  sendTextbeltSms_,
@@ -349,7 +349,7 @@ function sendClickSendSms_(toNumber, text, settings) {
     headers: { Authorization: 'Basic ' + auth },
     payload: JSON.stringify({
       messages: [{
-        source: 'MailAlert',
+        source: 'mAIl Alert',
         to: toNumber,
         body: text
       }]
@@ -372,7 +372,7 @@ function sendVonageSms_(toNumber, text, settings) {
     method: 'post',
     contentType: 'application/json',
     payload: JSON.stringify({
-      from: 'MailAlert',
+      from: 'mAIl Alert',
       to: toNumber.replace(/[^0-9]/g, ''),
       text: text,
       api_key: settings.vonageApiKey,
@@ -421,7 +421,7 @@ function sendWebhookSms_(toNumber, text, settings) {
 
 function sendChatAlert_(webhookUrl, rule, emailData, message) {
   const payload = {
-    text: '*MailAlert Rule Fired: ' + rule.name + '*\n\n' + message
+    text: '*mAIl Alert Rule Fired: ' + rule.name + '*\n\n' + message
   };
   const resp = UrlFetchApp.fetch(webhookUrl, {
     method: 'post',
@@ -454,7 +454,7 @@ function sendCalendarAlert_(rule, emailData, message, settings) {
   if (!cal) {
     throw new Error('Calendar "' + calId + '" not found. Use "primary" for your main calendar.');
   }
-  const title = '[MailAlert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
+  const title = '[mAIl Alert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
   const desc =
     'Rule: ' + rule.name + '\n' +
     'From: ' + (emailData.from || '(unknown)') + '\n' +
@@ -498,7 +498,7 @@ function sendSheetsAlert_(rule, emailData, message, settings) {
 }
 
 function createAlertSpreadsheet_() {
-  const ss = SpreadsheetApp.create('MailAlert — Alert Log');
+  const ss = SpreadsheetApp.create('mAIl Alert — Alert Log');
   return ss.getId();
 }
 
@@ -506,7 +506,7 @@ function createAlertSpreadsheet_() {
 
 function sendTasksAlert_(rule, emailData, message, settings) {
   const listId = settings.tasksListId || '@default';
-  const title = '[MailAlert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
+  const title = '[mAIl Alert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
   const notes =
     'Rule: ' + rule.name + '\n' +
     'From: ' + (emailData.from || '(unknown)') + '\n' +
@@ -539,7 +539,7 @@ function testSms(toNumber) {
     return 'No SMS provider configured. Open Settings → SMS Provider.';
   }
   try {
-    sendSmsAlert_(toNumber, { name: 'Test' }, {}, 'This is a test message from MailAlert.', settings);
+    sendSmsAlert_(toNumber, { name: 'Test' }, {}, 'This is a test message from mAIl Alert.', settings);
     return 'Test SMS sent to ' + toNumber + ' via ' + settings.smsProvider + '.';
   } catch (e) {
     return 'Test SMS FAILED: ' + e.message;

@@ -1,5 +1,5 @@
 ================================================================================
-MailAlert — Legal To-Do List
+mAIl Alert — Legal To-Do List
 ================================================================================
 
 What's already done (in this repo):
@@ -122,7 +122,7 @@ Each item below is tagged:
    Step 1 — Search (free, do it yourself):
      1. Go to https://tess2.uspto.gov (USPTO trademark search)
      2. Click "Basic Word Mark Search (New User)"
-     3. Search for: MailAlert
+     3. Search for: mAIl Alert
      4. Also search for: Mail Alert (two words)
      5. Look at results in International Class 009 (software) and
         International Class 042 (SaaS / software services)
@@ -135,7 +135,7 @@ Each item below is tagged:
      2. Choose TEAS Standard ($350/class) or TEAS Plus ($250/class,
         more restrictive on goods/services description)
      3. You'll need:
-        - The mark: "MailAlert" (standard characters)
+        - The mark: "mAIl Alert" (standard characters)
         - Owner: JJJJJ Enterprises, LLC
         - Class: 009 (computer software) and/or 042 (SaaS)
         - Goods/services description, e.g.: "Downloadable computer
@@ -144,7 +144,7 @@ Each item below is tagged:
         - Filing basis: 1(a) "use in commerce" if the product is live,
           or 1(b) "intent to use" if not yet launched
         - A specimen showing the mark in use (screenshot of the add-on
-          with "MailAlert" visible) — required for 1(a), deferred for 1(b)
+          with "mAIl Alert" visible) — required for 1(a), deferred for 1(b)
      4. Pay and submit. Timeline: 3-4 months for an examining attorney
         to review. If approved, published for 30-day opposition period.
         Total timeline to registration: 8-12 months if no issues.
@@ -154,12 +154,12 @@ Each item below is tagged:
      from the USPTO examining attorney, that's when to call a trademark
      attorney. Common issues:
        - "Likelihood of confusion" with an existing mark
-       - "Merely descriptive" refusal (MailAlert describes what it does)
+       - "Merely descriptive" refusal (mAIl Alert describes what it does)
      A trademark attorney typically charges $500–$1,500 to respond to an
      Office Action.
 
    What to ask a trademark lawyer:
-     "I want to register the trademark 'MailAlert' for a Gmail add-on
+     "I want to register the trademark 'mAIl Alert' for a Gmail add-on
      that monitors email and sends alerts. The LLC is JJJJJ Enterprises.
      I've done a TESS search and [found / didn't find] potential conflicts.
      Can you:
@@ -184,7 +184,7 @@ Each item below is tagged:
 
    What to ask for (send them the four files and say this):
 
-     "I operate a Google Workspace Gmail Add-on called MailAlert through
+     "I operate a Google Workspace Gmail Add-on called mAIl Alert through
      my LLC (JJJJJ Enterprises, LLC, formed in [STATE]). The add-on runs
      inside the user's own Google account — I don't operate a backend or
      store user data on my servers. It reads their Gmail, sends email
@@ -258,7 +258,7 @@ Each item below is tagged:
         Individual Contributor License Agreement
 
         By submitting a pull request or other contribution ("Contribution")
-        to the MailAlert project, you agree to the following terms:
+        to the mAIl Alert project, you agree to the following terms:
 
         1. You grant JJJJJ Enterprises, LLC a perpetual, worldwide,
            non-exclusive, royalty-free, irrevocable license to use,
@@ -305,7 +305,7 @@ Each item below is tagged:
      b) Cyber Liability (optional, but smart)
         - Covers data breach response, notification costs, regulatory fines
         - Typical cost: $500–$1,000/year for a small software LLC
-        - Less critical for MailAlert since you don't store user data,
+        - Less critical for mAIl Alert since you don't store user data,
           but still protects if a Twilio key leak or similar occurs
 
    Where to buy:
@@ -330,7 +330,7 @@ Each item below is tagged:
    Priority: LOW (only if you add user-generated content features later)
    Who: [ONLINE] — you file it yourself on a government website
 
-   Not needed today. MailAlert doesn't host any user content on your
+   Not needed today. mAIl Alert doesn't host any user content on your
    servers. Only do this if you later add a shared rule library, community
    portal, or any feature where users publish content you host.
 
@@ -338,7 +338,7 @@ Each item below is tagged:
      1. Go to https://www.copyright.gov/dmca-directory/
      2. Create an account
      3. Fill in the form: your LLC name, the DMCA agent's name and email
-        (can be you), the service provider name (MailAlert)
+        (can be you), the service provider name (mAIl Alert)
      4. Pay the $6 filing fee
      5. Renew every 3 years
      6. Add a DMCA notice procedure to your TERMS.md (a section that says
@@ -353,7 +353,7 @@ Each item below is tagged:
    Who: [DIY] for the self-classification. [LAWYER] if you add real
         encryption features later.
 
-   Current status: MailAlert uses HTTPS (TLS) for all external calls but
+   Current status: mAIl Alert uses HTTPS (TLS) for all external calls but
    does not implement its own encryption. Under BIS/EAR rules, using only
    standard TLS libraries qualifies for the TSU exception (EAR 740.13(e)).
    No filing is required.
@@ -384,7 +384,7 @@ Each item below is tagged:
     Not needed today. Only relevant if enterprise customers or their legal
     teams ask "where's your DPA?" during procurement.
 
-    Why it's complicated for MailAlert:
+    Why it's complicated for mAIl Alert:
       You don't operate a backend. The user's data stays in their Google
       account. Arguably you're not a "data processor" at all — the user
       processes their own data. But enterprise legal teams don't always
@@ -435,7 +435,7 @@ Each item below is tagged:
     Priority: LOW
     Who: [DIY] — only needed if you add dependencies later
 
-    Right now MailAlert is pure Apps Script with zero third-party libraries.
+    Right now mAIl Alert is pure Apps Script with zero third-party libraries.
     There is nothing to audit. If you ever add bundled libraries:
 
     Steps:
@@ -478,7 +478,7 @@ Summary — by who does it
 
     [ ] 4c. Trademark: respond to USPTO Office Action if you get one
             ($500-$1,500 per Office Action)
-            Ask for: "I filed a trademark application for 'MailAlert' and
+            Ask for: "I filed a trademark application for 'mAIl Alert' and
             received an Office Action. Can you review it and file a
             response?"
 

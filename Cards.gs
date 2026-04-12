@@ -2,7 +2,7 @@
 // Proprietary — see LICENSE for terms.
 
 /**
- * Cards.gs — All CardService UI for the MailAlert add-on.
+ * Cards.gs — All CardService UI for the mAIl Alert add-on.
  *
  * Layout overview:
  *   Home card     — quick status, Start/Stop monitoring, links to subviews
@@ -69,7 +69,7 @@ function buildHomeCard() {
       .setOnClickAction(navAction_('buildHelpCard')));
 
   return CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('MailAlert'))
+    .setHeader(CardService.newCardHeader().setTitle('mAIl Alert\u2122'))
     .addSection(statusSection)
     .addSection(navSection)
     .build();
@@ -543,7 +543,7 @@ function buildSettingsCard() {
     .addWidget(CardService.newTextInput()
       .setFieldName('alertFromAlias')
       .setTitle('Display name on outgoing email alerts')
-      .setValue(s.alertFromAlias || 'MailAlert'));
+      .setValue(s.alertFromAlias || 'mAIl Alert'));
 
   const buttons = CardService.newCardSection()
     .addWidget(CardService.newButtonSet()
@@ -617,7 +617,7 @@ function handleSaveSettings(e) {
     calendarId: get('calendarId'),
     sheetsId: get('sheetsId'),
     tasksListId: get('tasksListId'),
-    alertFromAlias: get('alertFromAlias') || 'MailAlert'
+    alertFromAlias: get('alertFromAlias') || 'mAIl Alert'
   };
 
   if (next.businessHoursEnabled) {
@@ -790,7 +790,7 @@ function handleClearLog(e) {
 function buildHelpCard() {
   const html = HtmlService.createHtmlOutputFromFile('Help').getContent();
   return CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('MailAlert help'))
+    .setHeader(CardService.newCardHeader().setTitle('mAIl Alert help'))
     .addSection(CardService.newCardSection()
       .addWidget(CardService.newTextParagraph().setText(html)))
     .build();
