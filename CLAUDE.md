@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-**mAIl Alert** — a Google Workspace Gmail Add-on (Google Apps Script, V8 runtime) that watches Gmail labels for new messages, evaluates each one against user-defined plain-English rules using the Gemini REST API, and dispatches alerts via Email, SMS, Google Chat, Calendar, Sheets, or Tasks.
+**emAIl Sentinel** — a Google Workspace Gmail Add-on (Google Apps Script, V8 runtime) that watches Gmail labels for new messages, evaluates each one against user-defined plain-English rules using the Gemini REST API, and dispatches alerts via SMS, Google Chat, Calendar, Sheets, or Tasks.
 
 There is no build step, no npm packages at runtime, no transpilation. Everything runs server-side on Google's infrastructure. The only local tooling is `clasp` for pushing files.
 
@@ -52,10 +52,10 @@ All persistent state lives in `PropertiesService.getUserProperties()` (per-user,
 
 | Key | Contents |
 |---|---|
-| `mailalert.settings` | Gemini key/model, poll interval, business hours, all SMS provider credentials, alert channel IDs |
-| `mailalert.rules` | JSON array of rule objects (see schema in RulesManager.gs header) |
-| `mailalert.seen` | Per-label array of recently-seen Gmail message IDs (dedup baseline) |
-| `mailalert.log` | Ring buffer of last ~60 activity log lines |
+| `mailsentinel.settings` | Gemini key/model, poll interval, business hours, all SMS provider credentials, alert channel IDs |
+| `mailsentinel.rules` | JSON array of rule objects (see schema in RulesManager.gs header) |
+| `mailsentinel.seen` | Per-label array of recently-seen Gmail message IDs (dedup baseline) |
+| `mailsentinel.log` | Ring buffer of last ~60 activity log lines |
 
 There is no database, no backend, no external storage.
 
@@ -96,4 +96,4 @@ Every scope in `appsscript.json` is required:
 
 ### Branding
 
-The app name is **mAIl Alert** — lowercase m, uppercase AI, lowercase l, space, uppercase A, lowercase lert. This exact capitalization must be preserved everywhere.
+The app name is **emAIl Sentinel** — lowercase e, lowercase m, uppercase A, uppercase I (together: "AI"), lowercase l, space, uppercase S, lowercase entinel. This exact capitalization must be preserved everywhere.

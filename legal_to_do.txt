@@ -57,16 +57,16 @@ Each item below is tagged:
      1. Go to your mailalert repo → Settings → Pages
      2. Set source to "Deploy from a branch" → main → / (root)
      3. GitHub will serve your repo at:
-          https://stephenrjohns.github.io/mailalert/
+          https://stephenrjohns.github.io/mailsentinel/
      4. Your URLs become:
-          https://stephenrjohns.github.io/mailalert/TERMS
-          https://stephenrjohns.github.io/mailalert/PRIVACY
+          https://stephenrjohns.github.io/mailsentinel/TERMS
+          https://stephenrjohns.github.io/mailsentinel/PRIVACY
         (GitHub Pages renders .md files as HTML automatically if you add
         a Jekyll front matter line or rename them to .html — or just link
         to the GitHub rendered view of the .md file)
      5. Simpler: just use the GitHub raw rendered URLs:
-          https://github.com/StephenRJohns/mailalert/blob/main/TERMS.md
-          https://github.com/StephenRJohns/mailalert/blob/main/PRIVACY.md
+          https://github.com/StephenRJohns/mailsentinel/blob/main/TERMS.md
+          https://github.com/StephenRJohns/mailsentinel/blob/main/PRIVACY.md
         These are publicly visible and work for Marketplace review.
 
    Option B — Your own website:
@@ -107,38 +107,62 @@ Each item below is tagged:
 
 
 ================================================================================
-4. TRADEMARK — "MAILALERT"
+4. TRADEMARK — "EMAILSENTINEL"
 ================================================================================
    Priority: MEDIUM
    Who: Steps 1-2 are [ONLINE] (you do it yourself). Step 3 depends on
         what you find — may need [LAWYER] if it's complicated.
 
-   Step 1 — Search (free, do it yourself):
-     1. Go to https://tess2.uspto.gov (USPTO trademark search)
-     2. Click "Basic Word Mark Search (New User)"
-     3. Search for: mAIl Alert
-     4. Also search for: Mail Alert (two words)
-     5. Look at results in International Class 009 (software) and
-        International Class 042 (SaaS / software services)
-     6. If you find existing registrations that are live (not dead/cancelled)
-        and cover software — that's a conflict. Stop and talk to a lawyer.
-     7. If the search comes back clean or only shows dead marks, proceed.
+   NOTE: App was rebranded from "mAIl Alert" to "emAIl Sentinel" on
+   2026-04-12. Prior trademark research for "mail alert" is superseded.
+   New searches are required for the current mark.
+
+   PRIOR RESEARCH NOTE (from "mAIl Alert" era, 2026-04-12):
+     USPTO searches for "mail alert", "mailalert", "mail-alert", and
+     "email alert" / "email-alert" were completed. Zero live marks
+     combined mail/email + sentinel/guard/sentry/vigil were found in
+     any of those result sets. "emAIl Sentinel" is expected to be clean,
+     but a direct search must be run to confirm.
+
+   Step 1 — Search NEEDED (not yet done):
+     Run these searches on https://tess2.uspto.gov:
+       • "email sentinel" (two words)
+       • "emailsentinel" (one word)
+       • "email-sentinel" (hyphenated)
+     Filter to International Class 009 (software) and 042 (SaaS).
+     If you find live marks in those classes covering software or
+     monitoring services — stop and talk to a lawyer.
+
+     EXPECTED RISK PROFILE:
+     • "sentinel" is a metaphor (a guard who raises an alarm), not a
+       literal description of email monitoring software. This gives it
+       significantly better distinctiveness than "alert" had.
+     • Class 042: Expected LOW RISK.
+     • Class 009: Expected LOW RISK — no known hardware product uses
+       this name; far cleaner than the old "mail alert" position.
+     • The capitalization "emAIl Sentinel" is NOT legally distinctive —
+       USPTO treats it identically to "email sentinel."
+
+   Step 1 — Search (free, do it yourself): [ ] NOT YET DONE
 
    Step 2 — File the application yourself (if search is clean):
      1. Go to https://www.uspto.gov/trademarks/apply
      2. Choose TEAS Standard ($350/class) or TEAS Plus ($250/class,
         more restrictive on goods/services description)
      3. You'll need:
-        - The mark: "mAIl Alert" (standard characters)
+        - The mark: "emAIl Sentinel" (standard characters)
         - Owner: JJJJJ Enterprises, LLC
-        - Class: 009 (computer software) and/or 042 (SaaS)
-        - Goods/services description, e.g.: "Downloadable computer
-          software in the nature of a Gmail add-on for monitoring email
-          and sending alerts based on user-defined rules"
+        - Class: 042 (SaaS / software services) — recommended primary
+        - Class: 009 (computer software) — optional, add if budget allows
+        - Goods/services description, e.g.: "Software as a service (SaaS)
+          featuring software for monitoring Gmail messages and delivering
+          alerts based on user-defined rules; downloadable computer
+          software in the nature of a Gmail add-on for email monitoring
+          and alert dispatch"
         - Filing basis: 1(a) "use in commerce" if the product is live,
           or 1(b) "intent to use" if not yet launched
         - A specimen showing the mark in use (screenshot of the add-on
-          with "mAIl Alert" visible) — required for 1(a), deferred for 1(b)
+          with "emAIl Sentinel" visible) — required for 1(a), deferred for 1(b)
      4. Pay and submit. Timeline: 3-4 months for an examining attorney
         to review. If approved, published for 30-day opposition period.
         Total timeline to registration: 8-12 months if no issues.
@@ -148,18 +172,19 @@ Each item below is tagged:
      from the USPTO examining attorney, that's when to call a trademark
      attorney. Common issues:
        - "Likelihood of confusion" with an existing mark
-       - "Merely descriptive" refusal (mAIl Alert describes what it does)
+       - "Merely descriptive" refusal (less likely for "sentinel" than
+         "alert", but possible if the examiner views it as descriptive)
      A trademark attorney typically charges $500–$1,500 to respond to an
      Office Action.
 
    What to ask a trademark lawyer:
-     "I want to register the trademark 'mAIl Alert' for a Gmail add-on
+     "I want to register the trademark 'emAIl Sentinel' for a Gmail add-on
      that monitors email and sends alerts. The LLC is JJJJJ Enterprises.
      I've done a TESS search and [found / didn't find] potential conflicts.
      Can you:
        (a) do a comprehensive search (including common law and state marks),
-       (b) advise on whether the mark is registrable given it may be
-           considered descriptive, and
+       (b) advise on whether the mark is registrable — specifically whether
+           'sentinel' in this context could be considered descriptive, and
        (c) file the application and handle any Office Actions?"
 
 
@@ -245,7 +270,7 @@ Each item below is tagged:
    Option A — Use CLA Assistant (free, GitHub-integrated):
      1. Go to https://cla-assistant.io
      2. Sign in with GitHub
-     3. Link your StephenRJohns/mailalert repo
+     3. Link your StephenRJohns/mailsentinel repo
      4. It will ask you to provide the CLA text. Use this template:
 
         ---
@@ -429,7 +454,7 @@ Each item below is tagged:
     Priority: LOW
     Who: [DIY] — only needed if you add dependencies later
 
-    Right now mAIl Alert is pure Apps Script with zero third-party libraries.
+    Right now emAIl Sentinel is pure Apps Script with zero third-party libraries.
     There is nothing to audit. If you ever add bundled libraries:
 
     Steps:
@@ -457,7 +482,7 @@ Summary — by who does it
     [ ] 2.  Host TERMS + PRIVACY at public URLs (free via GitHub Pages)
     [ ] 3.  Google Workspace Marketplace app verification ($0 to apply,
             $2K-$15K if Google requires a third-party security assessment)
-    [ ] 4a. Trademark search on USPTO TESS (free)
+    [ ] 4a. Trademark search on USPTO TESS (free) — redo for "emAIl Sentinel" (rebrand 2026-04-12)
     [ ] 4b. Trademark filing on USPTO ($250-$350 per class)
     [ ] 6a. Set up CLA via cla-assistant.io (free, GitHub-integrated)
     [ ] 7.  Buy E&O + cyber liability insurance ($500-$1,500/year)

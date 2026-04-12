@@ -27,7 +27,7 @@
  * error rather than failing silently.
  */
 
-const RULES_KEY = 'mailalert.rules';
+const RULES_KEY = 'mailsentinel.rules';
 
 const DEFAULT_ALERT_MESSAGE_PROMPT =
   'Include the date received, subject, sender, a short summary of the email, ' +

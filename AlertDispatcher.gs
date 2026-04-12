@@ -4,7 +4,7 @@
 /**
  * AlertDispatcher.gs — Send alerts via SMS and Google-native channels.
  *
- * SMS: Google doesn't offer a first-party SMS API, so mAIl Alert supports
+ * SMS: Google doesn't offer a first-party SMS API, so emAIl Sentinel supports
  * six options. Pick one in Settings → SMS Provider:
  *
  *   Provider     Auth method       Needs phone #?   Free trial?
@@ -108,7 +108,7 @@ const SMS_PROVIDER_INFO = {
     fields: ['smsWebhookUrl'],
     setup: [
       '1. Set up an HTTPS endpoint that accepts POST requests',
-      '2. mAIl Alert sends: {"to": "+15551234567", "body": "..."}',
+      '2. emAIl Sentinel sends: {"to": "+15551234567", "body": "..."}',
       '3. Paste the URL below'
     ]
   }
@@ -186,7 +186,7 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
 }
 
 function sendSmsAlert_(toNumber, rule, emailData, alertContent, settings) {
-  const text = ('[mAIl Alert] ' + rule.name + '\n' + alertContent).substring(0, 600);
+  const text = ('[emAIl Sentinel] ' + rule.name + '\n' + alertContent).substring(0, 600);
   const provider = settings.smsProvider;
   const dispatch = {
     textbelt:  sendTextbeltSms_,
@@ -324,7 +324,7 @@ function sendClickSendSms_(toNumber, text, settings) {
     headers: { Authorization: 'Basic ' + auth },
     payload: JSON.stringify({
       messages: [{
-        source: 'mAIl Alert',
+        source: 'emAIl Sentinel',
         to: toNumber,
         body: text
       }]
@@ -347,7 +347,7 @@ function sendVonageSms_(toNumber, text, settings) {
     method: 'post',
     contentType: 'application/json',
     payload: JSON.stringify({
-      from: 'mAIl Alert',
+      from: 'emAIl Sentinel',
       to: toNumber.replace(/[^0-9]/g, ''),
       text: text,
       api_key: settings.vonageApiKey,
@@ -400,7 +400,7 @@ function sendWebhookSms_(toNumber, text, settings) {
 
 function sendChatAlert_(webhookUrl, rule, emailData, message) {
   const payload = {
-    text: '*mAIl Alert Rule Fired: ' + rule.name + '*\n\n' + message
+    text: '*emAIl Sentinel Rule Fired: ' + rule.name + '*\n\n' + message
   };
   const resp = UrlFetchApp.fetch(webhookUrl, {
     method: 'post',
@@ -435,7 +435,7 @@ function sendCalendarAlert_(rule, emailData, message, settings) {
   if (!cal) {
     throw new Error('Calendar "' + calId + '" not found. Use "primary" for your main calendar.');
   }
-  const title = '[mAIl Alert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
+  const title = '[emAIl Sentinel] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
   const desc =
     'Rule: ' + rule.name + '\n' +
     'From: ' + (emailData.from || '(unknown)') + '\n' +
@@ -479,7 +479,7 @@ function sendSheetsAlert_(rule, emailData, message, settings) {
 }
 
 function createAlertSpreadsheet_() {
-  const ss = SpreadsheetApp.create('mAIl Alert — Alert Log');
+  const ss = SpreadsheetApp.create('emAIl Sentinel — Alert Log');
   return ss.getId();
 }
 
@@ -487,7 +487,7 @@ function createAlertSpreadsheet_() {
 
 function sendTasksAlert_(rule, emailData, message, settings) {
   const listId = settings.tasksListId || '@default';
-  const title = '[mAIl Alert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
+  const title = '[emAIl Sentinel] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
   const notes =
     'Rule: ' + rule.name + '\n' +
     'From: ' + (emailData.from || '(unknown)') + '\n' +
@@ -522,8 +522,8 @@ function testSms(toNumber) {
   try {
     sendSmsAlert_(toNumber,
       { name: 'Test' },
-      { subject: 'Test message', from: 'mAIl Alert', receivedDateTime: new Date().toISOString() },
-      'This is a test message from mAIl Alert.',
+      { subject: 'Test message', from: 'emAIl Sentinel', receivedDateTime: new Date().toISOString() },
+      'This is a test message from emAIl Sentinel.',
       settings);
     return 'Test SMS sent to ' + toNumber + ' via ' + settings.smsProvider + '.';
   } catch (e) {

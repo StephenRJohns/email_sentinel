@@ -8,7 +8,7 @@
  * Each value has a 9 KB limit, so we keep settings as small JSON or scalars.
  */
 
-const SETTINGS_KEY = 'mailalert.settings';
+const SETTINGS_KEY = 'mailsentinel.settings';
 
 const DEFAULT_SETTINGS = {
   geminiApiKey: '',

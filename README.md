@@ -1,4 +1,6 @@
-# mAIl Alert™
+<p align="center"><img src="images/JStar.png" width="80" alt="JJJJJ Enterprises, LLC"></p>
+
+# emAIl Sentinel™
 
 A Gmail Workspace Add-on that watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by **Google Gemini**.
 
@@ -27,7 +29,7 @@ Everything runs inside your Google account — no machine to keep running, no ex
 
 ## 1. What it does
 
-When a new email arrives in a watched Gmail label, mAIl Alert asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
+When a new email arrives in a watched Gmail label, emAIl Sentinel asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
 
 - **SMS** via your configured provider (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or a generic webhook).
 - **Google Chat**, **Google Calendar**, **Google Sheets**, or **Google Tasks** — all within your own Google account, no extra sign-up needed.
@@ -62,10 +64,10 @@ All state lives in `PropertiesService.getUserProperties()`:
 
 | Key | Contents |
 |---|---|
-| `mailalert.settings` | Gemini key, model, poll interval, business hours, SMS config, alert channel IDs |
-| `mailalert.rules`    | JSON array of rule objects |
-| `mailalert.seen`     | Per-label list of recently-seen Gmail message IDs |
-| `mailalert.log`      | Ring buffer of the last ~60 activity log lines |
+| `mailsentinel.settings` | Gemini key, model, poll interval, business hours, SMS config, alert channel IDs |
+| `mailsentinel.rules`    | JSON array of rule objects |
+| `mailsentinel.seen`     | Per-label list of recently-seen Gmail message IDs |
+| `mailsentinel.log`      | Ring buffer of the last ~60 activity log lines |
 
 `UserProperties` is **private to the running user** and **per-script** — nobody but you (and the add-on running in your account) can read it.
 
@@ -74,7 +76,7 @@ All state lives in `PropertiesService.getUserProperties()`:
 ## 3. Repository layout
 
 ```
-mailalert/
+mailsentinel/
 ├── appsscript.json        # Add-on manifest (scopes, triggers, link prefixes)
 ├── .clasp.json            # clasp project config — paste your scriptId here
 ├── .claspignore           # Limits clasp push to .gs / .html / appsscript.json
@@ -84,7 +86,7 @@ mailalert/
 ├── Cards.gs               # All CardService UI (home, rules, editor, settings, log, help)
 ├── MailWatcher.gs         # Time-driven trigger handler — polls Gmail, dispatches matches
 ├── RuleEvaluator.gs       # Gemini REST calls (rule evaluation + alert formatting)
-├── AlertDispatcher.gs     # Alert dispatch: Email, 6 SMS providers, Chat, Calendar, Sheets, Tasks
+├── AlertDispatcher.gs     # Alert dispatch: 6 SMS providers, Chat, Calendar, Sheets, Tasks
 ├── RulesManager.gs        # CRUD for rules in UserProperties
 ├── SettingsManager.gs     # CRUD for settings; business-hours helpers
 ├── ActivityLog.gs         # Ring-buffered activity log with batch-write support
@@ -98,9 +100,9 @@ mailalert/
 ├── DISCLAIMER.md          # Warranty disclaimer, AI accuracy, no-reliance notice
 │
 └── images/                # Add-on icons and card banner
-    ├── MA_128.png         # 128×128 icon
-    ├── MA_32.png          # 32×32 icon
-    └── MA_Card_Banner.png # 220×140 card banner
+    ├── ES_128.png         # 128×128 icon
+    ├── ES_32.png          # 32×32 icon
+    └── ES_Banner.png      # card banner
 ```
 
 There is no build step, no `requirements.txt`, no installer. The whole thing is JavaScript that runs on Google's servers.
@@ -128,8 +130,7 @@ npm install -g @google/clasp
 clasp login
 
 # 3. From this directory, create a new Apps Script project
-cd mailalert
-clasp create --type standalone --title "mAIl Alert" --rootDir .
+clasp create --type standalone --title "emAIl Sentinel" --rootDir .
 #   ↑ this writes a real scriptId into .clasp.json
 
 # 4. Push all the .gs / .html / appsscript.json files
@@ -145,7 +146,7 @@ Inside the Apps Script editor:
 2. Click **Install** under "Test the latest code".
 3. Choose **Gmail** as the host.
 4. Approve the OAuth consent screen.
-5. Open Gmail in another tab — the mAIl Alert icon appears in the right-hand add-on rail.
+5. Open Gmail in another tab — the emAIl Sentinel icon appears in the right-hand add-on rail.
 
 ---
 
@@ -162,7 +163,7 @@ If you'd rather not install `clasp`:
 
 ## 7. First-run configuration
 
-After installation, open Gmail and click the mAIl Alert icon in the right rail.
+After installation, open Gmail and click the emAIl Sentinel icon in the right rail.
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
 2. **Settings ▸ Polling** — pick how often to check (default 5 minutes).
@@ -251,7 +252,7 @@ The real power is mixing channels:
 
 ## 9. Gemini pricing and model tiers
 
-mAIl Alert calls the Gemini API **twice per new email per active rule**: once to evaluate whether the email matches, and once to format the alert message. Already-seen messages are skipped entirely.
+emAIl Sentinel calls the Gemini API **twice per new email per active rule**: once to evaluate whether the email matches, and once to format the alert message. Already-seen messages are skipped entirely.
 
 ### Models (select in Settings)
 
@@ -271,7 +272,7 @@ A key from [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apik
 - **Flash models:** 1,500 requests/day and 1,000,000 tokens/day
 - **Pro models:** 50 requests/day
 
-When you hit a limit, Gemini returns HTTP 429 and mAIl Alert logs `"Gemini quota exceeded"` in the Activity Log. Monitoring resumes automatically the next day — you are never charged on a free key.
+When you hit a limit, Gemini returns HTTP 429 and emAIl Sentinel logs `"Gemini quota exceeded"` in the Activity Log. Monitoring resumes automatically the next day — you are never charged on a free key.
 
 ### Estimating your daily usage
 
@@ -293,7 +294,7 @@ If you regularly hit the free limit:
 
 1. Go to [aistudio.google.com](https://aistudio.google.com) → select your API key → **Enable billing**.
 2. Link a Google Cloud project that has a billing account attached.
-3. The same API key continues to work in mAIl Alert — no settings change needed.
+3. The same API key continues to work in emAIl Sentinel — no settings change needed.
 
 **Example monthly cost (Flash model, paid tier):**
 
@@ -318,7 +319,7 @@ If you regularly hit the free limit:
 ## 10. Alert channels
 
 ### SMS
-Google Workspace does not provide a first-party SMS API, so mAIl Alert ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
+Google Workspace does not provide a first-party SMS API, so emAIl Sentinel ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
 
 | Provider | Cost (US domestic) | Phone # needed? | Free trial? | Auth method |
 |---|---|---|---|---|
@@ -350,7 +351,7 @@ These use your existing Google account — no third-party sign-up, no cost.
 |---|---|---|
 | **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. **Requires a Google Workspace paid account** (webhooks are not available on free Gmail accounts). | Create a Space at [chat.google.com](https://chat.google.com). Open the space, click the space name in the top header bar ▸ Apps & integrations ▸ Webhooks ▸ create one. In **Settings ▸ Google alert channels**, enter the space name and paste the webhook URL into the corresponding fields (up to 3 spaces). Select the space name in each rule. |
 | **Google Calendar** | Creates a 15-minute calendar event with the alert details. Phone/desktop notifications fire automatically if you have calendar notifications on. | (Optional) Enter a calendar ID in Settings, or leave blank for your primary calendar. In the rule editor, check "Create a Google Calendar event on match." |
-| **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — mAIl Alert auto-creates one called "mAIl Alert — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
+| **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — emAIl Sentinel auto-creates one called "emAIl Sentinel — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
 | **Google Tasks** | Creates a task in Google Tasks with the alert subject and details. Shows in the Gmail sidebar and the Google Tasks app. | Leave the Tasks list ID blank for "My Tasks" (the default list). In the rule editor, check "Create a Google Task on match." |
 
 Each Google channel is enabled per rule via a checkbox in the rule editor, so you can have some rules post to Chat and others log to Sheets, or combine all four.
@@ -388,7 +389,7 @@ You can also peek at the trigger execution history in the Apps Script editor und
 
 ## 13. Why an Add-on instead of a Chrome extension?
 
-A Chrome extension only runs while a Chrome tab is open. The original Python app was a background daemon — the equivalent in Google's world is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings, which is exactly what mAIl Alert needs.
+A Chrome extension only runs while a Chrome tab is open. emAIl Sentinel needs to monitor Gmail continuously in the background — the right primitive for that is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings.
 
 If you'd rather have an in-Gmail browser-only experience too, the same `.gs` files can also be deployed as a **Gmail Add-on web app** through Google Workspace Marketplace; the manifest is already compatible.
 

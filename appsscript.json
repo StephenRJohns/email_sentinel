@@ -14,8 +14,8 @@
   ],
   "addOns": {
     "common": {
-      "name": "mAIl Alert",
-      "logoUrl": "https://lh3.googleusercontent.com/d/186WY050kwe9IgGFD-io0sK97uEnU-ZWB",
+      "name": "emAIl Sentinel",
+      "logoUrl": "https://lh3.googleusercontent.com/d/1xcfW73sGECfYtIf4wS_TEM2RwXU9_rF4",
       "homepageTrigger": {
         "runFunction": "onHomepage",
         "enabled": true

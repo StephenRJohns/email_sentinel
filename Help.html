@@ -1,4 +1,4 @@
-<b>mAIl Alert&#8482;</b> watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by Google Gemini.<br><br>
+<b>emAIl Sentinel&#8482;</b> watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by Google Gemini.<br><br>
 
 <b>Quick start</b><br>
 1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>
@@ -51,7 +51,7 @@ The real power is mixing channels on a single rule:<br>
 Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as it appears in Gmail. Labels containing spaces are fine — type them exactly as shown. Multiple labels: comma-separated.<br><br>
 
 <b>Alert channels</b><br>
-<b>SMS</b> — Google doesn't ship an SMS API, so mAIl Alert supports six providers natively. Click <b>SMS setup guide</b> in Settings for a full comparison with sign-up links. Quick overview:<br>
+<b>SMS</b> — Google doesn't ship an SMS API, so emAIl Sentinel supports six providers natively. Click <b>SMS setup guide</b> in Settings for a full comparison with sign-up links. Quick overview:<br>
 • <b>Textbelt</b> — easiest: 1 free SMS/day with API key "textbelt", no sign-up needed<br>
 • <b>ClickSend</b> — free trial, just username + API key, no phone number needed<br>
 • <b>Vonage</b> — free trial credits, no credit card required<br>
@@ -66,7 +66,7 @@ These use your existing Google account — no third-party sign-up, no cost:<br>
 • <b>Google Chat</b> — post to a Chat Space via webhook, just like Teams. Requires a <b>Google Workspace paid account</b> (webhooks are not available on free Gmail accounts). To set one up:<br>
 &nbsp;&nbsp;1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space (or use an existing one)<br>
 &nbsp;&nbsp;2. Open the space, then click the <b>space name in the top header bar</b> → <b>Apps &amp; integrations</b> → <b>Webhooks</b><br>
-&nbsp;&nbsp;3. Click <b>Add webhook</b>, give it a name (e.g. "mAIl Alert"), click <b>Save</b><br>
+&nbsp;&nbsp;3. Click <b>Add webhook</b>, give it a name (e.g. "emAIl Sentinel"), click <b>Save</b><br>
 &nbsp;&nbsp;4. Copy the webhook URL and paste it into Settings → Google Chat webhooks<br>
 &nbsp;&nbsp;5. Select the space name in each rule where you want Chat alerts<br>
 • <b>Google Calendar</b> — creates a 15-minute calendar event with the alert details. Your phone will notify you if calendar notifications are on. Enable per rule with a checkbox.<br>
@@ -74,7 +74,7 @@ These use your existing Google account — no third-party sign-up, no cost:<br>
 • <b>Google Tasks</b> — creates a task in Google Tasks with the alert details. Shows in Gmail sidebar and the Tasks app. Enable per rule with a checkbox.<br><br>
 
 <b>Gemini pricing and model tiers</b><br>
-mAIl Alert calls the Gemini API twice per evaluated email per rule: once to check if the email matches the rule, and once to format the alert message. Understanding the cost tiers helps you pick the right model and avoid unexpected quota hits.<br><br>
+emAIl Sentinel calls the Gemini API twice per evaluated email per rule: once to check if the email matches the rule, and once to format the alert message. Understanding the cost tiers helps you pick the right model and avoid unexpected quota hits.<br><br>
 
 <b>Models (select in Settings)</b><br>
 • <b>Gemini 2.0 Flash</b> (default) — fastest, most affordable, 1,500 free requests/day. Best for most users.<br>
@@ -83,7 +83,7 @@ mAIl Alert calls the Gemini API twice per evaluated email per rule: once to chec
 • <b>Gemini 1.5 Pro</b> — highest accuracy for complex or nuanced rules, but only 50 free requests/day and roughly 17× the cost of Flash. Not recommended for high email volume.<br><br>
 
 <b>Free tier (no billing required)</b><br>
-A key from <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> is free — no credit card needed. Flash models allow 1,500 requests/day and 1,000,000 tokens/day, resetting at midnight Pacific Time. When you hit the limit, Gemini returns a 429 error and mAIl Alert logs "Gemini quota exceeded" in the Activity Log. Calls resume automatically the next day — you are never charged on a free key.<br><br>
+A key from <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> is free — no credit card needed. Flash models allow 1,500 requests/day and 1,000,000 tokens/day, resetting at midnight Pacific Time. When you hit the limit, Gemini returns a 429 error and emAIl Sentinel logs "Gemini quota exceeded" in the Activity Log. Calls resume automatically the next day — you are never charged on a free key.<br><br>
 
 <b>How many calls will you use per day?</b><br>
 Each <i>new</i> email in a watched label triggers one Gemini evaluation per active rule. Already-seen messages are skipped entirely.<br>
@@ -94,7 +94,7 @@ Estimate: <b>new emails/day × active rules × 2 = daily API calls</b><br>
 • 200 new emails/day × 10 rules = 4,000 calls — needs paid tier<br><br>
 
 <b>Paid usage</b><br>
-If you regularly hit the free limit, enable billing at <a href="https://aistudio.google.com">aistudio.google.com</a> → your API key → <b>Enable billing</b>. The same API key continues to work — no change in mAIl Alert settings is needed. Approximate paid rates (verify current prices at <a href="https://ai.google.dev/pricing">ai.google.dev/pricing</a>):<br>
+If you regularly hit the free limit, enable billing at <a href="https://aistudio.google.com">aistudio.google.com</a> → your API key → <b>Enable billing</b>. The same API key continues to work — no change in emAIl Sentinel settings is needed. Approximate paid rates (verify current prices at <a href="https://ai.google.dev/pricing">ai.google.dev/pricing</a>):<br>
 • <b>Flash models (2.0 Flash, 1.5 Flash):</b> ~$0.075/million input tokens, ~$0.30/million output tokens<br>
 • <b>Flash Lite (2.0 Flash Lite):</b> ~$0.04/million input tokens, ~$0.15/million output tokens<br>
 • <b>Pro models (1.5 Pro):</b> ~$1.25/million input tokens, ~$5.00/million output tokens<br>
@@ -120,6 +120,6 @@ Settings, rules, the seen-message baseline, and the activity log are all stored 
 • <i>"Label '…' fetch failed"</i> — verify the label exists in Gmail with that exact name (case-insensitive).<br>
 • <i>SMS not delivered</i> — open the Activity Log to see the provider's error response.<br>
 • <i>Alerts firing for old mail after install</i> — open Settings and click <b>Reset baseline</b>; the next run will re-baseline.<br>
-• Still stuck? <a href="https://github.com/StephenRJohns/mailalert/issues">Open a support issue on GitHub</a>.<br><br>
+• Still stuck? <b><a href="https://github.com/StephenRJohns/mailsentinel/issues">Open a GitHub issue</a></b> — this is the preferred and fastest way to get help. Issues are tracked, searchable, and typically get a faster response than email. You can also email support@jjjjjenterprises.com, but GitHub is more effective.<br><br>
 
 <font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. This project is not affiliated with or endorsed by Google.</font>

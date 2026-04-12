@@ -1,8 +1,8 @@
-# mAIl Alert™ — Terms of Service
+# emAIl Sentinel™ — Terms of Service
 
 **Effective date:** 2026-04-11
-**Operator:** JJJJJ Enterprises, LLC ("we", "us", "our")
-**Service:** mAIl Alert, a Google Workspace Add-on for Gmail (the "Service")
+**Operator:** <img src="images/JStar.png" width="32" alt="JJJJJ Enterprises, LLC"> JJJJJ Enterprises, LLC ("we", "us", "our")
+**Service:** emAIl Sentinel, a Google Workspace Add-on for Gmail (the "Service")
 
 By installing or using the Service you ("you", "your") agree to these Terms of Service (the "Terms"). If you do not agree, do not install or use the Service.
 
@@ -10,7 +10,7 @@ By installing or using the Service you ("you", "your") agree to these Terms of S
 
 ## 1. Description of the Service
 
-mAIl Alert is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via (optionally) SMS through a third-party provider you configure (such as those listed in Section 5), Google Chat, Google Calendar, Google Sheets, or Google Tasks.
+emAIl Sentinel is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via (optionally) SMS through a third-party provider you configure (such as those listed in Section 5), Google Chat, Google Calendar, Google Sheets, or Google Tasks.
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 

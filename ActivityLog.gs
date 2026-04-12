@@ -12,7 +12,7 @@
  * at the end to batch all UserProperties writes into a single call.
  */
 
-const LOG_KEY = 'mailalert.log';
+const LOG_KEY = 'mailsentinel.log';
 const MAX_ENTRIES = 60;
 const MAX_ENTRY_LENGTH = 200;
 

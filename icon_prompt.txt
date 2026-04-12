@@ -1,9 +1,9 @@
 ================================================================================
-mAIl Alert — Icon & Banner Prompts for Nano Banana (or any AI image generator)
+emAIl Sentinel — Icon & Banner Prompts for Nano Banana (or any AI image generator)
 ================================================================================
 
 Generate three images for a Google Workspace Marketplace listing for an
-app called "mAIl Alert." The app is a Gmail add-on that monitors your
+app called "emAIl Sentinel." The app is a Gmail add-on that monitors your
 inbox with AI and sends alerts via email, SMS, Google Chat, Calendar,
 Sheets, and Tasks.
 
@@ -72,23 +72,23 @@ card, 220x140 pixels. Background is a smooth gradient from deep
 electric blue (#1E40AF) on the left to teal (#0891B2) on the right.
 The app icon (notification bell + envelope, white silhouette version)
 sits on the left third at about 80px tall, vertically centered. To the
-right of the icon, the text "mAIl Alert" in clean white sans-serif font
+right of the icon, the text "emAIl Sentinel" in clean white sans-serif font
 (Inter, Poppins, Montserrat, or similar geometric sans-serif — NOT a
 serif font). The "AI" in "mAIl" should be noticeably capitalized to
 highlight the AI branding. Large enough to fill about 60% of the
 remaining width. Below the app name, in smaller white text at about
 40% opacity: "AI Email Monitoring". Include a small ™ superscript
-after "mAIl Alert". No borders, no rounded corners
+after "emAIl Sentinel". No borders, no rounded corners
 (Google crops these themselves). The overall feel is professional,
 SaaS-product-page quality — not playful or cartoonish.
 
 Alt prompt (simpler, no text — generate icon-only and add text in Canva):
 
 A 220x140 banner with a smooth gradient background from deep blue
-(#1E40AF) to teal (#0891B2). Centered in the image is the mAIl Alert
+(#1E40AF) to teal (#0891B2). Centered in the image is the emAIl Sentinel
 app icon (notification bell with envelope, white silhouette) at about
 80px tall. Nothing else — clean and minimal. I will add the text
-"mAIl Alert™" in a sans-serif font (Inter, Poppins, or Montserrat)
+"emAIl Sentinel™" in a sans-serif font (Inter, Poppins, or Montserrat)
 in Canva afterward.
 
 

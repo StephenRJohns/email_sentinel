@@ -16,7 +16,7 @@
  *   the original Python behaviour and prevents an alert flood on first install.
  */
 
-const SEEN_KEY = 'mailalert.seen';
+const SEEN_KEY = 'mailsentinel.seen';
 const SEEN_MAX_PER_LABEL = 200;
 
 function runMailCheck() {

@@ -2,7 +2,7 @@
 // Proprietary — see LICENSE for terms.
 
 /**
- * Cards.gs — All CardService UI for the mAIl Alert add-on.
+ * Cards.gs — All CardService UI for the emAIl Sentinel add-on.
  *
  * Layout overview:
  *   Home card     — quick status, Start/Stop monitoring, links to subviews
@@ -95,7 +95,10 @@ function buildHomeCard() {
       .setOnClickAction(navAction_('buildHelpCard')));
 
   var builder = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('mAIl Alert\u2122'))
+    .setHeader(CardService.newCardHeader()
+      .setTitle('emAIl Sentinel\u2122')
+      .setImageUrl('https://lh3.googleusercontent.com/d/1C-0LwVLpc4Dm_VZXIsBbvAuMrsgKJ0M2')
+      .setImageStyle(CardService.ImageStyle.CIRCLE))
     .addSection(statusSection);
   if (setupSection) builder.addSection(setupSection);
   builder.addSection(navSection);
@@ -553,7 +556,7 @@ function buildSettingsCard() {
     googleSection.addWidget(CardService.newTextInput()
       .setFieldName('chatSpaceName' + ci)
       .setTitle('Chat space ' + (ci + 1) + ' name')
-      .setHint(ci === 0 ? 'e.g. "mAIl Alerts"' : '')
+      .setHint(ci === 0 ? 'e.g. "emAIl Sentinel alerts"' : '')
       .setValue(cs.name || ''));
     googleSection.addWidget(CardService.newTextInput()
       .setFieldName('chatSpaceUrl' + ci)
@@ -927,7 +930,7 @@ function handleCancelClearLog(e) {
 
 function buildHelpCard() {
   var card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('mAIl Alert\u2122 Help'));
+    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
   var section = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph().setText(
       'Tap a topic below for details.'));
@@ -946,6 +949,12 @@ function buildHelpCard() {
         .setParameters({ topic: t.id })));
   });
   card.addSection(section);
+  card.addSection(CardService.newCardSection()
+    .addWidget(CardService.newImage()
+      .setImageUrl('https://lh3.googleusercontent.com/d/1C-0LwVLpc4Dm_VZXIsBbvAuMrsgKJ0M2')
+      .setAltText('JJJJJ Enterprises, LLC'))
+    .addWidget(CardService.newTextParagraph().setText(
+      '<font color="#888888">emAIl Sentinel\u2122 is a product of JJJJJ Enterprises, LLC.</font>')));
   return card.build();
 }
 
@@ -996,7 +1005,7 @@ function helpTopics_() {
         '\u2022 <b>Deadline:</b> "Email mentioning a deadline or due date." \u2192 Calendar event<br><br>' +
         '<b>Sheets</b> \u2014 audit trails<br>' +
         '\u2022 <b>Compliance log:</b> "Email from a regulatory body or auditor." \u2192 Sheets row<br>' +
-        '\u2022 <b>Expense tracking:</b> "Emails with receipts or payment confirmations." \u2192 Sheets + Email<br><br>' +
+        '\u2022 <b>Expense tracking:</b> "Emails with receipts or payment confirmations." \u2192 Sheets log<br><br>' +
         '<b>Tasks</b> \u2014 to-do items<br>' +
         '\u2022 <b>Action items:</b> "Email explicitly asking me to do, review, or approve something." \u2192 Task<br>' +
         '\u2022 <b>Follow-up:</b> "Email saying \'let me know\' or \'awaiting your response\'." \u2192 Task<br><br>' +
@@ -1028,7 +1037,7 @@ function helpTopics_() {
     pricing: {
       title: 'Gemini pricing & models',
       content:
-        'mAIl Alert calls Gemini twice per email per rule: once to evaluate, once to format the alert.<br><br>' +
+        'emAIl Sentinel calls Gemini twice per email per rule: once to evaluate, once to format the alert.<br><br>' +
         '<b>Models (select in Settings)</b><br>' +
         '\u2022 <b>2.0 Flash</b> (default) \u2014 fastest, 1,500 free requests/day<br>' +
         '\u2022 <b>2.0 Flash Lite</b> \u2014 ultra-low-cost, slightly less capable<br>' +
@@ -1066,7 +1075,7 @@ function helpTopics_() {
         '\u2022 <i>"Label \'...\' fetch failed"</i> \u2014 verify the label exists in Gmail (case-insensitive)<br>' +
         '\u2022 <i>SMS not delivered</i> \u2014 check Activity Log for the provider\'s error<br>' +
         '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br>' +
-        '\u2022 Still stuck? <a href="https://github.com/StephenRJohns/mailalert/issues">Open a support issue on GitHub</a><br><br>' +
+        '\u2022 Still stuck? <b><a href="https://github.com/StephenRJohns/mailsentinel/issues">Open a GitHub issue</a></b> \u2014 preferred and fastest: issues are tracked, searchable, and get a quicker response than email. You can also email support@jjjjjenterprises.com, but GitHub is more effective.<br><br>' +
         '<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. Not affiliated with or endorsed by Google.</font>'
     }
   };

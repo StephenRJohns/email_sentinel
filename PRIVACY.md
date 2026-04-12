@@ -1,8 +1,8 @@
-# mAIl Alert™ — Privacy Policy
+# emAIl Sentinel™ — Privacy Policy
 
 **Effective date:** 2026-04-11
 **Operator:** JJJJJ Enterprises, LLC ("we", "us", "our")
-**Service:** mAIl Alert, a Google Workspace Add-on for Gmail (the "Service")
+**Service:** emAIl Sentinel, a Google Workspace Add-on for Gmail (the "Service")
 
 This Privacy Policy explains what data the Service accesses, how it is used, and with whom it is shared. By installing or using the Service you consent to the practices described below.
 
@@ -10,7 +10,7 @@ This Privacy Policy explains what data the Service accesses, how it is used, and
 
 ## 1. Architecture Summary
 
-mAIl Alert runs entirely inside your own Google Apps Script environment, under your own Google account credentials. We do not operate any server, database, or backend that receives or stores your data. All persistent data resides in `PropertiesService.getUserProperties()`, which is private to your Google account and script project.
+emAIl Sentinel runs entirely inside your own Google Apps Script environment, under your own Google account credentials. We do not operate any server, database, or backend that receives or stores your data. All persistent data resides in `PropertiesService.getUserProperties()`, which is private to your Google account and script project.
 
 ## 2. Data We Access
 
@@ -111,7 +111,7 @@ We may update this Privacy Policy from time to time. The "Effective date" at the
 
 For questions about this Privacy Policy or to exercise your data rights, contact:
 
-JJJJJ Enterprises, LLC
+<img src="images/JStar.png" width="48" alt="JJJJJ Enterprises, LLC"> JJJJJ Enterprises, LLC
 legal@jjjjjenterprises.com
 
-For user support, visit [github.com/StephenRJohns/mailalert/issues](https://github.com/StephenRJohns/mailalert/issues) or email support@jjjjjenterprises.com.
+For user support, **[open an issue on GitHub](https://github.com/StephenRJohns/mailsentinel/issues)** — this is the preferred channel. Issues are tracked, searchable, and get a faster response than email. You may also email support@jjjjjenterprises.com, but GitHub Issues is more effective and responsive.

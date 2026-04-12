@@ -1,8 +1,8 @@
 ================================================================================
-mAIl Alert -- Google Workspace Marketplace Checklist
+emAIl Sentinel -- Google Workspace Marketplace Checklist
 ================================================================================
 
-This file lists everything needed to publish mAIl Alert on the Google
+This file lists everything needed to publish emAIl Sentinel on the Google
 Workspace Marketplace. Items are grouped by what you need to prepare
 (assets, text, config) and what Google will check during review.
 
@@ -26,7 +26,7 @@ Marketplace SDK → Store Listing page.
    Google product names. Must match the OAuth consent screen app name
    exactly.
 
-   Recommended:  mAIl Alert
+   Recommended:  emAIl Sentinel
 
    (Short, title-case, no Google trademarks, under 50 chars.)
 
@@ -51,7 +51,7 @@ Marketplace SDK → Store Listing page.
 
    Recommended (customize as needed):
 
-     mAIl Alert watches your Gmail for new messages and sends alerts
+     emAIl Sentinel watches your Gmail for new messages and sends alerts
      when one matches a rule you describe in plain English. Rules
      are evaluated by Google Gemini — no regex, no code.
 
@@ -157,7 +157,7 @@ Marketplace SDK → Store Listing page.
 
    How to take them:
      1. Deploy the add-on and configure it with real rules
-     2. Open Gmail → click the mAIl Alert icon in the right rail
+     2. Open Gmail → click the emAIl Sentinel icon in the right rail
      3. Take a full-page screenshot of the browser (the add-on panel
         will be on the right)
      4. Crop to 1280x800 focusing on the add-on panel
@@ -169,7 +169,7 @@ Marketplace SDK → Store Listing page.
    Must be a publicly accessible HTTPS URL.
 
    Easiest: use the GitHub rendered view:
-     https://github.com/StephenRJohns/mailalert/blob/main/TERMS.md
+     https://github.com/StephenRJohns/mailsentinel/blob/main/TERMS.md
 
    Better: host on your own domain (looks more professional):
      https://yourdomain.com/mailalert/terms
@@ -179,7 +179,7 @@ Marketplace SDK → Store Listing page.
 ---------------------------------------------------------------------------
    Must be a publicly accessible HTTPS URL.
 
-     https://github.com/StephenRJohns/mailalert/blob/main/PRIVACY.md
+     https://github.com/StephenRJohns/mailsentinel/blob/main/PRIVACY.md
 
    Or on your domain:
      https://yourdomain.com/mailalert/privacy
@@ -191,7 +191,7 @@ Marketplace SDK → Store Listing page.
 
     Options:
       a) GitHub Issues page:
-         https://github.com/StephenRJohns/mailalert/issues
+         https://github.com/StephenRJohns/mailsentinel/issues
       b) A simple support page on your website with a contact form
       c) A mailto: link (less ideal but accepted)
 
@@ -213,7 +213,7 @@ project linked to your Apps Script:
 
     - User type: External (for public listing)
     - Publishing status: In Production (NOT Testing)
-    - App name: "mAIl Alert" (must exactly match appsscript.json name)
+    - App name: "emAIl Sentinel" (must exactly match appsscript.json name)
     - User support email: your email
     - Developer contact: your email
     - App logo: upload your 128px icon
@@ -234,7 +234,7 @@ project linked to your Apps Script:
 
 13. OAUTH VERIFICATION
 ---------------------------------------------------------------------------
-    Because mAIl Alert uses sensitive scopes (gmail.send, gmail.readonly),
+    Because emAIl Sentinel uses sensitive scopes (gmail.send, gmail.readonly),
     you must submit for OAuth verification:
 
     Google Cloud Console → APIs & Services → OAuth consent screen →
@@ -245,7 +245,7 @@ project linked to your Apps Script:
     - A written justification for each scope
     - A link to your privacy policy
 
-    Scope justifications for mAIl Alert:
+    Scope justifications for emAIl Sentinel:
 
       gmail.addons.execute    Required to run as a Gmail add-on.
       gmail.send              Required to send alert emails from the
@@ -293,7 +293,7 @@ before submitting.
     [ ] "Google Chat", "Google Calendar", etc. are used as proper nouns
         with capitalization, not as generic terms
 
-    Current status: mAIl Alert — PASSES. The name is original and doesn't
+    Current status: emAIl Sentinel — PASSES. The name is original and doesn't
     contain Google trademarks.
 
 
@@ -433,7 +433,7 @@ The Marketplace has its own search algorithm. Here's how to rank well:
       - Structured data (JSON-LD SoftwareApplication schema)
 
     If you don't have a domain, GitHub Pages works fine:
-      https://stephenrjohns.github.io/mailalert/
+      https://stephenrjohns.github.io/mailsentinel/
 
 
 ================================================================================
@@ -458,7 +458,7 @@ Run through this before clicking "Publish":
 
   GOOGLE CLOUD CONSOLE:
     [ ] OAuth consent screen: External, In Production
-    [ ] OAuth consent screen app name = "mAIl Alert" (exact match)
+    [ ] OAuth consent screen app name = "emAIl Sentinel" (exact match)
     [ ] OAuth verification submitted (may take weeks)
     [ ] Marketplace SDK enabled
     [ ] Store listing filled in completely
