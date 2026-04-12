@@ -14,8 +14,12 @@
  *     enabled: boolean,
  *     createdAt: ISO8601,
  *     alerts: {
- *       emailAddresses: string[],
- *       smsNumbers:     string[]
+ *       emailAddresses:  string[],
+ *       smsNumbers:      string[],
+ *       chatSpaces:      string[],  // names from the registry in settings
+ *       calendarEnabled: boolean,
+ *       sheetsEnabled:   boolean,
+ *       tasksEnabled:    boolean
  *     }
  *   }
  *
@@ -62,8 +66,12 @@ function createRule(name, labels, ruleText, alerts, alertMessagePrompt) {
     ruleText: ruleText,
     alertMessagePrompt: alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT,
     alerts: {
-      emailAddresses: (alerts && alerts.emailAddresses) || [],
-      smsNumbers:     (alerts && alerts.smsNumbers)     || []
+      emailAddresses:  (alerts && alerts.emailAddresses) || [],
+      smsNumbers:      (alerts && alerts.smsNumbers)     || [],
+      chatSpaces:      (alerts && alerts.chatSpaces)     || [],
+      calendarEnabled: (alerts && alerts.calendarEnabled) || false,
+      sheetsEnabled:   (alerts && alerts.sheetsEnabled)   || false,
+      tasksEnabled:    (alerts && alerts.tasksEnabled)    || false
     },
     enabled: true,
     createdAt: new Date().toISOString()
@@ -104,9 +112,13 @@ function toggleRule(id) {
 
 function migrateRule_(r) {
   if (!r.alertMessagePrompt) r.alertMessagePrompt = DEFAULT_ALERT_MESSAGE_PROMPT;
-  if (!r.alerts) r.alerts = { emailAddresses: [], smsNumbers: [] };
-  if (!r.alerts.smsNumbers) r.alerts.smsNumbers = [];
+  if (!r.alerts) r.alerts = {};
   if (!r.alerts.emailAddresses) r.alerts.emailAddresses = [];
+  if (!r.alerts.smsNumbers) r.alerts.smsNumbers = [];
+  if (!r.alerts.chatSpaces) r.alerts.chatSpaces = [];
+  if (r.alerts.calendarEnabled === undefined) r.alerts.calendarEnabled = false;
+  if (r.alerts.sheetsEnabled === undefined) r.alerts.sheetsEnabled = false;
+  if (r.alerts.tasksEnabled === undefined) r.alerts.tasksEnabled = false;
   if (!r.labels) r.labels = ['INBOX'];
   return r;
 }

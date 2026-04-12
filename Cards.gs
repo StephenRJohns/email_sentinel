@@ -134,6 +134,12 @@ function buildRuleSummarySection_(rule) {
   const labels = (rule.labels || []).join(', ') || '(no labels)';
   const emails = (rule.alerts.emailAddresses || []).join(', ') || '—';
   const sms    = (rule.alerts.smsNumbers || []).join(', ') || '—';
+  const chat   = (rule.alerts.chatSpaces || []).join(', ') || '—';
+  const googleChannels = [];
+  if (rule.alerts.calendarEnabled) googleChannels.push('Calendar');
+  if (rule.alerts.sheetsEnabled)   googleChannels.push('Sheets');
+  if (rule.alerts.tasksEnabled)    googleChannels.push('Tasks');
+  const google = googleChannels.join(', ') || '—';
   const ruleText = (rule.ruleText || '').length > 140
     ? rule.ruleText.substring(0, 137) + '…'
     : rule.ruleText;
@@ -143,7 +149,9 @@ function buildRuleSummarySection_(rule) {
     .addWidget(CardService.newKeyValue().setTopLabel('Labels').setContent(escapeHtml_(labels)))
     .addWidget(CardService.newKeyValue().setTopLabel('Rule').setContent(escapeHtml_(ruleText)))
     .addWidget(CardService.newKeyValue().setTopLabel('Email').setContent(escapeHtml_(emails)))
-    .addWidget(CardService.newKeyValue().setTopLabel('SMS').setContent(escapeHtml_(sms)));
+    .addWidget(CardService.newKeyValue().setTopLabel('SMS').setContent(escapeHtml_(sms)))
+    .addWidget(CardService.newKeyValue().setTopLabel('Chat').setContent(escapeHtml_(chat)))
+    .addWidget(CardService.newKeyValue().setTopLabel('Google').setContent(escapeHtml_(google)));
 
   const buttons = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
@@ -232,6 +240,40 @@ function buildRuleEditorCard(rule) {
     .setTitle('SMS phone numbers (comma separated, E.164: +15551234567)')
     .setValue((alerts.smsNumbers || []).join(', ')));
 
+  // Google Chat spaces (names from the registry configured in Settings)
+  const settings = loadSettings();
+  const chatRegistry = parseChatSpaces_(settings.chatSpaces);
+  const chatNames = Object.keys(chatRegistry);
+  if (chatNames.length) {
+    section.addWidget(CardService.newTextInput()
+      .setFieldName('chatSpaces')
+      .setTitle('Google Chat spaces to notify (comma separated)')
+      .setHint('Names from Settings: ' + chatNames.join(', '))
+      .setValue((alerts.chatSpaces || []).join(', ')));
+  } else {
+    section.addWidget(CardService.newTextParagraph().setText(
+      '<font color="#888888">Google Chat: no spaces configured yet. Add webhook URLs in Settings.</font>'));
+  }
+
+  // Google Calendar, Sheets, Tasks — checkboxes
+  section.addWidget(CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.CHECK_BOX)
+    .setFieldName('calendarEnabled')
+    .addItem('Create a Google Calendar event on match', 'true',
+      !!alerts.calendarEnabled));
+
+  section.addWidget(CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.CHECK_BOX)
+    .setFieldName('sheetsEnabled')
+    .addItem('Log to Google Sheets on match', 'true',
+      !!alerts.sheetsEnabled));
+
+  section.addWidget(CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.CHECK_BOX)
+    .setFieldName('tasksEnabled')
+    .addItem('Create a Google Task on match', 'true',
+      !!alerts.tasksEnabled));
+
   const saveAction = CardService.newAction()
     .setFunctionName('handleSaveRule')
     .setParameters({ ruleId: editing ? r.id : '' });
@@ -265,10 +307,28 @@ function handleSaveRule(e) {
   const alertMessagePrompt = get('alertMessagePrompt') || DEFAULT_ALERT_MESSAGE_PROMPT;
   const emailAddresses = splitCsv_(get('emailAddresses'));
   const smsNumbers = splitCsv_(get('smsNumbers'));
+  const chatSpaces = splitCsv_(get('chatSpaces'));
+  const getCheckbox = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return false;
+    return v.stringInputs.value.indexOf('true') >= 0;
+  };
+  const calendarEnabled = getCheckbox('calendarEnabled');
+  const sheetsEnabled = getCheckbox('sheetsEnabled');
+  const tasksEnabled = getCheckbox('tasksEnabled');
 
   if (!name)     return notificationResponse_('Please enter a rule name.');
   if (!ruleText) return notificationResponse_('Please enter a rule description.');
   if (!labels.length) return notificationResponse_('Please list at least one Gmail label.');
+
+  const alertsObj = {
+    emailAddresses: emailAddresses,
+    smsNumbers: smsNumbers,
+    chatSpaces: chatSpaces,
+    calendarEnabled: calendarEnabled,
+    sheetsEnabled: sheetsEnabled,
+    tasksEnabled: tasksEnabled
+  };
 
   const id = e.parameters.ruleId;
   let rule;
@@ -279,10 +339,10 @@ function handleSaveRule(e) {
     rule.labels = labels;
     rule.ruleText = ruleText;
     rule.alertMessagePrompt = alertMessagePrompt;
-    rule.alerts = { emailAddresses: emailAddresses, smsNumbers: smsNumbers };
+    rule.alerts = alertsObj;
   } else {
     rule = createRule(name, labels, ruleText,
-      { emailAddresses: emailAddresses, smsNumbers: smsNumbers },
+      alertsObj,
       alertMessagePrompt);
   }
 
@@ -439,6 +499,45 @@ function buildSettingsCard() {
     .setHint('E.164 format: +15551234567')
     .setValue(s.smsTestNumber || ''));
 
+  // ── Google-native alert channels (free) ─────────────────────────────
+  const googleSection = CardService.newCardSection()
+    .setHeader('<b>Google alert channels (free)</b>')
+    .addWidget(CardService.newTextParagraph().setText(
+      'These use your existing Google account — no third-party sign-up, no cost.'));
+
+  // Google Chat
+  googleSection.addWidget(CardService.newTextInput()
+    .setFieldName('chatSpaces')
+    .setTitle('Google Chat spaces (JSON array)')
+    .setMultiline(true)
+    .setHint('[{"name":"My Alerts","url":"https://chat.googleapis.com/..."}]')
+    .setValue(s.chatSpaces || '[]'));
+  googleSection.addWidget(CardService.newTextParagraph().setText(
+    '<font color="#888888">Create a Space in Google Chat, then click the dropdown arrow next to ' +
+    'the space name > Apps & integrations > Manage webhooks > create one. ' +
+    'Copy the URL and add an entry above.</font>'));
+
+  // Calendar
+  googleSection.addWidget(CardService.newTextInput()
+    .setFieldName('calendarId')
+    .setTitle('Google Calendar ID (blank = your primary calendar)')
+    .setHint('e.g. your.email@gmail.com or leave blank for primary')
+    .setValue(s.calendarId || ''));
+
+  // Sheets
+  googleSection.addWidget(CardService.newTextInput()
+    .setFieldName('sheetsId')
+    .setTitle('Google Sheets ID (blank = auto-create on first alert)')
+    .setHint('The long ID from the spreadsheet URL, or leave blank')
+    .setValue(s.sheetsId || ''));
+
+  // Tasks
+  googleSection.addWidget(CardService.newTextInput()
+    .setFieldName('tasksListId')
+    .setTitle('Google Tasks list ID (blank = default "My Tasks")')
+    .setHint('Leave blank to use your default task list')
+    .setValue(s.tasksListId || ''));
+
   const aliasSection = CardService.newCardSection()
     .setHeader('<b>Alert "From" name</b>')
     .addWidget(CardService.newTextInput()
@@ -472,6 +571,7 @@ function buildSettingsCard() {
     .addSection(pollSection)
     .addSection(bizSection)
     .addSection(smsSection)
+    .addSection(googleSection)
     .addSection(aliasSection)
     .addSection(buttons)
     .build();
@@ -513,6 +613,10 @@ function handleSaveSettings(e) {
     vonageApiSecret: get('vonageApiSecret'),
     smsWebhookUrl: get('smsWebhookUrl'),
     smsTestNumber: get('smsTestNumber'),
+    chatSpaces: get('chatSpaces') || '[]',
+    calendarId: get('calendarId'),
+    sheetsId: get('sheetsId'),
+    tasksListId: get('tasksListId'),
     alertFromAlias: get('alertFromAlias') || 'MailAlert'
   };
 

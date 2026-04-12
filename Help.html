@@ -29,6 +29,13 @@ Gmail uses labels rather than folders. Use INBOX for the inbox, or any label nam
 • <b>Generic webhook</b> — POST to any HTTPS endpoint you control<br>
 After configuring, click <b>Send test SMS</b> to verify it works.<br><br>
 
+<b>Google-native alert channels (free)</b><br>
+These use your existing Google account — no third-party sign-up, no cost:<br>
+• <b>Google Chat</b> — post to a Chat Space via webhook, just like Teams. Create a Space, add a webhook (space menu > Apps & integrations > Manage webhooks), paste the URL in Settings. Select the space name in each rule.<br>
+• <b>Google Calendar</b> — creates a 15-minute calendar event with the alert details. Your phone will notify you if calendar notifications are on. Enable per rule with a checkbox.<br>
+• <b>Google Sheets</b> — appends a row to a spreadsheet (auto-created on first alert if you don't specify one). Great for an audit trail. Enable per rule with a checkbox.<br>
+• <b>Google Tasks</b> — creates a task in Google Tasks with the alert details. Shows in Gmail sidebar and the Tasks app. Enable per rule with a checkbox.<br><br>
+
 <b>Business hours</b><br>
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>
 

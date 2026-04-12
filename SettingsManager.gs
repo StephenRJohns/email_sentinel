@@ -41,6 +41,14 @@ const DEFAULT_SETTINGS = {
   smsWebhookUrl: '',
   // SMS test number
   smsTestNumber: '',
+  // Google Chat
+  chatSpaces: '[]',
+  // Google Calendar
+  calendarId: '',
+  // Google Sheets
+  sheetsId: '',
+  // Google Tasks
+  tasksListId: '',
   alertFromAlias: ''
 };
 

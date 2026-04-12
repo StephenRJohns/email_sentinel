@@ -215,17 +215,32 @@ Phone numbers in rules and settings should be in [E.164 format](https://en.wikip
 
 After configuring a provider in Settings, click **Send test SMS** to verify it works.
 
+### Google-native channels (free)
+
+These use your existing Google account — no third-party sign-up, no cost.
+
+| Channel | What it does | How to set up |
+|---|---|---|
+| **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. | Create a Space in Google Chat. Space menu ▸ Apps & integrations ▸ Manage webhooks ▸ create one. Copy the URL into **Settings ▸ Google Chat spaces** as `[{"name":"My Alerts","url":"https://..."}]`. Select the space name in each rule. |
+| **Google Calendar** | Creates a 15-minute calendar event with the alert details. Phone/desktop notifications fire automatically if you have calendar notifications on. | (Optional) Enter a calendar ID in Settings, or leave blank for your primary calendar. In the rule editor, check "Create a Google Calendar event on match." |
+| **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — MailAlert auto-creates one called "MailAlert — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
+| **Google Tasks** | Creates a task in Google Tasks with the alert subject and details. Shows in the Gmail sidebar and the Google Tasks app. | Leave the Tasks list ID blank for "My Tasks" (the default list). In the rule editor, check "Create a Google Task on match." |
+
+Each Google channel is enabled per rule via a checkbox in the rule editor, so you can have some rules post to Chat and others log to Sheets, or combine all four.
+
 ---
 
 ## 10. Privacy and storage
 
 | What | Where it lives |
 |---|---|
-| Your Gemini API key, SMS provider credentials, rules, seen-mail baseline, activity log | `PropertiesService.getUserProperties()` — per-user, per-script, private |
-| Email contents (sender, subject, body excerpt, attachment names) | Sent to **Gemini** for evaluation; sent to **your SMS provider** as part of the alert body if SMS is enabled. Not sent anywhere else. |
+| Your Gemini API key, SMS provider credentials, Chat webhook URLs, rules, seen-mail baseline, activity log | `PropertiesService.getUserProperties()` — per-user, per-script, private |
+| Email contents (sender, subject, body excerpt, attachment names) | Sent to **Gemini** for evaluation; included in alert messages sent via the channels you enable. |
 | Outgoing alert emails | Sent from your own Gmail account |
+| Google Calendar events, Sheets rows, Tasks | Created in **your own** Google account |
+| Google Chat messages | Posted to **your own** Chat Spaces via webhook URLs you configure |
 
-Nothing is stored on any third-party server. The add-on has no backend.
+Nothing is stored on any third-party server. The add-on has no backend. The Google-native channels (Calendar, Sheets, Tasks, Chat) all stay within your Google account.
 
 ---
 

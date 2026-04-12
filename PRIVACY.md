@@ -33,11 +33,13 @@ The Service does **not** read or transmit:
 | Data | Where it is stored |
 |---|---|
 | **Gemini API key** | Encrypted-at-rest in `UserProperties` (per-user, per-script). Sent only to `generativelanguage.googleapis.com` (Google) in HTTPS request headers. |
-| **Twilio credentials** (Account SID, Auth Token, From number) | Encrypted-at-rest in `UserProperties`. Sent only to `api.twilio.com` (Twilio) in HTTPS request headers/body. |
+| **SMS provider credentials** (Twilio, Telnyx, Plivo, ClickSend, Vonage, or Textbelt) | Encrypted-at-rest in `UserProperties`. Sent only to the provider's API endpoint in HTTPS request headers/body. |
 | **Generic webhook URL** | Stored in `UserProperties`. The Service sends HTTPS POST requests to whatever endpoint you configure. |
-| **Alert recipients** (email addresses, phone numbers) | Stored as part of your rules in `UserProperties`. Email addresses are passed to `GmailApp.sendEmail()`. Phone numbers are passed to your configured SMS provider. |
-| **Rules** (names, label filters, rule text, alert format) | Stored in `UserProperties`. Rule text and alert format instructions are sent to the Google Gemini API. |
-| **Settings** (model choice, poll interval, business hours) | Stored in `UserProperties`. Not shared with any third party. |
+| **Google Chat webhook URLs** | Stored in `UserProperties`. Used to POST alert messages to your Chat Spaces. |
+| **Google Calendar / Sheets / Tasks IDs** | Stored in `UserProperties`. Used to create events, append rows, or create tasks in your own Google account. |
+| **Alert recipients** (email addresses, phone numbers, Chat space names) | Stored as part of your rules in `UserProperties`. Email addresses are passed to `GmailApp.sendEmail()`. Phone numbers are passed to your configured SMS provider. Chat space names are resolved to webhook URLs you configure. |
+| **Rules** (names, label filters, rule text, alert format, channel toggles) | Stored in `UserProperties`. Rule text and alert format instructions are sent to the Google Gemini API. |
+| **Settings** (model choice, poll interval, business hours, channel config) | Stored in `UserProperties`. Not shared with any third party. |
 
 ## 4. Third-Party Data Sharing
 
@@ -49,6 +51,12 @@ The Service shares data with third-party services only when you explicitly enabl
 | **SMS provider** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, or Vonage — whichever you choose) | Recipient phone number, alert message text, your provider credentials | When a rule matches AND the rule has SMS numbers AND you have configured an SMS provider |
 | **Generic webhook** (your URL) | Recipient phone number, alert message text | When a rule matches AND the rule has SMS numbers AND you configured a generic webhook |
 | **Gmail** (outgoing email) | Recipient address, alert subject, alert message body | When a rule matches AND the rule has email recipients |
+| **Google Chat** (your Chat Spaces) | Alert message text | When a rule matches AND the rule has Chat spaces configured. Messages are posted to Chat Spaces within your own Google Workspace via webhook URLs you provide. |
+| **Google Calendar** (your calendar) | Alert title, email metadata, alert message text | When a rule matches AND "Calendar event" is enabled on the rule. Events are created in your own Google Calendar. |
+| **Google Sheets** (your spreadsheet) | Timestamp, rule name, email metadata, alert message text | When a rule matches AND "Sheets log" is enabled on the rule. Rows are appended to a spreadsheet in your own Google Drive. |
+| **Google Tasks** (your task list) | Alert title, email metadata, alert message text | When a rule matches AND "Tasks" is enabled on the rule. Tasks are created in your own Google Tasks list. |
+
+The Google-native channels (Chat, Calendar, Sheets, Tasks) do not send data to any third party — they write to services within your own Google account using your own OAuth credentials.
 
 We do not share any data with analytics services, advertising networks, data brokers, or any party not listed above.
 

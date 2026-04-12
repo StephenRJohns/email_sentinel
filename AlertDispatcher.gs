@@ -146,6 +146,56 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
       });
     }
   }
+
+  // ── Google Chat ────────────────────────────────────────────────────────
+  const chatNames = (rule.alerts.chatSpaces || [])
+    .map(s => s.trim()).filter(Boolean);
+  if (chatNames.length) {
+    const registry = parseChatSpaces_(settings.chatSpaces);
+    chatNames.forEach(name => {
+      const url = registry[name];
+      if (!url) {
+        log('  Chat: no webhook configured for "' + name + '" — add it in Settings.');
+        return;
+      }
+      try {
+        sendChatAlert_(url, rule, emailData, message);
+        log('  Chat alert sent to: ' + name);
+      } catch (e) {
+        log('  Chat alert to "' + name + '" FAILED: ' + e);
+      }
+    });
+  }
+
+  // ── Google Calendar ────────────────────────────────────────────────────
+  if (rule.alerts.calendarEnabled) {
+    try {
+      sendCalendarAlert_(rule, emailData, message, settings);
+      log('  Calendar event created.');
+    } catch (e) {
+      log('  Calendar alert FAILED: ' + e);
+    }
+  }
+
+  // ── Google Sheets ──────────────────────────────────────────────────────
+  if (rule.alerts.sheetsEnabled) {
+    try {
+      sendSheetsAlert_(rule, emailData, message, settings);
+      log('  Sheets row appended.');
+    } catch (e) {
+      log('  Sheets alert FAILED: ' + e);
+    }
+  }
+
+  // ── Google Tasks ───────────────────────────────────────────────────────
+  if (rule.alerts.tasksEnabled) {
+    try {
+      sendTasksAlert_(rule, emailData, message, settings);
+      log('  Task created.');
+    } catch (e) {
+      log('  Tasks alert FAILED: ' + e);
+    }
+  }
 }
 
 function sendEmailAlert_(toAddresses, rule, emailData, alertContent, settings) {
@@ -363,7 +413,125 @@ function sendWebhookSms_(toNumber, text, settings) {
   }
 }
 
-// ── Test helper ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// Google-native alert channels (free, no third-party account)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Google Chat webhook ─────────────────────────────────────────────────────
+
+function sendChatAlert_(webhookUrl, rule, emailData, message) {
+  const payload = {
+    text: '*MailAlert Rule Fired: ' + rule.name + '*\n\n' + message
+  };
+  const resp = UrlFetchApp.fetch(webhookUrl, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error('Chat webhook HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
+  }
+}
+
+function parseChatSpaces_(raw) {
+  if (!raw) return {};
+  try {
+    const arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!Array.isArray(arr)) return {};
+    const map = {};
+    arr.forEach(function(item) { if (item.name && item.url) map[item.name] = item.url; });
+    return map;
+  } catch (e) { return {}; }
+}
+
+// ── Google Calendar event ───────────────────────────────────────────────────
+
+function sendCalendarAlert_(rule, emailData, message, settings) {
+  const calId = settings.calendarId || 'primary';
+  const cal = CalendarApp.getCalendarById(calId);
+  if (!cal) {
+    throw new Error('Calendar "' + calId + '" not found. Use "primary" for your main calendar.');
+  }
+  const title = '[MailAlert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
+  const desc =
+    'Rule: ' + rule.name + '\n' +
+    'From: ' + (emailData.from || '(unknown)') + '\n' +
+    'Subject: ' + (emailData.subject || '(no subject)') + '\n' +
+    'Received: ' + (emailData.receivedDateTime || '') + '\n\n' +
+    message;
+
+  const now = new Date();
+  const end = new Date(now.getTime() + 15 * 60 * 1000);
+  cal.createEvent(title, now, end, { description: desc });
+}
+
+// ── Google Sheets log ───────────────────────────────────────────────────────
+
+function sendSheetsAlert_(rule, emailData, message, settings) {
+  let ssId = settings.sheetsId;
+  if (!ssId) {
+    ssId = createAlertSpreadsheet_();
+    const s = loadSettings();
+    s.sheetsId = ssId;
+    saveSettings(s);
+    log('  Auto-created alert spreadsheet: ' + ssId);
+  }
+  const ss = SpreadsheetApp.openById(ssId);
+  let sheet = ss.getSheetByName('Alerts');
+  if (!sheet) {
+    sheet = ss.insertSheet('Alerts');
+    sheet.appendRow([
+      'Timestamp', 'Rule', 'From', 'Subject', 'Received', 'Alert Message'
+    ]);
+    sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
+  }
+  sheet.appendRow([
+    new Date().toISOString(),
+    rule.name,
+    emailData.from || '',
+    emailData.subject || '',
+    emailData.receivedDateTime || '',
+    message.substring(0, 5000)
+  ]);
+}
+
+function createAlertSpreadsheet_() {
+  const ss = SpreadsheetApp.create('MailAlert — Alert Log');
+  return ss.getId();
+}
+
+// ── Google Tasks ────────────────────────────────────────────────────────────
+
+function sendTasksAlert_(rule, emailData, message, settings) {
+  const listId = settings.tasksListId || '@default';
+  const title = '[MailAlert] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
+  const notes =
+    'Rule: ' + rule.name + '\n' +
+    'From: ' + (emailData.from || '(unknown)') + '\n' +
+    'Received: ' + (emailData.receivedDateTime || '') + '\n\n' +
+    message.substring(0, 8000);
+
+  const url = 'https://tasks.googleapis.com/tasks/v1/lists/' +
+    encodeURIComponent(listId) + '/tasks';
+  const token = ScriptApp.getOAuthToken();
+  const resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + token },
+    payload: JSON.stringify({ title: title, notes: notes }),
+    muteHttpExceptions: true
+  });
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error('Tasks API HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Test helpers
+// ═══════════════════════════════════════════════════════════════════════════
 
 function testSms(toNumber) {
   const settings = loadSettings();

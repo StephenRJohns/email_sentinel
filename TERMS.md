@@ -44,7 +44,8 @@ We may suspend or disable your ability to use the Service if we reasonably belie
 The Service depends on, and transmits data to, third-party services that you choose to enable, including but not limited to:
 - **Google Gmail / Google Apps Script** — runs the Service and provides access to your mail.
 - **Google Gemini API** — receives email content for rule evaluation and alert formatting.
-- **Twilio, Inc.** — receives recipient phone numbers and alert text when SMS via Twilio is enabled.
+- **Google Calendar / Google Sheets / Google Tasks / Google Chat** — when you enable these alert channels, the Service creates events, appends rows, creates tasks, or posts messages within your own Google account using your OAuth credentials.
+- **SMS providers** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, or Vonage) — receives recipient phone numbers and alert text when you enable SMS and select a provider.
 - **Any HTTPS endpoint you configure** as a "Generic webhook" SMS provider.
 
 Your use of each third-party service is governed by that provider's own terms and privacy policy. We are not responsible for the acts, omissions, availability, accuracy, or legality of any third-party service. Charges, quotas, and rate limits imposed by third-party providers are your responsibility.
