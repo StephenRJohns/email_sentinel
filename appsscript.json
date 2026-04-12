@@ -18,7 +18,7 @@
   "addOns": {
     "common": {
       "name": "mAIl Alert",
-      "logoUrl": "https://www.gstatic.com/images/icons/material/system/2x/notifications_active_black_48dp.png",
+      "logoUrl": "https://lh3.googleusercontent.com/d/186WY050kwe9IgGFD-io0sK97uEnU-ZWB",
       "homepageTrigger": {
         "runFunction": "onHomepage",
         "enabled": true
