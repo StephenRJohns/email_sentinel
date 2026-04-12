@@ -113,3 +113,5 @@ For questions about this Privacy Policy or to exercise your data rights, contact
 
 JJJJJ Enterprises, LLC
 legal@jjjjjenterprises.com
+
+For user support, visit [github.com/StephenRJohns/mailalert/issues](https://github.com/StephenRJohns/mailalert/issues) or email support@jjjjjenterprises.com.
