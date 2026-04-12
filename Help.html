@@ -3,7 +3,7 @@
 <b>Quick start</b><br>
 1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>
 2. (Optional) Configure SMS — pick a provider in Settings (click <b>SMS setup guide</b> for a comparison).<br>
-3. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals). Starter rules are created disabled — edit each one to add your email address and enable it.<br>
+3. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals). Starter rules are created disabled — edit each one to add alert recipients and enable it.<br>
 4. Back on the home card, click <b>Start monitoring</b>. A time-driven trigger will run in the background even when Gmail is closed.<br><br>
 
 <b>Writing a rule</b><br>
@@ -17,34 +17,29 @@ Each rule has an <b>Alert message format</b> field — plain-English instruction
 <b>Rule examples by alert channel</b><br>
 Every rule works with every channel — just enable the channels you want in the rule editor. Here are real-world examples showing which channels make sense for each use case.<br><br>
 
-<b>Email alerts</b> — best for detailed notifications you read on your own time<br>
-• <b>Invoice tracker:</b> Rule: "Any email from a vendor with a PDF attachment that looks like an invoice or purchase order." Alert format: "List the vendor name, invoice number, amount due, and due date." Channels: Email to accounting@yourcompany.com<br>
-• <b>Job application updates:</b> Rule: "Any email about a job application, interview invitation, or offer letter." Alert format: "Include the company name, role, and any action needed with deadlines." Channels: Email to yourself<br>
-• <b>Daily digest delegate:</b> Rule: "Any email from a C-level executive that contains a request, question, or action item directed at me." Alert format: "Summarize what they're asking and the urgency level." Channels: Email to your assistant<br><br>
-
 <b>SMS alerts</b> — best for urgent, time-sensitive notifications<br>
 • <b>Server down alert:</b> Rule: "Any automated email about a server outage, service degradation, or critical alert from our monitoring system." Alert format: "One line: service name, severity, and what's affected." Channels: SMS to the on-call engineer<br>
 • <b>Wire transfer notification:</b> Rule: "Email from the bank confirming a wire transfer, ACH payment, or large transaction over $10,000." Alert format: "Amount, sender/recipient, and date only." Channels: SMS to the CFO<br>
-• <b>Security alert:</b> Rule: "Any email about a failed login attempt, password reset request, or suspicious activity on any of our accounts." Alert format: "Which account, what happened, and when." Channels: SMS to yourself + Email to security team<br><br>
+• <b>Security alert:</b> Rule: "Any email about a failed login attempt, password reset request, or suspicious activity on any of our accounts." Alert format: "Which account, what happened, and when." Channels: SMS to yourself<br><br>
 
 <b>Google Chat alerts</b> — best for team-visible notifications<br>
 • <b>Sales lead:</b> Rule: "Any email from a new contact (not in our company domain) that mentions pricing, demo, trial, or buying." Alert format: "Company name, contact name, what they're interested in, and their email." Channels: Chat to "Sales Leads" space<br>
-• <b>Support escalation:</b> Rule: "Any email with subject containing ESCALATION, P1, or CRITICAL from a customer." Alert format: "Customer name, issue summary, and severity." Channels: Chat to "Support Escalations" space + Email to support-lead@yourcompany.com<br>
+• <b>Support escalation:</b> Rule: "Any email with subject containing ESCALATION, P1, or CRITICAL from a customer." Alert format: "Customer name, issue summary, and severity." Channels: Chat to "Support Escalations" space<br>
 • <b>Shipping notification:</b> Rule: "Email from FedEx, UPS, USPS, or DHL with a tracking number or delivery confirmation." Alert format: "Carrier, tracking number, and expected delivery date." Channels: Chat to "Office Operations" space<br><br>
 
 <b>Google Calendar alerts</b> — best for time-based follow-ups and phone notifications<br>
-• <b>Meeting request:</b> Rule: "Any email asking me to schedule a meeting, call, or demo." Alert format: "Who's asking, what they want to meet about, and any suggested times." Channels: Calendar event (you'll get a phone notification) + Email to yourself<br>
+• <b>Meeting request:</b> Rule: "Any email asking me to schedule a meeting, call, or demo." Alert format: "Who's asking, what they want to meet about, and any suggested times." Channels: Calendar event (you'll get a phone notification)<br>
 • <b>Deadline reminder:</b> Rule: "Any email that mentions a deadline, due date, or 'by end of day/week'." Alert format: "What's due, when, and who's asking." Channels: Calendar event (so it shows on your calendar)<br>
 • <b>Travel itinerary:</b> Rule: "Emails from airlines, hotels, or booking services with a confirmation or itinerary." Alert format: "Confirmation number, dates, and location." Channels: Calendar event + Sheets log<br><br>
 
 <b>Google Sheets alerts</b> — best for audit trails, reporting, and team visibility<br>
 • <b>Compliance log:</b> Rule: "Any email from a regulatory body, auditor, or containing the words 'compliance', 'audit', or 'regulation'." Alert format: "Date, sender, subject, and a one-sentence summary." Channels: Sheets log (creates a searchable compliance record)<br>
-• <b>Expense tracking:</b> Rule: "Emails containing receipts, invoices, or payment confirmations." Alert format: "Vendor, amount, date, and category." Channels: Sheets log + Email to accounting<br>
-• <b>Hiring pipeline:</b> Rule: "Any email from job candidates or recruiting platforms." Alert format: "Candidate name, position applied for, and current stage." Channels: Sheets log (track all candidates in one place) + Chat to "Hiring" space<br><br>
+• <b>Expense tracking:</b> Rule: "Emails containing receipts, invoices, or payment confirmations." Alert format: "Vendor, amount, date, and category." Channels: Sheets log<br>
+• <b>Hiring pipeline:</b> Rule: "Any email from job candidates or recruiting platforms." Alert format: "Candidate name, position applied for, and current stage." Channels: Sheets log + Chat to "Hiring" space<br><br>
 
 <b>Google Tasks alerts</b> — best for to-do items that need follow-up<br>
 • <b>Action item catcher:</b> Rule: "Any email that explicitly asks me to do something, review something, or approve something." Alert format: "What's being asked, by whom, and any deadline." Channels: Task (appears in your Gmail sidebar as a to-do)<br>
-• <b>Contract review:</b> Rule: "Email with an attachment that looks like a contract, NDA, agreement, or legal document." Alert format: "From whom, document type, and any stated deadline." Channels: Task + Email to legal@yourcompany.com<br>
+• <b>Contract review:</b> Rule: "Email with an attachment that looks like a contract, NDA, agreement, or legal document." Alert format: "From whom, document type, and any stated deadline." Channels: Task<br>
 • <b>Follow-up needed:</b> Rule: "Any email where someone says 'let me know', 'please confirm', 'get back to me', or 'awaiting your response'." Alert format: "Who's waiting, what they need, and when they sent it." Channels: Task (so you don't forget to reply)<br><br>
 
 <b>Combining multiple channels</b><br>
@@ -56,7 +51,6 @@ The real power is mixing channels on a single rule:<br>
 Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as it appears in Gmail. Labels containing spaces are fine — type them exactly as shown. Multiple labels: comma-separated.<br><br>
 
 <b>Alert channels</b><br>
-<b>Email</b> — sent from your own Gmail account. No SMTP server required.<br>
 <b>SMS</b> — Google doesn't ship an SMS API, so mAIl Alert supports six providers natively. Click <b>SMS setup guide</b> in Settings for a full comparison with sign-up links. Quick overview:<br>
 • <b>Textbelt</b> — easiest: 1 free SMS/day with API key "textbelt", no sign-up needed<br>
 • <b>ClickSend</b> — free trial, just username + API key, no phone number needed<br>
@@ -125,6 +119,7 @@ Settings, rules, the seen-message baseline, and the activity log are all stored 
 • <i>"No Gemini API key configured"</i> — open Settings and paste a key, then click <b>Test Gemini</b>.<br>
 • <i>"Label '…' fetch failed"</i> — verify the label exists in Gmail with that exact name (case-insensitive).<br>
 • <i>SMS not delivered</i> — open the Activity Log to see the provider's error response.<br>
-• <i>Alerts firing for old mail after install</i> — open Settings and click <b>Reset baseline</b>; the next run will re-baseline.<br><br>
+• <i>Alerts firing for old mail after install</i> — open Settings and click <b>Reset baseline</b>; the next run will re-baseline.<br>
+• Still stuck? Email <a href="mailto:support@jjjjjenterprises.com">support@jjjjjenterprises.com</a>.<br><br>
 
 <font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. This project is not affiliated with or endorsed by Google.</font>

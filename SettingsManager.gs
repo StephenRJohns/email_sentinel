@@ -48,8 +48,7 @@ const DEFAULT_SETTINGS = {
   // Google Sheets
   sheetsId: '',
   // Google Tasks
-  tasksListId: '',
-  alertFromAlias: ''
+  tasksListId: ''
 };
 
 function loadSettings() {

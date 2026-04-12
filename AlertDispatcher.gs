@@ -2,9 +2,7 @@
 // Proprietary — see LICENSE for terms.
 
 /**
- * AlertDispatcher.gs — Send alerts via Gmail email and (optionally) SMS.
- *
- * Email: GmailApp.sendEmail — no SMTP server, no app password.
+ * AlertDispatcher.gs — Send alerts via SMS and Google-native channels.
  *
  * SMS: Google doesn't offer a first-party SMS API, so mAIl Alert supports
  * six options. Pick one in Settings → SMS Provider:
@@ -119,17 +117,6 @@ const SMS_PROVIDER_INFO = {
 function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
   const message = alertContent || matchReason || '';
 
-  const emailAddrs = (rule.alerts.emailAddresses || [])
-    .map(s => s.trim()).filter(Boolean);
-  if (emailAddrs.length) {
-    try {
-      sendEmailAlert_(emailAddrs, rule, emailData, message, settings);
-      activityLog('  Email alert sent to: ' + emailAddrs.join(', '));
-    } catch (e) {
-      activityLog('  Email alert FAILED: ' + e);
-    }
-  }
-
   const smsNumbers = (rule.alerts.smsNumbers || [])
     .map(s => s.trim()).filter(Boolean);
   if (smsNumbers.length) {
@@ -196,19 +183,6 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
       activityLog('  Tasks alert FAILED: ' + e);
     }
   }
-}
-
-function sendEmailAlert_(toAddresses, rule, emailData, alertContent, settings) {
-  const subject =
-    '[mAIl Alert] ' + rule.name + ': ' +
-    (emailData.subject || '(no subject)');
-  const body =
-    'mAIl Alert Rule Fired: ' + rule.name + '\n' +
-    '============================================================\n\n' +
-    alertContent + '\n';
-
-  const opts = { name: settings.alertFromAlias || 'mAIl Alert' };
-  GmailApp.sendEmail(toAddresses.join(','), subject, body, opts);
 }
 
 function sendSmsAlert_(toNumber, rule, emailData, alertContent, settings) {

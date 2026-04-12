@@ -10,7 +10,7 @@ By installing or using the Service you ("you", "your") agree to these Terms of S
 
 ## 1. Description of the Service
 
-mAIl Alert is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via your own Gmail account and (optionally) via Google Chat, Google Calendar, Google Sheets, Google Tasks, or a third-party SMS provider you configure (such as those listed in Section 5).
+mAIl Alert is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via (optionally) SMS through a third-party provider you configure (such as those listed in Section 5), Google Chat, Google Calendar, Google Sheets, or Google Tasks.
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 
@@ -118,4 +118,4 @@ These Terms, together with the LICENSE, PRIVACY.md, and DISCLAIMER.md files, are
 
 ---
 
-**Contact:** admin@jjjjjenterprises.com
+**Contact:** legal@jjjjjenterprises.com

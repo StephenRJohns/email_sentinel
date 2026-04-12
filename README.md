@@ -2,7 +2,7 @@
 
 A Gmail Workspace Add-on that watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by **Google Gemini**.
 
-This is the Google Workspace port of the original `bb_mailalerter` Windows desktop app — same idea, but it lives entirely inside your Google account: no machine to keep running, no Outlook, no Teams, no Anthropic key.
+Everything runs inside your Google account — no machine to keep running, no extra accounts, no Anthropic key required.
 
 ---
 
@@ -29,7 +29,6 @@ This is the Google Workspace port of the original `bb_mailalerter` Windows deskt
 
 When a new email arrives in a watched Gmail label, mAIl Alert asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
 
-- **Email** to one or more addresses, sent from your own Gmail account.
 - **SMS** via your configured provider (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or a generic webhook).
 - **Google Chat**, **Google Calendar**, **Google Sheets**, or **Google Tasks** — all within your own Google account, no extra sign-up needed.
 
@@ -52,7 +51,7 @@ Rules are plain English. No regex, no code:
 │  │    – New messages × matching rules:                    │  │
 │  │      → Gemini: does this match the rule?               │  │
 │  │      → If YES: Gemini formats the alert message        │  │
-│  │      → GmailApp.sendEmail() / SMS provider / Chat / …   │  │
+│  │      → SMS provider / Chat / Calendar / Sheets / Tasks  │  │
 │  └────────────────────────────────────────────────────────┘  │
 │                                                              │
 │  Add-on UI (Cards) — Rules, Settings, Activity log, Help     │
@@ -63,7 +62,7 @@ All state lives in `PropertiesService.getUserProperties()`:
 
 | Key | Contents |
 |---|---|
-| `mailalert.settings` | Gemini key, model, poll interval, business hours, SMS config |
+| `mailalert.settings` | Gemini key, model, poll interval, business hours, SMS config, alert channel IDs |
 | `mailalert.rules`    | JSON array of rule objects |
 | `mailalert.seen`     | Per-label list of recently-seen Gmail message IDs |
 | `mailalert.log`      | Ring buffer of the last ~60 activity log lines |
@@ -169,7 +168,7 @@ After installation, open Gmail and click the mAIl Alert icon in the right rail.
 2. **Settings ▸ Polling** — pick how often to check (default 5 minutes).
 3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison.
 4. **Settings ▸ Save settings**.
-5. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and pick alert recipients. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can add your email and enable them at your own pace.
+5. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and pick alert recipients. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can add alert recipients and enable them at your own pace.
 6. Back on the home card, click **Start monitoring**. This installs a time-driven trigger that runs in the background even when Gmail is closed.
 
 The **first** check for any new label is treated as a baseline (no alerts) so you don't get a flood of notifications for existing mail. Alerts start with the next new message.
@@ -200,35 +199,27 @@ Each rule also has an **Alert message format** field — plain-English instructi
 
 Every rule works with every channel — just enable the ones you want in the rule editor. Here are real-world examples showing which channels make sense for each use case.
 
-#### Email alerts — detailed notifications you read on your own time
-
-| Use case | Rule | Alert format | Channels |
-|---|---|---|---|
-| **Invoice tracker** | "Any email from a vendor with a PDF attachment that looks like an invoice or purchase order." | "List the vendor name, invoice number, amount due, and due date." | Email to accounting@yourcompany.com |
-| **Job application updates** | "Any email about a job application, interview invitation, or offer letter." | "Include the company name, role, and any action needed with deadlines." | Email to yourself |
-| **Daily digest delegate** | "Any email from a C-level executive that contains a request, question, or action item directed at me." | "Summarize what they're asking and the urgency level." | Email to your assistant |
-
 #### SMS alerts — urgent, time-sensitive notifications
 
 | Use case | Rule | Alert format | Channels |
 |---|---|---|---|
 | **Server down** | "Any automated email about a server outage, service degradation, or critical alert from our monitoring system." | "One line: service name, severity, and what's affected." | SMS to the on-call engineer |
 | **Wire transfer** | "Email from the bank confirming a wire transfer, ACH payment, or large transaction over $10,000." | "Amount, sender/recipient, and date only." | SMS to the CFO |
-| **Security alert** | "Any email about a failed login attempt, password reset request, or suspicious activity on any of our accounts." | "Which account, what happened, and when." | SMS + Email to security team |
+| **Security alert** | "Any email about a failed login attempt, password reset request, or suspicious activity on any of our accounts." | "Which account, what happened, and when." | SMS to security team |
 
 #### Google Chat alerts — team-visible notifications
 
 | Use case | Rule | Alert format | Channels |
 |---|---|---|---|
 | **Sales lead** | "Any email from a new contact (not in our company domain) that mentions pricing, demo, trial, or buying." | "Company name, contact name, what they're interested in, and their email." | Chat → "Sales Leads" space |
-| **Support escalation** | "Any email with subject containing ESCALATION, P1, or CRITICAL from a customer." | "Customer name, issue summary, and severity." | Chat → "Support Escalations" + Email to support-lead |
+| **Support escalation** | "Any email with subject containing ESCALATION, P1, or CRITICAL from a customer." | "Customer name, issue summary, and severity." | Chat → "Support Escalations" |
 | **Shipping notification** | "Email from FedEx, UPS, USPS, or DHL with a tracking number or delivery confirmation." | "Carrier, tracking number, and expected delivery date." | Chat → "Office Operations" space |
 
 #### Google Calendar alerts — time-based follow-ups and phone notifications
 
 | Use case | Rule | Alert format | Channels |
 |---|---|---|---|
-| **Meeting request** | "Any email asking me to schedule a meeting, call, or demo." | "Who's asking, what they want to meet about, and any suggested times." | Calendar event + Email |
+| **Meeting request** | "Any email asking me to schedule a meeting, call, or demo." | "Who's asking, what they want to meet about, and any suggested times." | Calendar event |
 | **Deadline reminder** | "Any email that mentions a deadline, due date, or 'by end of day/week'." | "What's due, when, and who's asking." | Calendar event |
 | **Travel itinerary** | "Emails from airlines, hotels, or booking services with a confirmation or itinerary." | "Confirmation number, dates, and location." | Calendar event + Sheets log |
 
@@ -237,7 +228,7 @@ Every rule works with every channel — just enable the ones you want in the rul
 | Use case | Rule | Alert format | Channels |
 |---|---|---|---|
 | **Compliance log** | "Any email from a regulatory body, auditor, or containing 'compliance', 'audit', or 'regulation'." | "Date, sender, subject, and a one-sentence summary." | Sheets log |
-| **Expense tracking** | "Emails containing receipts, invoices, or payment confirmations." | "Vendor, amount, date, and category." | Sheets log + Email to accounting |
+| **Expense tracking** | "Emails containing receipts, invoices, or payment confirmations." | "Vendor, amount, date, and category." | Sheets log |
 | **Hiring pipeline** | "Any email from job candidates or recruiting platforms." | "Candidate name, position applied for, and current stage." | Sheets log + Chat → "Hiring" space |
 
 #### Google Tasks alerts — to-do items that need follow-up
@@ -245,7 +236,7 @@ Every rule works with every channel — just enable the ones you want in the rul
 | Use case | Rule | Alert format | Channels |
 |---|---|---|---|
 | **Action item catcher** | "Any email that explicitly asks me to do something, review something, or approve something." | "What's being asked, by whom, and any deadline." | Task |
-| **Contract review** | "Email with an attachment that looks like a contract, NDA, agreement, or legal document." | "From whom, document type, and any stated deadline." | Task + Email to legal team |
+| **Contract review** | "Email with an attachment that looks like a contract, NDA, agreement, or legal document." | "From whom, document type, and any stated deadline." | Task |
 | **Follow-up needed** | "Any email where someone says 'let me know', 'please confirm', 'get back to me', or 'awaiting your response'." | "Who's waiting, what they need, and when they sent it." | Task |
 
 #### Combining multiple channels on one rule
@@ -326,11 +317,6 @@ If you regularly hit the free limit:
 
 ## 10. Alert channels
 
-### Email
-Sent via `GmailApp.sendEmail` from your own Gmail account. The display name on the outgoing message is configurable in **Settings ▸ Alert "From" name**. There is no SMTP server to host or app password to manage.
-
-> **Quota:** consumer Gmail allows ~100 outgoing add-on emails/day; Workspace allows ~1,500/day. mAIl Alert is well under this for normal use.
-
 ### SMS
 Google Workspace does not provide a first-party SMS API, so mAIl Alert ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
 
@@ -362,7 +348,7 @@ These use your existing Google account — no third-party sign-up, no cost.
 
 | Channel | What it does | How to set up |
 |---|---|---|
-| **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. **Requires a Google Workspace paid account** (webhooks are not available on free Gmail accounts). | Create a Space at [chat.google.com](https://chat.google.com). Open the space, click the space name in the top header bar ▸ Apps & integrations ▸ Webhooks ▸ create one. Copy the URL into **Settings ▸ Google Chat spaces** as `[{"name":"My Alerts","url":"https://..."}]`. Select the space name in each rule. |
+| **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. **Requires a Google Workspace paid account** (webhooks are not available on free Gmail accounts). | Create a Space at [chat.google.com](https://chat.google.com). Open the space, click the space name in the top header bar ▸ Apps & integrations ▸ Webhooks ▸ create one. In **Settings ▸ Google alert channels**, enter the space name and paste the webhook URL into the corresponding fields (up to 3 spaces). Select the space name in each rule. |
 | **Google Calendar** | Creates a 15-minute calendar event with the alert details. Phone/desktop notifications fire automatically if you have calendar notifications on. | (Optional) Enter a calendar ID in Settings, or leave blank for your primary calendar. In the rule editor, check "Create a Google Calendar event on match." |
 | **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — mAIl Alert auto-creates one called "mAIl Alert — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
 | **Google Tasks** | Creates a task in Google Tasks with the alert subject and details. Shows in the Gmail sidebar and the Google Tasks app. | Leave the Tasks list ID blank for "My Tasks" (the default list). In the rule editor, check "Create a Google Task on match." |
@@ -377,7 +363,6 @@ Each Google channel is enabled per rule via a checkbox in the rule editor, so yo
 |---|---|
 | Your Gemini API key, SMS provider credentials, Chat webhook URLs, rules, seen-mail baseline, activity log | `PropertiesService.getUserProperties()` — per-user, per-script, private |
 | Email contents (sender, subject, body excerpt, attachment names) | Sent to **Gemini** for evaluation; included in alert messages sent via the channels you enable. |
-| Outgoing alert emails | Sent from your own Gmail account |
 | Google Calendar events, Sheets rows, Tasks | Created in **your own** Google account |
 | Google Chat messages | Posted to **your own** Chat Spaces via webhook URLs you configure |
 

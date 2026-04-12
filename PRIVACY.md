@@ -37,7 +37,7 @@ The Service does **not** read or transmit:
 | **Generic webhook URL** | Stored in `UserProperties`. The Service sends HTTPS POST requests to whatever endpoint you configure. |
 | **Google Chat webhook URLs** | Stored in `UserProperties`. Used to POST alert messages to your Chat Spaces. |
 | **Google Calendar / Sheets / Tasks IDs** | Stored in `UserProperties`. Used to create events, append rows, or create tasks in your own Google account. |
-| **Alert recipients** (email addresses, phone numbers, Chat space names) | Stored as part of your rules in `UserProperties`. Email addresses are passed to `GmailApp.sendEmail()`. Phone numbers are passed to your configured SMS provider. Chat space names are resolved to webhook URLs you configure. |
+| **Alert recipients** (phone numbers, Chat space names) | Stored as part of your rules in `UserProperties`. Phone numbers are passed to your configured SMS provider. Chat space names are resolved to webhook URLs you configure. |
 | **Rules** (names, label filters, rule text, alert format, channel toggles) | Stored in `UserProperties`. Rule text and alert format instructions are sent to the Google Gemini API. |
 | **Settings** (model choice, poll interval, business hours, channel config) | Stored in `UserProperties`. Not shared with any third party. |
 | **Trigger management** | The Service uses the `script.scriptapp` permission to create and manage time-driven triggers that schedule background email checks at the interval you configure. No data is shared with third parties for this purpose. |
@@ -51,7 +51,6 @@ The Service shares data with third-party services only when you explicitly enabl
 | **Google Gemini API** (`generativelanguage.googleapis.com`) | Email metadata, body excerpt, rule text, alert format prompt | Every time a new email is evaluated against a rule |
 | **SMS provider** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, or Vonage — whichever you choose) | Recipient phone number, alert message text, your provider credentials | When a rule matches AND the rule has SMS numbers AND you have configured an SMS provider |
 | **Generic webhook** (your URL) | Recipient phone number, alert message text | When a rule matches AND the rule has SMS numbers AND you configured a generic webhook |
-| **Gmail** (outgoing email) | Recipient address, alert subject, alert message body | When a rule matches AND the rule has email recipients |
 | **Google Chat** (your Chat Spaces) | Alert message text | When a rule matches AND the rule has Chat spaces configured. Messages are posted to Chat Spaces within your own Google Workspace via webhook URLs you provide. |
 | **Google Calendar** (your calendar) | Alert title, email metadata, alert message text | When a rule matches AND "Calendar event" is enabled on the rule. Events are created in your own Google Calendar. |
 | **Google Sheets** (your spreadsheet) | Timestamp, rule name, email metadata, alert message text | When a rule matches AND "Sheets log" is enabled on the rule. Rows are appended to a spreadsheet in your own Google Drive. |
@@ -113,4 +112,4 @@ We may update this Privacy Policy from time to time. The "Effective date" at the
 For questions about this Privacy Policy or to exercise your data rights, contact:
 
 JJJJJ Enterprises, LLC
-admin@jjjjjenterprises.com
+legal@jjjjjenterprises.com

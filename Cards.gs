@@ -164,7 +164,6 @@ function buildRulesCard() {
 function buildRuleSummarySection_(rule) {
   const status = rule.enabled ? '✅ ON' : '⏸ OFF';
   const labels = (rule.labels || []).join(', ') || '(no labels)';
-  const emails = (rule.alerts.emailAddresses || []).join(', ') || '—';
   const sms    = (rule.alerts.smsNumbers || []).join(', ') || '—';
   const chat   = (rule.alerts.chatSpaces || []).join(', ') || '—';
   const googleChannels = [];
@@ -177,7 +176,6 @@ function buildRuleSummarySection_(rule) {
     : rule.ruleText;
 
   const channels = [];
-  if (emails !== '\u2014') channels.push('Email');
   if (sms !== '\u2014') channels.push('SMS');
   if (chat !== '\u2014') channels.push('Chat');
   if (google !== '\u2014') channels.push(google);
@@ -296,11 +294,6 @@ function buildRuleEditorCard(rule) {
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
   section.addWidget(CardService.newTextInput()
-    .setFieldName('emailAddresses')
-    .setTitle('Email addresses to alert (comma separated)')
-    .setValue((alerts.emailAddresses || []).join(', ')));
-
-  section.addWidget(CardService.newTextInput()
     .setFieldName('smsNumbers')
     .setTitle('SMS phone numbers (comma separated, E.164: +15551234567)')
     .setValue((alerts.smsNumbers || []).join(', ')));
@@ -370,7 +363,6 @@ function handleSaveRule(e) {
   const labels = splitCsv_(get('labels'));
   const ruleText = get('ruleText');
   const alertMessagePrompt = get('alertMessagePrompt') || DEFAULT_ALERT_MESSAGE_PROMPT;
-  const emailAddresses = splitCsv_(get('emailAddresses'));
   const smsNumbers = splitCsv_(get('smsNumbers'));
   const chatSpaces = splitCsv_(get('chatSpaces'));
   const getCheckbox = key => {
@@ -387,7 +379,6 @@ function handleSaveRule(e) {
   if (!labels.length) return notificationResponse_('Please list at least one Gmail label.');
 
   const alertsObj = {
-    emailAddresses: emailAddresses,
     smsNumbers: smsNumbers,
     chatSpaces: chatSpaces,
     calendarEnabled: calendarEnabled,
@@ -414,7 +405,7 @@ function handleSaveRule(e) {
   try { upsertRule(rule); }
   catch (err) { return notificationResponse_('Save failed: ' + err); }
 
-  const hasChannel = emailAddresses.length > 0 || smsNumbers.length > 0 ||
+  const hasChannel = smsNumbers.length > 0 ||
     chatSpaces.length > 0 || calendarEnabled || sheetsEnabled || tasksEnabled;
   const msg = hasChannel ? 'Rule saved.'
     : 'Rule saved, but no alert channels configured. Edit the rule to add at least one.';
@@ -596,13 +587,6 @@ function buildSettingsCard() {
     .setHint('Leave blank to use your default task list')
     .setValue(s.tasksListId || ''));
 
-  const aliasSection = CardService.newCardSection()
-    .setHeader('<b>Alert "From" name</b>')
-    .addWidget(CardService.newTextInput()
-      .setFieldName('alertFromAlias')
-      .setTitle('Display name on outgoing email alerts')
-      .setValue(s.alertFromAlias || 'mAIl Alert'));
-
   const buttons = CardService.newCardSection()
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
@@ -630,7 +614,6 @@ function buildSettingsCard() {
     .addSection(bizSection)
     .addSection(smsSection)
     .addSection(googleSection)
-    .addSection(aliasSection)
     .addSection(buttons)
     .build();
 }
@@ -691,8 +674,7 @@ function handleSaveSettings(e) {
     chatSpaces: JSON.stringify(chatSpacesArr),
     calendarId: get('calendarId'),
     sheetsId: get('sheetsId'),
-    tasksListId: get('tasksListId'),
-    alertFromAlias: get('alertFromAlias') || 'mAIl Alert'
+    tasksListId: get('tasksListId')
   };
 
   if (next.businessHoursEnabled) {
@@ -989,7 +971,7 @@ function helpTopics_() {
         '<b>Quick start</b><br>' +
         '1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>' +
         '2. (Optional) Configure SMS \u2014 pick a provider in Settings.<br>' +
-        '3. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to add your email and enable it.<br>' +
+        '3. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to add alert recipients and enable it.<br>' +
         '4. Click <b>Start monitoring</b>. A time-driven trigger runs in the background even when Gmail is closed.<br><br>' +
         '<b>Writing a rule</b><br>' +
         'Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>' +
@@ -1003,9 +985,6 @@ function helpTopics_() {
     examples: {
       title: 'Rule examples',
       content:
-        '<b>Email alerts</b><br>' +
-        '\u2022 <b>Invoice tracker:</b> "Any email from a vendor with a PDF attachment that looks like an invoice." \u2192 Email to accounting<br>' +
-        '\u2022 <b>Job updates:</b> "Any email about a job application or interview invitation." \u2192 Email to yourself<br><br>' +
         '<b>SMS alerts</b> \u2014 urgent, time-sensitive<br>' +
         '\u2022 <b>Server down:</b> "Automated email about a server outage or critical alert." \u2192 SMS to on-call<br>' +
         '\u2022 <b>Wire transfer:</b> "Email from the bank confirming a wire transfer over $10,000." \u2192 SMS to CFO<br><br>' +
@@ -1028,7 +1007,6 @@ function helpTopics_() {
     channels: {
       title: 'Alert channel setup',
       content:
-        '<b>Email</b> \u2014 sent from your own Gmail. No SMTP server needed.<br><br>' +
         '<b>SMS</b> \u2014 six providers supported. Click <b>SMS setup guide</b> in Settings for a comparison.<br>' +
         '\u2022 <b>Textbelt</b> \u2014 easiest: 1 free SMS/day with key "textbelt", no sign-up<br>' +
         '\u2022 <b>ClickSend</b> \u2014 free trial, username + API key, no phone number<br>' +
@@ -1087,7 +1065,8 @@ function helpTopics_() {
         '\u2022 <i>"No Gemini API key configured"</i> \u2014 open Settings, paste a key, click <b>Test Gemini</b><br>' +
         '\u2022 <i>"Label \'...\' fetch failed"</i> \u2014 verify the label exists in Gmail (case-insensitive)<br>' +
         '\u2022 <i>SMS not delivered</i> \u2014 check Activity Log for the provider\'s error<br>' +
-        '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br><br>' +
+        '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br>' +
+        '\u2022 Still stuck? Email <a href="mailto:support@jjjjjenterprises.com">support@jjjjjenterprises.com</a><br><br>' +
         '<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. Not affiliated with or endorsed by Google.</font>'
     }
   };
@@ -1140,7 +1119,7 @@ function buildStarterRulesCard() {
       .build();
   }
 
-  section.setHeader(toCreate.length + ' rules will be created (disabled) watching your INBOX. Enable each rule and add your email address after creation.');
+  section.setHeader(toCreate.length + ' rules will be created (disabled) watching your INBOX. Edit each rule to add alert recipients and enable it.');
 
   toCreate.forEach(function(r) {
     section.addWidget(CardService.newTextParagraph()
@@ -1184,7 +1163,7 @@ function handleCreateStarterRules(e) {
     return CardService.newActionResponseBuilder()
       .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildRulesCard()))
       .setNotification(CardService.newNotification()
-        .setText(count + ' starter rules created (disabled). Edit each to add your email and enable.'))
+        .setText(count + ' starter rules created (disabled). Edit each to add alert recipients and enable.'))
       .build();
   } catch (err) {
     return notificationResponse_('Could not create starter rules: ' + (err.message || err));
