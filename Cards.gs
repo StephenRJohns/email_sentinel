@@ -1075,7 +1075,7 @@ function helpTopics_() {
         '\u2022 <i>"Label \'...\' fetch failed"</i> \u2014 verify the label exists in Gmail (case-insensitive)<br>' +
         '\u2022 <i>SMS not delivered</i> \u2014 check Activity Log for the provider\'s error<br>' +
         '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br>' +
-        '\u2022 Still stuck? <b><a href="https://github.com/StephenRJohns/mailsentinel/issues">Open a GitHub issue</a></b> \u2014 preferred and fastest: issues are tracked, searchable, and get a quicker response than email. You can also email support@jjjjjenterprises.com, but GitHub is more effective.<br><br>' +
+        '\u2022 Still stuck? <b><a href="https://github.com/StephenRJohns/mailsentinel/issues">Open a GitHub issue</a></b> \u2014 issues are tracked, searchable, and get the fastest response.<br><br>' +
         '<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. Not affiliated with or endorsed by Google.</font>'
     }
   };
