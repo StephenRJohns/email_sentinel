@@ -448,7 +448,8 @@ Summary — by who does it
 ================================================================================
 
   THINGS YOU DO YOURSELF (DIY, no cost):
-    [ ] 1.  Replace placeholder contact info in LICENSE, TERMS, PRIVACY
+    [x] 1.  Replace placeholder contact info in LICENSE, TERMS, PRIVACY  ← DONE
+    [x] 4d. Clarify "encrypted-at-rest" is Google infrastructure          ← DONE
     [ ] 11. Split out AUP.md (only if you want to, not required)
     [ ] 12. Open-source license audit (only if you add dependencies)
 
