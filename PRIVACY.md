@@ -80,7 +80,7 @@ PropertiesService.getUserProperties().deleteAllProperties();
 
 - All `UserProperties` values are encrypted at rest by Google's infrastructure (this is a property of Google Apps Script's `PropertiesService` — the Service itself does not implement encryption).
 - All outbound network calls from the Service use HTTPS (TLS).
-- Your Gemini API key and SMS provider credentials are never exposed in the add-on UI after you save them (displayed masked or as "Configured").
+- Your Gemini API key is masked in the add-on Settings UI after you save it — only the last four characters are shown; the input field is left blank so the full key is never redisplayed. SMS provider credentials are visible within the Settings UI so you can review and update them; they are stored encrypted at rest by Google's infrastructure (see above).
 - The Service has no external backend. There is no attack surface beyond your own Google account and the third-party APIs you configure.
 
 ## 7. Google API Services User Data Policy
