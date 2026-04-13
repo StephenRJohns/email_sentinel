@@ -76,7 +76,7 @@ All state lives in `PropertiesService.getUserProperties()`:
 ## 3. Repository layout
 
 ```
-mailsentinel/
+email_sentinel/
 ├── appsscript.json        # Add-on manifest (scopes, triggers, link prefixes)
 ├── .clasp.json            # clasp project config — paste your scriptId here
 ├── .claspignore           # Limits clasp push to .gs / .html / appsscript.json

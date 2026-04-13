@@ -114,4 +114,4 @@ For questions about this Privacy Policy or to exercise your data rights, contact
 <img src="images/JStar.png" width="48" alt="JJJJJ Enterprises, LLC"> JJJJJ Enterprises, LLC
 legal@jjjjjenterprises.com
 
-For user support, **[open an issue on GitHub](https://github.com/StephenRJohns/mailsentinel/issues)** — this is the preferred channel. Issues are tracked, searchable, and get a faster response than email. You may also email support@jjjjjenterprises.com, but GitHub Issues is more effective and responsive.
+For user support, **[open an issue on GitHub](https://github.com/StephenRJohns/email_sentinel/issues)** — this is the preferred channel. Issues are tracked, searchable, and get a faster response than email. You may also email support@jjjjjenterprises.com, but GitHub Issues is more effective and responsive.

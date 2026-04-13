@@ -169,20 +169,20 @@ Marketplace SDK → Store Listing page.
    Must be a publicly accessible HTTPS URL.
 
    Easiest: use the GitHub rendered view:
-     https://github.com/StephenRJohns/mailsentinel/blob/main/TERMS.md
+     https://github.com/StephenRJohns/email_sentinel/blob/main/TERMS.md
 
    Better: host on your own domain (looks more professional):
-     https://yourdomain.com/mailalert/terms
+     https://yourdomain.com/email_sentinel/terms
 
 
 9. PRIVACY POLICY URL
 ---------------------------------------------------------------------------
    Must be a publicly accessible HTTPS URL.
 
-     https://github.com/StephenRJohns/mailsentinel/blob/main/PRIVACY.md
+     https://github.com/StephenRJohns/email_sentinel/blob/main/PRIVACY.md
 
    Or on your domain:
-     https://yourdomain.com/mailalert/privacy
+     https://yourdomain.com/email_sentinel/privacy
 
 
 10. SUPPORT URL
@@ -191,7 +191,7 @@ Marketplace SDK → Store Listing page.
 
     Options:
       a) GitHub Issues page:
-         https://github.com/StephenRJohns/mailsentinel/issues
+         https://github.com/StephenRJohns/email_sentinel/issues
       b) A simple support page on your website with a contact form
       c) A mailto: link (less ideal but accepted)
 
@@ -433,7 +433,7 @@ The Marketplace has its own search algorithm. Here's how to rank well:
       - Structured data (JSON-LD SoftwareApplication schema)
 
     If you don't have a domain, GitHub Pages works fine:
-      https://stephenrjohns.github.io/mailsentinel/
+      https://stephenrjohns.github.io/email_sentinel/
 
 
 ================================================================================

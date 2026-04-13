@@ -54,19 +54,19 @@ Each item below is tagged:
    Privacy Policy and Terms of Service. They won't accept "see GitHub repo."
 
    Option A — GitHub Pages (free, easiest):
-     1. Go to your mailalert repo → Settings → Pages
+     1. Go to your email_sentinel repo → Settings → Pages
      2. Set source to "Deploy from a branch" → main → / (root)
      3. GitHub will serve your repo at:
-          https://stephenrjohns.github.io/mailsentinel/
+          https://stephenrjohns.github.io/email_sentinel/
      4. Your URLs become:
-          https://stephenrjohns.github.io/mailsentinel/TERMS
-          https://stephenrjohns.github.io/mailsentinel/PRIVACY
+          https://stephenrjohns.github.io/email_sentinel/TERMS
+          https://stephenrjohns.github.io/email_sentinel/PRIVACY
         (GitHub Pages renders .md files as HTML automatically if you add
         a Jekyll front matter line or rename them to .html — or just link
         to the GitHub rendered view of the .md file)
      5. Simpler: just use the GitHub raw rendered URLs:
-          https://github.com/StephenRJohns/mailsentinel/blob/main/TERMS.md
-          https://github.com/StephenRJohns/mailsentinel/blob/main/PRIVACY.md
+          https://github.com/StephenRJohns/email_sentinel/blob/main/TERMS.md
+          https://github.com/StephenRJohns/email_sentinel/blob/main/PRIVACY.md
         These are publicly visible and work for Marketplace review.
 
    Option B — Your own website:
@@ -270,7 +270,7 @@ Each item below is tagged:
    Option A — Use CLA Assistant (free, GitHub-integrated):
      1. Go to https://cla-assistant.io
      2. Sign in with GitHub
-     3. Link your StephenRJohns/mailsentinel repo
+     3. Link your StephenRJohns/email_sentinel repo
      4. It will ask you to provide the CLA text. Use this template:
 
         ---

@@ -51,7 +51,7 @@ own the add-on. This writes credentials to ~/.clasprc.json (already gitignored).
 2. Create the Apps Script project
 --------------------------------------------------------------------------------
 
-    cd /home/stephen-johns/github/mailalert
+    cd /home/stephen-johns/github/email_sentinel
     clasp create --type standalone --title "emAIl Sentinel" --rootDir .
 
 This creates a real Apps Script project in your Google account and writes

@@ -5,15 +5,11 @@
  * MailWatcher.gs — Time-driven trigger that polls Gmail labels for new
  * messages and dispatches alerts when a Gemini-evaluated rule matches.
  *
- * The original Python project ran a background thread on the user's PC.
- * In Apps Script land we use a time-driven trigger that fires every N
- * minutes regardless of whether the user is logged in — same effect.
- *
  * Seen-message tracking:
  *   We persist a per-label set of message IDs in UserProperties so messages
  *   that arrived between trigger fires are detected exactly once. The first
- *   run for any label is treated as a baseline (no alerts) — this matches
- *   the original Python behaviour and prevents an alert flood on first install.
+ *   run for any label is treated as a baseline (no alerts) — this prevents
+ *   an alert flood on first install.
  */
 
 const SEEN_KEY = 'mailsentinel.seen';
