@@ -178,10 +178,16 @@ function buildRuleSummarySection_(rule) {
     ? rule.ruleText.substring(0, 137) + '…'
     : rule.ruleText;
 
+  const allMcpServers = loadMcpServers();
+  const mcpNames = (rule.alerts.mcpServerIds || [])
+    .map(id => { const sv = allMcpServers.find(ms => ms.id === id); return sv ? sv.name : null; })
+    .filter(Boolean);
+
   const channels = [];
   if (sms !== '\u2014') channels.push('SMS');
   if (chat !== '\u2014') channels.push('Chat');
   if (google !== '\u2014') channels.push(google);
+  if (mcpNames.length) channels.push('MCP: ' + mcpNames.join(', '));
   const channelSummary = channels.length > 0 ? channels.join(', ') : 'None configured';
 
   const section = CardService.newCardSection()
@@ -267,7 +273,7 @@ function handleEditRule(e) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function buildRuleEditorCard(rule) {
-  const editing = rule !== null && rule !== undefined;
+  const editing = rule !== null && rule !== undefined && !!rule.id;
   const r = rule || {};
   const alerts = (r.alerts || {});
 
@@ -295,6 +301,12 @@ function buildRuleEditorCard(rule) {
     .setTitle('Alert message format (plain English)')
     .setMultiline(true)
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
+
+  section.addWidget(CardService.newTextButton()
+    .setText('Ask AI to suggest a format')
+    .setOnClickAction(CardService.newAction()
+      .setFunctionName('handleSuggestAlertFormat')
+      .setParameters({ ruleId: r.id || '' })));
 
   section.addWidget(CardService.newTextInput()
     .setFieldName('smsNumbers')
@@ -335,9 +347,25 @@ function buildRuleEditorCard(rule) {
     .addItem('Create a Google Task on match', 'true',
       !!alerts.tasksEnabled));
 
+  // MCP server alerts
+  const configuredMcpServers = loadMcpServers();
+  if (configuredMcpServers.length) {
+    const selectedMcpNames = (alerts.mcpServerIds || [])
+      .map(id => { const sv = configuredMcpServers.find(ms => ms.id === id); return sv ? sv.name : null; })
+      .filter(Boolean);
+    section.addWidget(CardService.newTextInput()
+      .setFieldName('mcpServers')
+      .setTitle('MCP server alerts (comma separated)')
+      .setHint('Configured: ' + configuredMcpServers.map(sv => sv.name).join(', '))
+      .setValue(selectedMcpNames.join(', ')));
+  } else {
+    section.addWidget(CardService.newTextParagraph().setText(
+      '<font color="#888888">MCP servers: none configured yet. Add servers in Settings.</font>'));
+  }
+
   const saveAction = CardService.newAction()
     .setFunctionName('handleSaveRule')
-    .setParameters({ ruleId: editing ? r.id : '' });
+    .setParameters({ ruleId: r.id || '' });
 
   section.addWidget(CardService.newButtonSet()
     .addButton(CardService.newTextButton()
@@ -376,6 +404,11 @@ function handleSaveRule(e) {
   const calendarEnabled = getCheckbox('calendarEnabled');
   const sheetsEnabled = getCheckbox('sheetsEnabled');
   const tasksEnabled = getCheckbox('tasksEnabled');
+  const mcpServerNames = splitCsv_(get('mcpServers'));
+  const allMcpServers = loadMcpServers();
+  const mcpServerIds = mcpServerNames
+    .map(nm => { const found = allMcpServers.find(s => s.name === nm); return found ? found.id : null; })
+    .filter(Boolean);
 
   if (!name)     return notificationResponse_('Please enter a rule name.');
   if (!ruleText) return notificationResponse_('Please enter a rule description.');
@@ -386,7 +419,8 @@ function handleSaveRule(e) {
     chatSpaces: chatSpaces,
     calendarEnabled: calendarEnabled,
     sheetsEnabled: sheetsEnabled,
-    tasksEnabled: tasksEnabled
+    tasksEnabled: tasksEnabled,
+    mcpServerIds: mcpServerIds
   };
 
   const id = e.parameters.ruleId;
@@ -408,8 +442,8 @@ function handleSaveRule(e) {
   try { upsertRule(rule); }
   catch (err) { return notificationResponse_('Save failed: ' + err); }
 
-  const hasChannel = smsNumbers.length > 0 ||
-    chatSpaces.length > 0 || calendarEnabled || sheetsEnabled || tasksEnabled;
+  const hasChannel = smsNumbers.length > 0 || chatSpaces.length > 0 ||
+    calendarEnabled || sheetsEnabled || tasksEnabled || mcpServerIds.length > 0;
   const msg = hasChannel ? 'Rule saved.'
     : 'Rule saved, but no alert channels configured. Edit the rule to add at least one.';
 
@@ -595,6 +629,37 @@ function buildSettingsCard() {
     .setHint('Leave blank to use your default task list')
     .setValue(s.tasksListId || ''));
 
+  // ── MCP server alerts ───────────────────────────────────────────────────
+  const mcpSection = CardService.newCardSection()
+    .setHeader('<b>MCP server alerts</b>')
+    .addWidget(CardService.newTextParagraph().setText(
+      'Send alerts to Slack, Microsoft 365, Asana, Aha!, or any custom MCP server ' +
+      'via HTTP (JSON-RPC 2.0). Add a server here, then select it in each rule.'));
+
+  const existingMcpServers = loadMcpServers();
+  if (existingMcpServers.length) {
+    existingMcpServers.forEach(function(sv) {
+      const typeLabel = (MCP_TYPE_DEFAULTS[sv.type] || MCP_TYPE_DEFAULTS.custom).label;
+      const domain = sv.endpoint
+        ? sv.endpoint.replace(/^https?:\/\//, '').split('/')[0]
+        : '(no endpoint)';
+      mcpSection.addWidget(CardService.newDecoratedText()
+        .setTopLabel(typeLabel)
+        .setText(sv.name + ' — ' + domain)
+        .setButton(CardService.newTextButton()
+          .setText('Edit')
+          .setOnClickAction(CardService.newAction()
+            .setFunctionName('handleEditMcpServer')
+            .setParameters({ serverId: sv.id }))));
+    });
+  } else {
+    mcpSection.addWidget(CardService.newTextParagraph().setText(
+      '<font color="#888888"><i>No MCP servers configured yet.</i></font>'));
+  }
+  mcpSection.addWidget(CardService.newTextButton()
+    .setText('+ Add MCP server')
+    .setOnClickAction(action_('handleShowNewMcpServer')));
+
   const buttons = CardService.newCardSection()
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
@@ -622,6 +687,7 @@ function buildSettingsCard() {
     .addSection(bizSection)
     .addSection(smsSection)
     .addSection(googleSection)
+    .addSection(mcpSection)
     .addSection(buttons)
     .build();
 }
@@ -1234,4 +1300,351 @@ function escapeHtml_(s) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function actionWithServerId_(fn, serverId) {
+  return CardService.newAction().setFunctionName(fn).setParameters({ serverId: serverId });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MCP server editor
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildMcpServerEditorCard(server) {
+  const editing = server !== null && server !== undefined && !!server.id;
+  const sv = server || {};
+  const type = sv.type || 'custom';
+  const def = MCP_TYPE_DEFAULTS[type] || MCP_TYPE_DEFAULTS.custom;
+
+  const section = CardService.newCardSection();
+
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('mcpName')
+    .setTitle('Server name')
+    .setHint('e.g. "Sales Slack", "Asana Marketing"')
+    .setValue(sv.name || ''));
+
+  const typeSelect = CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.DROPDOWN)
+    .setFieldName('mcpType')
+    .setTitle('Type');
+  MCP_TYPES.forEach(function(t) {
+    typeSelect.addItem(MCP_TYPE_DEFAULTS[t].label, t, t === type);
+  });
+  section.addWidget(typeSelect);
+
+  section.addWidget(CardService.newTextButton()
+    .setText('Load defaults for selected type')
+    .setOnClickAction(CardService.newAction()
+      .setFunctionName('handleLoadMcpDefaults')
+      .setParameters({ serverId: sv.id || '' })));
+
+  section.addWidget(CardService.newTextParagraph()
+    .setText('<font color="#888888">' + escapeHtml_(def.description) + '</font>'));
+
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('mcpEndpoint')
+    .setTitle('MCP server endpoint URL')
+    .setHint('HTTPS URL — e.g. https://your-mcp-server.example.com/mcp')
+    .setValue(sv.endpoint || ''));
+
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('mcpAuthToken')
+    .setTitle('Authorization header value')
+    .setHint('e.g. "Bearer YOUR_TOKEN" or "ApiKey YOUR_KEY" — blank if none')
+    .setValue(sv.authToken || ''));
+
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('mcpToolName')
+    .setTitle('Tool name')
+    .setHint('The MCP tool to call, e.g. slack_post_message')
+    .setValue(sv.toolName !== undefined ? sv.toolName : def.toolName));
+
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('mcpToolArgsTemplate')
+    .setTitle('Tool arguments (JSON)')
+    .setHint('Placeholders: {{message}}, {{subject}}, {{from}}, {{rule}}')
+    .setMultiline(true)
+    .setValue(sv.toolArgsTemplate !== undefined ? sv.toolArgsTemplate : def.toolArgsTemplate));
+
+  const btns = CardService.newButtonSet()
+    .addButton(CardService.newTextButton()
+      .setText('Save')
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setOnClickAction(CardService.newAction()
+        .setFunctionName('handleSaveMcpServer')
+        .setParameters({ serverId: sv.id || '' })))
+    .addButton(CardService.newTextButton()
+      .setText('Cancel')
+      .setOnClickAction(action_('handlePopCard')));
+  if (editing) {
+    btns.addButton(CardService.newTextButton()
+      .setText('Delete')
+      .setOnClickAction(actionWithServerId_('handleDeleteMcpServerPrompt', sv.id)));
+  }
+  section.addWidget(btns);
+
+  return CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader()
+      .setTitle(editing ? 'Edit MCP server' : 'Add MCP server'))
+    .addSection(section)
+    .build();
+}
+
+function handleShowNewMcpServer(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(buildMcpServerEditorCard(null)))
+    .build();
+}
+
+function handleEditMcpServer(e) {
+  const server = getMcpServerById(e.parameters.serverId);
+  if (!server) return notificationResponse_('Server not found.');
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(buildMcpServerEditorCard(server)))
+    .build();
+}
+
+function handleLoadMcpDefaults(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+
+  const serverId = e.parameters.serverId || '';
+  const type = get('mcpType') || 'custom';
+  const def = MCP_TYPE_DEFAULTS[type] || MCP_TYPE_DEFAULTS.custom;
+
+  const partial = {
+    id: serverId || null,
+    name: get('mcpName'),
+    type: type,
+    endpoint: get('mcpEndpoint'),
+    authToken: get('mcpAuthToken'),
+    toolName: def.toolName,
+    toolArgsTemplate: def.toolArgsTemplate
+  };
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().updateCard(buildMcpServerEditorCard(partial)))
+    .build();
+}
+
+function handleSaveMcpServer(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+
+  const name     = get('mcpName');
+  const endpoint = get('mcpEndpoint');
+  const toolName = get('mcpToolName');
+
+  if (!name)     return notificationResponse_('Please enter a server name.');
+  if (!endpoint) return notificationResponse_('Please enter an endpoint URL.');
+  if (!/^https:\/\//i.test(endpoint)) {
+    return notificationResponse_('Endpoint must be an HTTPS URL.');
+  }
+  if (!toolName) return notificationResponse_('Please enter a tool name.');
+
+  const serverId = e.parameters.serverId || '';
+  const server = {
+    id: serverId || Utilities.getUuid(),
+    name: name,
+    type: get('mcpType') || 'custom',
+    endpoint: endpoint,
+    authToken: get('mcpAuthToken'),
+    toolName: toolName,
+    toolArgsTemplate: get('mcpToolArgsTemplate') || '{"message":"{{message}}"}'
+  };
+
+  try { upsertMcpServer(server); }
+  catch (err) { return notificationResponse_('Save failed: ' + err.message); }
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard().updateCard(buildSettingsCard()))
+    .setNotification(CardService.newNotification()
+      .setText('MCP server "' + name + '" saved.'))
+    .build();
+}
+
+function handleDeleteMcpServerPrompt(e) {
+  const server = getMcpServerById(e.parameters.serverId);
+  const name = server ? server.name : 'this server';
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Delete MCP server <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Delete')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(actionWithServerId_('handleConfirmDeleteMcpServer', e.parameters.serverId)))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handlePopCard'))));
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('Confirm delete'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleConfirmDeleteMcpServer(e) {
+  deleteMcpServer(e.parameters.serverId);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildSettingsCard()))
+    .setNotification(CardService.newNotification().setText('MCP server deleted.'))
+    .build();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI format suggestion
+// ─────────────────────────────────────────────────────────────────────────────
+
+function handleSuggestAlertFormat(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+  const getCheckbox = key => {
+    const v = inputs[key];
+    return !!(v && v.stringInputs && v.stringInputs.value &&
+      v.stringInputs.value.indexOf('true') >= 0);
+  };
+
+  const ruleId   = e.parameters.ruleId || '';
+  const ruleText = get('ruleText') || '(no rule text entered)';
+
+  const channels = [];
+  if (get('smsNumbers'))                    channels.push('SMS text message');
+  if (get('chatSpaces'))                    channels.push('Google Chat');
+  if (getCheckbox('calendarEnabled'))       channels.push('Google Calendar event');
+  if (getCheckbox('sheetsEnabled'))         channels.push('Google Sheets log row');
+  if (getCheckbox('tasksEnabled'))          channels.push('Google Task');
+  const mcpNames = get('mcpServers');
+  if (mcpNames) channels.push('MCP server (' + mcpNames + ')');
+
+  const s = loadSettings();
+  if (!s.geminiApiKey) {
+    return notificationResponse_('Add a Gemini API key in Settings first.');
+  }
+
+  const channelNote = channels.length
+    ? 'Alert destination(s): ' + channels.join(', ') + '.\n\n'
+    : '';
+
+  const prompt =
+    'You help configure an email monitoring alert system. ' +
+    'A rule triggers when an email matches this description:\n\n' +
+    '"' + ruleText + '"\n\n' +
+    channelNote +
+    'Write a concise plain-English instruction (2–5 sentences) telling an AI how to format the alert message. ' +
+    'The AI will use this instruction to summarize the matching email. ' +
+    'Be specific about what information to include and how to present it. ' +
+    'Tailor the format for the destination(s) — brief for SMS, richer for Sheets. ' +
+    'Output only the instruction itself, no preamble or quotes.';
+
+  let suggestion;
+  try {
+    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 200);
+    if (!suggestion) throw new Error('Empty response from Gemini.');
+  } catch (err) {
+    return notificationResponse_('Could not generate suggestion: ' + err.message);
+  }
+
+  // Store suggestion + full form context so "Use this" can rebuild the editor
+  const ctx = {
+    suggestion:      suggestion,
+    name:            get('name'),
+    labels:          get('labels'),
+    ruleText:        get('ruleText'),
+    smsNumbers:      get('smsNumbers'),
+    chatSpaces:      get('chatSpaces'),
+    calendarEnabled: getCheckbox('calendarEnabled'),
+    sheetsEnabled:   getCheckbox('sheetsEnabled'),
+    tasksEnabled:    getCheckbox('tasksEnabled'),
+    mcpServers:      get('mcpServers')
+  };
+  PropertiesService.getUserProperties()
+    .setProperty('mailsentinel.tmp.fmtctx', JSON.stringify(ctx));
+
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('<b>Suggested alert format:</b><br><br>' + escapeHtml_(suggestion)))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Use this')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleUseSuggestedFormat')
+          .setParameters({ ruleId: ruleId })))
+      .addButton(CardService.newTextButton()
+        .setText('Close')
+        .setOnClickAction(action_('handlePopCard'))));
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('AI format suggestion'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleUseSuggestedFormat(e) {
+  const ctxRaw = PropertiesService.getUserProperties()
+    .getProperty('mailsentinel.tmp.fmtctx');
+  PropertiesService.getUserProperties().deleteProperty('mailsentinel.tmp.fmtctx');
+
+  let ctx = {};
+  try { ctx = JSON.parse(ctxRaw || '{}'); } catch (_) {}
+
+  const ruleId = e.parameters.ruleId || '';
+
+  let r;
+  if (ruleId) {
+    // Editing an existing rule — load from storage, override alertMessagePrompt only
+    r = getRuleById(ruleId);
+    if (!r) {
+      return CardService.newActionResponseBuilder()
+        .setNavigation(CardService.newNavigation().popCard())
+        .setNotification(CardService.newNotification().setText('Rule not found.'))
+        .build();
+    }
+    r = Object.assign({}, r, { alertMessagePrompt: ctx.suggestion || '' });
+  } else {
+    // New rule — restore form state from stored context
+    const allMcpServers = loadMcpServers();
+    r = {
+      id: null,
+      name:               ctx.name   || '',
+      labels:             splitCsv_(ctx.labels || 'INBOX'),
+      ruleText:           ctx.ruleText || '',
+      alertMessagePrompt: ctx.suggestion || '',
+      alerts: {
+        smsNumbers:      splitCsv_(ctx.smsNumbers || ''),
+        chatSpaces:      splitCsv_(ctx.chatSpaces  || ''),
+        calendarEnabled: !!ctx.calendarEnabled,
+        sheetsEnabled:   !!ctx.sheetsEnabled,
+        tasksEnabled:    !!ctx.tasksEnabled,
+        mcpServerIds:    splitCsv_(ctx.mcpServers || '').map(function(nm) {
+          const found = allMcpServers.find(s => s.name === nm);
+          return found ? found.id : null;
+        }).filter(Boolean)
+      }
+    };
+  }
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard()
+      .updateCard(buildRuleEditorCard(r)))
+    .build();
 }

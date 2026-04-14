@@ -183,6 +183,25 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
       activityLog('  Tasks alert FAILED: ' + e);
     }
   }
+
+  // ── MCP servers ────────────────────────────────────────────────────────────
+  const mcpServerIds = (rule.alerts.mcpServerIds || []).filter(Boolean);
+  if (mcpServerIds.length) {
+    const allMcpServers = loadMcpServers();
+    mcpServerIds.forEach(function(id) {
+      const server = allMcpServers.find(s => s.id === id);
+      if (!server) {
+        activityLog('  MCP: no server found for ID "' + id + '" — remove it from this rule.');
+        return;
+      }
+      try {
+        sendMcpAlert_(server, rule, emailData, message);
+        activityLog('  MCP alert sent to: ' + server.name);
+      } catch (e) {
+        activityLog('  MCP alert to "' + server.name + '" FAILED: ' + e);
+      }
+    });
+  }
 }
 
 function sendSmsAlert_(toNumber, rule, emailData, alertContent, settings) {
