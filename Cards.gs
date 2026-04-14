@@ -60,19 +60,19 @@ function buildHomeCard() {
       .setHeader('<b>Quick setup</b>');
     var steps = [];
     if (!settings.geminiApiKey) {
-      steps.push('\u2610 Open <b>Settings</b> and paste your Gemini API key');
+      steps.push('- Open <b>Settings</b> and paste your Gemini API key');
     } else {
-      steps.push('\u2611 Gemini API key configured');
+      steps.push('\u2713 Gemini API key configured');
     }
     if (rules.length === 0) {
-      steps.push('\u2610 Create a rule or click <b>Starter rules</b> below');
+      steps.push('- Create a rule or click <b>Starter rules</b> below');
     } else {
-      steps.push('\u2611 ' + rules.length + ' rule(s) created');
+      steps.push('\u2713 ' + rules.length + ' rule(s) created');
     }
     if (!monitoring) {
-      steps.push('\u2610 Click <b>Start monitoring</b> above');
+      steps.push('- Click <b>Start monitoring</b> above');
     } else {
-      steps.push('\u2611 Monitoring active');
+      steps.push('\u2713 Monitoring active');
     }
     setupSection.addWidget(CardService.newTextParagraph().setText(steps.join('<br>')));
   }
