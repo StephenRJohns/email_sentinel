@@ -1,5 +1,5 @@
 ================================================================================
-emAIl Sentinel -- Google Workspace Marketplace Checklist
+emAIl Sentinel™ -- Google Workspace Marketplace Checklist
 ================================================================================
 
 This file lists everything needed to publish emAIl Sentinel on the Google
@@ -26,7 +26,7 @@ Marketplace SDK → Store Listing page.
    Google product names. Must match the OAuth consent screen app name
    exactly.
 
-   Recommended:  emAIl Sentinel
+   Recommended:  emAIl Sentinel™
 
    (Short, title-case, no Google trademarks, under 50 chars.)
 
@@ -51,13 +51,12 @@ Marketplace SDK → Store Listing page.
 
    Recommended (customize as needed):
 
-     emAIl Sentinel watches your Gmail for new messages and sends alerts
+     emAIl Sentinel™ watches your Gmail for new messages and sends alerts
      when one matches a rule you describe in plain English. Rules
      are evaluated by Google Gemini — no regex, no code.
 
      ALERT CHANNELS (mix and match per rule):
-     • Email — sent from your own Gmail, no SMTP server needed
-     • Google Chat ��� post to any Chat Space via webhook
+     • Google Chat — post to any Chat Space via webhook
      • Google Calendar — creates an event with phone/desktop notification
      • Google Sheets — appends a row for audit trails and searchable history
      • Google Tasks — creates a task in your Gmail sidebar
@@ -234,7 +233,7 @@ project linked to your Apps Script:
 
 13. OAUTH VERIFICATION
 ---------------------------------------------------------------------------
-    Because emAIl Sentinel uses sensitive scopes (gmail.send, gmail.readonly),
+    Because emAIl Sentinel uses sensitive scopes (gmail.readonly),
     you must submit for OAuth verification:
 
     Google Cloud Console → APIs & Services → OAuth consent screen →
@@ -248,8 +247,6 @@ project linked to your Apps Script:
     Scope justifications for emAIl Sentinel:
 
       gmail.addons.execute    Required to run as a Gmail add-on.
-      gmail.send              Required to send alert emails from the
-                              user's Gmail account when a rule matches.
       gmail.readonly          Required to read message content (sender,
                               subject, body, attachments) for AI
                               evaluation against user-defined rules.

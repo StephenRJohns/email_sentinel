@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS = {
   geminiApiKey: '',
   geminiModel: 'gemini-2.0-flash',
   pollMinutes: 5,
+  maxEmailAgeDays: 30,
   businessHoursEnabled: false,
   businessHoursStart: '9:00 AM',
   businessHoursEnd: '9:00 PM',

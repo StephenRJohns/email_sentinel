@@ -63,7 +63,7 @@ function runMailCheck() {
       if (hitLimit) return;
       let messages;
       try {
-        messages = fetchRecentMessages_(labelName);
+        messages = fetchRecentMessages_(labelName, settings.maxEmailAgeDays || 30);
       } catch (e) {
         activityLog('Label "' + labelName + '" fetch failed: ' + e);
         return;
@@ -154,8 +154,9 @@ function runMailCheck() {
  *
  * Returns up to 50 messages, newest first, in normalized form.
  */
-function fetchRecentMessages_(labelName) {
-  const query = 'label:' + quoteLabel_(labelName) + ' newer_than:3d';
+function fetchRecentMessages_(labelName, maxAgeDays) {
+  const days = (maxAgeDays > 0 ? maxAgeDays : 30);
+  const query = 'label:' + quoteLabel_(labelName) + ' newer_than:' + days + 'd';
   const threads = GmailApp.search(query, 0, 50);
   const out = [];
   threads.forEach(t => {

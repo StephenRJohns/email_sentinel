@@ -467,6 +467,11 @@ function buildSettingsCard() {
   [1, 5, 10, 15, 30].forEach(m => pollSelect.addItem(m + ' minute(s)', String(m),
     Number(s.pollMinutes || 5) === m));
   pollSection.addWidget(pollSelect);
+  pollSection.addWidget(CardService.newTextInput()
+    .setFieldName('maxEmailAgeDays')
+    .setTitle('Only check emails newer than (days)')
+    .setHint('Default: 30. Emails older than this are ignored.')
+    .setValue(String(s.maxEmailAgeDays || 30)));
   pollSection.addWidget(CardService.newTextParagraph().setText(
     '<font color="#888888">Apps Script time-driven triggers run in the background ' +
     'whether or not Gmail is open in your browser.</font>'));
@@ -654,6 +659,7 @@ function handleSaveSettings(e) {
     geminiApiKey: get('geminiApiKey') || prev.geminiApiKey || '',
     geminiModel: get('geminiModel') || GEMINI_DEFAULT_MODEL,
     pollMinutes: parseInt(get('pollMinutes') || '5', 10),
+    maxEmailAgeDays: Math.max(1, parseInt(get('maxEmailAgeDays') || '30', 10)) || 30,
     businessHoursEnabled: getCheckbox('businessHoursEnabled'),
     businessHoursStart: get('businessHoursStart') || '9:00 AM',
     businessHoursEnd: get('businessHoursEnd') || '9:00 PM',
@@ -1057,6 +1063,7 @@ function helpTopics_() {
         '50 emails/day, 3 rules \u2248 under <b>$1/month</b>.<br><br>' +
         '<b>Tips to minimize usage</b><br>' +
         '\u2022 Enable <b>Business hours</b> \u2014 skips checks outside your window<br>' +
+        '\u2022 Lower <b>Max email age</b> (Settings \u25b8 Polling) \u2014 skips older messages entirely<br>' +
         '\u2022 Watch specific labels instead of INBOX<br>' +
         '\u2022 Combine related conditions into one rule<br>' +
         '\u2022 Keep alert format prompts concise'
@@ -1068,6 +1075,8 @@ function helpTopics_() {
         'Restrict checks to a daily window. Outside hours, the trigger fires but skips the check \u2014 no Gemini quota used.<br><br>' +
         '<b>Polling</b><br>' +
         'Time-driven triggers fire every 1\u201330 minutes. The first run baselines existing messages so you don\'t get a flood of alerts.<br><br>' +
+        '<b>Max email age</b><br>' +
+        'Controls how far back the Service looks when scanning a label. Default is 30 days. Emails older than this are ignored even if they\'re unread \u2014 useful for skipping long-dormant threads and cutting Gemini usage on busy labels.<br><br>' +
         '<b>Privacy</b><br>' +
         'Settings, rules, seen messages, and the activity log are stored in UserProperties \u2014 private to your Google account. Email content goes only to Gemini and your configured alert channels.<br><br>' +
         '<b>Troubleshooting</b><br>' +

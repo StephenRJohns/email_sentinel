@@ -4,7 +4,7 @@
 
 A Gmail Workspace Add-on that watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by **Google Gemini**.
 
-Everything runs inside your Google account — no machine to keep running, no extra accounts, no Anthropic key required.
+Everything runs inside your Google account — no machine to keep running, no extra accounts to create.
 
 ---
 
@@ -309,6 +309,7 @@ If you regularly hit the free limit:
 ### Tips to reduce Gemini spend
 
 - **Enable Business hours** — restricts checks to your configured time window (supports overnight windows too).
+- **Lower Max email age** (Settings ▸ Polling) — default is 30 days; reducing it skips older messages entirely so they never hit Gemini.
 - **Watch specific labels** (e.g. `Vendors/Invoices`) instead of INBOX — only emails in that label are evaluated against the rule.
 - **Combine conditions** — one rule "Invoice OR purchase order from any vendor" is cheaper than two separate rules.
 - **Keep alert format prompts short** — concise format instructions produce shorter output responses and lower output-token costs.
