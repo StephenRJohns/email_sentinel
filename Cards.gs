@@ -304,7 +304,7 @@ function buildRuleEditorCard(rule) {
 
   ruleSection.addWidget(CardService.newTextInput()
     .setFieldName('ruleText')
-    .setTitle('Rule (plain English — Gemini evaluates this)')
+    .setTitle('Rule text (plain English)')
     .setMultiline(true)
     .setValue(r.ruleText || ''));
 
@@ -410,7 +410,7 @@ function buildRuleEditorCard(rule) {
 
   alertMsgSection.addWidget(CardService.newTextInput()
     .setFieldName('alertMessagePrompt')
-    .setTitle('How Gemini should format the alert (plain English)')
+    .setTitle('Alert message content (plain English)')
     .setMultiline(true)
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
