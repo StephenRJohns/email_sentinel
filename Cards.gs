@@ -309,7 +309,7 @@ function buildRuleEditorCard(rule) {
     .setValue(r.ruleText || ''));
 
   ruleSection.addWidget(CardService.newTextButton()
-    .setText('Ask AI to suggest rule text')
+    .setText('Suggest rule text')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestRuleText')
       .setParameters({ ruleId: r.id || '' })));
@@ -415,7 +415,7 @@ function buildRuleEditorCard(rule) {
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
   alertMsgSection.addWidget(CardService.newTextButton()
-    .setText('Ask AI to suggest format based on alert channels')
+    .setText('Suggest content for channels')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestAlertFormat')
       .setParameters({ ruleId: r.id || '' })));
