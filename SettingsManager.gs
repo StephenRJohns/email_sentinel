@@ -49,7 +49,9 @@ const DEFAULT_SETTINGS = {
   // Google Sheets
   sheetsId: '',
   // Google Tasks
-  tasksListId: ''
+  tasksListId: '',
+  // SMS recipients (named contacts to select in rules)
+  smsRecipients: '[]'
 };
 
 function loadSettings() {

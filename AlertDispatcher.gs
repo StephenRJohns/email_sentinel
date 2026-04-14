@@ -446,6 +446,15 @@ function parseChatSpaces_(raw) {
   } catch (e) { return {}; }
 }
 
+function parseSmsRecipients_(raw) {
+  if (!raw) return [];
+  try {
+    const arr = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!Array.isArray(arr)) return [];
+    return arr.filter(function(r) { return r.name && r.number; });
+  } catch (e) { return []; }
+}
+
 // ── Google Calendar event ───────────────────────────────────────────────────
 
 function sendCalendarAlert_(rule, emailData, message, settings) {

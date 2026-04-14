@@ -167,26 +167,35 @@ function buildRulesCard() {
 function buildRuleSummarySection_(rule) {
   const status = rule.enabled ? '✅ ON' : '⏸ OFF';
   const labels = (rule.labels || []).join(', ') || '(no labels)';
-  const sms    = (rule.alerts.smsNumbers || []).join(', ') || '—';
-  const chat   = (rule.alerts.chatSpaces || []).join(', ') || '—';
-  const googleChannels = [];
-  if (rule.alerts.calendarEnabled) googleChannels.push('Calendar');
-  if (rule.alerts.sheetsEnabled)   googleChannels.push('Sheets');
-  if (rule.alerts.tasksEnabled)    googleChannels.push('Tasks');
-  const google = googleChannels.join(', ') || '—';
   const ruleText = (rule.ruleText || '').length > 140
     ? rule.ruleText.substring(0, 137) + '…'
     : rule.ruleText;
 
+  const settings = loadSettings();
+  const smsRecipientsList = parseSmsRecipients_(settings.smsRecipients);
+  const smsPhoneToName = {};
+  smsRecipientsList.forEach(function(rec) { smsPhoneToName[rec.number] = rec.name; });
+  const smsNums = rule.alerts.smsNumbers || [];
+
+  const chatNames = (rule.alerts.chatSpaces || []);
+
+  const googleChannels = [];
+  if (rule.alerts.calendarEnabled) googleChannels.push('Calendar');
+  if (rule.alerts.sheetsEnabled)   googleChannels.push('Sheets');
+  if (rule.alerts.tasksEnabled)    googleChannels.push('Tasks');
+
   const allMcpServers = loadMcpServers();
   const mcpNames = (rule.alerts.mcpServerIds || [])
-    .map(id => { const sv = allMcpServers.find(ms => ms.id === id); return sv ? sv.name : null; })
+    .map(function(id) { const sv = allMcpServers.find(ms => ms.id === id); return sv ? sv.name : null; })
     .filter(Boolean);
 
   const channels = [];
-  if (sms !== '\u2014') channels.push('SMS');
-  if (chat !== '\u2014') channels.push('Chat');
-  if (google !== '\u2014') channels.push(google);
+  if (smsNums.length) {
+    const smsLabels = smsNums.map(function(num) { return smsPhoneToName[num] || num; });
+    channels.push('SMS (' + smsLabels.join(', ') + ')');
+  }
+  if (chatNames.length) channels.push('Chat (' + chatNames.join(', ') + ')');
+  if (googleChannels.length) channels.push(googleChannels.join(', '));
   if (mcpNames.length) channels.push('MCP: ' + mcpNames.join(', '));
   const channelSummary = channels.length > 0 ? channels.join(', ') : 'None configured';
 
@@ -276,109 +285,154 @@ function buildRuleEditorCard(rule) {
   const editing = rule !== null && rule !== undefined && !!rule.id;
   const r = rule || {};
   const alerts = (r.alerts || {});
+  const settings = loadSettings();
 
-  const section = CardService.newCardSection();
+  // ── Section 1: Rule definition ─────────────────────────────────────────────
+  const ruleSection = CardService.newCardSection()
+    .setHeader('<b>Rule</b>');
 
-  section.addWidget(CardService.newTextInput()
+  ruleSection.addWidget(CardService.newTextInput()
     .setFieldName('name')
     .setTitle('Rule name')
     .setValue(r.name || ''));
 
-  section.addWidget(CardService.newTextInput()
+  ruleSection.addWidget(CardService.newTextInput()
     .setFieldName('labels')
     .setTitle('Gmail labels to watch (comma separated)')
     .setHint('e.g. INBOX, Vendors, Finance')
     .setValue((r.labels || ['INBOX']).join(', ')));
 
-  section.addWidget(CardService.newTextInput()
+  ruleSection.addWidget(CardService.newTextInput()
     .setFieldName('ruleText')
     .setTitle('Rule (plain English — Gemini evaluates this)')
     .setMultiline(true)
     .setValue(r.ruleText || ''));
 
-  section.addWidget(CardService.newTextInput()
+  ruleSection.addWidget(CardService.newTextButton()
+    .setText('Ask AI to suggest rule text')
+    .setOnClickAction(CardService.newAction()
+      .setFunctionName('handleSuggestRuleText')
+      .setParameters({ ruleId: r.id || '' })));
+
+  // ── Section 2: Alert channels ──────────────────────────────────────────────
+  const channelsSection = CardService.newCardSection()
+    .setHeader('<b>Alert channels</b>');
+
+  // SMS
+  const smsProvider = settings.smsProvider || 'none';
+  if (smsProvider === 'none') {
+    channelsSection.addWidget(CardService.newTextParagraph()
+      .setText('<font color="#888888">SMS alerts are disabled — no SMS provider is configured.</font>'));
+    channelsSection.addWidget(CardService.newTextButton()
+      .setText('Configure SMS in Settings')
+      .setOnClickAction(navAction_('buildSettingsCard')));
+  } else {
+    const smsRecipientsList = parseSmsRecipients_(settings.smsRecipients);
+    if (smsRecipientsList.length === 0) {
+      channelsSection.addWidget(CardService.newTextParagraph()
+        .setText('<font color="#888888">SMS provider is configured, but no SMS recipients have been added.</font>'));
+      channelsSection.addWidget(CardService.newTextButton()
+        .setText('Add SMS recipients in Settings')
+        .setOnClickAction(navAction_('buildSettingsCard')));
+    } else {
+      const smsInput = CardService.newSelectionInput()
+        .setType(CardService.SelectionInputType.CHECK_BOX)
+        .setFieldName('smsRecipients')
+        .setTitle('SMS');
+      smsRecipientsList.forEach(function(rec) {
+        const selected = (alerts.smsNumbers || []).indexOf(rec.number) >= 0;
+        smsInput.addItem(rec.name + ' (' + rec.number + ')', rec.number, selected);
+      });
+      channelsSection.addWidget(smsInput);
+    }
+  }
+
+  // Google Chat
+  const chatRegistry = parseChatSpaces_(settings.chatSpaces);
+  const configuredChatNames = Object.keys(chatRegistry);
+  if (configuredChatNames.length === 0) {
+    channelsSection.addWidget(CardService.newTextParagraph()
+      .setText('<font color="#888888">Google Chat not configured. Add webhook URLs in Settings.</font>'));
+  } else {
+    const chatInput = CardService.newSelectionInput()
+      .setType(CardService.SelectionInputType.CHECK_BOX)
+      .setFieldName('chatSpaces')
+      .setTitle('Google Chat');
+    configuredChatNames.forEach(function(nm) {
+      const selected = (alerts.chatSpaces || []).indexOf(nm) >= 0;
+      chatInput.addItem(nm, nm, selected);
+    });
+    channelsSection.addWidget(chatInput);
+  }
+
+  // Google Calendar, Sheets, Tasks
+  channelsSection.addWidget(CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.CHECK_BOX)
+    .setFieldName('calendarEnabled')
+    .addItem('Google Calendar \u2014 create an event', 'true', !!alerts.calendarEnabled));
+
+  channelsSection.addWidget(CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.CHECK_BOX)
+    .setFieldName('sheetsEnabled')
+    .addItem('Google Sheets \u2014 append a log row', 'true', !!alerts.sheetsEnabled));
+
+  channelsSection.addWidget(CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.CHECK_BOX)
+    .setFieldName('tasksEnabled')
+    .addItem('Google Tasks \u2014 create a task', 'true', !!alerts.tasksEnabled));
+
+  // MCP servers
+  const configuredMcpServers = loadMcpServers();
+  if (configuredMcpServers.length === 0) {
+    channelsSection.addWidget(CardService.newTextParagraph()
+      .setText('<font color="#888888">No MCP servers configured. Add servers in Settings.</font>'));
+  } else {
+    const mcpInput = CardService.newSelectionInput()
+      .setType(CardService.SelectionInputType.CHECK_BOX)
+      .setFieldName('mcpServers')
+      .setTitle('MCP servers');
+    configuredMcpServers.forEach(function(sv) {
+      const selected = (alerts.mcpServerIds || []).indexOf(sv.id) >= 0;
+      mcpInput.addItem(sv.name, sv.id, selected);
+    });
+    channelsSection.addWidget(mcpInput);
+  }
+
+  // ── Section 3: Alert message content ──────────────────────────────────────
+  const alertMsgSection = CardService.newCardSection()
+    .setHeader('<b>Alert message content</b>');
+
+  alertMsgSection.addWidget(CardService.newTextInput()
     .setFieldName('alertMessagePrompt')
-    .setTitle('Alert message format (plain English)')
+    .setTitle('How Gemini should format the alert (plain English)')
     .setMultiline(true)
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
-  section.addWidget(CardService.newTextButton()
-    .setText('Ask AI to suggest a format')
+  alertMsgSection.addWidget(CardService.newTextButton()
+    .setText('Ask AI to suggest format based on alert channels')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestAlertFormat')
       .setParameters({ ruleId: r.id || '' })));
 
-  section.addWidget(CardService.newTextInput()
-    .setFieldName('smsNumbers')
-    .setTitle('SMS phone numbers (comma separated, E.164: +15551234567)')
-    .setValue((alerts.smsNumbers || []).join(', ')));
-
-  // Google Chat spaces (names from the registry configured in Settings)
-  const settings = loadSettings();
-  const chatRegistry = parseChatSpaces_(settings.chatSpaces);
-  const chatNames = Object.keys(chatRegistry);
-  if (chatNames.length) {
-    section.addWidget(CardService.newTextInput()
-      .setFieldName('chatSpaces')
-      .setTitle('Google Chat spaces to notify (comma separated)')
-      .setHint('Names from Settings: ' + chatNames.join(', '))
-      .setValue((alerts.chatSpaces || []).join(', ')));
-  } else {
-    section.addWidget(CardService.newTextParagraph().setText(
-      '<font color="#888888">Google Chat: no spaces configured yet. Add webhook URLs in Settings.</font>'));
-  }
-
-  // Google Calendar, Sheets, Tasks — checkboxes
-  section.addWidget(CardService.newSelectionInput()
-    .setType(CardService.SelectionInputType.CHECK_BOX)
-    .setFieldName('calendarEnabled')
-    .addItem('Create a Google Calendar event on match', 'true',
-      !!alerts.calendarEnabled));
-
-  section.addWidget(CardService.newSelectionInput()
-    .setType(CardService.SelectionInputType.CHECK_BOX)
-    .setFieldName('sheetsEnabled')
-    .addItem('Log to Google Sheets on match', 'true',
-      !!alerts.sheetsEnabled));
-
-  section.addWidget(CardService.newSelectionInput()
-    .setType(CardService.SelectionInputType.CHECK_BOX)
-    .setFieldName('tasksEnabled')
-    .addItem('Create a Google Task on match', 'true',
-      !!alerts.tasksEnabled));
-
-  // MCP server alerts
-  const configuredMcpServers = loadMcpServers();
-  if (configuredMcpServers.length) {
-    const selectedMcpNames = (alerts.mcpServerIds || [])
-      .map(id => { const sv = configuredMcpServers.find(ms => ms.id === id); return sv ? sv.name : null; })
-      .filter(Boolean);
-    section.addWidget(CardService.newTextInput()
-      .setFieldName('mcpServers')
-      .setTitle('MCP server alerts (comma separated)')
-      .setHint('Configured: ' + configuredMcpServers.map(sv => sv.name).join(', '))
-      .setValue(selectedMcpNames.join(', ')));
-  } else {
-    section.addWidget(CardService.newTextParagraph().setText(
-      '<font color="#888888">MCP servers: none configured yet. Add servers in Settings.</font>'));
-  }
-
-  const saveAction = CardService.newAction()
-    .setFunctionName('handleSaveRule')
-    .setParameters({ ruleId: r.id || '' });
-
-  section.addWidget(CardService.newButtonSet()
-    .addButton(CardService.newTextButton()
-      .setText('Save')
-      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-      .setOnClickAction(saveAction))
-    .addButton(CardService.newTextButton()
-      .setText('Cancel')
-      .setOnClickAction(action_('handleCancelEditor'))));
+  // ── Section 4: Buttons ─────────────────────────────────────────────────────
+  const buttonsSection = CardService.newCardSection()
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Save')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleSaveRule')
+          .setParameters({ ruleId: r.id || '' })))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handleCancelEditor'))));
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle(editing ? 'Edit rule' : 'New rule'))
-    .addSection(section)
+    .addSection(ruleSection)
+    .addSection(channelsSection)
+    .addSection(alertMsgSection)
+    .addSection(buttonsSection)
     .build();
 }
 
@@ -389,26 +443,26 @@ function handleSaveRule(e) {
     if (!v || !v.stringInputs || !v.stringInputs.value) return '';
     return (v.stringInputs.value[0] || '').trim();
   };
-
-  const name = get('name');
-  const labels = splitCsv_(get('labels'));
-  const ruleText = get('ruleText');
-  const alertMessagePrompt = get('alertMessagePrompt') || DEFAULT_ALERT_MESSAGE_PROMPT;
-  const smsNumbers = splitCsv_(get('smsNumbers'));
-  const chatSpaces = splitCsv_(get('chatSpaces'));
+  const getMultiSelect = key => {
+    const v = inputs[key];
+    return (v && v.stringInputs && v.stringInputs.value) ? v.stringInputs.value.filter(Boolean) : [];
+  };
   const getCheckbox = key => {
     const v = inputs[key];
     if (!v || !v.stringInputs || !v.stringInputs.value) return false;
     return v.stringInputs.value.indexOf('true') >= 0;
   };
+
+  const name = get('name');
+  const labels = splitCsv_(get('labels'));
+  const ruleText = get('ruleText');
+  const alertMessagePrompt = get('alertMessagePrompt') || DEFAULT_ALERT_MESSAGE_PROMPT;
+  const smsNumbers   = getMultiSelect('smsRecipients'); // values are phone numbers
+  const chatSpaces   = getMultiSelect('chatSpaces');    // values are space names
   const calendarEnabled = getCheckbox('calendarEnabled');
-  const sheetsEnabled = getCheckbox('sheetsEnabled');
-  const tasksEnabled = getCheckbox('tasksEnabled');
-  const mcpServerNames = splitCsv_(get('mcpServers'));
-  const allMcpServers = loadMcpServers();
-  const mcpServerIds = mcpServerNames
-    .map(nm => { const found = allMcpServers.find(s => s.name === nm); return found ? found.id : null; })
-    .filter(Boolean);
+  const sheetsEnabled   = getCheckbox('sheetsEnabled');
+  const tasksEnabled    = getCheckbox('tasksEnabled');
+  const mcpServerIds    = getMultiSelect('mcpServers'); // values are server IDs
 
   if (!name)     return notificationResponse_('Please enter a rule name.');
   if (!ruleText) return notificationResponse_('Please enter a rule description.');
@@ -434,9 +488,7 @@ function handleSaveRule(e) {
     rule.alertMessagePrompt = alertMessagePrompt;
     rule.alerts = alertsObj;
   } else {
-    rule = createRule(name, labels, ruleText,
-      alertsObj,
-      alertMessagePrompt);
+    rule = createRule(name, labels, ruleText, alertsObj, alertMessagePrompt);
   }
 
   try { upsertRule(rule); }
@@ -577,6 +629,28 @@ function buildSettingsCard() {
       .setTitle('Test phone number')
       .setHint('E.164 format: +15551234567')
       .setValue(s.smsTestNumber || ''));
+
+    // SMS recipients (named contacts to select in rules)
+    var smsRecipientsArr = [];
+    try { smsRecipientsArr = JSON.parse(s.smsRecipients || '[]'); } catch (e) {}
+    if (!Array.isArray(smsRecipientsArr)) smsRecipientsArr = [];
+    var smsRecSlots = Math.min(Math.max(smsRecipientsArr.length + 1, 1), 5);
+    smsSection.addWidget(CardService.newTextParagraph()
+      .setText('<b>SMS recipients</b><br>' +
+        '<font color="#888888">Add named contacts to select in rules (up to 5).</font>'));
+    for (var sri = 0; sri < smsRecSlots; sri++) {
+      var srec = smsRecipientsArr[sri] || {};
+      smsSection.addWidget(CardService.newTextInput()
+        .setFieldName('smsRecipientName' + sri)
+        .setTitle('Recipient ' + (sri + 1) + ' name')
+        .setHint(sri === 0 ? 'e.g. My Phone, John' : '')
+        .setValue(srec.name || ''));
+      smsSection.addWidget(CardService.newTextInput()
+        .setFieldName('smsRecipientNumber' + sri)
+        .setTitle('Recipient ' + (sri + 1) + ' number (E.164)')
+        .setHint(sri === 0 ? 'e.g. +15551234567' : '')
+        .setValue(srec.number || ''));
+    }
   }
 
   // ── Google-native alert channels (free) ─────────────────────────────
@@ -721,6 +795,18 @@ function handleSaveSettings(e) {
     }
   }
 
+  // Build SMS recipients JSON from individual name/number pairs
+  var smsRecipientsArr = [];
+  if (smsProvider !== 'none') {
+    for (var sri = 0; sri < 5; sri++) {
+      var sriName = get('smsRecipientName' + sri);
+      var sriNum = get('smsRecipientNumber' + sri);
+      if (sriName && sriNum) {
+        smsRecipientsArr.push({ name: sriName, number: sriNum });
+      }
+    }
+  }
+
   const next = {
     geminiApiKey: get('geminiApiKey') || prev.geminiApiKey || '',
     geminiModel: get('geminiModel') || GEMINI_DEFAULT_MODEL,
@@ -746,6 +832,7 @@ function handleSaveSettings(e) {
     vonageApiSecret: smsProvider === 'vonage' ? get('vonageApiSecret') : (prev.vonageApiSecret || ''),
     smsWebhookUrl: smsProvider === 'webhook' ? get('smsWebhookUrl') : (prev.smsWebhookUrl || ''),
     smsTestNumber: smsProvider !== 'none' ? get('smsTestNumber') : (prev.smsTestNumber || ''),
+    smsRecipients: smsProvider !== 'none' ? JSON.stringify(smsRecipientsArr) : (prev.smsRecipients || '[]'),
     chatSpaces: JSON.stringify(chatSpacesArr),
     calendarId: get('calendarId'),
     sheetsId: get('sheetsId'),
@@ -1514,6 +1601,10 @@ function handleSuggestAlertFormat(e) {
     if (!v || !v.stringInputs || !v.stringInputs.value) return '';
     return (v.stringInputs.value[0] || '').trim();
   };
+  const getMultiSelect = key => {
+    const v = inputs[key];
+    return (v && v.stringInputs && v.stringInputs.value) ? v.stringInputs.value.filter(Boolean) : [];
+  };
   const getCheckbox = key => {
     const v = inputs[key];
     return !!(v && v.stringInputs && v.stringInputs.value &&
@@ -1523,14 +1614,24 @@ function handleSuggestAlertFormat(e) {
   const ruleId   = e.parameters.ruleId || '';
   const ruleText = get('ruleText') || '(no rule text entered)';
 
+  const smsNums      = getMultiSelect('smsRecipients');
+  const chatSelected = getMultiSelect('chatSpaces');
+  const mcpIds       = getMultiSelect('mcpServers');
+
   const channels = [];
-  if (get('smsNumbers'))                    channels.push('SMS text message');
-  if (get('chatSpaces'))                    channels.push('Google Chat');
-  if (getCheckbox('calendarEnabled'))       channels.push('Google Calendar event');
-  if (getCheckbox('sheetsEnabled'))         channels.push('Google Sheets log row');
-  if (getCheckbox('tasksEnabled'))          channels.push('Google Task');
-  const mcpNames = get('mcpServers');
-  if (mcpNames) channels.push('MCP server (' + mcpNames + ')');
+  if (smsNums.length)                  channels.push('SMS text message');
+  if (chatSelected.length)             channels.push('Google Chat');
+  if (getCheckbox('calendarEnabled'))  channels.push('Google Calendar event');
+  if (getCheckbox('sheetsEnabled'))    channels.push('Google Sheets log row');
+  if (getCheckbox('tasksEnabled'))     channels.push('Google Task');
+  if (mcpIds.length) {
+    const allMcpServers = loadMcpServers();
+    const mcpNamesList = mcpIds.map(function(id) {
+      const sv = allMcpServers.find(function(s) { return s.id === id; });
+      return sv ? sv.name : id;
+    });
+    channels.push('MCP server (' + mcpNamesList.join(', ') + ')');
+  }
 
   const s = loadSettings();
   if (!s.geminiApiKey) {
@@ -1566,12 +1667,12 @@ function handleSuggestAlertFormat(e) {
     name:            get('name'),
     labels:          get('labels'),
     ruleText:        get('ruleText'),
-    smsNumbers:      get('smsNumbers'),
-    chatSpaces:      get('chatSpaces'),
+    smsRecipients:   smsNums,
+    chatSpaces:      chatSelected,
     calendarEnabled: getCheckbox('calendarEnabled'),
     sheetsEnabled:   getCheckbox('sheetsEnabled'),
     tasksEnabled:    getCheckbox('tasksEnabled'),
-    mcpServers:      get('mcpServers')
+    mcpServerIds:    mcpIds
   };
   PropertiesService.getUserProperties()
     .setProperty('mailsentinel.tmp.fmtctx', JSON.stringify(ctx));
@@ -1622,7 +1723,6 @@ function handleUseSuggestedFormat(e) {
     r = Object.assign({}, r, { alertMessagePrompt: ctx.suggestion || '' });
   } else {
     // New rule — restore form state from stored context
-    const allMcpServers = loadMcpServers();
     r = {
       id: null,
       name:               ctx.name   || '',
@@ -1630,15 +1730,149 @@ function handleUseSuggestedFormat(e) {
       ruleText:           ctx.ruleText || '',
       alertMessagePrompt: ctx.suggestion || '',
       alerts: {
-        smsNumbers:      splitCsv_(ctx.smsNumbers || ''),
-        chatSpaces:      splitCsv_(ctx.chatSpaces  || ''),
+        smsNumbers:      Array.isArray(ctx.smsRecipients) ? ctx.smsRecipients : [],
+        chatSpaces:      Array.isArray(ctx.chatSpaces)    ? ctx.chatSpaces    : [],
         calendarEnabled: !!ctx.calendarEnabled,
         sheetsEnabled:   !!ctx.sheetsEnabled,
         tasksEnabled:    !!ctx.tasksEnabled,
-        mcpServerIds:    splitCsv_(ctx.mcpServers || '').map(function(nm) {
-          const found = allMcpServers.find(s => s.name === nm);
-          return found ? found.id : null;
-        }).filter(Boolean)
+        mcpServerIds:    Array.isArray(ctx.mcpServerIds)  ? ctx.mcpServerIds  : []
+      }
+    };
+  }
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard()
+      .updateCard(buildRuleEditorCard(r)))
+    .build();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI rule text suggestion
+// ─────────────────────────────────────────────────────────────────────────────
+
+function handleSuggestRuleText(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+  const getMultiSelect = key => {
+    const v = inputs[key];
+    return (v && v.stringInputs && v.stringInputs.value) ? v.stringInputs.value.filter(Boolean) : [];
+  };
+  const getCheckbox = key => {
+    const v = inputs[key];
+    return !!(v && v.stringInputs && v.stringInputs.value &&
+      v.stringInputs.value.indexOf('true') >= 0);
+  };
+
+  const ruleId          = e.parameters.ruleId || '';
+  const name            = get('name');
+  const labels          = get('labels') || 'INBOX';
+  const existingText    = get('ruleText') || '';
+
+  const s = loadSettings();
+  if (!s.geminiApiKey) {
+    return notificationResponse_('Add a Gemini API key in Settings first.');
+  }
+
+  const intro = name
+    ? 'The rule is named "' + name + '" and watches the "' + labels + '" Gmail label(s). '
+    : '';
+  const existing = existingText
+    ? 'The current rule text is:\n\n"' + existingText + '"\n\nRefine or improve it. '
+    : 'Write a clear, concise plain-English rule description (1–3 sentences) that an AI can use to decide whether an incoming email matches the intent. ';
+
+  const prompt =
+    'You help configure an email monitoring rule. ' + intro + existing +
+    'The AI evaluates each email against this description and returns yes or no. ' +
+    'Be specific about senders, subjects, keywords, or content patterns that should match. ' +
+    'Output only the rule text itself, no preamble or quotes.';
+
+  let suggestion;
+  try {
+    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 200);
+    if (!suggestion) throw new Error('Empty response from Gemini.');
+  } catch (err) {
+    return notificationResponse_('Could not generate suggestion: ' + err.message);
+  }
+
+  // Store suggestion + full form context so "Use this" can rebuild the editor
+  const ctx = {
+    suggestion:         suggestion,
+    name:               name,
+    labels:             labels,
+    alertMessagePrompt: get('alertMessagePrompt'),
+    smsRecipients:      getMultiSelect('smsRecipients'),
+    chatSpaces:         getMultiSelect('chatSpaces'),
+    calendarEnabled:    getCheckbox('calendarEnabled'),
+    sheetsEnabled:      getCheckbox('sheetsEnabled'),
+    tasksEnabled:       getCheckbox('tasksEnabled'),
+    mcpServerIds:       getMultiSelect('mcpServers')
+  };
+  PropertiesService.getUserProperties()
+    .setProperty('mailsentinel.tmp.rulectx', JSON.stringify(ctx));
+
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('<b>Suggested rule text:</b><br><br>' + escapeHtml_(suggestion)))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Use this')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleUseSuggestedRuleText')
+          .setParameters({ ruleId: ruleId })))
+      .addButton(CardService.newTextButton()
+        .setText('Close')
+        .setOnClickAction(action_('handlePopCard'))));
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('AI rule suggestion'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleUseSuggestedRuleText(e) {
+  const ctxRaw = PropertiesService.getUserProperties()
+    .getProperty('mailsentinel.tmp.rulectx');
+  PropertiesService.getUserProperties().deleteProperty('mailsentinel.tmp.rulectx');
+
+  let ctx = {};
+  try { ctx = JSON.parse(ctxRaw || '{}'); } catch (_) {}
+
+  const ruleId = e.parameters.ruleId || '';
+
+  let r;
+  if (ruleId) {
+    // Editing an existing rule — load from storage, override ruleText only
+    r = getRuleById(ruleId);
+    if (!r) {
+      return CardService.newActionResponseBuilder()
+        .setNavigation(CardService.newNavigation().popCard())
+        .setNotification(CardService.newNotification().setText('Rule not found.'))
+        .build();
+    }
+    r = Object.assign({}, r, { ruleText: ctx.suggestion || '' });
+  } else {
+    // New rule — restore form state from stored context
+    r = {
+      id: null,
+      name:               ctx.name   || '',
+      labels:             splitCsv_(ctx.labels || 'INBOX'),
+      ruleText:           ctx.suggestion || '',
+      alertMessagePrompt: ctx.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT,
+      alerts: {
+        smsNumbers:      Array.isArray(ctx.smsRecipients) ? ctx.smsRecipients : [],
+        chatSpaces:      Array.isArray(ctx.chatSpaces)    ? ctx.chatSpaces    : [],
+        calendarEnabled: !!ctx.calendarEnabled,
+        sheetsEnabled:   !!ctx.sheetsEnabled,
+        tasksEnabled:    !!ctx.tasksEnabled,
+        mcpServerIds:    Array.isArray(ctx.mcpServerIds)  ? ctx.mcpServerIds  : []
       }
     };
   }
