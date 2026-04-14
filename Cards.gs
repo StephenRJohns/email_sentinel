@@ -347,6 +347,26 @@ function buildRuleEditorCard(rule) {
     }
   }
 
+  // MCP servers
+  const configuredMcpServers = loadMcpServers();
+  if (configuredMcpServers.length === 0) {
+    channelsSection.addWidget(CardService.newTextParagraph()
+      .setText('<font color="#888888">No MCP servers configured \u2014 none have been added yet.</font>'));
+    channelsSection.addWidget(CardService.newTextButton()
+      .setText('Add MCP server in Settings')
+      .setOnClickAction(navAction_('buildSettingsCard')));
+  } else {
+    const mcpInput = CardService.newSelectionInput()
+      .setType(CardService.SelectionInputType.CHECK_BOX)
+      .setFieldName('mcpServers')
+      .setTitle('MCP servers');
+    configuredMcpServers.forEach(function(sv) {
+      const selected = (alerts.mcpServerIds || []).indexOf(sv.id) >= 0;
+      mcpInput.addItem(sv.name, sv.id, selected);
+    });
+    channelsSection.addWidget(mcpInput);
+  }
+
   // Google Chat
   const chatRegistry = parseChatSpaces_(settings.chatSpaces);
   const configuredChatNames = Object.keys(chatRegistry);
@@ -383,26 +403,6 @@ function buildRuleEditorCard(rule) {
     .setType(CardService.SelectionInputType.CHECK_BOX)
     .setFieldName('tasksEnabled')
     .addItem('Google Tasks \u2014 create a task', 'true', !!alerts.tasksEnabled));
-
-  // MCP servers
-  const configuredMcpServers = loadMcpServers();
-  if (configuredMcpServers.length === 0) {
-    channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">No MCP servers configured \u2014 none have been added yet.</font>'));
-    channelsSection.addWidget(CardService.newTextButton()
-      .setText('Add MCP server in Settings')
-      .setOnClickAction(navAction_('buildSettingsCard')));
-  } else {
-    const mcpInput = CardService.newSelectionInput()
-      .setType(CardService.SelectionInputType.CHECK_BOX)
-      .setFieldName('mcpServers')
-      .setTitle('MCP servers');
-    configuredMcpServers.forEach(function(sv) {
-      const selected = (alerts.mcpServerIds || []).indexOf(sv.id) >= 0;
-      mcpInput.addItem(sv.name, sv.id, selected);
-    });
-    channelsSection.addWidget(mcpInput);
-  }
 
   // ── Section 3: Alert message content ──────────────────────────────────────
   const alertMsgSection = CardService.newCardSection()
