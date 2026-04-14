@@ -352,7 +352,10 @@ function buildRuleEditorCard(rule) {
   const configuredChatNames = Object.keys(chatRegistry);
   if (configuredChatNames.length === 0) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">Google Chat not configured. Add webhook URLs in Settings.</font>'));
+      .setText('<font color="#888888">Google Chat not configured \u2014 no webhook URLs are set up.</font>'));
+    channelsSection.addWidget(CardService.newTextButton()
+      .setText('Configure Chat in Settings')
+      .setOnClickAction(navAction_('buildSettingsCard')));
   } else {
     const chatInput = CardService.newSelectionInput()
       .setType(CardService.SelectionInputType.CHECK_BOX)
@@ -385,7 +388,10 @@ function buildRuleEditorCard(rule) {
   const configuredMcpServers = loadMcpServers();
   if (configuredMcpServers.length === 0) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">No MCP servers configured. Add servers in Settings.</font>'));
+      .setText('<font color="#888888">No MCP servers configured \u2014 none have been added yet.</font>'));
+    channelsSection.addWidget(CardService.newTextButton()
+      .setText('Add MCP server in Settings')
+      .setOnClickAction(navAction_('buildSettingsCard')));
   } else {
     const mcpInput = CardService.newSelectionInput()
       .setType(CardService.SelectionInputType.CHECK_BOX)
