@@ -97,7 +97,7 @@ function buildHomeCard() {
   var builder = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader()
       .setTitle('emAIl Sentinel\u2122')
-      .setImageUrl('https://lh3.googleusercontent.com/d/1C-0LwVLpc4Dm_VZXIsBbvAuMrsgKJ0M2')
+      .setImageUrl('https://lh3.googleusercontent.com/d/1xFrN1fzRxfgND6ARCcY8hYZW31NqtSpc')
       .setImageStyle(CardService.ImageStyle.CIRCLE))
     .addSection(statusSection);
   if (setupSection) builder.addSection(setupSection);
@@ -1116,7 +1116,7 @@ function buildHelpCard() {
   card.addSection(section);
   card.addSection(CardService.newCardSection()
     .addWidget(CardService.newImage()
-      .setImageUrl('https://lh3.googleusercontent.com/d/1C-0LwVLpc4Dm_VZXIsBbvAuMrsgKJ0M2')
+      .setImageUrl('https://lh3.googleusercontent.com/d/1xFrN1fzRxfgND6ARCcY8hYZW31NqtSpc')
       .setAltText('JJJJJ Enterprises, LLC'))
     .addWidget(CardService.newTextParagraph().setText(
       '<font color="#888888">emAIl Sentinel\u2122 is a product of JJJJJ Enterprises, LLC.</font>')));

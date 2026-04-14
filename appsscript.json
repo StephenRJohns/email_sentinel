@@ -15,7 +15,7 @@
   "addOns": {
     "common": {
       "name": "emAIl Sentinel",
-      "logoUrl": "https://lh3.googleusercontent.com/d/1xcfW73sGECfYtIf4wS_TEM2RwXU9_rF4",
+      "logoUrl": "https://lh3.googleusercontent.com/d/12EiB_Hv663iqCrrFh1hfF5zn48XRBEQA",
       "homepageTrigger": {
         "runFunction": "onHomepage",
         "enabled": true
