@@ -10,7 +10,7 @@ By installing or using the Service you ("you", "your") agree to these Terms of S
 
 ## 1. Description of the Service
 
-emAIl Sentinel is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via (optionally) SMS through a third-party provider you configure (such as those listed in Section 5), Google Chat, Google Calendar, Google Sheets, or Google Tasks.
+emAIl Sentinel is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via (optionally) SMS through a third-party provider you configure (such as those listed in Section 5), Google Chat, Google Calendar, Google Sheets, Google Tasks, or a Model Context Protocol (MCP) server endpoint you configure (such as Slack, Microsoft 365 / Teams, Asana, or any custom MCP server).
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 
@@ -47,6 +47,7 @@ The Service depends on, and transmits data to, third-party services that you cho
 - **Google Calendar / Google Sheets / Google Tasks / Google Chat** — when you enable these alert channels, the Service creates events, appends rows, creates tasks, or posts messages within your own Google account using your OAuth credentials.
 - **SMS providers** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, or Vonage) — receives recipient phone numbers and alert text when you enable SMS and select a provider.
 - **Any HTTPS endpoint you configure** as a "Generic webhook" SMS provider.
+- **MCP servers** (Slack, Microsoft 365 / Teams, Asana, or any custom Model Context Protocol endpoint you configure) — receives alert text and per-server arguments via JSON-RPC 2.0 over HTTPS when a rule targeting that server matches.
 
 Your use of each third-party service is governed by that provider's own terms and privacy policy. We are not responsible for the acts, omissions, availability, accuracy, or legality of any third-party service. Charges, quotas, and rate limits imposed by third-party providers are your responsibility.
 

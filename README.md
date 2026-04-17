@@ -31,8 +31,9 @@ Everything runs inside your Google account — no machine to keep running, no ex
 
 When a new email arrives in a watched Gmail label, emAIl Sentinel asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
 
-- **SMS** via your configured provider (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or a generic webhook).
+- **SMS** via your configured provider (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or a generic webhook), to named recipients you define in Settings.
 - **Google Chat**, **Google Calendar**, **Google Sheets**, or **Google Tasks** — all within your own Google account, no extra sign-up needed.
+- **MCP servers** — Slack, Microsoft 365 / Teams, Asana, or any custom Model Context Protocol endpoint over HTTPS.
 
 Rules are plain English. No regex, no code:
 
@@ -53,7 +54,7 @@ Rules are plain English. No regex, no code:
 │  │    – New messages × matching rules:                    │  │
 │  │      → Gemini: does this match the rule?               │  │
 │  │      → If YES: Gemini formats the alert message        │  │
-│  │      → SMS provider / Chat / Calendar / Sheets / Tasks  │  │
+│  │      → SMS / Chat / Cal / Sheets / Tasks / MCP server   │  │
 │  └────────────────────────────────────────────────────────┘  │
 │                                                              │
 │  Add-on UI (Cards) — Rules, Settings, Activity log, Help     │
@@ -86,7 +87,8 @@ email_sentinel/
 ├── Cards.gs               # All CardService UI (home, rules, editor, settings, log, help)
 ├── MailWatcher.gs         # Time-driven trigger handler — polls Gmail, dispatches matches
 ├── RuleEvaluator.gs       # Gemini REST calls (rule evaluation + alert formatting)
-├── AlertDispatcher.gs     # Alert dispatch: 6 SMS providers, Chat, Calendar, Sheets, Tasks
+├── AlertDispatcher.gs     # Alert dispatch: 6 SMS providers, Chat, Calendar, Sheets, Tasks, MCP
+├── McpServers.gs          # MCP server CRUD + JSON-RPC 2.0 tool dispatch
 ├── RulesManager.gs        # CRUD for rules in UserProperties
 ├── SettingsManager.gs     # CRUD for settings; business-hours helpers
 ├── ActivityLog.gs         # Ring-buffered activity log with batch-write support
@@ -167,10 +169,11 @@ After installation, open Gmail and click the emAIl Sentinel icon in the right ra
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
 2. **Settings ▸ Polling** — pick how often to check (default 5 minutes).
-3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison.
-4. **Settings ▸ Save settings**.
-5. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and pick alert recipients. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can add alert recipients and enable them at your own pace.
-6. Back on the home card, click **Start monitoring**. This installs a time-driven trigger that runs in the background even when Gmail is closed.
+3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison. Then add named SMS recipients (e.g. "On-call", "CFO") below the provider fields — rules pick recipients by name, not raw phone numbers.
+4. **Settings ▸ MCP server alerts** *(optional)* — add Slack, Microsoft 365 / Teams, Asana, or a custom MCP endpoint if you want alerts routed through the Model Context Protocol.
+5. **Settings ▸ Save settings**.
+6. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and tick the channels you want (SMS recipients, Chat spaces, MCP servers, Calendar, Sheets, Tasks). Click **Suggest rule text** or **Suggest content for selected channels** to have Gemini draft a starting point. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can tick channels and enable them at your own pace.
+7. Back on the home card, click **Start monitoring**. This installs a time-driven trigger that runs in the background even when Gmail is closed.
 
 The **first** check for any new label is treated as a baseline (no alerts) so you don't get a flood of notifications for existing mail. Alerts start with the next new message.
 
@@ -194,7 +197,7 @@ Good examples:
 - `"Email from boss@company.com asking for a status update."`
 - `"Automated notification about a server being down or an alert being triggered."`
 
-Each rule also has an **Alert message format** field — plain-English instructions Gemini uses to compose the alert message itself. The default produces a date / sender / subject / summary / action items block; override it per rule when you want something different (a one-liner, a bullet list, …).
+Each rule also has an **Alert message content** field — plain-English instructions Gemini uses to compose the alert message itself. The default produces a date / sender / subject / summary / action items block; override it per rule when you want something different (a one-liner, a bullet list, …). The **Suggest rule text** and **Suggest content for selected channels** buttons in the rule editor let Gemini draft either field for you based on the rule name, labels, and the channels you've ticked.
 
 ### Rule examples by alert channel
 
@@ -340,7 +343,9 @@ Google Workspace does not provide a first-party SMS API, so emAIl Sentinel ships
 - **No phone number to manage:** Textbelt, ClickSend, or Vonage send from a shared/system number.
 - **Already have an SMS gateway:** Generic webhook POSTs `{"to": "+15551234567", "body": "..."}` to any HTTPS URL. *(Self-deployed installs only — Google's Marketplace URL whitelist blocks arbitrary endpoints.)*
 
-Phone numbers in rules and settings should be in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+15551234567`.
+Phone numbers in SMS recipients should be in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+15551234567`.
+
+SMS recipients are managed in one place — **Settings ▸ SMS recipients** — as named entries (e.g. `On-call = +15551234567`). Rules pick recipients by name via checkboxes, so you don't paste phone numbers into each rule.
 
 After configuring a provider in Settings, click **Send test SMS** to verify it works.
 
@@ -356,6 +361,25 @@ These use your existing Google account — no third-party sign-up, no cost.
 | **Google Tasks** | Creates a task in Google Tasks with the alert subject and details. Shows in the Gmail sidebar and the Google Tasks app. | Leave the Tasks list ID blank for "My Tasks" (the default list). In the rule editor, check "Create a Google Task on match." |
 
 Each Google channel is enabled per rule via a checkbox in the rule editor, so you can have some rules post to Chat and others log to Sheets, or combine all four.
+
+### MCP servers (Slack, Microsoft 365 / Teams, Asana, custom)
+
+emAIl Sentinel can call any endpoint that speaks the [Model Context Protocol](https://modelcontextprotocol.io) (JSON-RPC 2.0 over HTTPS). Configure servers once in **Settings ▸ MCP server alerts** and then tick them per rule.
+
+| Type | What it does | Tool name (preset) |
+|---|---|---|
+| **Slack** | Posts a message to a Slack channel via the official Slack MCP server. | `slack_post_message` |
+| **Microsoft 365** | Sends a Teams chat message via a Microsoft Graph MCP server. | `send_message` |
+| **Asana** | Creates a task in an Asana project via the official Asana MCP server. | `asana_create_task` |
+| **Custom** | Any other MCP server — you supply the tool name and argument template. | (you define) |
+
+For each server you configure:
+- **Endpoint** — the MCP server's HTTPS URL
+- **Auth token** — the `Authorization` header value (e.g. `Bearer sk-…`)
+- **Tool name** — the MCP tool to call (preset by type; overrideable)
+- **Tool args template** — JSON with `{{message}}`, `{{subject}}`, `{{from}}`, `{{rule}}` placeholders that emAIl Sentinel fills in at dispatch time
+
+Click **Load defaults** when editing a server to populate the tool name and args template for the selected type.
 
 ---
 

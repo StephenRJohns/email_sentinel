@@ -19,7 +19,7 @@ emAIl Sentinel reads the metadata and body of Gmail messages in the labels you c
 
 ## Third-Party Services
 
-JJJJJ Enterprises, LLC is not affiliated with Google, Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or any other third-party service provider. Use of third-party services through emAIl Sentinel is governed by those providers' own terms. We are not responsible for any charges, data handling, availability, or conduct by third-party providers.
+JJJJJ Enterprises, LLC is not affiliated with Google, Slack, Microsoft, Asana, Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or any other third-party service provider. Slack is a trademark of Slack Technologies, LLC. Microsoft, Microsoft 365, and Teams are trademarks of Microsoft Corporation. Asana is a trademark of Asana, Inc. Use of third-party services through emAIl Sentinel is governed by those providers' own terms. We are not responsible for any charges, data handling, availability, or conduct by third-party providers.
 
 ## No Legal, Tax, Financial, or Medical Advice
 

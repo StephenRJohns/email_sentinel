@@ -464,8 +464,8 @@ Run through this before clicking "Publish":
     [ ] All placeholder text replaced (contact email, company name)
     [ ] clasp push completed with final code
     [ ] Tested in real Gmail (not just the script editor)
-    [ ] Tested all alert channels (email, SMS, Chat, Calendar,
-        Sheets, Tasks)
+    [ ] Tested all alert channels (SMS, Chat, Calendar, Sheets,
+        Tasks, MCP servers)
     [ ] Tested edge cases (no rules, no API key, bad API key,
         nonexistent label)
     [ ] Tested with monitoring running for at least 24 hours

@@ -11,13 +11,13 @@
  */
 
 const GEMINI_MODELS = [
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro'
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-pro',
+  'gemini-2.0-flash-001'
 ];
 
-const GEMINI_DEFAULT_MODEL = 'gemini-2.0-flash';
+const GEMINI_DEFAULT_MODEL = 'gemini-2.5-flash';
 
 /**
  * Ask Gemini whether an email matches a rule.
@@ -42,7 +42,7 @@ function evaluateEmailAgainstRule(emailData, rule, apiKey, model) {
     'Does this email match the rule? Answer with YES or NO on the first line, ' +
     'followed by a brief reason (1-2 sentences).';
 
-  const text = callGemini_(apiKey, model, prompt, 150);
+  const text = callGemini_(apiKey, model, prompt, 500);
   if (text === null) {
     return { matched: false, reason: 'Gemini call failed', failed: true };
   }
@@ -111,7 +111,7 @@ function callGemini_(apiKey, model, prompt, maxTokens) {
     });
     const code = resp.getResponseCode();
     if (code === 429) {
-      activityLog('Gemini quota exceeded (HTTP 429). Calls will resume when the daily limit resets.');
+      activityLog('Gemini HTTP 429: ' + resp.getContentText().substring(0, 800));
       return null;
     }
     if (code < 200 || code >= 300) {
@@ -120,10 +120,20 @@ function callGemini_(apiKey, model, prompt, maxTokens) {
     }
     const body = JSON.parse(resp.getContentText());
     const candidates = body.candidates || [];
-    if (!candidates.length) return null;
+    if (!candidates.length) {
+      activityLog('Gemini returned no candidates. Finish reason: ' +
+        (body.promptFeedback ? JSON.stringify(body.promptFeedback) : 'unknown'));
+      return null;
+    }
     const parts = (candidates[0].content && candidates[0].content.parts) || [];
-    if (!parts.length) return null;
-    return (parts[0].text || '').trim();
+    // Filter out thinking parts — only return text parts meant for output
+    const textParts = parts.filter(function(p) { return p.text && !p.thought; });
+    if (!textParts.length) {
+      activityLog('Gemini returned no text parts. Finish reason: ' +
+        (candidates[0].finishReason || 'unknown'));
+      return null;
+    }
+    return textParts.map(function(p) { return p.text; }).join('').trim();
   } catch (e) {
     activityLog('Gemini exception: ' + e);
     return null;

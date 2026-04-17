@@ -12,7 +12,7 @@
  *   {
  *     id:               string,   UUID
  *     name:             string,   e.g. "Sales Slack"
- *     type:             string,   "slack" | "ms365" | "asana" | "aha" | "custom"
+ *     type:             string,   "slack" | "ms365" | "asana" | "custom"
  *     endpoint:         string,   HTTPS URL of the MCP server
  *     authToken:        string,   Authorization header value, e.g. "Bearer sk-..."
  *     toolName:         string,   MCP tool to call, e.g. "slack_post_message"
@@ -50,12 +50,6 @@ const MCP_TYPE_DEFAULTS = {
     toolName: 'asana_create_task',
     toolArgsTemplate: '{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}'
   },
-  aha: {
-    label: 'Aha!',
-    description: 'Official Aha! MCP server — creates a note.',
-    toolName: 'create_note',
-    toolArgsTemplate: '{"title":"[emAIl Sentinel] {{subject}}","body":"{{message}}"}'
-  },
   custom: {
     label: 'Custom',
     description: 'Any HTTP MCP server using JSON-RPC 2.0 (Streamable HTTP transport).',
@@ -64,7 +58,7 @@ const MCP_TYPE_DEFAULTS = {
   }
 };
 
-const MCP_TYPES = ['slack', 'ms365', 'asana', 'aha', 'custom'];
+const MCP_TYPES = ['slack', 'ms365', 'asana', 'custom'];
 
 // ── Storage ─────────────────────────────────────────────────────────────────
 

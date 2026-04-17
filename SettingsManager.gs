@@ -12,7 +12,7 @@ const SETTINGS_KEY = 'mailsentinel.settings';
 
 const DEFAULT_SETTINGS = {
   geminiApiKey: '',
-  geminiModel: 'gemini-2.0-flash',
+  geminiModel: 'gemini-2.5-flash',
   pollMinutes: 5,
   maxEmailAgeDays: 30,
   businessHoursEnabled: false,

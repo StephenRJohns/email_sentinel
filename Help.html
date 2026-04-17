@@ -2,9 +2,10 @@
 
 <b>Quick start</b><br>
 1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>
-2. (Optional) Configure SMS — pick a provider in Settings (click <b>SMS setup guide</b> for a comparison).<br>
-3. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals). Starter rules are created disabled — edit each one to add alert recipients and enable it.<br>
-4. Back on the home card, click <b>Start monitoring</b>. A time-driven trigger will run in the background even when Gmail is closed.<br><br>
+2. (Optional) Configure SMS — pick a provider in Settings (click <b>SMS setup guide</b> for a comparison), then add named SMS recipients below the provider fields.<br>
+3. (Optional) Add Google Chat spaces, MCP servers, or calendar/sheet/task IDs in Settings to target them from rules.<br>
+4. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals). Starter rules are created disabled — edit each one to tick alert channels and enable it.<br>
+5. Back on the home card, click <b>Start monitoring</b>. A time-driven trigger will run in the background even when Gmail is closed.<br><br>
 
 <b>Writing a rule</b><br>
 Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>
@@ -12,7 +13,7 @@ Rules are plain English. Be specific about senders, subjects, attachments, or bo
 • "Subject contains URGENT or CRITICAL."<br>
 • "Email from boss@company.com asking for a status update."<br><br>
 
-Each rule has an <b>Alert message format</b> field — plain-English instructions that tell Gemini how to format the alert that recipients receive. The default includes date, sender, subject, summary, and any action items.<br><br>
+Each rule has an <b>Alert message content</b> field — plain-English instructions that tell Gemini how to format the alert that recipients receive. The default includes date, sender, subject, summary, and any action items. Click <b>Suggest rule text</b> or <b>Suggest content for selected channels</b> in the rule editor to have Gemini draft a starting point for you.<br><br>
 
 <b>Rule examples by alert channel</b><br>
 Every rule works with every channel — just enable the channels you want in the rule editor. Here are real-world examples showing which channels make sense for each use case.<br><br>
@@ -51,7 +52,7 @@ The real power is mixing channels on a single rule:<br>
 Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as it appears in Gmail. Labels containing spaces are fine — type them exactly as shown. Multiple labels: comma-separated.<br><br>
 
 <b>Alert channels</b><br>
-<b>SMS</b> — Google doesn't ship an SMS API, so emAIl Sentinel supports six providers natively. Click <b>SMS setup guide</b> in Settings for a full comparison with sign-up links. Quick overview:<br>
+<b>SMS</b> — Google doesn't ship an SMS API, so emAIl Sentinel supports six providers natively. Click <b>SMS setup guide</b> in Settings for a full comparison with sign-up links. After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the Settings <b>SMS recipients</b> section so rules can pick them by name instead of raw phone numbers. Quick overview:<br>
 • <b>Textbelt</b> — easiest: 1 free SMS/day with API key "textbelt", no sign-up needed<br>
 • <b>ClickSend</b> — free trial, just username + API key, no phone number needed<br>
 • <b>Vonage</b> — free trial credits, no credit card required<br>
@@ -73,14 +74,17 @@ These use your existing Google account — no third-party sign-up, no cost:<br>
 • <b>Google Sheets</b> — appends a row to a spreadsheet (auto-created on first alert if you don't specify one). Great for an audit trail. Enable per rule with a checkbox.<br>
 • <b>Google Tasks</b> — creates a task in Google Tasks with the alert details. Shows in Gmail sidebar and the Tasks app. Enable per rule with a checkbox.<br><br>
 
+<b>MCP server alerts</b><br>
+Send alerts to Slack, Microsoft 365 / Teams, Asana, or any custom HTTP endpoint that speaks the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> (JSON-RPC 2.0 over HTTPS). In Settings → <b>MCP server alerts</b>, click <b>Add MCP server</b>, pick a type (load defaults fills the tool name and args template), paste the endpoint URL and auth token, and save. Then tick the server in any rule to fire that tool when the rule matches.<br><br>
+
 <b>Gemini pricing and model tiers</b><br>
 emAIl Sentinel calls the Gemini API twice per evaluated email per rule: once to check if the email matches the rule, and once to format the alert message. Understanding the cost tiers helps you pick the right model and avoid unexpected quota hits.<br><br>
 
 <b>Models (select in Settings)</b><br>
-• <b>Gemini 2.0 Flash</b> (default) — fastest, most affordable, 1,500 free requests/day. Best for most users.<br>
-• <b>Gemini 2.0 Flash Lite</b> — ultra-low-cost variant of 2.0 Flash; slightly less capable but even cheaper on the paid tier. Good for simple rules at very high volume.<br>
-• <b>Gemini 1.5 Flash</b> — same free quota and pricing as 2.0 Flash; a reliable fallback.<br>
-• <b>Gemini 1.5 Pro</b> — highest accuracy for complex or nuanced rules, but only 50 free requests/day and roughly 17× the cost of Flash. Not recommended for high email volume.<br><br>
+• <b>Gemini 2.5 Flash</b> (default) — fast, highly capable, best balance of speed and quality. Recommended for most users.<br>
+• <b>Gemini 2.5 Flash Lite</b> — ultra-low-cost variant; slightly less capable but cheapest on the paid tier. Good for simple rules at very high volume.<br>
+• <b>Gemini 2.5 Pro</b> — highest accuracy for complex or nuanced rules, but higher cost. Best reserved for demanding rules where precision matters.<br>
+• <b>Gemini 2.0 Flash 001</b> — stable versioned release of the previous-generation Flash model; a fallback if 2.5 Flash behaviour changes.<br><br>
 
 <b>Free tier (no billing required)</b><br>
 A key from <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> is free — no credit card needed. Flash models allow 1,500 requests/day and 1,000,000 tokens/day, resetting at midnight Pacific Time. When you hit the limit, Gemini returns a 429 error and emAIl Sentinel logs "Gemini quota exceeded" in the Activity Log. Calls resume automatically the next day — you are never charged on a free key.<br><br>
@@ -104,7 +108,7 @@ At Flash rates, a typical user (50 emails/day, 3 rules) costs under <b>$1/month<
 • Enable <b>Business hours</b> — skips checks outside your configured time window (supports overnight windows too)<br>
 • Watch specific labels (e.g. <i>Vendors/Invoices</i>) instead of INBOX — only emails in that label are evaluated<br>
 • Combine related conditions into one rule instead of creating two separate rules for the same email type<br>
-• Keep your <b>Alert message format</b> prompt concise — shorter instructions produce shorter (cheaper) output<br><br>
+• Keep your <b>Alert message content</b> prompt concise — shorter instructions produce shorter (cheaper) output<br><br>
 
 <b>Business hours</b><br>
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>
@@ -113,7 +117,7 @@ Optionally restrict checks to a daily window. Outside of business hours the trig
 Apps Script time-driven triggers fire every 1, 5, 10, 15, or 30 minutes. The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message.<br><br>
 
 <b>Privacy</b><br>
-Settings, rules, the seen-message baseline, and the activity log are all stored in <i>UserProperties</i>, which is private to your own Google account. Email contents are sent only to Google's Gemini API and to whatever SMS provider you configure — never anywhere else.<br><br>
+Settings, rules, the seen-message baseline, and the activity log are all stored in <i>UserProperties</i>, which is private to your own Google account. Email contents are sent only to Google's Gemini API and to the alert channels you configure (SMS provider, Chat webhooks, MCP server endpoints) — never anywhere else.<br><br>
 
 <b>Troubleshooting</b><br>
 • <i>"No Gemini API key configured"</i> — open Settings and paste a key, then click <b>Test Gemini</b>.<br>
@@ -122,4 +126,6 @@ Settings, rules, the seen-message baseline, and the activity log are all stored 
 • <i>Alerts firing for old mail after install</i> — open Settings and click <b>Reset baseline</b>; the next run will re-baseline.<br>
 • Still stuck? <b><a href="https://github.com/StephenRJohns/email_sentinel/issues">Open a GitHub issue</a></b> — issues are tracked, searchable, and get the fastest response.<br><br>
 
-<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. This project is not affiliated with or endorsed by Google.</font>
+<b>Legal / privacy questions?</b> Contact legal@jjjjjenterprises.com.<br><br>
+
+<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. Slack is a trademark of Slack Technologies, LLC. Microsoft, Microsoft 365, and Teams are trademarks of Microsoft Corporation. Asana is a trademark of Asana, Inc. This project is not affiliated with or endorsed by any of these companies.</font>

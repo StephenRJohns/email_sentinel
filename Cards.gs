@@ -59,10 +59,19 @@ function buildHomeCard() {
     setupSection = CardService.newCardSection()
       .setHeader('<b>Quick setup</b>');
     var steps = [];
-    if (!settings.geminiApiKey) {
-      steps.push('- Open <b>Settings</b> and paste your Gemini API key');
+    var hasGemini = !!settings.geminiApiKey;
+    var hasSmsChannel = settings.smsProvider && settings.smsProvider !== 'none' &&
+      parseSmsRecipients_(settings.smsRecipients).length > 0;
+    var hasChatChannel = Object.keys(parseChatSpaces_(settings.chatSpaces)).length > 0;
+    var hasMcpChannel = loadMcpServers().length > 0;
+    var hasChannels = hasSmsChannel || hasChatChannel || hasMcpChannel;
+    if (hasGemini && hasChannels) {
+      steps.push('\u2713 Settings configured');
     } else {
-      steps.push('\u2713 Gemini API key configured');
+      var indent = '&nbsp;&nbsp;&nbsp;&nbsp;';
+      steps.push('- Open <b>Settings</b>');
+      steps.push(indent + (hasGemini ? '\u2713' : '-') + ' Paste your Gemini API key');
+      steps.push(indent + (hasChannels ? '\u2713' : '-') + ' Set up alert channels');
     }
     if (rules.length === 0) {
       steps.push('- Create a rule or click <b>Starter rules</b> below');
@@ -302,13 +311,13 @@ function buildRuleEditorCard(rule) {
     .setHint('e.g. INBOX, Vendors, Finance')
     .setValue((r.labels || ['INBOX']).join(', ')));
 
-  ruleSection.addWidget(CardService.newTextInput()
+  const ruleTextSection = CardService.newCardSection();
+  ruleTextSection.addWidget(CardService.newTextInput()
     .setFieldName('ruleText')
     .setTitle('Rule text (plain English)')
     .setMultiline(true)
     .setValue(r.ruleText || ''));
-
-  ruleSection.addWidget(CardService.newTextButton()
+  ruleTextSection.addWidget(CardService.newTextButton()
     .setText('Suggest rule text')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestRuleText')
@@ -351,9 +360,9 @@ function buildRuleEditorCard(rule) {
   const configuredMcpServers = loadMcpServers();
   if (configuredMcpServers.length === 0) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">No MCP servers configured \u2014 none have been added yet.</font>'));
+      .setText('<font color="#888888">No MCP servers configured \u2014 MCP lets <b>emAIl Sentinel</b> send alerts to Slack, Microsoft 365/Teams, Asana, or any custom MCP endpoint.</font>'));
     channelsSection.addWidget(CardService.newTextButton()
-      .setText('Add MCP server in Settings')
+      .setText('Add MCP server(s) in Settings')
       .setOnClickAction(navAction_('buildSettingsCard')));
   } else {
     const mcpInput = CardService.newSelectionInput()
@@ -405,8 +414,7 @@ function buildRuleEditorCard(rule) {
     .addItem('Google Tasks \u2014 create a task', 'true', !!alerts.tasksEnabled));
 
   // ── Section 3: Alert message content ──────────────────────────────────────
-  const alertMsgSection = CardService.newCardSection()
-    .setHeader('<b>Alert message content</b>');
+  const alertMsgSection = CardService.newCardSection();
 
   alertMsgSection.addWidget(CardService.newTextInput()
     .setFieldName('alertMessagePrompt')
@@ -415,7 +423,7 @@ function buildRuleEditorCard(rule) {
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
   alertMsgSection.addWidget(CardService.newTextButton()
-    .setText('Suggest content for channels')
+    .setText('Suggest content for selected channels')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestAlertFormat')
       .setParameters({ ruleId: r.id || '' })));
@@ -436,6 +444,7 @@ function buildRuleEditorCard(rule) {
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle(editing ? 'Edit rule' : 'New rule'))
     .addSection(ruleSection)
+    .addSection(ruleTextSection)
     .addSection(channelsSection)
     .addSection(alertMsgSection)
     .addSection(buttonsSection)
@@ -539,8 +548,10 @@ function buildSettingsCard() {
     aiSection.addWidget(CardService.newTextInput()
       .setFieldName('geminiApiKey')
       .setTitle('Gemini API key')
-      .setHint('Get one free at aistudio.google.com/app/apikey')
+      .setHint('Paste your key here')
       .setValue(''));
+    aiSection.addWidget(CardService.newTextParagraph()
+      .setText('Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> — no credit card required.'));
   }
 
   const modelSelect = CardService.newSelectionInput()
@@ -613,80 +624,98 @@ function buildSettingsCard() {
 
   const provider = s.smsProvider || 'none';
   const SMS_FIELD_DEFS_ = {
-    textbelt: [{ field: 'textbeltApiKey', title: 'Textbelt API key', hint: 'Use "textbelt" for 1 free msg/day, or buy at textbelt.com' }],
-    telnyx: [{ field: 'telnyxApiKey', title: 'Telnyx API key' }, { field: 'telnyxFromNumber', title: 'Telnyx "From" number (E.164)' }],
-    plivo: [{ field: 'plivoAuthId', title: 'Plivo Auth ID' }, { field: 'plivoAuthToken', title: 'Plivo Auth Token' }, { field: 'plivoFromNumber', title: 'Plivo "From" number (E.164)' }],
-    twilio: [{ field: 'twilioAccountSid', title: 'Twilio Account SID' }, { field: 'twilioAuthToken', title: 'Twilio Auth Token' }, { field: 'twilioFromNumber', title: 'Twilio "From" number (E.164)' }],
-    clicksend: [{ field: 'clicksendUsername', title: 'ClickSend username (your email)' }, { field: 'clicksendApiKey', title: 'ClickSend API key' }],
-    vonage: [{ field: 'vonageApiKey', title: 'Vonage API key' }, { field: 'vonageApiSecret', title: 'Vonage API secret' }],
+    textbelt: [{ field: 'textbeltApiKey', title: 'Textbelt API key', hint: 'Use "textbelt" for 1 free msg/day, or buy at textbelt.com', secret: true }],
+    telnyx: [{ field: 'telnyxApiKey', title: 'Telnyx API key', secret: true }, { field: 'telnyxFromNumber', title: 'Telnyx "From" number (E.164)' }],
+    plivo: [{ field: 'plivoAuthId', title: 'Plivo Auth ID', secret: true }, { field: 'plivoAuthToken', title: 'Plivo Auth Token', secret: true }, { field: 'plivoFromNumber', title: 'Plivo "From" number (E.164)' }],
+    twilio: [{ field: 'twilioAccountSid', title: 'Twilio Account SID', secret: true }, { field: 'twilioAuthToken', title: 'Twilio Auth Token', secret: true }, { field: 'twilioFromNumber', title: 'Twilio "From" number (E.164)' }],
+    clicksend: [{ field: 'clicksendUsername', title: 'ClickSend username (your email)' }, { field: 'clicksendApiKey', title: 'ClickSend API key', secret: true }],
+    vonage: [{ field: 'vonageApiKey', title: 'Vonage API key', secret: true }, { field: 'vonageApiSecret', title: 'Vonage API secret', secret: true }],
     webhook: [{ field: 'smsWebhookUrl', title: 'Generic webhook URL', hint: 'Receives POST {"to":"...","body":"..."}. Self-deploy only.' }]
   };
   if (provider !== 'none' && SMS_FIELD_DEFS_[provider]) {
     SMS_FIELD_DEFS_[provider].forEach(function(f) {
-      var w = CardService.newTextInput()
-        .setFieldName(f.field)
-        .setTitle(f.title)
-        .setValue(s[f.field] || '');
-      if (f.hint) w.setHint(f.hint);
-      smsSection.addWidget(w);
+      if (f.secret && s[f.field]) {
+        smsSection.addWidget(CardService.newDecoratedText()
+          .setTopLabel('Current ' + f.title.toLowerCase())
+          .setText('....' + s[f.field].slice(-4)));
+        smsSection.addWidget(CardService.newTextInput()
+          .setFieldName(f.field)
+          .setTitle('New value (leave blank to keep current)')
+          .setHint('Only fill in to replace the current value')
+          .setValue(''));
+      } else {
+        var w = CardService.newTextInput()
+          .setFieldName(f.field)
+          .setTitle(f.title)
+          .setValue(s[f.field] || '');
+        if (f.hint) w.setHint(f.hint);
+        smsSection.addWidget(w);
+      }
     });
     smsSection.addWidget(CardService.newTextInput()
       .setFieldName('smsTestNumber')
       .setTitle('Test phone number')
-      .setHint('E.164 format: +15551234567')
+      .setHint('E.164 format: +15551234567  ·  Used by the "Send test SMS" button below.')
       .setValue(s.smsTestNumber || ''));
 
     // SMS recipients (named contacts to select in rules)
-    var smsRecipientsArr = [];
-    try { smsRecipientsArr = JSON.parse(s.smsRecipients || '[]'); } catch (e) {}
-    if (!Array.isArray(smsRecipientsArr)) smsRecipientsArr = [];
-    var smsRecSlots = Math.min(Math.max(smsRecipientsArr.length + 1, 1), 5);
+    var smsRecipientsArr = getSmsRecipientsArr_();
     smsSection.addWidget(CardService.newTextParagraph()
       .setText('<b>SMS recipients</b><br>' +
-        '<font color="#888888">Add named contacts to select in rules (up to 5).</font>'));
-    for (var sri = 0; sri < smsRecSlots; sri++) {
-      var srec = smsRecipientsArr[sri] || {};
-      smsSection.addWidget(CardService.newTextInput()
-        .setFieldName('smsRecipientName' + sri)
-        .setTitle('Recipient ' + (sri + 1) + ' name')
-        .setHint(sri === 0 ? 'e.g. My Phone, John' : '')
-        .setValue(srec.name || ''));
-      smsSection.addWidget(CardService.newTextInput()
-        .setFieldName('smsRecipientNumber' + sri)
-        .setTitle('Recipient ' + (sri + 1) + ' number (E.164)')
-        .setHint(sri === 0 ? 'e.g. +15551234567' : '')
-        .setValue(srec.number || ''));
+        '<font color="#888888">Named contacts to select in rules.</font>'));
+    if (smsRecipientsArr.length) {
+      smsRecipientsArr.forEach(function(rec) {
+        smsSection.addWidget(CardService.newDecoratedText()
+          .setTopLabel(rec.number)
+          .setText(rec.name)
+          .setButton(CardService.newTextButton()
+            .setText('Edit')
+            .setOnClickAction(CardService.newAction()
+              .setFunctionName('handleEditSmsRecipient')
+              .setParameters({ recId: rec.id }))));
+      });
+    } else {
+      smsSection.addWidget(CardService.newTextParagraph()
+        .setText('<font color="#888888"><i>No recipients added yet.</i></font>'));
+    }
+    if (smsRecipientsArr.length < 5) {
+      smsSection.addWidget(CardService.newTextButton()
+        .setText('+ Add SMS recipient')
+        .setOnClickAction(action_('handleShowNewSmsRecipient')));
     }
   }
 
   // ── Google-native alert channels (free) ─────────────────────────────
   const googleSection = CardService.newCardSection()
-    .setHeader('<b>Google alert channels (free)</b>')
+    .setHeader('<b>Google alert channels</b>')
     .addWidget(CardService.newTextParagraph().setText(
-      'These use your existing Google account — no third-party sign-up, no cost.'));
+      'These use your existing Google account — no third-party sign-up. Calendar, Sheets, and Tasks are free. Chat requires a Google Workspace paid account.'));
 
-  // Google Chat — individual name/URL pairs (up to 3 spaces)
-  var chatSpacesArr = [];
-  try { chatSpacesArr = JSON.parse(s.chatSpaces || '[]'); } catch (e) {}
-  if (!Array.isArray(chatSpacesArr)) chatSpacesArr = [];
-  var chatSlots = Math.min(Math.max(chatSpacesArr.length + 1, 1), 3);
-  for (var ci = 0; ci < chatSlots; ci++) {
-    var cs = chatSpacesArr[ci] || {};
-    googleSection.addWidget(CardService.newTextInput()
-      .setFieldName('chatSpaceName' + ci)
-      .setTitle('Chat space ' + (ci + 1) + ' name')
-      .setHint(ci === 0 ? 'e.g. "emAIl Sentinel alerts"' : '')
-      .setValue(cs.name || ''));
-    googleSection.addWidget(CardService.newTextInput()
-      .setFieldName('chatSpaceUrl' + ci)
-      .setTitle('Chat space ' + (ci + 1) + ' webhook URL')
-      .setHint(ci === 0 ? 'Paste the webhook URL from Google Chat' : '')
-      .setValue(cs.url || ''));
+  // Google Chat — dynamic list of named webhook spaces
+  var chatSpacesArr = getChatSpacesArr_();
+  googleSection.addWidget(CardService.newTextParagraph().setText('<b>Google Chat spaces</b>'));
+  if (chatSpacesArr.length) {
+    chatSpacesArr.forEach(function(cs) {
+      const domain = cs.url ? cs.url.replace(/^https?:\/\//, '').split('/')[0] : '(no URL)';
+      googleSection.addWidget(CardService.newDecoratedText()
+        .setTopLabel(domain)
+        .setText(cs.name)
+        .setButton(CardService.newTextButton()
+          .setText('Edit')
+          .setOnClickAction(CardService.newAction()
+            .setFunctionName('handleEditChatSpace')
+            .setParameters({ spaceId: cs.id }))));
+    });
+  } else {
+    googleSection.addWidget(CardService.newTextParagraph()
+      .setText('<font color="#888888"><i>No Chat spaces configured yet.</i></font>'));
   }
+  googleSection.addWidget(CardService.newTextButton()
+    .setText('+ Add Chat space')
+    .setOnClickAction(action_('handleShowNewChatSpace')));
   googleSection.addWidget(CardService.newTextParagraph().setText(
-    '<font color="#888888">Requires a Google Workspace paid account. ' +
-    'Open a Space at <a href="https://chat.google.com">chat.google.com</a>, ' +
-    'click the space name in the header \u25b8 Apps & integrations \u25b8 Webhooks \u25b8 create one.</font>'));
+    '<font color="#888888">Open a Space at <a href="https://chat.google.com">chat.google.com</a>, ' +
+    'click the space name in the header \u25b8 Apps &amp; integrations \u25b8 Webhooks \u25b8 create one.</font>'));
 
   // Calendar
   googleSection.addWidget(CardService.newTextInput()
@@ -713,7 +742,7 @@ function buildSettingsCard() {
   const mcpSection = CardService.newCardSection()
     .setHeader('<b>MCP server alerts</b>')
     .addWidget(CardService.newTextParagraph().setText(
-      'Send alerts to Slack, Microsoft 365, Asana, Aha!, or any custom MCP server ' +
+      'Send alerts to Slack, Microsoft 365, Asana, or any custom MCP server ' +
       'via HTTP (JSON-RPC 2.0). Add a server here, then select it in each rule.'));
 
   const existingMcpServers = loadMcpServers();
@@ -788,31 +817,6 @@ function handleSaveSettings(e) {
   const prev = loadSettings();
   const smsProvider = get('smsProvider') || 'none';
 
-  // Build chat spaces JSON from individual name/URL pairs
-  var chatSpacesArr = [];
-  for (var ci = 0; ci < 3; ci++) {
-    var csName = get('chatSpaceName' + ci);
-    var csUrl = get('chatSpaceUrl' + ci);
-    if (csName && csUrl) {
-      if (csUrl.indexOf('https://') !== 0) {
-        return notificationResponse_('Chat space ' + (ci + 1) + ' URL must start with https://');
-      }
-      chatSpacesArr.push({ name: csName, url: csUrl });
-    }
-  }
-
-  // Build SMS recipients JSON from individual name/number pairs
-  var smsRecipientsArr = [];
-  if (smsProvider !== 'none') {
-    for (var sri = 0; sri < 5; sri++) {
-      var sriName = get('smsRecipientName' + sri);
-      var sriNum = get('smsRecipientNumber' + sri);
-      if (sriName && sriNum) {
-        smsRecipientsArr.push({ name: sriName, number: sriNum });
-      }
-    }
-  }
-
   const next = {
     geminiApiKey: get('geminiApiKey') || prev.geminiApiKey || '',
     geminiModel: get('geminiModel') || GEMINI_DEFAULT_MODEL,
@@ -822,24 +826,25 @@ function handleSaveSettings(e) {
     businessHoursStart: get('businessHoursStart') || '9:00 AM',
     businessHoursEnd: get('businessHoursEnd') || '9:00 PM',
     smsProvider: smsProvider,
-    // Only update the selected provider's fields; preserve all others
-    textbeltApiKey: smsProvider === 'textbelt' ? get('textbeltApiKey') : (prev.textbeltApiKey || ''),
-    telnyxApiKey: smsProvider === 'telnyx' ? get('telnyxApiKey') : (prev.telnyxApiKey || ''),
+    // Only update the selected provider's fields; preserve all others.
+    // For secret fields, blank input means "keep current" — fall back to prev value.
+    textbeltApiKey: smsProvider === 'textbelt' ? (get('textbeltApiKey') || prev.textbeltApiKey || '') : (prev.textbeltApiKey || ''),
+    telnyxApiKey: smsProvider === 'telnyx' ? (get('telnyxApiKey') || prev.telnyxApiKey || '') : (prev.telnyxApiKey || ''),
     telnyxFromNumber: smsProvider === 'telnyx' ? get('telnyxFromNumber') : (prev.telnyxFromNumber || ''),
-    plivoAuthId: smsProvider === 'plivo' ? get('plivoAuthId') : (prev.plivoAuthId || ''),
-    plivoAuthToken: smsProvider === 'plivo' ? get('plivoAuthToken') : (prev.plivoAuthToken || ''),
+    plivoAuthId: smsProvider === 'plivo' ? (get('plivoAuthId') || prev.plivoAuthId || '') : (prev.plivoAuthId || ''),
+    plivoAuthToken: smsProvider === 'plivo' ? (get('plivoAuthToken') || prev.plivoAuthToken || '') : (prev.plivoAuthToken || ''),
     plivoFromNumber: smsProvider === 'plivo' ? get('plivoFromNumber') : (prev.plivoFromNumber || ''),
-    twilioAccountSid: smsProvider === 'twilio' ? get('twilioAccountSid') : (prev.twilioAccountSid || ''),
-    twilioAuthToken: smsProvider === 'twilio' ? get('twilioAuthToken') : (prev.twilioAuthToken || ''),
+    twilioAccountSid: smsProvider === 'twilio' ? (get('twilioAccountSid') || prev.twilioAccountSid || '') : (prev.twilioAccountSid || ''),
+    twilioAuthToken: smsProvider === 'twilio' ? (get('twilioAuthToken') || prev.twilioAuthToken || '') : (prev.twilioAuthToken || ''),
     twilioFromNumber: smsProvider === 'twilio' ? get('twilioFromNumber') : (prev.twilioFromNumber || ''),
     clicksendUsername: smsProvider === 'clicksend' ? get('clicksendUsername') : (prev.clicksendUsername || ''),
-    clicksendApiKey: smsProvider === 'clicksend' ? get('clicksendApiKey') : (prev.clicksendApiKey || ''),
-    vonageApiKey: smsProvider === 'vonage' ? get('vonageApiKey') : (prev.vonageApiKey || ''),
-    vonageApiSecret: smsProvider === 'vonage' ? get('vonageApiSecret') : (prev.vonageApiSecret || ''),
+    clicksendApiKey: smsProvider === 'clicksend' ? (get('clicksendApiKey') || prev.clicksendApiKey || '') : (prev.clicksendApiKey || ''),
+    vonageApiKey: smsProvider === 'vonage' ? (get('vonageApiKey') || prev.vonageApiKey || '') : (prev.vonageApiKey || ''),
+    vonageApiSecret: smsProvider === 'vonage' ? (get('vonageApiSecret') || prev.vonageApiSecret || '') : (prev.vonageApiSecret || ''),
     smsWebhookUrl: smsProvider === 'webhook' ? get('smsWebhookUrl') : (prev.smsWebhookUrl || ''),
     smsTestNumber: smsProvider !== 'none' ? get('smsTestNumber') : (prev.smsTestNumber || ''),
-    smsRecipients: smsProvider !== 'none' ? JSON.stringify(smsRecipientsArr) : (prev.smsRecipients || '[]'),
-    chatSpaces: JSON.stringify(chatSpacesArr),
+    smsRecipients: prev.smsRecipients || '[]',
+    chatSpaces: prev.chatSpaces || '[]',
     calendarId: get('calendarId'),
     sheetsId: get('sheetsId'),
     tasksListId: get('tasksListId')
@@ -872,7 +877,7 @@ function handleTestGemini(e) {
     return notificationResponse_('No Gemini API key set — enter one and click Save first.');
   }
   const text = callGemini_(s.geminiApiKey, s.geminiModel,
-    'Reply with the single word OK.', 20);
+    'Reply with the single word OK.', 200);
   if (text && text.toUpperCase().indexOf('OK') >= 0) {
     return notificationResponse_('Gemini OK — model responded.');
   }
@@ -1000,21 +1005,30 @@ function buildSmsGuideCard() {
 // Activity log
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildActivityCard(offset) {
+function buildActivityCard(offset, showHome) {
   offset = offset || 0;
+  showHome = !!showHome;
   const entries = loadLog();
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Activity log'));
 
-  const top = CardService.newCardSection()
-    .addWidget(CardService.newButtonSet()
-      .addButton(CardService.newTextButton()
-        .setText('Refresh')
-        .setOnClickAction(action_('handleRefreshLog')))
-      .addButton(CardService.newTextButton()
-        .setText('Clear')
-        .setOnClickAction(action_('handleClearLog'))));
-  card.addSection(top);
+  const btnSet = CardService.newButtonSet();
+  if (showHome) {
+    btnSet.addButton(CardService.newTextButton()
+      .setText('Home')
+      .setOnClickAction(action_('actionShowHome')));
+  }
+  btnSet.addButton(CardService.newTextButton()
+    .setText('Refresh')
+    .setOnClickAction(CardService.newAction()
+      .setFunctionName('handleRefreshLog')
+      .setParameters({ showHome: showHome ? '1' : '0' })));
+  btnSet.addButton(CardService.newTextButton()
+    .setText('Clear')
+    .setOnClickAction(CardService.newAction()
+      .setFunctionName('handleClearLog')
+      .setParameters({ showHome: showHome ? '1' : '0' })));
+  card.addSection(CardService.newCardSection().addWidget(btnSet));
 
   if (!entries.length) {
     card.addSection(CardService.newCardSection().addWidget(
@@ -1036,25 +1050,28 @@ function buildActivityCard(offset) {
         .setText('Show older (' + (reversed.length - offset - LOG_PAGE_SIZE) + ' more)')
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleShowOlderLog')
-          .setParameters({ offset: String(offset + LOG_PAGE_SIZE) }))));
+          .setParameters({ offset: String(offset + LOG_PAGE_SIZE), showHome: showHome ? '1' : '0' }))));
   }
   return card.build();
 }
 
 function handleRefreshLog(e) {
+  var showHome = (e.parameters.showHome === '1');
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard()))
+    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(0, showHome)))
     .build();
 }
 
 function handleShowOlderLog(e) {
   var offset = parseInt(e.parameters.offset || '0', 10);
+  var showHome = (e.parameters.showHome === '1');
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(offset)))
+    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(offset, showHome)))
     .build();
 }
 
 function handleClearLog(e) {
+  var showHome = (e.parameters.showHome === '1');
   const section = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph()
       .setText('Clear the entire activity log? This cannot be undone.'))
@@ -1062,7 +1079,9 @@ function handleClearLog(e) {
       .addButton(CardService.newTextButton()
         .setText('Clear')
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-        .setOnClickAction(action_('handleConfirmClearLog')))
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleConfirmClearLog')
+          .setParameters({ showHome: showHome ? '1' : '0' })))
       .addButton(CardService.newTextButton()
         .setText('Cancel')
         .setOnClickAction(action_('handleCancelClearLog'))));
@@ -1076,9 +1095,10 @@ function handleClearLog(e) {
 }
 
 function handleConfirmClearLog(e) {
+  var showHome = (e.parameters.showHome === '1');
   clearLog();
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildActivityCard()))
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildActivityCard(0, true)))
     .setNotification(CardService.newNotification().setText('Log cleared.'))
     .build();
 }
@@ -1144,15 +1164,16 @@ function helpTopics_() {
       content:
         '<b>Quick start</b><br>' +
         '1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>' +
-        '2. (Optional) Configure SMS \u2014 pick a provider in Settings.<br>' +
-        '3. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to add alert recipients and enable it.<br>' +
-        '4. Click <b>Start monitoring</b>. A time-driven trigger runs in the background even when Gmail is closed.<br><br>' +
+        '2. (Optional) Configure SMS \u2014 pick a provider and add named SMS recipients in Settings.<br>' +
+        '3. (Optional) Add Google Chat spaces or MCP servers in Settings if you want to route alerts there.<br>' +
+        '4. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to tick channels and enable it.<br>' +
+        '5. Click <b>Start monitoring</b>. A time-driven trigger runs in the background even when Gmail is closed.<br><br>' +
         '<b>Writing a rule</b><br>' +
         'Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>' +
         '\u2022 "Any email from @tma.com with a PDF that looks like an invoice."<br>' +
         '\u2022 "Subject contains URGENT or CRITICAL."<br>' +
         '\u2022 "Email from boss@company.com asking for a status update."<br><br>' +
-        'Each rule has an <b>Alert message format</b> field \u2014 plain-English instructions that tell Gemini how to format the alert. The default includes date, sender, subject, summary, and action items.<br><br>' +
+        'Each rule has an <b>Alert message content</b> field \u2014 plain-English instructions that tell Gemini how to format the alert. The default includes date, sender, subject, summary, and action items. Click <b>Suggest rule text</b> or <b>Suggest content for selected channels</b> in the rule editor to have Gemini draft a starting point.<br><br>' +
         '<b>Labels</b><br>' +
         'Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as shown in Gmail. Multiple labels: comma-separated.'
     },
@@ -1174,6 +1195,9 @@ function helpTopics_() {
         '<b>Tasks</b> \u2014 to-do items<br>' +
         '\u2022 <b>Action items:</b> "Email explicitly asking me to do, review, or approve something." \u2192 Task<br>' +
         '\u2022 <b>Follow-up:</b> "Email saying \'let me know\' or \'awaiting your response\'." \u2192 Task<br><br>' +
+        '<b>MCP servers</b> \u2014 route to external tools<br>' +
+        '\u2022 <b>Sales lead \u2192 Slack:</b> "Email mentioning pricing or demo from a new contact." \u2192 Slack MCP<br>' +
+        '\u2022 <b>Support ticket \u2192 Asana:</b> "Customer email tagged P1 or ESCALATION." \u2192 Asana MCP task<br><br>' +
         '<b>Combining channels</b><br>' +
         '\u2022 <b>Critical vendor issue:</b> SMS + Chat + Calendar + Sheets<br>' +
         '\u2022 <b>New hire onboarding:</b> Task + Sheets + Chat'
@@ -1189,7 +1213,7 @@ function helpTopics_() {
         '\u2022 <b>Plivo</b> \u2014 $10 free credit, phone number ~$0.80/mo<br>' +
         '\u2022 <b>Twilio</b> \u2014 most popular, $15 free credit, phone number ~$1.15/mo<br>' +
         '\u2022 <b>Generic webhook</b> \u2014 self-deployed installs only<br>' +
-        'After configuring, click <b>Send test SMS</b> to verify.<br><br>' +
+        'After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the <b>SMS recipients</b> section of Settings. Rules pick recipients by name via checkboxes. Click <b>Send test SMS</b> to verify.<br><br>' +
         '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
         '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +
         '2. Click the space name in the header \u25b8 Apps & integrations \u25b8 Webhooks<br>' +
@@ -1197,19 +1221,20 @@ function helpTopics_() {
         '4. Select the space name in each rule<br><br>' +
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
-        '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.'
+        '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
+        '<b>MCP servers</b> \u2014 send alerts to Slack, Microsoft 365 / Teams, Asana, or any custom endpoint that speaks JSON-RPC 2.0. Configure servers in Settings \u25b8 <b>MCP server alerts</b>, then tick them per rule.'
     },
     pricing: {
       title: 'Gemini pricing & models',
       content:
         'emAIl Sentinel calls Gemini twice per email per rule: once to evaluate, once to format the alert.<br><br>' +
         '<b>Models (select in Settings)</b><br>' +
-        '\u2022 <b>2.0 Flash</b> (default) \u2014 fastest, 1,500 free requests/day<br>' +
-        '\u2022 <b>2.0 Flash Lite</b> \u2014 ultra-low-cost, slightly less capable<br>' +
-        '\u2022 <b>1.5 Flash</b> \u2014 same pricing as 2.0 Flash, reliable fallback<br>' +
-        '\u2022 <b>1.5 Pro</b> \u2014 highest accuracy, 50 free requests/day, 17\u00d7 cost<br><br>' +
-        '<b>Free tier</b> (no billing needed)<br>' +
-        'Get a key at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a> \u2014 no credit card. Flash: 1,500 requests/day. At the limit, Gemini returns 429; calls resume next day.<br><br>' +
+        '\u2022 <b>2.5 Flash</b> (default) \u2014 fast, highly capable, best for most users<br>' +
+        '\u2022 <b>2.5 Flash Lite</b> \u2014 ultra-low-cost, slightly less capable<br>' +
+        '\u2022 <b>2.5 Pro</b> \u2014 highest accuracy for complex rules, higher cost<br>' +
+        '\u2022 <b>2.0 Flash 001</b> \u2014 stable previous-generation Flash, reliable fallback<br><br>' +
+        '<b>Free tier</b><br>' +
+        'Get a key at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>. Free quota resets daily; at the limit Gemini returns 429 and calls resume next day.<br><br>' +
         '<b>Estimate your usage</b><br>' +
         'new emails/day \u00d7 active rules \u00d7 2 = daily API calls<br>' +
         '\u2022 20 emails \u00d7 1 rule = 40 calls \u2014 well within free<br>' +
@@ -1406,7 +1431,10 @@ function actionWithServerId_(fn, serverId) {
 function buildMcpServerEditorCard(server) {
   const editing = server !== null && server !== undefined && !!server.id;
   const sv = server || {};
-  const type = sv.type || 'custom';
+  // New servers default to 'slack' so tool name and args template prepopulate
+  // with the most common preset. Switching the Type dropdown + Load defaults
+  // repopulates for other types.
+  const type = sv.type || (editing ? 'custom' : 'slack');
   const def = MCP_TYPE_DEFAULTS[type] || MCP_TYPE_DEFAULTS.custom;
 
   const section = CardService.newCardSection();
@@ -1420,17 +1448,14 @@ function buildMcpServerEditorCard(server) {
   const typeSelect = CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.DROPDOWN)
     .setFieldName('mcpType')
-    .setTitle('Type');
+    .setTitle('Type')
+    .setOnChangeAction(CardService.newAction()
+      .setFunctionName('handleLoadMcpDefaults')
+      .setParameters({ serverId: sv.id || '' }));
   MCP_TYPES.forEach(function(t) {
     typeSelect.addItem(MCP_TYPE_DEFAULTS[t].label, t, t === type);
   });
   section.addWidget(typeSelect);
-
-  section.addWidget(CardService.newTextButton()
-    .setText('Load defaults for selected type')
-    .setOnClickAction(CardService.newAction()
-      .setFunctionName('handleLoadMcpDefaults')
-      .setParameters({ serverId: sv.id || '' })));
 
   section.addWidget(CardService.newTextParagraph()
     .setText('<font color="#888888">' + escapeHtml_(def.description) + '</font>'));
@@ -1459,6 +1484,12 @@ function buildMcpServerEditorCard(server) {
     .setHint('Placeholders: {{message}}, {{subject}}, {{from}}, {{rule}}')
     .setMultiline(true)
     .setValue(sv.toolArgsTemplate !== undefined ? sv.toolArgsTemplate : def.toolArgsTemplate));
+
+  section.addWidget(CardService.newTextButton()
+    .setText('Suggest tool arguments')
+    .setOnClickAction(CardService.newAction()
+      .setFunctionName('handleSuggestMcpArgs')
+      .setParameters({ serverId: sv.id || '' })));
 
   const btns = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
@@ -1522,6 +1553,118 @@ function handleLoadMcpDefaults(e) {
 
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().updateCard(buildMcpServerEditorCard(partial)))
+    .build();
+}
+
+function handleSuggestMcpArgs(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+
+  const serverId = e.parameters.serverId || '';
+  const type = get('mcpType') || 'custom';
+  const toolName = get('mcpToolName');
+  const def = MCP_TYPE_DEFAULTS[type] || MCP_TYPE_DEFAULTS.custom;
+
+  if (!toolName) {
+    return notificationResponse_('Enter a tool name before asking for a suggestion.');
+  }
+
+  const s = loadSettings();
+  if (!s.geminiApiKey) {
+    return notificationResponse_('Add a Gemini API key in Settings first.');
+  }
+
+  const typeLabel = def.label;
+  const typeDesc = def.description;
+
+  const prompt =
+    'You configure a JSON-RPC 2.0 Model Context Protocol (MCP) tool call. ' +
+    'The MCP server type is "' + typeLabel + '" (' + typeDesc + '). ' +
+    'The tool being called is named "' + toolName + '". ' +
+    'Generate a JSON object to pass as the "arguments" for tools/call that would post ' +
+    'an alert notification using that tool. ' +
+    'Use these literal placeholders where text content belongs:\n' +
+    '  {{message}} - the full alert text\n' +
+    '  {{subject}} - the original email subject\n' +
+    '  {{from}}    - the original sender address\n' +
+    '  {{rule}}    - the rule name\n' +
+    'For required identifier fields (channel ID, chat ID, project ID, etc.), ' +
+    'use an UPPERCASE placeholder like CHANNEL_ID or PROJECT_ID so the user can ' +
+    'replace it with a real value. ' +
+    'Output only the JSON object on a single line, no preamble, no code fences, no trailing commentary.';
+
+  let suggestion;
+  try {
+    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 300);
+    if (!suggestion) throw new Error('Empty response from Gemini.');
+    suggestion = suggestion.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+    JSON.parse(suggestion); // validate
+  } catch (err) {
+    return notificationResponse_('Could not generate suggestion: ' + err.message);
+  }
+
+  const ctx = {
+    suggestion: suggestion,
+    name:      get('mcpName'),
+    type:      type,
+    endpoint:  get('mcpEndpoint'),
+    authToken: get('mcpAuthToken'),
+    toolName:  toolName
+  };
+  PropertiesService.getUserProperties()
+    .setProperty('mailsentinel.tmp.mcpctx', JSON.stringify(ctx));
+
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('<b>Suggested tool arguments for <i>' + escapeHtml_(toolName) + '</i>:</b><br><br>' +
+        '<font face="monospace">' + escapeHtml_(suggestion) + '</font><br><br>' +
+        '<font color="#888888">Review and replace any UPPERCASE placeholders (e.g. CHANNEL_ID) with real values before saving.</font>'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Use this')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleUseSuggestedMcpArgs')
+          .setParameters({ serverId: serverId })))
+      .addButton(CardService.newTextButton()
+        .setText('Close')
+        .setOnClickAction(action_('handlePopCard'))));
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('AI tool argument suggestion'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleUseSuggestedMcpArgs(e) {
+  const ctxRaw = PropertiesService.getUserProperties()
+    .getProperty('mailsentinel.tmp.mcpctx');
+  PropertiesService.getUserProperties().deleteProperty('mailsentinel.tmp.mcpctx');
+
+  let ctx = {};
+  try { ctx = JSON.parse(ctxRaw || '{}'); } catch (_) {}
+
+  const serverId = e.parameters.serverId || '';
+  const partial = {
+    id:               serverId || null,
+    name:             ctx.name      || '',
+    type:             ctx.type      || 'custom',
+    endpoint:         ctx.endpoint  || '',
+    authToken:        ctx.authToken || '',
+    toolName:         ctx.toolName  || '',
+    toolArgsTemplate: ctx.suggestion || ''
+  };
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard()
+      .updateCard(buildMcpServerEditorCard(partial)))
     .build();
 }
 
@@ -1886,5 +2029,272 @@ function handleUseSuggestedRuleText(e) {
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popCard()
       .updateCard(buildRuleEditorCard(r)))
+    .build();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SMS Recipient management
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getSmsRecipientsArr_() {
+  const s = loadSettings();
+  var arr = [];
+  try { arr = JSON.parse(s.smsRecipients || '[]'); } catch (e) {}
+  if (!Array.isArray(arr)) arr = [];
+  // Ensure each entry has an id (backward compat with entries saved without one)
+  return arr.map(function(r) { return r.id ? r : Object.assign({ id: Utilities.getUuid() }, r); });
+}
+
+function saveSmsRecipientsArr_(arr) {
+  const s = loadSettings();
+  s.smsRecipients = JSON.stringify(arr);
+  saveSettings(s);
+}
+
+function buildSmsRecipientEditorCard(recipient) {
+  const editing = !!(recipient && recipient.id);
+  const rec = recipient || {};
+  const section = CardService.newCardSection();
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('smsRecName')
+    .setTitle('Name')
+    .setHint('e.g. My Phone, John')
+    .setValue(rec.name || ''));
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('smsRecNumber')
+    .setTitle('Phone number (E.164)')
+    .setHint('e.g. +15551234567')
+    .setValue(rec.number || ''));
+  const btns = CardService.newButtonSet()
+    .addButton(CardService.newTextButton()
+      .setText('Save')
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setOnClickAction(CardService.newAction()
+        .setFunctionName('handleSaveSmsRecipient')
+        .setParameters({ recId: rec.id || '' })))
+    .addButton(CardService.newTextButton()
+      .setText('Cancel')
+      .setOnClickAction(action_('handlePopCard')));
+  if (editing) {
+    btns.addButton(CardService.newTextButton()
+      .setText('Delete')
+      .setOnClickAction(CardService.newAction()
+        .setFunctionName('handleDeleteSmsRecipientPrompt')
+        .setParameters({ recId: rec.id })));
+  }
+  section.addWidget(btns);
+  return CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle(editing ? 'Edit SMS recipient' : 'Add SMS recipient'))
+    .addSection(section)
+    .build();
+}
+
+function handleShowNewSmsRecipient(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(buildSmsRecipientEditorCard(null)))
+    .build();
+}
+
+function handleEditSmsRecipient(e) {
+  const arr = getSmsRecipientsArr_();
+  const rec = arr.find(function(r) { return r.id === e.parameters.recId; });
+  if (!rec) return notificationResponse_('Recipient not found.');
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(buildSmsRecipientEditorCard(rec)))
+    .build();
+}
+
+function handleSaveSmsRecipient(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = function(k) {
+    const v = inputs[k];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+  const name   = get('smsRecName');
+  const number = get('smsRecNumber');
+  if (!name)   return notificationResponse_('Please enter a name.');
+  if (!number) return notificationResponse_('Please enter a phone number.');
+  if (!/^\+\d{7,15}$/.test(number)) {
+    return notificationResponse_('Phone number must be E.164 format, e.g. +15551234567');
+  }
+  const recId = e.parameters.recId || '';
+  const arr = getSmsRecipientsArr_();
+  const idx = arr.findIndex(function(r) { return r.id === recId; });
+  const entry = { id: recId || Utilities.getUuid(), name: name, number: number };
+  if (idx >= 0) { arr[idx] = entry; } else { arr.push(entry); }
+  saveSmsRecipientsArr_(arr);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard().updateCard(buildSettingsCard()))
+    .setNotification(CardService.newNotification().setText('Recipient "' + name + '" saved.'))
+    .build();
+}
+
+function handleDeleteSmsRecipientPrompt(e) {
+  const arr = getSmsRecipientsArr_();
+  const rec = arr.find(function(r) { return r.id === e.parameters.recId; });
+  const name = rec ? rec.name : 'this recipient';
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Delete SMS recipient <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Delete')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleConfirmDeleteSmsRecipient')
+          .setParameters({ recId: e.parameters.recId })))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handlePopCard'))));
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('Confirm delete'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleConfirmDeleteSmsRecipient(e) {
+  const arr = getSmsRecipientsArr_().filter(function(r) { return r.id !== e.parameters.recId; });
+  saveSmsRecipientsArr_(arr);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildSettingsCard()))
+    .setNotification(CardService.newNotification().setText('Recipient deleted.'))
+    .build();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat Space management
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getChatSpacesArr_() {
+  const s = loadSettings();
+  var arr = [];
+  try { arr = JSON.parse(s.chatSpaces || '[]'); } catch (e) {}
+  if (!Array.isArray(arr)) arr = [];
+  return arr.map(function(cs) { return cs.id ? cs : Object.assign({ id: Utilities.getUuid() }, cs); });
+}
+
+function saveChatSpacesArr_(arr) {
+  const s = loadSettings();
+  s.chatSpaces = JSON.stringify(arr);
+  saveSettings(s);
+}
+
+function buildChatSpaceEditorCard(space) {
+  const editing = !!(space && space.id);
+  const cs = space || {};
+  const section = CardService.newCardSection();
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('chatSpaceName')
+    .setTitle('Space name')
+    .setHint('e.g. "emAIl Sentinel alerts"')
+    .setValue(cs.name || ''));
+  section.addWidget(CardService.newTextInput()
+    .setFieldName('chatSpaceUrl')
+    .setTitle('Webhook URL')
+    .setHint('Paste the webhook URL from Google Chat')
+    .setValue(cs.url || ''));
+  section.addWidget(CardService.newTextParagraph().setText(
+    '<font color="#888888">To get a webhook URL: open the space in ' +
+    '<a href="https://chat.google.com">chat.google.com</a>, click the space name ' +
+    '\u25b8 Apps &amp; integrations \u25b8 Webhooks \u25b8 Add webhook.</font>'));
+  const btns = CardService.newButtonSet()
+    .addButton(CardService.newTextButton()
+      .setText('Save')
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setOnClickAction(CardService.newAction()
+        .setFunctionName('handleSaveChatSpace')
+        .setParameters({ spaceId: cs.id || '' })))
+    .addButton(CardService.newTextButton()
+      .setText('Cancel')
+      .setOnClickAction(action_('handlePopCard')));
+  if (editing) {
+    btns.addButton(CardService.newTextButton()
+      .setText('Delete')
+      .setOnClickAction(CardService.newAction()
+        .setFunctionName('handleDeleteChatSpacePrompt')
+        .setParameters({ spaceId: cs.id })));
+  }
+  section.addWidget(btns);
+  return CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle(editing ? 'Edit Chat space' : 'Add Chat space'))
+    .addSection(section)
+    .build();
+}
+
+function handleShowNewChatSpace(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(buildChatSpaceEditorCard(null)))
+    .build();
+}
+
+function handleEditChatSpace(e) {
+  const arr = getChatSpacesArr_();
+  const cs = arr.find(function(s) { return s.id === e.parameters.spaceId; });
+  if (!cs) return notificationResponse_('Chat space not found.');
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(buildChatSpaceEditorCard(cs)))
+    .build();
+}
+
+function handleSaveChatSpace(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = function(k) {
+    const v = inputs[k];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+  const name = get('chatSpaceName');
+  const url  = get('chatSpaceUrl');
+  if (!name) return notificationResponse_('Please enter a space name.');
+  if (!url)  return notificationResponse_('Please enter a webhook URL.');
+  if (!/^https:\/\//i.test(url)) return notificationResponse_('Webhook URL must start with https://');
+  const spaceId = e.parameters.spaceId || '';
+  const arr = getChatSpacesArr_();
+  const idx = arr.findIndex(function(s) { return s.id === spaceId; });
+  const entry = { id: spaceId || Utilities.getUuid(), name: name, url: url };
+  if (idx >= 0) { arr[idx] = entry; } else { arr.push(entry); }
+  saveChatSpacesArr_(arr);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popCard().updateCard(buildSettingsCard()))
+    .setNotification(CardService.newNotification().setText('Chat space "' + name + '" saved.'))
+    .build();
+}
+
+function handleDeleteChatSpacePrompt(e) {
+  const arr = getChatSpacesArr_();
+  const cs = arr.find(function(s) { return s.id === e.parameters.spaceId; });
+  const name = cs ? cs.name : 'this space';
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Delete Chat space <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Delete')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleConfirmDeleteChatSpace')
+          .setParameters({ spaceId: e.parameters.spaceId })))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handlePopCard'))));
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('Confirm delete'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleConfirmDeleteChatSpace(e) {
+  const arr = getChatSpacesArr_().filter(function(s) { return s.id !== e.parameters.spaceId; });
+  saveChatSpacesArr_(arr);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildSettingsCard()))
+    .setNotification(CardService.newNotification().setText('Chat space deleted.'))
     .build();
 }
