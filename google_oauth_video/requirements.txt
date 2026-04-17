@@ -18,6 +18,25 @@ RECORDING REQUIREMENTS
 - Format: Standard video file suitable for upload to Google (MP4 preferred)
 
 
+RECOMMENDED TOOLING
+--------------------
+- Screen recorder: OBS Studio (free, open source)
+    sudo apt install obs-studio
+- Caption generation (optional): Whisper (free, runs locally)
+    pip install openai-whisper
+    whisper recording.mp4 --output_format srt
+  Embed the .srt via OBS, DaVinci Resolve, or CapCut.
+
+AUTOMATION LIMITATIONS
+-----------------------
+- The OAuth consent screen cannot be automated (Google bot detection blocks it) —
+  that step must be performed manually.
+- AI video generators produce synthetic screens and will not satisfy Google's
+  requirement for a real OAuth consent screen demonstration.
+- Playwright/Puppeteer can drive the browser for non-OAuth steps but cannot replace
+  the full manual recording.
+
+
 CONTENT REQUIREMENTS
 ---------------------
 The video must cover these key demonstrations, in order:
