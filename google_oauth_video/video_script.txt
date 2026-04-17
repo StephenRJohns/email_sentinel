@@ -1,6 +1,30 @@
 emAIl Sentinel — OAuth Verification Video Script
 =================================================
 
+HOW TO PRODUCE THIS VIDEO
+--------------------------
+[ ] 1. Install OBS Studio (free, open source)
+        sudo apt install obs-studio
+        Set resolution to 1280x800 or higher.
+
+[ ] 2. Record the session manually — the OAuth consent step requires a real human
+        click through Google's consent screen (cannot be automated due to bot detection).
+
+[ ] 3. After recording, auto-generate captions using Whisper (free, local, runs offline):
+        pip install openai-whisper
+        whisper recording.mp4 --output_format srt
+        Then burn or embed the .srt into the video via OBS, DaVinci Resolve, or CapCut.
+
+NOTE ON AUTOMATION:
+  - Playwright/Puppeteer can automate most browser steps but NOT the OAuth consent screen.
+  - AI video generators (Runway, Sora, etc.) produce synthetic screens — Google's
+    reviewers need the real OAuth consent screen, so AI-generated video won't work here.
+  - Arcade/Navattic/Storylane can produce polished walkthroughs but are simulated demos,
+    not real OAuth flows.
+  - Best path: record manually with OBS, add captions with Whisper.
+
+
+
 Purpose: Demonstrate to Google's trust & safety team that gmail.readonly is used
 solely to read the user's own Gmail messages for rule evaluation, and that no data
 is stored externally or shared beyond the alert channels the user explicitly configures.
@@ -26,7 +50,11 @@ THEN RECORD:
      - App name: emAIl Sentinel
      - Scopes requested: View your email messages and settings (gmail.readonly),
        plus Calendar, Sheets, Tasks, and external requests
+   [NARRATOR: This is the OAuth consent screen users see when installing emAIl Sentinel.
+   All requested scopes are listed here — gmail.readonly is used solely to read the
+   user's own messages for rule evaluation. No other Gmail access is requested.]
 4. Click "Allow". The install completes.
+   [NARRATOR: The user grants permission. The add-on is now installed in their account.]
 5. Open Gmail. The emAIl Sentinel icon appears in the right-hand add-on rail.
 
 
@@ -37,10 +65,19 @@ PART 2 — INITIAL SETUP IN SETTINGS (30 seconds)
 8. In the Gemini API key field, paste a key (already configured — the masked
    "Current key: ....XXXX" display is visible, showing the key is stored privately
    in Google UserProperties, not transmitted anywhere).
+   [NARRATOR: The Gemini API key is stored privately in Google UserProperties — only
+   the last four characters are shown. The key never leaves the user's own Google
+   account except when making calls to Google's Gemini API.]
 9. Scroll down briefly to show the SMS provider section (set to None) and the
    Google alert channels section (Calendar, Sheets, Tasks checkboxes).
+   [NARRATOR: Alert channels are entirely user-configured. Here we can see SMS is
+   disabled. Alerts can be sent via Google Calendar, Sheets, or Tasks — all within
+   the user's own Google account.]
 10. Click "Test Gemini". Toast appears: "Gemini OK — model responded."
     (This shows gmail.readonly data is sent only to Google's own Gemini API.)
+    [NARRATOR: This confirms the Gemini API key is valid. The only external network
+    call emAIl Sentinel makes is to Google's own Gemini API — no other third-party
+    services receive any data.]
 
 
 PART 3 — CREATE A RULE (20 seconds)
@@ -50,8 +87,12 @@ PART 3 — CREATE A RULE (20 seconds)
       Name: Video demo rule
       Gmail label: INBOX
       Rule text: Any email with SENTINEL_TEST in the subject line.
+    [NARRATOR: Rules are written in plain English. This rule watches the inbox for
+    any email with SENTINEL_TEST in the subject line.]
 13. Leave all alert channels unchecked (no SMS, no Chat — keeping it simple).
 14. Click "Save". Toast: "Rule saved."
+    [NARRATOR: The rule is saved to the user's own Google UserProperties — no
+    external database or server is involved.]
 15. Rule appears in the list with ON status.
 
 
@@ -59,9 +100,14 @@ PART 4 — BASELINE RUN (10 seconds)
 ------------------------------------
 16. Return to the home card. Click "Run check now".
 17. Toast appears showing check result (e.g. "0 new email(s), 0 match(es)").
+    [NARRATOR: The first run establishes a baseline. Existing messages are recorded
+    so that only new arrivals trigger alerts — no alerts fire on this run.]
 18. Click "Activity log". The log shows the baseline run entry — no emails matched.
     (This demonstrates that gmail.readonly is used to read messages, evaluate them
     locally against the rule via Gemini, and log the result — nothing else.)
+    [NARRATOR: The activity log shows exactly what occurred: gmail.readonly was used
+    to read messages in the inbox, they were evaluated against the rule via Gemini,
+    and the result was logged privately here in the user's own account.]
 
 
 PART 5 — SEND TEST EMAIL AND TRIGGER A MATCH (30 seconds)
@@ -71,8 +117,12 @@ PART 5 — SEND TEST EMAIL AND TRIGGER A MATCH (30 seconds)
 21. Subject: SENTINEL_TEST — video demo
 22. Body: (leave blank or type anything)
 23. Send. Wait ~10 seconds and confirm the email arrives in your inbox.
+    [NARRATOR: We send a test email to our own address using the trigger phrase in
+    the subject line.]
 24. Return to the add-on. Click "Run check now" from the home card.
 25. Toast shows: "Check complete: 1 new email(s), 1 match(es)."
+    [NARRATOR: emAIl Sentinel detects the new message and evaluates it against our
+    rule using the Gemini API. One match is found.]
 
 
 PART 6 — SHOW THE ACTIVITY LOG (20 seconds)
@@ -87,6 +137,11 @@ PART 6 — SHOW THE ACTIVITY LOG (20 seconds)
     exactly what gmail.readonly data is accessed (sender, subject, snippet) and
     that it goes to Gemini for evaluation only, with the result logged privately
     in the user's own Google account (UserProperties).
+    [NARRATOR: This is the complete picture of how gmail.readonly is used. The
+    add-on reads the sender, subject, and message snippet — sends that to Google's
+    Gemini API for rule evaluation — and logs the result here in the user's own
+    Google account. No email content is stored externally or shared with any
+    third party.]
 
 
 PART 7 — CLOSE OUT (optional, 10 seconds)
@@ -94,6 +149,10 @@ PART 7 — CLOSE OUT (optional, 10 seconds)
 29. Navigate to Help (three-dot menu → Help).
 30. Show the Privacy section briefly — it states that email content is sent only
     to Google's Gemini API and user-configured alert channels, never elsewhere.
+    [NARRATOR: The built-in Privacy section confirms the data handling policy:
+    email content is sent only to Google's Gemini API and the alert channels the
+    user explicitly configures. No data is stored externally or shared with
+    third parties.]
 31. End recording.
 
 
