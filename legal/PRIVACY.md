@@ -62,8 +62,7 @@ The Service shares data with third-party services only when you explicitly enabl
 | Third party | What is shared | When |
 |---|---|---|
 | **Google Gemini API** (`generativelanguage.googleapis.com`) | Email metadata, body excerpt, rule text, alert format prompt | Every time a new email is evaluated against a rule |
-| **SMS provider** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, or Vonage — whichever you choose) | Recipient phone number, alert message text, your provider credentials | When a rule matches AND the rule has SMS numbers AND you have configured an SMS provider |
-| **Generic webhook** (your URL) | Recipient phone number, alert message text | When a rule matches AND the rule has SMS numbers AND you configured a generic webhook |
+| **SMS provider of your choice** (quick-start presets for Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or any other provider reached via the Generic webhook you configure) | Recipient phone number, alert message text, your provider credentials or webhook URL | When a rule matches AND the rule has SMS numbers AND you have configured an SMS provider |
 | **Google Chat** (your Chat Spaces) | Alert message text | When a rule matches AND the rule has Chat spaces configured. Messages are posted to Chat Spaces within your own Google Workspace via webhook URLs you provide. |
 | **Google Calendar** (your calendar) | Alert title, email metadata, alert message text | When a rule matches AND "Calendar event" is enabled on the rule. Events are created in your own Google Calendar. |
 | **Google Sheets** (your spreadsheet) | Timestamp, rule name, email metadata, alert message text | When a rule matches AND "Sheets log" is enabled on the rule. Rows are appended to a spreadsheet in your own Google Drive. |

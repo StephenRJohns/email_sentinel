@@ -62,8 +62,7 @@ The Service depends on, and transmits data to, third-party services that you cho
 - **Google Gmail / Google Apps Script** — runs the Service and provides access to your mail.
 - **Google Gemini API** — receives email content for rule evaluation and alert formatting.
 - **Google Calendar / Google Sheets / Google Tasks / Google Chat** — when you enable these alert channels, the Service creates events, appends rows, creates tasks, or posts messages within your own Google account using your OAuth credentials.
-- **SMS providers** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, or Vonage) — receives recipient phone numbers and alert text when you enable SMS and select a provider.
-- **Any HTTPS endpoint you configure** as a generic webhook.
+- **SMS providers** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or any other provider reachable via the Generic webhook you configure) — receives recipient phone numbers and alert text when you enable SMS and configure a provider.
 - **MCP servers** (Slack, Microsoft 365 / Teams, Asana, or any custom Model Context Protocol endpoint you configure) — receives alert text and per-server arguments via JSON-RPC 2.0 over HTTPS when a rule targeting that server matches.
 
 Your use of each third-party service is governed by that provider's own terms and privacy policy. We are not responsible for the acts, omissions, availability, accuracy, or legality of any third-party service. Charges, quotas, and rate limits imposed by third-party providers are your responsibility.

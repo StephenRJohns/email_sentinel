@@ -390,7 +390,7 @@ function sendVonageSms_(toNumber, text, settings) {
   }
 }
 
-// ── Generic webhook (self-deployed installs only; Marketplace urlFetchWhitelist blocks arbitrary URLs) ──
+// ── Generic webhook (POSTs {to, body} JSON to any HTTPS endpoint the user configures) ──
 
 function sendWebhookSms_(toNumber, text, settings) {
   if (!settings.smsWebhookUrl) {

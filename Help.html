@@ -1,7 +1,7 @@
 <b>emAIl Sentinel&#8482;</b> watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by Google Gemini.<br><br>
 
 <b>Plans &amp; pricing</b><br>
-<b>Free</b> includes up to 3 rules, polling every 15 minutes or slower, Google Calendar / Sheets / Tasks alerts, SMS alerts (all six providers), and a 30-day activity log.<br>
+<b>Free</b> includes up to 3 rules, polling every 15 minutes or slower, Google Calendar / Sheets / Tasks alerts, SMS alerts (any provider — 6 presets plus generic webhook), and a 30-day activity log.<br>
 <b>Pro ($4.99/month or $39/year)</b> adds unlimited rules, polling as fast as every 1 minute, Google Chat webhook alerts, MCP server alerts (Slack, Teams, Asana, custom), AI-assisted rule writing, and unlimited log history.<br>
 <b>Founding-member lifetime ($79 one-time)</b> is available to the first 500 purchasers only — permanently retired after 500 sold.<br>
 Upgrade from the home card. Downgrading preserves your rules but disables Chat / MCP channels and clamps polling back to 15 minutes.<br><br>
@@ -58,14 +58,14 @@ The real power is mixing channels on a single rule:<br>
 Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as it appears in Gmail. Labels containing spaces are fine — type them exactly as shown. Multiple labels: comma-separated.<br><br>
 
 <b>Alert channels</b><br>
-<b>SMS</b> — Google doesn't ship an SMS API, so emAIl Sentinel supports six providers natively. Click <b>SMS setup guide</b> in Settings for a full comparison with sign-up links. After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the Settings <b>SMS recipients</b> section so rules can pick them by name instead of raw phone numbers. Quick overview:<br>
+<b>SMS</b> — Google doesn't ship an SMS API. emAIl Sentinel works with <b>any SMS provider you want</b> — six have quick-start presets built in; anything else goes through the Generic webhook. Click <b>SMS setup guide</b> in Settings for a comparison of the presets with sign-up links. After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the Settings <b>SMS recipients</b> section so rules can pick them by name instead of raw phone numbers. Quick overview of the presets:<br>
 • <b>Textbelt</b> — easiest: 1 free SMS/day with API key "textbelt", no sign-up needed<br>
 • <b>ClickSend</b> — free trial, just username + API key, no phone number needed<br>
 • <b>Vonage</b> — free trial credits, no credit card required<br>
 • <b>Telnyx</b> — cheapest per message (~$0.004/SMS), requires a phone number (~$1/mo)<br>
 • <b>Plivo</b> — $10 free credit, phone number ~$0.80/mo<br>
 • <b>Twilio</b> — most popular, $15 free credit, phone number ~$1.15/mo<br>
-• <b>Generic webhook</b> — POST to any HTTPS endpoint you control (self-deployed installs only; not available in Marketplace-published version)<br>
+• <b>Generic webhook</b> — POST to any HTTPS endpoint you control; use this for any SMS provider without a built-in preset<br>
 After configuring, click <b>Send test SMS</b> to verify it works.<br><br>
 
 <b>Google-native alert channels (free)</b><br>

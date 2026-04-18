@@ -670,7 +670,7 @@ function buildSettingsCard() {
     twilio: [{ field: 'twilioAccountSid', title: 'Twilio Account SID', secret: true }, { field: 'twilioAuthToken', title: 'Twilio Auth Token', secret: true }, { field: 'twilioFromNumber', title: 'Twilio "From" number (E.164)' }],
     clicksend: [{ field: 'clicksendUsername', title: 'ClickSend username (your email)' }, { field: 'clicksendApiKey', title: 'ClickSend API key', secret: true }],
     vonage: [{ field: 'vonageApiKey', title: 'Vonage API key', secret: true }, { field: 'vonageApiSecret', title: 'Vonage API secret', secret: true }],
-    webhook: [{ field: 'smsWebhookUrl', title: 'Generic webhook URL', hint: 'Receives POST {"to":"...","body":"..."}. Self-deploy only.' }]
+    webhook: [{ field: 'smsWebhookUrl', title: 'Generic webhook URL', hint: 'Any HTTPS endpoint. Receives POST {"to":"...","body":"..."}.' }]
   };
   if (provider !== 'none' && SMS_FIELD_DEFS_[provider]) {
     SMS_FIELD_DEFS_[provider].forEach(function(f) {
@@ -1251,14 +1251,14 @@ function helpTopics_() {
     channels: {
       title: 'Alert channel setup',
       content:
-        '<b>SMS</b> \u2014 six providers supported. Click <b>SMS setup guide</b> in Settings for a comparison.<br>' +
+        '<b>SMS</b> \u2014 any provider you want. Six quick-start presets built in (see <b>SMS setup guide</b>); the Generic webhook handles anything else.<br>' +
         '\u2022 <b>Textbelt</b> \u2014 easiest: 1 free SMS/day with key "textbelt", no sign-up<br>' +
         '\u2022 <b>ClickSend</b> \u2014 free trial, username + API key, no phone number<br>' +
         '\u2022 <b>Vonage</b> \u2014 free trial credits, no credit card<br>' +
         '\u2022 <b>Telnyx</b> \u2014 cheapest (~$0.004/SMS), needs a phone number (~$1/mo)<br>' +
         '\u2022 <b>Plivo</b> \u2014 $10 free credit, phone number ~$0.80/mo<br>' +
         '\u2022 <b>Twilio</b> \u2014 most popular, $15 free credit, phone number ~$1.15/mo<br>' +
-        '\u2022 <b>Generic webhook</b> \u2014 self-deployed installs only<br>' +
+        '\u2022 <b>Generic webhook</b> \u2014 POST to any HTTPS endpoint; use this for any provider without a built-in preset<br>' +
         'After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the <b>SMS recipients</b> section of Settings. Rules pick recipients by name via checkboxes. Click <b>Send test SMS</b> to verify.<br><br>' +
         '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
         '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +

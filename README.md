@@ -85,7 +85,7 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 | Active rules | Up to **3** | Unlimited |
 | Minimum polling interval | Every **15 min** | Every **1 min** |
 | Alert channels — Google Calendar, Sheets, Tasks | ✅ | ✅ |
-| Alert channels — SMS (all six providers) | ✅ | ✅ |
+| Alert channels — SMS (any provider — 6 quick-start presets plus generic webhook) | ✅ | ✅ |
 | Alert channels — Google Chat webhook | — | ✅ |
 | Alert channels — MCP servers (Slack, Teams, Asana, custom) | — | ✅ |
 | AI-assisted rule writing (*Suggest rule text*) | — | ✅ |
@@ -349,7 +349,7 @@ If you regularly hit the free limit:
 ## 11. Alert channels
 
 ### SMS
-Google Workspace does not provide a first-party SMS API, so emAIl Sentinel ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
+Google Workspace does not provide a first-party SMS API. emAIl Sentinel supports **any SMS provider you want** — ships with six quick-start presets (below) and a generic webhook for everything else. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
 
 | Provider | Cost (US domestic) | Phone # needed? | Free trial? | Auth method |
 |---|---|---|---|---|
@@ -359,15 +359,13 @@ Google Workspace does not provide a first-party SMS API, so emAIl Sentinel ships
 | **Twilio** | ~$0.0079/SMS | Yes (~$1.15/mo) | $15 free credit | Basic auth |
 | **ClickSend** | ~$0.0226/SMS | No | Free trial credits | Basic auth |
 | **Vonage** | ~$0.0068/SMS | No | Free credits (no CC) | API key + secret |
-| **Generic webhook**¹ | (your endpoint) | (your choice) | N/A | (your choice) |
-
-¹ Generic webhook is available in self-deployed installs only. Google's Marketplace `urlFetchWhitelist` blocks `UrlFetchApp` calls to arbitrary endpoints.
+| **Generic webhook** | (your endpoint) | (your choice) | N/A | (your choice) |
 
 **Recommendations:**
 - **Quickest start (no sign-up):** Textbelt with the free key `textbelt` — 1 free SMS/day, no account needed.
 - **Cheapest at scale:** Telnyx (~$0.004/SMS), then Plivo (~$0.005/SMS).
 - **No phone number to manage:** Textbelt, ClickSend, or Vonage send from a shared/system number.
-- **Already have an SMS gateway:** Generic webhook POSTs `{"to": "+15551234567", "body": "..."}` to any HTTPS URL. *(Self-deployed installs only — Google's Marketplace URL whitelist blocks arbitrary endpoints.)*
+- **Already have an SMS gateway or want to use an unlisted provider:** Generic webhook POSTs `{"to": "+15551234567", "body": "..."}` to any HTTPS URL you configure.
 
 Phone numbers in SMS recipients should be in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+15551234567`.
 
