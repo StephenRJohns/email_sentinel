@@ -137,8 +137,12 @@ function handleStartMonitoring(e) {
   if (!settings.geminiApiKey) {
     return notificationResponse_('Add a Gemini API key in Settings first.');
   }
-  installTrigger(settings.pollMinutes || 5);
-  return refreshHome_('Monitoring started.');
+  const poll = enforcePollFloor(settings.pollMinutes || 5);
+  installTrigger(poll.value);
+  const msg = poll.clamped
+    ? 'Monitoring started. Polling set to ' + poll.value + ' min (Free plan minimum).'
+    : 'Monitoring started.';
+  return refreshHome_(msg);
 }
 
 function handleStopMonitoring(e) {
