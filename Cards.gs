@@ -1005,12 +1005,13 @@ function buildSmsGuideCard() {
       '1. <b>Textbelt</b> — 1 free SMS/day with key "textbelt", or buy more at textbelt.com<br>' +
       '2. <b>ClickSend</b> — free trial credits, just username + API key<br>' +
       '3. <b>Vonage</b> — free credits, no credit card for trial<br><br>' +
-      '<b>Cheapest per message (need to buy a phone number):</b><br>' +
-      '4. <b>Telnyx</b> — ~$0.004/SMS, number ~$1/mo<br>' +
-      '5. <b>Plivo</b> — ~$0.005/SMS, number ~$0.80/mo, $10 free credit<br>' +
-      '6. <b>Twilio</b> — ~$0.0079/SMS, number ~$1.15/mo, $15 free credit<br><br>' +
-      '<b>Already have your own SMS gateway?</b><br>' +
-      '7. <b>Generic webhook</b> — POST to any HTTPS endpoint you control'
+      '<b>Cheapest per message at scale (require you to rent a number):</b><br>' +
+      '4. <b>Telnyx</b> — lowest per-SMS rate<br>' +
+      '5. <b>Plivo</b> — similar to Telnyx, $10 free credit<br>' +
+      '6. <b>Twilio</b> — most popular and best docs, $15 free credit<br><br>' +
+      '<b>Already have your own SMS gateway or want an unlisted provider?</b><br>' +
+      '7. <b>Generic webhook</b> — POST to any HTTPS endpoint you control<br><br>' +
+      '<font color="#888888">Current per-SMS and phone-number prices are subject to change. Verify at each provider\'s website before choosing.</font>'
     )));
 
   // Per-provider sections with sign-up links and step-by-step
@@ -1255,10 +1256,11 @@ function helpTopics_() {
         '\u2022 <b>Textbelt</b> \u2014 easiest: 1 free SMS/day with key "textbelt", no sign-up<br>' +
         '\u2022 <b>ClickSend</b> \u2014 free trial, username + API key, no phone number<br>' +
         '\u2022 <b>Vonage</b> \u2014 free trial credits, no credit card<br>' +
-        '\u2022 <b>Telnyx</b> \u2014 cheapest (~$0.004/SMS), needs a phone number (~$1/mo)<br>' +
-        '\u2022 <b>Plivo</b> \u2014 $10 free credit, phone number ~$0.80/mo<br>' +
-        '\u2022 <b>Twilio</b> \u2014 most popular, $15 free credit, phone number ~$1.15/mo<br>' +
+        '\u2022 <b>Telnyx</b> \u2014 cheapest per SMS at scale; needs a rented phone number<br>' +
+        '\u2022 <b>Plivo</b> \u2014 $10 free credit; needs a rented phone number<br>' +
+        '\u2022 <b>Twilio</b> \u2014 most popular and best docs; $15 free credit; needs a rented phone number<br>' +
         '\u2022 <b>Generic webhook</b> \u2014 POST to any HTTPS endpoint; use this for any provider without a built-in preset<br>' +
+        '<font color="#888888">Current per-SMS and phone-number prices are shown in the SMS setup card and on each provider\'s site. Prices change \u2014 verify before committing.</font><br>' +
         'After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the <b>SMS recipients</b> section of Settings. Rules pick recipients by name via checkboxes. Click <b>Send test SMS</b> to verify.<br><br>' +
         '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
         '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +

@@ -351,20 +351,23 @@ If you regularly hit the free limit:
 ### SMS
 Google Workspace does not provide a first-party SMS API. emAIl Sentinel supports **any SMS provider you want** — ships with six quick-start presets (below) and a generic webhook for everything else. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
 
-| Provider | Cost (US domestic) | Phone # needed? | Free trial? | Auth method |
-|---|---|---|---|---|
-| **Textbelt** | ~$0.04/SMS | No | 1 free/day (key: `textbelt`) | API key |
-| **Telnyx** | ~$0.004/SMS | Yes (~$1/mo) | Free credits | Bearer token |
-| **Plivo** | ~$0.005/SMS | Yes (~$0.80/mo) | $10 free credit | Basic auth |
-| **Twilio** | ~$0.0079/SMS | Yes (~$1.15/mo) | $15 free credit | Basic auth |
-| **ClickSend** | ~$0.0226/SMS | No | Free trial credits | Basic auth |
-| **Vonage** | ~$0.0068/SMS | No | Free credits (no CC) | API key + secret |
-| **Generic webhook** | (your endpoint) | (your choice) | N/A | (your choice) |
+| Provider | Phone # needed? | Free trial? | Auth method |
+|---|---|---|---|
+| **Textbelt** | No | 1 free/day (key: `textbelt`) | API key |
+| **Telnyx** | Yes | Free credits | Bearer token |
+| **Plivo** | Yes | $10 free credit | Basic auth |
+| **Twilio** | Yes | $15 free credit | Basic auth |
+| **ClickSend** | No | Free trial credits | Basic auth |
+| **Vonage** | No | Free credits (no CC) | API key + secret |
+| **Generic webhook** | (your choice) | N/A | (your choice) |
 
-**Recommendations:**
+> **Prices vary by provider and change over time.** Current per-SMS and phone-number costs are shown in the in-app **SMS setup guide** and on each provider's website. Use the sign-up links in Settings to verify current rates before committing.
+
+**How to choose:**
 - **Quickest start (no sign-up):** Textbelt with the free key `textbelt` — 1 free SMS/day, no account needed.
-- **Cheapest at scale:** Telnyx (~$0.004/SMS), then Plivo (~$0.005/SMS).
+- **Cheapest at scale:** Telnyx or Plivo (both sub-cent per US SMS, require you to rent a number).
 - **No phone number to manage:** Textbelt, ClickSend, or Vonage send from a shared/system number.
+- **Most popular / best docs:** Twilio.
 - **Already have an SMS gateway or want to use an unlisted provider:** Generic webhook POSTs `{"to": "+15551234567", "body": "..."}` to any HTTPS URL you configure.
 
 Phone numbers in SMS recipients should be in [E.164 format](https://en.wikipedia.org/wiki/E.164): `+15551234567`.

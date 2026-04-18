@@ -4,18 +4,24 @@
 /**
  * AlertDispatcher.gs — Send alerts via SMS and Google-native channels.
  *
- * SMS: Google doesn't offer a first-party SMS API, so emAIl Sentinel supports
- * six options. Pick one in Settings → SMS Provider:
+ * SMS: Google doesn't offer a first-party SMS API. emAIl Sentinel ships
+ * quick-start presets for the six providers below, plus a Generic webhook
+ * that POSTs to any HTTPS endpoint the user configures (any provider works).
+ * Pick one in Settings → SMS Provider:
  *
  *   Provider     Auth method       Needs phone #?   Free trial?
  *   ─────────────────────────────────────────────────────────────
  *   Textbelt     API key           No               1 free/day
- *   Telnyx       API key (Bearer)  Yes ($1/mo)      Free credits
- *   Plivo        Auth ID + token   Yes ($0.80/mo)   $10 free credit
- *   Twilio       SID + token       Yes ($1.15/mo)   $15 free credit
+ *   Telnyx       API key (Bearer)  Yes              Free credits
+ *   Plivo        Auth ID + token   Yes              $10 free credit
+ *   Twilio       SID + token       Yes              $15 free credit
  *   ClickSend    Username + key    No (shared #)    Free trial credits
- *   Vonage       API key + secret  No (shared #)    €2 free credit
+ *   Vonage       API key + secret  No (shared #)    Free credits
  *   Webhook      (your endpoint)   (your choice)    N/A
+ *
+ * Current per-SMS and phone-number prices live in SMS_PROVIDER_INFO[].cost
+ * below; they are shown in the in-app SMS setup card. Prices change — treat
+ * them as indicative.
  */
 
 const SMS_PROVIDERS = [
