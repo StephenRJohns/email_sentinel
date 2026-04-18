@@ -1,4 +1,0 @@
-e2e.config.env
-node_modules/
-playwright-report/
-test-results/

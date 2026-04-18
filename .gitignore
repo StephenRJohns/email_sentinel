@@ -4,3 +4,4 @@ node_modules/
 prompt.txt
 *.swp
 .clasp.json
+work/
