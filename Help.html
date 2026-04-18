@@ -1,9 +1,9 @@
 <b>emAIl Sentinel&#8482;</b> watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by Google Gemini.<br><br>
 
 <b>Plans &amp; pricing</b><br>
-<b>Free</b> includes up to 3 rules, polling every 30 minutes or slower, Google Calendar / Sheets / Tasks alerts, SMS alerts (all six providers), and a 30-day activity log.<br>
+<b>Free</b> includes up to 3 rules, polling every 15 minutes or slower, Google Calendar / Sheets / Tasks alerts, SMS alerts (all six providers), and a 30-day activity log.<br>
 <b>Pro ($4.99/month or $39/year)</b> adds unlimited rules, polling as fast as every 1 minute, Google Chat webhook alerts, MCP server alerts (Slack, Teams, Asana, custom), AI-assisted rule writing, and unlimited log history.<br>
-Upgrade from the home card. Downgrading preserves your rules but disables Chat / MCP channels and clamps polling back to 30 minutes.<br><br>
+Upgrade from the home card. Downgrading preserves your rules but disables Chat / MCP channels and clamps polling back to 15 minutes.<br><br>
 
 <b>Quick start</b><br>
 1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>
@@ -119,7 +119,7 @@ At Flash rates, a typical user (50 emails/day, 3 rules) costs under <b>$1/month<
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>
 
 <b>Polling</b><br>
-Apps Script time-driven triggers fire every 1, 5, 10, 15, or 30 minutes. The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message. <b>Free plan</b> is clamped to 30 minutes or slower; <b>Pro</b> unlocks faster intervals down to every 1 minute.<br><br>
+Apps Script time-driven triggers fire every 1, 5, 10, 15, or 30 minutes. The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message. <b>Free plan</b> is clamped to 15 minutes or slower; <b>Pro</b> unlocks faster intervals down to every 1 minute.<br><br>
 
 <b>Privacy</b><br>
 Settings, rules, the seen-message baseline, and the activity log are all stored in <i>UserProperties</i>, which is private to your own Google account. Email contents are sent only to Google's Gemini API and to the alert channels you configure (SMS provider, Chat webhooks, MCP server endpoints) — never anywhere else.<br><br>

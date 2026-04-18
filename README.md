@@ -83,7 +83,7 @@ emAIl Sentinel is offered on a freemium model for individual personal use.
 |---|---|---|
 | Price | Free | **$4.99/month** or **$39/year** |
 | Active rules | Up to **3** | Unlimited |
-| Minimum polling interval | Every **30 min** | Every **1 min** |
+| Minimum polling interval | Every **15 min** | Every **1 min** |
 | Alert channels — Google Calendar, Sheets, Tasks | ✅ | ✅ |
 | Alert channels — SMS (all six providers) | ✅ | ✅ |
 | Alert channels — Google Chat webhook | — | ✅ |

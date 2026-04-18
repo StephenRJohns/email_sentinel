@@ -494,14 +494,14 @@ test('S20: home card shows Free plan indicator and Upgrade button', async ({ pag
   await expect(frame.getByRole('button', { name: /Upgrade to Pro/i })).toBeVisible();
 });
 
-test('S20: polling interval is clamped to 30 min on Free plan', async ({ page }) => {
+test('S20: polling interval is clamped to 15 min on Free plan', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Settings');
   await fillField(getFrame(page), 'Polling interval', '1');
   await clickButton(getFrame(page), 'Save settings');
-  await expectToast(page, /raised to 30 min|Free plan minimum/i);
+  await expectToast(page, /raised to 15 min|Free plan minimum/i);
   await clickButton(getFrame(page), 'Settings');
-  await expect(getFrame(page).getByLabel(/Polling interval/i)).toHaveValue('30');
+  await expect(getFrame(page).getByLabel(/Polling interval/i)).toHaveValue('15');
 });
 
 test('S20: rule count limit blocks a 4th rule', async ({ page }) => {

@@ -70,7 +70,7 @@ Your use of each third-party service is governed by that provider's own terms an
 
 The Service is offered on a freemium model:
 
-- **Free plan** — no charge. Subject to the feature limits described in the Service's in-app pricing page (currently: up to 3 rules, minimum 30-minute polling interval, no Google Chat or MCP server channels, no AI-assisted rule writing, 30-day activity log retention).
+- **Free plan** — no charge. Subject to the feature limits described in the Service's in-app pricing page (currently: up to 3 rules, minimum 15-minute polling interval, no Google Chat or MCP server channels, no AI-assisted rule writing, 30-day activity log retention).
 - **Pro plan** — paid subscription at the price published in the Google Workspace Marketplace listing at the time of purchase ("List Price"). Pro unlocks the features described in the in-app pricing page.
 - **Founding-member lifetime plan** — a one-time purchase offered in limited quantity at launch, granting Pro features for the life of the Service.
 

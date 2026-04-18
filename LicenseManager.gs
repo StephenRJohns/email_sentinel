@@ -12,7 +12,7 @@
 const TIERS = {
   free: {
     maxRules: 3,
-    minPollMinutes: 30,
+    minPollMinutes: 15,
     allowChat: false,
     allowMcp: false,
     allowAiSuggest: false,

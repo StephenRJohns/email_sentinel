@@ -21,13 +21,13 @@ Sections 9–13 are optional alert-channel tests. Section 22 is required only wh
 *Open the add-on, configure the Gemini key, and verify the connection.*
 
 - [ ] Click the emAIl Sentinel icon in the Gmail add-on rail.
-- [ ] Home card loads. Status row shows: Plan = "Free (0/3 rules, 30 min min poll)", Monitoring = "Stopped", Gemini API key = "NOT configured".
+- [ ] Home card loads. Status row shows: Plan = "Free (0/3 rules, 15 min min poll)", Monitoring = "Stopped", Gemini API key = "NOT configured".
 - [ ] An "Upgrade to Pro" button is visible on the home card for Free users.
 - [ ] Quick setup checklist is visible on the home card with grouped structure: a top-level "- Open Settings" bullet followed by indented sub-bullets "- Paste your Gemini API key" and "- Set up alert channels", plus top-level bullets for creating a rule and starting monitoring.
 - [ ] Click Settings (either via the universal action "⋮" menu or the Settings nav button).
 - [ ] Paste your Gemini API key into the "Gemini API key" field. The aistudio.google.com/app/apikey URL is a tappable link.
 - [ ] Confirm model is "gemini-2.5-flash" (default).
-- [ ] Set polling interval to 5 minutes. On Free plan, saving this value will clamp it up to 30 minutes and toast "Settings saved. Polling raised to 30 min (Free plan minimum)."
+- [ ] Set polling interval to 5 minutes. On Free plan, saving this value will clamp it up to 15 minutes and toast "Settings saved. Polling raised to 15 min (Free plan minimum)."
 - [ ] Confirm "Only check emails newer than (days)" field is present and defaults to 30.
 - [ ] Click "Save settings". Toast notification reads: "Settings saved."
 - [ ] Click "Test Gemini". Toast reads: "Gemini OK — model responded."
@@ -280,9 +280,9 @@ Sections 9–13 are optional alert-channel tests. Section 22 is required only wh
 
 *Verify that tier limits are actively enforced for a Free account.*
 
-- [ ] Home card shows "Plan: Free (N/3 rules, 30 min min poll)" and an "Upgrade to Pro" button is visible.
+- [ ] Home card shows "Plan: Free (N/3 rules, 15 min min poll)" and an "Upgrade to Pro" button is visible.
 - [ ] **Rule count limit.** Delete any extras so you have 2 rules. Create a third — save succeeds. Create a fourth — save fails with toast: "Rule limit reached for your plan (3 rules on Free). Upgrade to Pro for unlimited rules."
-- [ ] **Polling floor.** In Settings, set polling interval to 1 minute and save. Toast: "Settings saved. Polling raised to 30 min (Free plan minimum)." Reload Settings — field shows 30.
+- [ ] **Polling floor.** In Settings, set polling interval to 1 minute and save. Toast: "Settings saved. Polling raised to 15 min (Free plan minimum)." Reload Settings — field shows 15.
 - [ ] **Chat channel gated.** Open the rule editor. The Google Chat section shows "Google Chat webhooks — Pro plan only." instead of the space selection widget.
 - [ ] **MCP channel gated.** Same editor shows "MCP servers (Slack, Teams, Asana) — Pro plan only." instead of the server selection widget.
 - [ ] **AI Suggest gated.** In the rule editor, the "Suggest rule text (Pro)" button is visible; clicking it returns a toast: "Upgrade to Pro to use AI-assisted rule writing." The "Suggest content (Pro)" button behaves the same.
@@ -298,7 +298,7 @@ Sections 9–13 are optional alert-channel tests. Section 22 is required only wh
 
 - [ ] Home card shows "Plan: Pro" and the "Upgrade to Pro" button is no longer displayed.
 - [ ] **Unlimited rules.** Create a 4th, 5th, 6th rule — all save successfully.
-- [ ] **Sub-30-minute polling.** In Settings, set polling to 1 minute and save. Toast: "Settings saved." Reload — value persists as 1.
+- [ ] **Sub-15-minute polling.** In Settings, set polling to 1 minute and save. Toast: "Settings saved." Reload — value persists as 1.
 - [ ] **Chat channel available.** Rule editor shows the Google Chat space selection widget (or the prompt to configure Chat in Settings if none exist).
 - [ ] **MCP channel available.** Rule editor shows the MCP server selection widget (or the prompt to configure MCP in Settings).
 - [ ] **AI Suggest works.** The "Suggest rule text" and "Suggest content for selected channels" buttons do not display "(Pro)"; clicking each produces a suggestion card from Gemini.
