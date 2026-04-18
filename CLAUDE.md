@@ -94,6 +94,26 @@ We do not support email as an alerting channel. Alert channels are: SMS, Google 
 
 `dispatchAlerts()` routes SMS through a function-dispatch table in `AlertDispatcher.gs`. Adding a new SMS provider means: adding the provider object to `SMS_PROVIDER_INFO`, adding the function name to `SMS_PROVIDERS`, and implementing `sendXxxSms_(toNumber, text, settings)`.
 
+### License tiers
+
+`LicenseManager.gs` defines `TIERS` (Free vs Pro) with per-tier limits:
+`maxRules`, `minPollMinutes`, `allowChat`, `allowMcp`, `allowAiSuggest`,
+`logRetentionDays`. Enforcement is in `handleSaveSettings` (poll floor),
+`upsertRule` (rule count + Chat/MCP stripping), `handleSuggestRuleText` /
+`handleSuggestAlertFormat` (Pro gate), and `buildRuleEditorCard` (UI hides
+gated sections). Tier is persisted in `settings.license.tier`; for pre-launch
+testing, run `setTier_('pro')` or `setTier_('free')` in the Apps Script
+editor. Marketplace subscription wiring is not yet connected.
+
+### Founding-member lifetime offer
+
+Launch-only $79 tier capped at the first 500 purchasers, codified in
+`legal/TERMS.md` §6.1. `FOUNDING_MEMBERS_SOLD` and `FOUNDING_MEMBERS_LIMIT`
+in `LicenseManager.gs` drive the scarcity counter on the home card. The
+counter is bumped manually (or via the standalone monitor script in
+`work/founding_member_monitor/`); when it reaches 500 the UI hides the
+offer and the developer manually pauses the SKU in Cloud Console.
+
 ### Branding
 
 The app name is **emAIl Sentinel** — lowercase e, lowercase m, uppercase A, uppercase I (together: "AI"), lowercase l, space, uppercase S, lowercase entinel. This exact capitalization must be preserved everywhere.
