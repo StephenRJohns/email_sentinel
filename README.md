@@ -77,7 +77,7 @@ All state lives in `PropertiesService.getUserProperties()`:
 
 ## 3. Plans and pricing
 
-emAIl Sentinel is offered on a freemium model for individual personal use.
+emAIl Sentinel is offered on a freemium model. It is designed for individuals, professionals, consultants, and small teams where each member installs the add-on in their own Google account.
 
 | Feature | Free | Pro |
 |---|---|---|
@@ -96,7 +96,7 @@ emAIl Sentinel is offered on a freemium model for individual personal use.
 
 Upgrading is done from the home card. Downgrading keeps all your rules intact; Chat and MCP channels are silently disabled and polling is clamped to the Free minimum until you re-upgrade.
 
-emAIl Sentinel is licensed for individual, non-commercial personal use. Business and enterprise licensing is not offered; see [TERMS.md](./TERMS.md).
+Enterprise-wide or centralized deployments across a Workspace domain are not supported; see [TERMS.md](legal/TERMS.md) §2 for the exact scope.
 
 ---
 
