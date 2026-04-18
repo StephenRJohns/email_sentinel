@@ -287,10 +287,10 @@ emAIl Sentinel calls the Gemini API **twice per new email per active rule**: onc
 
 | Model | Speed | Free quota | Paid input cost | Paid output cost | Best for |
 |---|---|---|---|---|---|
-| **Gemini 2.0 Flash** *(default)* | Fastest | 1,500 req/day · 1M tokens/day | ~$0.075 / 1M tokens | ~$0.30 / 1M tokens | Most users — best balance of speed, cost, and accuracy |
-| **Gemini 2.0 Flash Lite** | Fastest | 1,500 req/day · 1M tokens/day | ~$0.04 / 1M tokens | ~$0.15 / 1M tokens | Simple rules at very high volume; slightly less capable |
-| **Gemini 1.5 Flash** | Fast | 1,500 req/day · 1M tokens/day | ~$0.075 / 1M tokens | ~$0.30 / 1M tokens | Same as 2.0 Flash; reliable fallback |
-| **Gemini 1.5 Pro** | Slower | 50 req/day | ~$1.25 / 1M tokens | ~$5.00 / 1M tokens | Complex or nuanced rules where accuracy is critical; not suited for high email volume |
+| **Gemini 2.5 Flash** *(default)* | Fast | 1,500 req/day · 1M tokens/day | ~$0.075 / 1M tokens | ~$0.30 / 1M tokens | Most users — best balance of speed, cost, and accuracy |
+| **Gemini 2.5 Flash Lite** | Fastest | 1,500 req/day · 1M tokens/day | ~$0.04 / 1M tokens | ~$0.15 / 1M tokens | Simple rules at very high volume; slightly less capable |
+| **Gemini 2.5 Pro** | Slower | 50 req/day | ~$1.25 / 1M tokens | ~$5.00 / 1M tokens | Complex or nuanced rules where accuracy is critical; not suited for high email volume |
+| **Gemini 2.0 Flash 001** | Fast | 1,500 req/day · 1M tokens/day | ~$0.075 / 1M tokens | ~$0.30 / 1M tokens | Stable previous-generation Flash — fallback if 2.5 Flash behaviour changes |
 
 > Verify current prices at [ai.google.dev/pricing](https://ai.google.dev/pricing). Prices shown are as of April 2026 and may change.
 
