@@ -27,7 +27,7 @@ clasp open
 clasp pull
 ```
 
-The `scriptId` in `.clasp.json` links this directory to the live Apps Script project. There are no tests — testing is done by running functions directly from the Apps Script editor or triggering `runMailCheck()` manually.
+The `scriptId` in `.clasp.json` links this directory to the live Apps Script project. Apps Script has no in-repo unit tests; manual testing is done by running functions from the Apps Script editor or triggering `runMailCheck()`.
 
 ## Architecture
 
@@ -103,7 +103,8 @@ We do not support email as an alerting channel. Alert channels are: SMS, Google 
 `handleSuggestAlertFormat` (Pro gate), and `buildRuleEditorCard` (UI hides
 gated sections). Tier is persisted in `settings.license.tier`; for pre-launch
 testing, run `setTier_('pro')` or `setTier_('free')` in the Apps Script
-editor. Marketplace subscription wiring is not yet connected.
+editor. Automatic entitlement sync with the Marketplace Subscription API
+is a planned integration for the paid-tier launch.
 
 ### Founding-member lifetime offer
 
