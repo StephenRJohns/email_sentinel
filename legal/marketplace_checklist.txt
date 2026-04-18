@@ -168,7 +168,7 @@ Marketplace SDK → Store Listing page.
    Must be a publicly accessible HTTPS URL.
 
    Easiest: use the GitHub rendered view:
-     https://github.com/StephenRJohns/email_sentinel/blob/main/TERMS.md
+     https://github.com/StephenRJohns/email_sentinel/blob/main/legal/TERMS.md
 
    Better: host on your own domain (looks more professional):
      https://yourdomain.com/email_sentinel/terms
@@ -178,7 +178,7 @@ Marketplace SDK → Store Listing page.
 ---------------------------------------------------------------------------
    Must be a publicly accessible HTTPS URL.
 
-     https://github.com/StephenRJohns/email_sentinel/blob/main/PRIVACY.md
+     https://github.com/StephenRJohns/email_sentinel/blob/main/legal/PRIVACY.md
 
    Or on your domain:
      https://yourdomain.com/email_sentinel/privacy

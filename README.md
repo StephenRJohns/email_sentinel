@@ -453,11 +453,11 @@ Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
 | Document | Description |
 |---|---|
 | [LICENSE](LICENSE) | Proprietary software license |
-| [TERMS.md](TERMS.md) | Terms of Service |
-| [PRIVACY.md](PRIVACY.md) | Privacy Policy (required for Google Workspace Marketplace) |
-| [DISCLAIMER.md](DISCLAIMER.md) | Warranty disclaimer, AI accuracy, no-reliance notice |
+| [TERMS.md](legal/TERMS.md) | Terms of Service |
+| [PRIVACY.md](legal/PRIVACY.md) | Privacy Policy (required for Google Workspace Marketplace) |
+| [DISCLAIMER.md](legal/DISCLAIMER.md) | Warranty disclaimer, AI accuracy, no-reliance notice |
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. See [DISCLAIMER.md](DISCLAIMER.md) and Section 9 of the [Terms of Service](TERMS.md) for details.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. See [DISCLAIMER.md](legal/DISCLAIMER.md) and Section 9 of the [Terms of Service](legal/TERMS.md) for details.
 
 ---
 

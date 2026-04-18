@@ -1,82 +1,55 @@
-PROPRIETARY SOFTWARE LICENSE
+# emAIl Sentinel™ — Proprietary Software License
 
-Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
+**Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.**
 
-The emAIl Sentinel™ software, including all source code, documentation, designs,
-and associated materials in this repository (collectively, the "Software"),
-is the proprietary and confidential property of JJJJJ Enterprises, LLC
-("Licensor").
+The emAIl Sentinel™ software, including all source code, documentation, designs, and associated materials in this repository (collectively, the "Software"), is the proprietary and confidential property of JJJJJ Enterprises, LLC ("Licensor").
 
-NO LICENSE GRANTED BY DEFAULT
-----------------------------
-No rights are granted to any third party to use, copy, modify, merge,
-publish, distribute, sublicense, sell, or create derivative works of the
-Software without the prior written authorization of Licensor. Public
-visibility of this repository on a hosting service (e.g., GitHub) does
-not constitute a grant of any license, express or implied.
+---
 
-PERMITTED USE
--------------
-"Authorized end users" means any natural person who has installed the
-Software from the Google Workspace Marketplace or another distribution
-channel expressly approved by Licensor, and who has accepted the Terms of
-Service (TERMS.md) and this License.
+## 1. No License Granted by Default
 
-Authorized end users may install and use the Software solely as a Google
-Workspace Add-on inside their own personal Google account, for their own
-personal use, subject to the Terms of Service. The Software is licensed
-to natural persons only; use by a business, organization, government
-entity, or on behalf of any third party is not permitted without a
-separate written agreement with Licensor.
+No rights are granted to any third party to use, copy, modify, merge, publish, distribute, sublicense, sell, or create derivative works of the Software without the prior written authorization of Licensor. Public visibility of this repository on a hosting service (e.g., GitHub) does not constitute a grant of any license, express or implied.
 
-PROHIBITED USE
---------------
+## 2. License Grant
+
+Subject to your compliance with the Terms of Service (legal/TERMS.md) and this License, JJJJJ Enterprises, LLC grants you a limited, non-exclusive, non-transferable, revocable license to install and use the Software solely as a Google Workspace Add-on within your own Google account, for your own personal or individual professional use, or for use by a small team where each member installs the Software in their own Google account.
+
+## 3. Restrictions
+
 Without express written permission from Licensor, you may NOT:
-  (a) redistribute the Software, in source or compiled form;
-  (b) sell, rent, lease, lend, or sublicense the Software;
-  (c) reverse-engineer, decompile, or disassemble the Software except to
-      the extent expressly permitted by applicable law notwithstanding
-      this restriction;
-  (d) remove or alter any copyright, trademark, or other proprietary
-      notices from the Software;
-  (e) use the Software, or any portion of it, to train or evaluate machine
-      learning models;
-  (f) use the Software in violation of any applicable law or regulation.
 
-TERMINATION
------------
-This License terminates automatically, without notice, if you breach any
-term. On termination you must cease all use of the Software and delete
-all copies. Sections titled "NO WARRANTY" and "PROHIBITED USE" survive
-termination.
+(a) redistribute the Software, in source or compiled form;
+(b) sell, rent, lease, lend, or sublicense the Software;
+(c) reverse-engineer, decompile, or disassemble the Software except to the extent expressly permitted by applicable law notwithstanding this restriction;
+(d) remove or alter any copyright, trademark, or other proprietary notices from the Software;
+(e) use the Software, or any portion of it, including its outputs, to train or evaluate machine learning models;
+(f) deploy the Software as part of an enterprise-wide, centralized, or multi-user monitoring system;
+(g) use the Software in violation of any applicable law or regulation.
 
-GOOGLE MARKETPLACE RIGHTS
--------------------------
-Nothing in this License restricts Google LLC's rights under its own Terms
-of Service to operate, display, promote, or distribute the Software
-through the Google Workspace Marketplace, or to process telemetry,
-support, and abuse-related data in accordance with Google's standard
-developer agreements.
+## 4. Termination
 
-SEVERABILITY
-------------
-If any provision of this License is held to be unenforceable, the
-remaining provisions shall continue in full force and effect.
+This License terminates automatically, without notice, if you breach any term. On termination you must cease all use of the Software and delete all copies. Sections 1, 3, 5, 6, and 7 survive termination.
 
-TRADEMARKS
-----------
-"emAIl Sentinel" is a trademark of JJJJJ Enterprises, LLC. All other
-trademarks referenced herein are the property of their respective owners.
-Use of any Licensor trademark, including in forks, derivative works, or
-promotional material, requires prior written permission.
+## 5. Google Marketplace Rights
 
-NO WARRANTY
------------
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
-LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN
-AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Nothing in this License restricts Google LLC's rights under its own Terms of Service to operate, display, promote, or distribute the Software through the Google Workspace Marketplace, or to process telemetry, support, and abuse-related data in accordance with Google's standard developer agreements.
 
-Contact: legal@jjjjjenterprises.com
+## 6. Trademarks
+
+"emAIl Sentinel" is a trademark of JJJJJ Enterprises, LLC. All other trademarks referenced herein are the property of their respective owners. Use of any Licensor trademark, including in forks, derivative works, or promotional material, requires prior written permission.
+
+## 7. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## 8. Severability
+
+If any provision of this License is held to be unenforceable, the remaining provisions shall continue in full force and effect.
+
+## 9. Entire License
+
+This License, together with legal/TERMS.md, legal/PRIVACY.md, and legal/DISCLAIMER.md, constitutes the complete agreement between you and JJJJJ Enterprises, LLC regarding the Software.
+
+---
+
+**Contact:** legal@jjjjjenterprises.com
