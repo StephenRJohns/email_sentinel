@@ -89,6 +89,11 @@ PropertiesService.getUserProperties().deleteAllProperties();
 - All outbound network calls from the Service use HTTPS (TLS).
 - Your Gemini API key is masked in the add-on Settings UI after you save it — only the last four characters are shown; the input field is left blank so the full key is never redisplayed. SMS provider credentials are visible within the Settings UI so you can review and update them; they are stored encrypted at rest by Google's infrastructure (see above).
 - The Service has no external backend. There is no attack surface beyond your own Google account and the third-party APIs you configure.
+- The Service does not set cookies. Cookies set by Gmail, Google Apps Script, or your browser are governed by Google's and your browser vendor's privacy policies.
+
+## 6.1 Incident Notification
+
+If we become aware of a security incident affecting data the Service processes on your behalf, we will notify affected users without undue delay — and in any event within 72 hours where required by law (including GDPR Article 33) — via the email address associated with your Google account, and will describe the nature of the incident, the data potentially affected, and the steps you can take.
 
 ## 7. Google API Services User Data Policy
 
@@ -104,11 +109,71 @@ The Service is not directed to, and we do not knowingly collect data from, indiv
 
 ## 9. International Users
 
-Your data is processed by Google (Apps Script, Gemini) and, if you enable SMS, by your chosen SMS provider. Data may be processed in any country where Google or your SMS provider operates data centers. By using the Service you consent to such processing.
+Your data is processed by Google (Apps Script, Gemini) and, if you enable SMS, by your chosen SMS provider. Data may be processed in any country where Google or your SMS provider operates data centers. Cross-border transfers from the EU/EEA, UK, or Switzerland to the United States rely on the Standard Contractual Clauses and supplementary measures put in place by Google and the SMS provider you select. By using the Service you consent to such processing.
 
-If you are located in the European Economic Area (EEA), United Kingdom, or Switzerland, you may have additional rights under the General Data Protection Regulation (GDPR), including the rights of access, rectification, erasure, restriction, and data portability. The legal basis for processing your data under GDPR is your consent (Article 6(1)(a)), which you provide by installing and configuring the Service. Because all data is stored in `UserProperties` within your own Google account, you can exercise these rights directly by viewing, editing, or deleting your data through the Apps Script editor.
+### 9.1 Your Rights Under GDPR (EU/EEA, UK, Switzerland)
 
-If you are a California resident, the California Consumer Privacy Act (CCPA/CPRA) grants you similar rights. We do not sell personal information.
+If you are located in the European Economic Area, United Kingdom, or Switzerland, you may have rights under the General Data Protection Regulation (GDPR) or equivalent local law, including:
+
+- **Right of access** — request a copy of personal data we hold about you
+- **Right of rectification** — ask us to correct inaccurate data
+- **Right of erasure ("right to be forgotten")** — ask us to delete your data
+- **Right to restrict processing** — ask us to pause processing
+- **Right to data portability** — receive your data in a structured format
+- **Right to object** — object to processing based on legitimate interests
+- **Right to withdraw consent** — withdraw consent at any time, where applicable
+
+Because all data is stored in `UserProperties` within your own Google account, you can exercise most of these rights directly by viewing, editing, or deleting your data through the Apps Script editor. To delete all stored data in one step, run this in the Apps Script editor:
+
+```
+PropertiesService.getUserProperties().deleteAllProperties();
+```
+
+**Legal basis for processing.** The legal basis under GDPR Article 6 depends on the activity: (a) your installation of the Service and configuration of rules constitutes consent for the Service to read the Gmail labels you select and send them to the Gemini API for evaluation; (b) storage of credentials and rules in your own `UserProperties` is performed on your behalf and at your direction. You may withdraw consent at any time by disabling monitoring or uninstalling the Service; this does not affect the lawfulness of processing carried out before withdrawal.
+
+**Data protection contact.** Direct GDPR inquiries to legal@jjjjjenterprises.com. We will respond within 30 days. You also have the right to lodge a complaint with your local data protection authority.
+
+### 9.2 Your Rights Under CCPA / CPRA (California Residents)
+
+If you are a California resident, the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA) grants you the rights described below.
+
+**Categories of personal information we process.** In the 12 months preceding the date you read this policy, the Service processes:
+
+| Category (CCPA §1798.140) | Specific data | Source | Purpose |
+|---|---|---|---|
+| Identifiers | Gmail email address (yours), sender email addresses in messages you monitor | Your Google account | Rule evaluation, alert delivery |
+| Commercial information | Subscription tier (Free or Pro) and billing status received from Google | Google Workspace Marketplace | Unlocking paid features |
+| Internet or network activity | None | — | — |
+| Geolocation data | None | — | — |
+| Professional/employment information | Potentially present in email content you monitor | Your Gmail | Rule evaluation |
+| Sensitive personal information (CPRA) | Potentially present in email body excerpts (first 2,000 chars) sent to Gemini for evaluation | Your Gmail | Rule evaluation only |
+| Inferences | Gemini-generated rule match decisions and alert summaries | Derived from your email content | Alerting |
+
+**Sources.** All personal information comes from your own Gmail account, from the rules, credentials, and settings you enter directly into the Service, or from Google LLC (subscription status only).
+
+**Business purposes.** Rule evaluation, alert generation, alert delivery via the channels you configure, basic operation of the Service, and subscription entitlement. We do not use personal information for advertising, profiling, or any purpose beyond the Service functions you enable.
+
+**Third parties with whom we share.** Only those listed in Section 4 of this Policy, and only at your direction (i.e., only when you enable the relevant alert channel or integration).
+
+**Sale or sharing of personal information.** **We do not sell or share personal information** as those terms are defined under CCPA/CPRA, and we have not done so in the 12 months preceding the effective date of this Policy. The Service has no advertising integrations and no cross-context behavioral advertising.
+
+**Sensitive personal information.** Email body excerpts may contain sensitive personal information. The Service uses such information solely to evaluate rules against your emails and to format alert messages you configure — it is not used to infer characteristics about you, build profiles, or any purpose for which you could exercise the "right to limit" under CPRA.
+
+**Your rights.**
+- **Right to know** — request disclosure of the categories and specific pieces of personal information we process about you
+- **Right to delete** — request deletion of your personal information (note: this terminates any active paid subscription, as described in TERMS.md Section 6)
+- **Right to correct** — request correction of inaccurate information
+- **Right to opt out of sale/sharing** — not applicable; we do not sell or share
+- **Right to limit use of sensitive personal information** — not applicable; we do not use SPI beyond the permitted business purposes described above
+- **Right to non-discrimination** — we will not discriminate against you for exercising any CCPA right
+
+**How to exercise your rights.** Email legal@jjjjjenterprises.com with the subject "CCPA Request" and your Gmail address. We will respond within 45 days. Because all data is stored in your own Google account, you can also exercise deletion directly using the Apps Script one-liner above.
+
+**Authorized agents.** You may designate an authorized agent to make a request on your behalf by providing written authorization signed by you.
+
+### 9.3 Do Not Track and Global Privacy Control
+
+The Service does not track users across websites or services and does not respond to Do Not Track signals because it has no occasion to do so. The Service honors Global Privacy Control signals in the sense that it does not sell or share personal information regardless.
 
 ## 10. Changes to This Policy
 

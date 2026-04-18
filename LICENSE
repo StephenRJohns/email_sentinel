@@ -17,9 +17,17 @@ not constitute a grant of any license, express or implied.
 
 PERMITTED USE
 -------------
+"Authorized end users" means any natural person who has installed the
+Software from the Google Workspace Marketplace or another distribution
+channel expressly approved by Licensor, and who has accepted the Terms of
+Service (TERMS.md) and this License.
+
 Authorized end users may install and use the Software solely as a Google
-Workspace Add-on inside their own Google account, subject to the Terms of
-Service distributed alongside the Software (see TERMS.md).
+Workspace Add-on inside their own personal Google account, for their own
+personal use, subject to the Terms of Service. The Software is licensed
+to natural persons only; use by a business, organization, government
+entity, or on behalf of any third party is not permitted without a
+separate written agreement with Licensor.
 
 PROHIBITED USE
 --------------
@@ -34,6 +42,33 @@ Without express written permission from Licensor, you may NOT:
   (e) use the Software, or any portion of it, to train or evaluate machine
       learning models;
   (f) use the Software in violation of any applicable law or regulation.
+
+TERMINATION
+-----------
+This License terminates automatically, without notice, if you breach any
+term. On termination you must cease all use of the Software and delete
+all copies. Sections titled "NO WARRANTY" and "PROHIBITED USE" survive
+termination.
+
+GOOGLE MARKETPLACE RIGHTS
+-------------------------
+Nothing in this License restricts Google LLC's rights under its own Terms
+of Service to operate, display, promote, or distribute the Software
+through the Google Workspace Marketplace, or to process telemetry,
+support, and abuse-related data in accordance with Google's standard
+developer agreements.
+
+SEVERABILITY
+------------
+If any provision of this License is held to be unenforceable, the
+remaining provisions shall continue in full force and effect.
+
+TRADEMARKS
+----------
+"emAIl Sentinel" is a trademark of JJJJJ Enterprises, LLC. All other
+trademarks referenced herein are the property of their respective owners.
+Use of any Licensor trademark, including in forks, derivative works, or
+promotional material, requires prior written permission.
 
 NO WARRANTY
 -----------

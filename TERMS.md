@@ -14,9 +14,15 @@ emAIl Sentinel is a Google Workspace Add-on that runs in your own Google account
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 
-## 2. Eligibility
+## 2. Eligibility and Scope
 
-You must be at least 18 years old (or the age of legal majority in your jurisdiction) and capable of forming a binding contract to use the Service. You represent that you have the right to read the Gmail messages the Service will process on your behalf.
+The Service is licensed to individual natural persons for personal, non-commercial use only. By installing or using the Service you represent that:
+
+- you are at least 18 years old (or the age of legal majority in your jurisdiction) and capable of forming a binding contract;
+- you will use the Service only within your own personal Google account and only to process Gmail messages you have the legal right to access;
+- you are not installing or using the Service on behalf of a business, organization, government entity, or other third party.
+
+**Business, enterprise, and processor use is not permitted** without a separate written agreement with JJJJJ Enterprises, LLC, including (where applicable under GDPR Article 28) a Data Processing Addendum.
 
 ## 3. Your Account and Credentials
 
@@ -36,6 +42,13 @@ You agree NOT to use the Service to:
 - violate any applicable law, regulation, or third-party right;
 - circumvent any rate limits, security controls, or quotas of Google, Gemini, your SMS provider, or any other integrated service;
 - reverse-engineer, decompile, or attempt to extract the source of the Service except as permitted by law.
+
+You further agree NOT to use the Service to process:
+- Protected Health Information (PHI) as defined under the U.S. Health Insurance Portability and Accountability Act (HIPAA);
+- cardholder data as defined under the Payment Card Industry Data Security Standard (PCI DSS);
+- "special categories" of personal data as defined under GDPR Article 9 (including racial or ethnic origin, political opinions, religious beliefs, health data, sexual orientation, biometric or genetic data) unless you have an independent lawful basis under GDPR Article 9(2) and appropriate safeguards in place;
+- personal information of children under 13 (or the equivalent age of digital consent in your jurisdiction);
+- classified, export-controlled, or attorney-client privileged information.
 
 We may suspend or disable your ability to use the Service if we reasonably believe you are violating these Terms.
 
@@ -144,6 +157,8 @@ OUR TOTAL CUMULATIVE LIABILITY TO YOU FOR ALL CLAIMS ARISING OUT OF OR RELATED T
 
 Some jurisdictions do not allow the exclusion or limitation of certain damages, so some of the above limitations may not apply to you.
 
+Nothing in this Section 10 excludes or limits liability that cannot be excluded or limited under the mandatory law of your jurisdiction, including (without limitation) liability for death or personal injury caused by negligence, fraud or fraudulent misrepresentation, or any other liability that cannot be lawfully excluded. If any limitation in this Section is held unenforceable in your jurisdiction, that limitation will not apply to you; the remaining limitations will continue in full force and effect.
+
 ## 11. Indemnification
 
 You agree to indemnify, defend, and hold harmless JJJJJ Enterprises, LLC and its affiliates, officers, and employees from and against any claim, demand, loss, liability, damage, or expense (including reasonable attorneys' fees) arising out of or related to:
@@ -164,6 +179,8 @@ We may update these Terms from time to time. The "Effective date" at the top wil
 
 These Terms are governed by the laws of the State of Texas, USA, without regard to its conflict-of-laws principles.
 
+Nothing in this Section affects mandatory consumer protection rights you may have under the law of your country of residence, which apply notwithstanding the choice of Texas law.
+
 ## 15. Dispute Resolution
 
 Any dispute arising out of or relating to these Terms or the Service will be resolved exclusively in the state or federal courts located in the State of Texas, USA, and you consent to the personal jurisdiction of those courts.
@@ -178,4 +195,8 @@ These Terms, together with the LICENSE, PRIVACY.md, and DISCLAIMER.md files, are
 
 ---
 
-**Contact:** legal@jjjjjenterprises.com
+**Contact for legal notices:**
+JJJJJ Enterprises, LLC
+legal@jjjjjenterprises.com
+
+Legal notices must be sent by email to the address above. A physical mailing address will be provided on request.
