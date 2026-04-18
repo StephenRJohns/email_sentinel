@@ -88,7 +88,7 @@ Every scope in `appsscript.json` is required:
 
 ### Email alerting is intentionally absent
 
-We do not support email as an alerting channel. Alert channels are: SMS (6 providers), Google Chat, Google Calendar, Google Sheets, Google Tasks, and MCP servers. Adding outbound email would require the `gmail.send` scope, which is outside the scope of this product's design — do not add email alerting back without revisiting the product scope.
+We do not support email as an alerting channel. Alert channels are: SMS, Google Chat, Google Calendar, Google Sheets, Google Tasks, and MCP servers.
 
 ### SMS provider dispatch
 
