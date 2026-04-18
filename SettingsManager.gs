@@ -51,7 +51,9 @@ const DEFAULT_SETTINGS = {
   // Google Tasks
   tasksListId: '',
   // SMS recipients (named contacts to select in rules)
-  smsRecipients: '[]'
+  smsRecipients: '[]',
+  // License tier (Free by default; 'pro' unlocks higher limits and premium channels)
+  license: { tier: 'free' }
 };
 
 function loadSettings() {

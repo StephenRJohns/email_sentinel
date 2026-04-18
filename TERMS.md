@@ -51,9 +51,68 @@ The Service depends on, and transmits data to, third-party services that you cho
 
 Your use of each third-party service is governed by that provider's own terms and privacy policy. We are not responsible for the acts, omissions, availability, accuracy, or legality of any third-party service. Charges, quotas, and rate limits imposed by third-party providers are your responsibility.
 
-## 6. Fees
+## 6. Fees, Subscriptions, and Refunds
 
-The Service itself is provided to you under the license described in the LICENSE file in this repository. Some third-party services it integrates with may charge you directly (for example, Twilio bills per SMS, and Google may bill for Gemini usage above the free tier). Those charges are between you and the provider.
+### 6.1 Plans
+
+The Service is offered on a freemium model:
+
+- **Free plan** — no charge. Subject to the feature limits described in the Service's in-app pricing page (currently: up to 3 rules, minimum 30-minute polling interval, no Google Chat or MCP server channels, no AI-assisted rule writing, 30-day activity log retention).
+- **Pro plan** — paid subscription at the price published in the Google Workspace Marketplace listing at the time of purchase ("List Price"). Pro unlocks the features described in the in-app pricing page.
+- **Founding-member lifetime plan** — a one-time purchase offered in limited quantity at launch, granting Pro features for the life of the Service.
+
+Features, limits, and List Prices are described in the in-app Help, the Marketplace listing, and the repository README. JJJJJ Enterprises, LLC ("we") reserves the right to change features or limits on notice as described in Section 6.5.
+
+### 6.2 Payment processor
+
+All subscriptions and one-time purchases are transacted through Google LLC's Google Workspace Marketplace billing. We do not collect, store, or process your payment card details. Your billing relationship for the subscription is with Google; our relationship with you is governed by these Terms and the License. Google's terms, including its refund and billing policies, apply to the payment transaction itself in addition to these Terms.
+
+### 6.3 Auto-renewal
+
+Monthly and annual Pro subscriptions automatically renew at the end of each billing period for another equivalent period at the then-current List Price, **unless you cancel before the renewal date**. You can cancel at any time from the Google Workspace Marketplace subscription management page; cancellation stops future renewals but does not entitle you to a refund of the current period's fee except as required by law.
+
+**California auto-renewal disclosure (Business & Professions Code § 17600 et seq.):** (i) the subscription will continue until you cancel; (ii) we will notify you of material subscription term changes at least 7 days before any change takes effect; (iii) cancellation can be performed entirely online through the Marketplace subscription page; (iv) you will be charged at the start of each renewal period at the then-current price.
+
+### 6.4 Free trial (if offered)
+
+If we offer a free trial of Pro, the trial will convert to a paid Pro subscription at the end of the trial period unless you cancel before the trial ends. Any free-trial terms stated in the Marketplace listing (duration, eligibility, limits) control if they conflict with this Section.
+
+### 6.5 Price changes
+
+We may change List Prices from time to time. A price change will not affect the current paid billing period. For monthly subscribers we will give at least **30 days' notice** before a price change takes effect at renewal; for annual subscribers we will give at least **60 days' notice**. Notice will be delivered by email to the Google account associated with the subscription or through the Marketplace. If you do not want to renew at the new price, cancel before the renewal date. Continued use after the renewal constitutes acceptance of the new price. Founding-member lifetime purchases are not subject to recurring fees.
+
+### 6.6 Refunds and cancellation
+
+**Monthly subscriptions.** Refunds are not generally offered for monthly subscriptions. You may cancel at any time to stop future renewals. If required by the mandatory law of your jurisdiction (for example, the EU Consumer Rights Directive's 14-day right of withdrawal for consumers in the EEA/UK), we will honor that right.
+
+**Annual subscriptions.** Within **14 days** of the initial purchase or first renewal charge, you may request a refund of the annual fee if you have not substantially used Pro features during the period (this is determined in good faith; continuing use beyond a brief evaluation is considered substantial use). Outside that 14-day window, annual subscriptions are non-refundable except where required by law.
+
+**Founding-member lifetime.** Refundable within **30 days** of purchase, less any portion of that price corresponding to substantial Pro-feature use. After 30 days, non-refundable.
+
+Refund requests must be sent to legal@jjjjjenterprises.com with your Gmail address and transaction ID. Refunds, when issued, are processed through Google and may take up to **10 business days** to appear on your statement. Chargebacks initiated without first contacting us may result in termination of your account.
+
+### 6.7 Taxes
+
+List Prices are exclusive of any applicable sales, use, VAT, GST, or other transaction taxes, which may be collected by Google at checkout based on your billing address. You are responsible for any taxes not collected by Google.
+
+### 6.8 Downgrade behavior
+
+If your Pro subscription lapses, is cancelled, or is refunded, your account reverts to the Free plan at the end of the paid period. **All of your existing rules, settings, and stored data are preserved.** However:
+
+- Rules in excess of the Free plan rule limit will not evaluate until you either (a) delete rules to return under the limit, or (b) re-subscribe to Pro;
+- Polling is clamped back to the Free plan minimum interval;
+- Google Chat and MCP server channel selections on any rule are ignored (but preserved, so they re-activate on re-upgrade);
+- AI-assisted rule writing is disabled.
+
+We will not silently delete your data due to a downgrade.
+
+### 6.9 Third-party charges
+
+Independent of your emAIl Sentinel subscription, third-party services you enable may charge you directly (for example, Twilio bills per SMS, your chosen SMS provider may charge for a phone number, and Google may bill for Gemini usage above its free tier). Those charges are strictly between you and the third-party provider. We do not collect, remit, or refund third-party charges.
+
+### 6.10 Fair-use and abuse
+
+The Service is priced for personal use. We may throttle, suspend, or terminate accounts that we reasonably determine are abusing the Service (including but not limited to: use by multiple individuals through a single account, use in a manner inconsistent with the consumer-use scope in Section 2, or use to circumvent the Free plan rule or polling limits).
 
 ## 7. Intellectual Property
 

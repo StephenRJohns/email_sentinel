@@ -484,3 +484,60 @@ test('S19: invalid max email age inputs are clamped', async ({ page }) => {
   await fillField(getFrame(page), 'Only check emails newer than', '30');
   await clickButton(getFrame(page), 'Save settings');
 });
+
+// ─── Section 20 · Free Plan Enforcement ──────────────────────────────────────
+
+test('S20: home card shows Free plan indicator and Upgrade button', async ({ page }) => {
+  const frame = await openAddon(page);
+  await expect(frame.getByText(/Plan/i)).toBeVisible();
+  await expect(frame.getByText(/Free \(/)).toBeVisible();
+  await expect(frame.getByRole('button', { name: /Upgrade to Pro/i })).toBeVisible();
+});
+
+test('S20: polling interval is clamped to 30 min on Free plan', async ({ page }) => {
+  const frame = await openAddon(page);
+  await clickButton(frame, 'Settings');
+  await fillField(getFrame(page), 'Polling interval', '1');
+  await clickButton(getFrame(page), 'Save settings');
+  await expectToast(page, /raised to 30 min|Free plan minimum/i);
+  await clickButton(getFrame(page), 'Settings');
+  await expect(getFrame(page).getByLabel(/Polling interval/i)).toHaveValue('30');
+});
+
+test('S20: rule count limit blocks a 4th rule', async ({ page }) => {
+  const frame = await openAddon(page);
+  // Ensure exactly 3 rules exist by creating them
+  for (let i = 1; i <= 3; i++) {
+    await clickButton(getFrame(page), 'Rules');
+    await clickButton(getFrame(page), '+ New rule');
+    await fillField(getFrame(page), 'Rule name', `Free limit test ${i}`);
+    await fillField(getFrame(page), 'Gmail labels', 'INBOX');
+    await fillField(getFrame(page), 'Rule text', `Any email ${i}.`);
+    await clickButton(getFrame(page), 'Save');
+  }
+  // 4th should fail
+  await clickButton(getFrame(page), 'Rules');
+  await clickButton(getFrame(page), '+ New rule');
+  await fillField(getFrame(page), 'Rule name', 'Free limit test 4');
+  await fillField(getFrame(page), 'Gmail labels', 'INBOX');
+  await fillField(getFrame(page), 'Rule text', 'Should fail.');
+  await clickButton(getFrame(page), 'Save');
+  await expectToast(page, /Rule limit reached|Upgrade to Pro/i);
+});
+
+test('S20: rule editor hides Chat and MCP channels on Free', async ({ page }) => {
+  const frame = await openAddon(page);
+  await clickButton(frame, 'Rules');
+  await getFrame(page).getByText(/Free limit test 1/).click();
+  await expect(getFrame(page).getByText(/Google Chat webhooks.*Pro plan only/i)).toBeVisible();
+  await expect(getFrame(page).getByText(/MCP servers.*Pro plan only/i)).toBeVisible();
+});
+
+test('S20: AI Suggest buttons show (Pro) and return upgrade toast on Free', async ({ page }) => {
+  const frame = await openAddon(page);
+  await clickButton(frame, 'Rules');
+  await getFrame(page).getByText(/Free limit test 1/).click();
+  await expect(getFrame(page).getByRole('button', { name: /Suggest rule text \(Pro\)/i })).toBeVisible();
+  await clickButton(getFrame(page), 'Suggest rule text (Pro)');
+  await expectToast(page, /Upgrade to Pro/i);
+});

@@ -12,18 +12,19 @@ Everything runs inside your Google account — no machine to keep running, no ex
 
 1. [What it does](#1-what-it-does)
 2. [How it works](#2-how-it-works)
-3. [Repository layout](#3-repository-layout)
-4. [Prerequisites](#4-prerequisites)
-5. [Install with `clasp`](#5-install-with-clasp)
-6. [Install via the Apps Script editor (no CLI)](#6-install-via-the-apps-script-editor-no-cli)
-7. [First-run configuration](#7-first-run-configuration)
-8. [Writing rules](#8-writing-rules)
-9. [Gemini pricing and model tiers](#9-gemini-pricing-and-model-tiers)
-10. [Alert channels](#10-alert-channels)
-11. [Privacy and storage](#11-privacy-and-storage)
-12. [Troubleshooting](#12-troubleshooting)
-13. [Why an Add-on instead of a Chrome extension?](#13-why-an-add-on-instead-of-a-chrome-extension)
-14. [Legal](#14-legal)
+3. [Plans and pricing](#3-plans-and-pricing)
+4. [Repository layout](#4-repository-layout)
+5. [Prerequisites](#5-prerequisites)
+6. [Install with `clasp`](#6-install-with-clasp)
+7. [Install via the Apps Script editor (no CLI)](#7-install-via-the-apps-script-editor-no-cli)
+8. [First-run configuration](#8-first-run-configuration)
+9. [Writing rules](#9-writing-rules)
+10. [Gemini pricing and model tiers](#10-gemini-pricing-and-model-tiers)
+11. [Alert channels](#11-alert-channels)
+12. [Privacy and storage](#12-privacy-and-storage)
+13. [Troubleshooting](#13-troubleshooting)
+14. [Why an Add-on instead of a Chrome extension?](#14-why-an-add-on-instead-of-a-chrome-extension)
+15. [Legal](#15-legal)
 
 ---
 
@@ -74,7 +75,32 @@ All state lives in `PropertiesService.getUserProperties()`:
 
 ---
 
-## 3. Repository layout
+## 3. Plans and pricing
+
+emAIl Sentinel is offered on a freemium model for individual personal use.
+
+| Feature | Free | Pro |
+|---|---|---|
+| Price | Free | **$4.99/month** or **$39/year** |
+| Active rules | Up to **3** | Unlimited |
+| Minimum polling interval | Every **30 min** | Every **1 min** |
+| Alert channels — Google Calendar, Sheets, Tasks | ✅ | ✅ |
+| Alert channels — SMS (all six providers) | ✅ | ✅ |
+| Alert channels — Google Chat webhook | — | ✅ |
+| Alert channels — MCP servers (Slack, Teams, Asana, custom) | — | ✅ |
+| AI-assisted rule writing (*Suggest rule text*) | — | ✅ |
+| Activity log retention | 30 days | Unlimited |
+| Support | GitHub Issues | Email + GitHub Issues |
+
+**Founding-member lifetime tier** — $79 one-time for the first 500 buyers, then this tier is retired.
+
+Upgrading is done from the home card. Downgrading keeps all your rules intact; Chat and MCP channels are silently disabled and polling is clamped to the Free minimum until you re-upgrade.
+
+emAIl Sentinel is licensed for individual, non-commercial personal use. Business and enterprise licensing is not offered; see [TERMS.md](./TERMS.md).
+
+---
+
+## 4. Repository layout
 
 ```
 email_sentinel/
@@ -111,7 +137,7 @@ There is no build step, no `requirements.txt`, no installer. The whole thing is 
 
 ---
 
-## 4. Prerequisites
+## 5. Prerequisites
 
 - A Google account (personal Gmail or Google Workspace).
 - A free **Gemini API key** from [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
@@ -120,7 +146,7 @@ There is no build step, no `requirements.txt`, no installer. The whole thing is 
 
 ---
 
-## 5. Install with `clasp`
+## 6. Install with `clasp`
 
 `clasp` is Google's CLI for pushing local Apps Script files into a project.
 
@@ -152,7 +178,7 @@ Inside the Apps Script editor:
 
 ---
 
-## 6. Install via the Apps Script editor (no CLI)
+## 7. Install via the Apps Script editor (no CLI)
 
 If you'd rather not install `clasp`:
 
@@ -163,7 +189,7 @@ If you'd rather not install `clasp`:
 
 ---
 
-## 7. First-run configuration
+## 8. First-run configuration
 
 After installation, open Gmail and click the emAIl Sentinel icon in the right rail.
 
@@ -179,7 +205,7 @@ The **first** check for any new label is treated as a baseline (no alerts) so yo
 
 ---
 
-## 8. Writing rules
+## 9. Writing rules
 
 Rules are evaluated by Gemini against:
 
@@ -253,7 +279,7 @@ The real power is mixing channels:
 
 ---
 
-## 9. Gemini pricing and model tiers
+## 10. Gemini pricing and model tiers
 
 emAIl Sentinel calls the Gemini API **twice per new email per active rule**: once to evaluate whether the email matches, and once to format the alert message. Already-seen messages are skipped entirely.
 
@@ -320,7 +346,7 @@ If you regularly hit the free limit:
 
 ---
 
-## 10. Alert channels
+## 11. Alert channels
 
 ### SMS
 Google Workspace does not provide a first-party SMS API, so emAIl Sentinel ships with native support for six SMS providers plus a generic webhook escape hatch. Click **SMS setup guide** in the add-on Settings for a comparison table with sign-up links and step-by-step instructions.
@@ -383,7 +409,7 @@ Click **Load defaults** when editing a server to populate the tool name and args
 
 ---
 
-## 11. Privacy and storage
+## 12. Privacy and storage
 
 | What | Where it lives |
 |---|---|
@@ -396,7 +422,7 @@ Nothing is stored on any third-party server. The add-on has no backend. The Goog
 
 ---
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 | Symptom | Fix |
 |---|---|
@@ -412,7 +438,7 @@ You can also peek at the trigger execution history in the Apps Script editor und
 
 ---
 
-## 13. Why an Add-on instead of a Chrome extension?
+## 14. Why an Add-on instead of a Chrome extension?
 
 A Chrome extension only runs while a Chrome tab is open. emAIl Sentinel needs to monitor Gmail continuously in the background — the right primitive for that is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings.
 
@@ -420,7 +446,7 @@ If you'd rather have an in-Gmail browser-only experience too, the same `.gs` fil
 
 ---
 
-## 14. Legal
+## 15. Legal
 
 Copyright (c) 2026 JJJJJ Enterprises, LLC. All rights reserved.
 

@@ -26,8 +26,15 @@ function buildHomeCard() {
   const monitoring = isMonitoringActive();
   const enabledCount = rules.filter(r => r.enabled).length;
 
+  const tier = getTier();
+  const limits = getTierLimits();
+  const planLabel = tier === 'pro' ? 'Pro' : 'Free (' + rules.length + '/' + limits.maxRules + ' rules, ' + limits.minPollMinutes + ' min min poll)';
+
   const statusSection = CardService.newCardSection()
     .setHeader('<b>Status</b>')
+    .addWidget(CardService.newDecoratedText()
+      .setTopLabel('Plan')
+      .setText(planLabel))
     .addWidget(CardService.newDecoratedText()
       .setTopLabel('Monitoring')
       .setText(monitoring ? 'Running' : 'Stopped'))
@@ -37,6 +44,12 @@ function buildHomeCard() {
     .addWidget(CardService.newDecoratedText()
       .setTopLabel('Gemini API key')
       .setText(settings.geminiApiKey ? 'Configured' : 'NOT configured'));
+
+  if (tier === 'free') {
+    statusSection.addWidget(CardService.newTextButton()
+      .setText('Upgrade to Pro')
+      .setOpenLink(CardService.newOpenLink().setUrl(UPGRADE_URL)));
+  }
 
   if (monitoring) {
     statusSection.addWidget(CardService.newTextButton()
@@ -318,7 +331,7 @@ function buildRuleEditorCard(rule) {
     .setMultiline(true)
     .setValue(r.ruleText || ''));
   ruleTextSection.addWidget(CardService.newTextButton()
-    .setText('Suggest rule text')
+    .setText(isPro() ? 'Suggest rule text' : 'Suggest rule text (Pro)')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestRuleText')
       .setParameters({ ruleId: r.id || '' })));
@@ -356,45 +369,57 @@ function buildRuleEditorCard(rule) {
     }
   }
 
-  // MCP servers
-  const configuredMcpServers = loadMcpServers();
-  if (configuredMcpServers.length === 0) {
+  const editorLimits = getTierLimits();
+
+  // MCP servers (Pro)
+  if (!editorLimits.allowMcp) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">No MCP servers configured \u2014 MCP lets <b>emAIl Sentinel</b> send alerts to Slack, Microsoft 365/Teams, Asana, or any custom MCP endpoint.</font>'));
-    channelsSection.addWidget(CardService.newTextButton()
-      .setText('Add MCP server(s) in Settings')
-      .setOnClickAction(navAction_('buildSettingsCard')));
+      .setText('<font color="#888888">MCP servers (Slack, Teams, Asana) \u2014 <b>Pro plan only</b>.</font>'));
   } else {
-    const mcpInput = CardService.newSelectionInput()
-      .setType(CardService.SelectionInputType.CHECK_BOX)
-      .setFieldName('mcpServers')
-      .setTitle('MCP servers');
-    configuredMcpServers.forEach(function(sv) {
-      const selected = (alerts.mcpServerIds || []).indexOf(sv.id) >= 0;
-      mcpInput.addItem(sv.name, sv.id, selected);
-    });
-    channelsSection.addWidget(mcpInput);
+    const configuredMcpServers = loadMcpServers();
+    if (configuredMcpServers.length === 0) {
+      channelsSection.addWidget(CardService.newTextParagraph()
+        .setText('<font color="#888888">No MCP servers configured \u2014 MCP lets <b>emAIl Sentinel</b> send alerts to Slack, Microsoft 365/Teams, Asana, or any custom MCP endpoint.</font>'));
+      channelsSection.addWidget(CardService.newTextButton()
+        .setText('Add MCP server(s) in Settings')
+        .setOnClickAction(navAction_('buildSettingsCard')));
+    } else {
+      const mcpInput = CardService.newSelectionInput()
+        .setType(CardService.SelectionInputType.CHECK_BOX)
+        .setFieldName('mcpServers')
+        .setTitle('MCP servers');
+      configuredMcpServers.forEach(function(sv) {
+        const selected = (alerts.mcpServerIds || []).indexOf(sv.id) >= 0;
+        mcpInput.addItem(sv.name, sv.id, selected);
+      });
+      channelsSection.addWidget(mcpInput);
+    }
   }
 
-  // Google Chat
-  const chatRegistry = parseChatSpaces_(settings.chatSpaces);
-  const configuredChatNames = Object.keys(chatRegistry);
-  if (configuredChatNames.length === 0) {
+  // Google Chat (Pro)
+  if (!editorLimits.allowChat) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">Google Chat not configured \u2014 no webhook URLs are set up.</font>'));
-    channelsSection.addWidget(CardService.newTextButton()
-      .setText('Configure Chat in Settings')
-      .setOnClickAction(navAction_('buildSettingsCard')));
+      .setText('<font color="#888888">Google Chat webhooks \u2014 <b>Pro plan only</b>.</font>'));
   } else {
-    const chatInput = CardService.newSelectionInput()
-      .setType(CardService.SelectionInputType.CHECK_BOX)
-      .setFieldName('chatSpaces')
-      .setTitle('Google Chat');
-    configuredChatNames.forEach(function(nm) {
-      const selected = (alerts.chatSpaces || []).indexOf(nm) >= 0;
-      chatInput.addItem(nm, nm, selected);
-    });
-    channelsSection.addWidget(chatInput);
+    const chatRegistry = parseChatSpaces_(settings.chatSpaces);
+    const configuredChatNames = Object.keys(chatRegistry);
+    if (configuredChatNames.length === 0) {
+      channelsSection.addWidget(CardService.newTextParagraph()
+        .setText('<font color="#888888">Google Chat not configured \u2014 no webhook URLs are set up.</font>'));
+      channelsSection.addWidget(CardService.newTextButton()
+        .setText('Configure Chat in Settings')
+        .setOnClickAction(navAction_('buildSettingsCard')));
+    } else {
+      const chatInput = CardService.newSelectionInput()
+        .setType(CardService.SelectionInputType.CHECK_BOX)
+        .setFieldName('chatSpaces')
+        .setTitle('Google Chat');
+      configuredChatNames.forEach(function(nm) {
+        const selected = (alerts.chatSpaces || []).indexOf(nm) >= 0;
+        chatInput.addItem(nm, nm, selected);
+      });
+      channelsSection.addWidget(chatInput);
+    }
   }
 
   // Google Calendar, Sheets, Tasks
@@ -423,7 +448,7 @@ function buildRuleEditorCard(rule) {
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
   alertMsgSection.addWidget(CardService.newTextButton()
-    .setText('Suggest content for selected channels')
+    .setText(isPro() ? 'Suggest content for selected channels' : 'Suggest content (Pro)')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestAlertFormat')
       .setParameters({ ruleId: r.id || '' })));
@@ -483,13 +508,20 @@ function handleSaveRule(e) {
   if (!ruleText) return notificationResponse_('Please enter a rule description.');
   if (!labels.length) return notificationResponse_('Please list at least one Gmail label.');
 
+  const limits = getTierLimits();
+  let proBlocked = '';
+  const chatSpacesFinal = limits.allowChat ? chatSpaces : [];
+  if (!limits.allowChat && chatSpaces.length) proBlocked = 'Google Chat';
+  const mcpServerIdsFinal = limits.allowMcp ? mcpServerIds : [];
+  if (!limits.allowMcp && mcpServerIds.length) proBlocked = proBlocked ? (proBlocked + ' and MCP servers') : 'MCP servers';
+
   const alertsObj = {
     smsNumbers: smsNumbers,
-    chatSpaces: chatSpaces,
+    chatSpaces: chatSpacesFinal,
     calendarEnabled: calendarEnabled,
     sheetsEnabled: sheetsEnabled,
     tasksEnabled: tasksEnabled,
-    mcpServerIds: mcpServerIds
+    mcpServerIds: mcpServerIdsFinal
   };
 
   const id = e.parameters.ruleId;
@@ -509,10 +541,13 @@ function handleSaveRule(e) {
   try { upsertRule(rule); }
   catch (err) { return notificationResponse_('Save failed: ' + err); }
 
-  const hasChannel = smsNumbers.length > 0 || chatSpaces.length > 0 ||
-    calendarEnabled || sheetsEnabled || tasksEnabled || mcpServerIds.length > 0;
-  const msg = hasChannel ? 'Rule saved.'
+  const hasChannel = smsNumbers.length > 0 || chatSpacesFinal.length > 0 ||
+    calendarEnabled || sheetsEnabled || tasksEnabled || mcpServerIdsFinal.length > 0;
+  let msg = hasChannel ? 'Rule saved.'
     : 'Rule saved, but no alert channels configured. Edit the rule to add at least one.';
+  if (proBlocked) {
+    msg = 'Rule saved. ' + proBlocked + ' require Pro — selections removed. Upgrade to enable them.';
+  }
 
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popCard().updateCard(buildRulesCard()))
@@ -817,10 +852,12 @@ function handleSaveSettings(e) {
   const prev = loadSettings();
   const smsProvider = get('smsProvider') || 'none';
 
+  const pollEnforced = enforcePollFloor(get('pollMinutes') || '5');
+
   const next = {
     geminiApiKey: get('geminiApiKey') || prev.geminiApiKey || '',
     geminiModel: get('geminiModel') || GEMINI_DEFAULT_MODEL,
-    pollMinutes: parseInt(get('pollMinutes') || '5', 10),
+    pollMinutes: pollEnforced.value,
     maxEmailAgeDays: Math.max(1, parseInt(get('maxEmailAgeDays') || '30', 10)) || 30,
     businessHoursEnabled: getCheckbox('businessHoursEnabled'),
     businessHoursStart: get('businessHoursStart') || '9:00 AM',
@@ -865,9 +902,13 @@ function handleSaveSettings(e) {
     installTrigger(next.pollMinutes);
   }
 
+  const toast = pollEnforced.clamped
+    ? 'Settings saved. Polling raised to ' + next.pollMinutes + ' min (Free plan minimum).'
+    : 'Settings saved.';
+
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().updateCard(buildSettingsCard()))
-    .setNotification(CardService.newNotification().setText('Settings saved.'))
+    .setNotification(CardService.newNotification().setText(toast))
     .build();
 }
 
@@ -1353,19 +1394,25 @@ function handleCreateStarterRules(e) {
   try {
     const rules = loadRules();
     const existingNames = rules.map(function(r) { return r.name; });
+    const limits = getTierLimits();
     let count = 0;
+    let skipped = 0;
     STARTER_RULES_.forEach(function(sr) {
       if (existingNames.indexOf(sr.name) >= 0) return;
+      if (rules.length >= limits.maxRules) { skipped++; return; }
       const rule = createRule(sr.name, ['INBOX'], sr.ruleText, {});
       rule.enabled = false;
       rules.push(rule);
       count++;
     });
     saveRules(rules);
+    let msg = count + ' starter rules created (disabled). Edit each to add alert recipients and enable.';
+    if (skipped > 0) {
+      msg += ' ' + skipped + ' skipped (Free plan limit reached — upgrade to Pro for unlimited rules).';
+    }
     return CardService.newActionResponseBuilder()
       .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildRulesCard()))
-      .setNotification(CardService.newNotification()
-        .setText(count + ' starter rules created (disabled). Edit each to add alert recipients and enable.'))
+      .setNotification(CardService.newNotification().setText(msg))
       .build();
   } catch (err) {
     return notificationResponse_('Could not create starter rules: ' + (err.message || err));
@@ -1744,6 +1791,10 @@ function handleConfirmDeleteMcpServer(e) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function handleSuggestAlertFormat(e) {
+  if (!isPro()) {
+    return notificationResponse_(upgradeRequiredMessage('AI-assisted alert content'));
+  }
+
   const inputs = e.commonEventObject.formInputs || {};
   const get = key => {
     const v = inputs[key];
@@ -1915,6 +1966,10 @@ function handleSuggestRuleText(e) {
     return !!(v && v.stringInputs && v.stringInputs.value &&
       v.stringInputs.value.indexOf('true') >= 0);
   };
+
+  if (!isPro()) {
+    return notificationResponse_(upgradeRequiredMessage('AI-assisted rule writing'));
+  }
 
   const ruleId          = e.parameters.ruleId || '';
   const name            = get('name');

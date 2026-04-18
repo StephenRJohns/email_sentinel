@@ -41,6 +41,7 @@ The Service does **not** read or transmit:
 | **Alert recipients** (phone numbers, Chat space names) | Stored as part of your rules in `UserProperties`. Phone numbers are passed to your configured SMS provider. Chat space names are resolved to webhook URLs you configure. |
 | **Rules** (names, label filters, rule text, alert format, channel toggles) | Stored in `UserProperties`. Rule text and alert format instructions are sent to the Google Gemini API. |
 | **Settings** (model choice, poll interval, business hours, channel config) | Stored in `UserProperties`. Not shared with any third party. |
+| **License tier** (Free or Pro) | Stored in `UserProperties` to gate feature access. No personal information is included. |
 | **Trigger management** | The Service uses the `script.scriptapp` permission to create and manage time-driven triggers that schedule background email checks at the interval you configure. No data is shared with third parties for this purpose. |
 
 ## 4. Third-Party Data Sharing
@@ -61,6 +62,10 @@ The Service shares data with third-party services only when you explicitly enabl
 The Google-native channels (Chat, Calendar, Sheets, Tasks) do not send data to any third party — they write to services within your own Google account using your own OAuth credentials.
 
 We do not share any data with analytics services, advertising networks, data brokers, or any party not listed above.
+
+### 4.1 Payment Data
+
+If you subscribe to the Pro plan or purchase the Founding-member lifetime option, your payment is processed by **Google LLC through the Google Workspace Marketplace**. We do not receive, collect, or store your credit card number, bank account, or other payment details. Google provides us with limited subscription metadata (a tier entitlement and subscription status) so the add-on can unlock paid features. Google's handling of your payment data is governed by [Google's Privacy Policy](https://policies.google.com/privacy) and the Google Workspace Marketplace terms.
 
 ## 5. Data Retention
 

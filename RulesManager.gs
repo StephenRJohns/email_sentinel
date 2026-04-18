@@ -92,6 +92,10 @@ function upsertRule(rule) {
   if (idx >= 0) {
     rules[idx] = rule;
   } else {
+    const limits = getTierLimits();
+    if (rules.length >= limits.maxRules) {
+      throw new Error('Rule limit reached for your plan (' + limits.maxRules + ' rules on Free). Upgrade to Pro for unlimited rules.');
+    }
     rules.push(rule);
   }
   saveRules(rules);
