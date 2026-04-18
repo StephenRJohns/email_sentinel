@@ -1211,9 +1211,9 @@ function helpTopics_() {
         '5. Click <b>Start monitoring</b>. A time-driven trigger runs in the background even when Gmail is closed.<br><br>' +
         '<b>Writing a rule</b><br>' +
         'Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>' +
-        '\u2022 "Any email from @tma.com with a PDF that looks like an invoice."<br>' +
+        '\u2022 "Any email from @example.com with a PDF that looks like an invoice."<br>' +
         '\u2022 "Subject contains URGENT or CRITICAL."<br>' +
-        '\u2022 "Email from boss@company.com asking for a status update."<br><br>' +
+        '\u2022 "Email from boss@example.com asking for a status update."<br><br>' +
         'Each rule has an <b>Alert message content</b> field \u2014 plain-English instructions that tell Gemini how to format the alert. The default includes date, sender, subject, summary, and action items. Click <b>Suggest rule text</b> or <b>Suggest content for selected channels</b> in the rule editor to have Gemini draft a starting point.<br><br>' +
         '<b>Labels</b><br>' +
         'Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as shown in Gmail. Multiple labels: comma-separated.'

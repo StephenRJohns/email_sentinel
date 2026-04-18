@@ -218,9 +218,9 @@ Attachment **contents** are not read.
 
 Good examples:
 
-- `"Any email from anyone @tma.com that has a PDF attachment that looks like an invoice or purchase order."`
+- `"Any email from anyone @example.com that has a PDF attachment that looks like an invoice or purchase order."`
 - `"Subject contains URGENT or CRITICAL."`
-- `"Email from boss@company.com asking for a status update."`
+- `"Email from boss@example.com asking for a status update."`
 - `"Automated notification about a server being down or an alert being triggered."`
 
 Each rule also has an **Alert message content** field — plain-English instructions Gemini uses to compose the alert message itself. The default produces a date / sender / subject / summary / action items block; override it per rule when you want something different (a one-liner, a bullet list, …). The **Suggest rule text** and **Suggest content for selected channels** buttons in the rule editor let Gemini draft either field for you based on the rule name, labels, and the channels you've ticked.
@@ -273,7 +273,7 @@ Every rule works with every channel — just enable the ones you want in the rul
 
 The real power is mixing channels:
 
-- **Critical vendor issue:** Rule: *"Email from any @bigclient.com address marked urgent or mentioning an outage."* → SMS (instant phone buzz) + Chat "Client Escalations" (team sees it) + Calendar event (blocks your time) + Sheets (audit trail)
+- **Critical vendor issue:** Rule: *"Email from any @example.com address marked urgent or mentioning an outage."* → SMS (instant phone buzz) + Chat "Client Escalations" (team sees it) + Calendar event (blocks your time) + Sheets (audit trail)
 - **New hire onboarding:** Rule: *"Email from HR containing 'new hire', 'onboarding', or 'start date'."* → Task (to-do list) + Sheets (track all new hires) + Chat "People Ops" (team visibility)
 - **Legal filing deadline:** Rule: *"Email from outside counsel or the court mentioning a filing deadline or hearing date."* → Calendar event (date on your calendar) + Task (action item) + SMS (don't miss it) + Sheets (matter log)
 
