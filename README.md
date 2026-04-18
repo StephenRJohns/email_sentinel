@@ -141,7 +141,7 @@ There is no build step, no `requirements.txt`, no installer. The whole thing is 
 
 - A Google account (personal Gmail or Google Workspace).
 - A free **Gemini API key** from [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
-- (Optional) An SMS provider account for SMS alerts — see [Alert channels](#10-alert-channels) for the six supported providers.
+- (Optional) An SMS provider account for SMS alerts — see [Alert channels](#11-alert-channels) for the six supported providers.
 - For the `clasp` install path: [Node.js 18+](https://nodejs.org) and `npm`.
 
 ---
