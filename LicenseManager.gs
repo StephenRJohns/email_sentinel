@@ -30,6 +30,21 @@ const TIERS = {
 
 const UPGRADE_URL = 'https://workspace.google.com/marketplace'; // updated at launch
 
+// Founding-member lifetime offer — $79 one-time, first 500 buyers only.
+// FOUNDING_MEMBERS_SOLD is bumped manually (or from the Marketplace subscription
+// API once wired up). When FOUNDING_MEMBERS_SOLD >= FOUNDING_MEMBERS_LIMIT, the
+// UI hides the offer and the Marketplace SKU should be paused.
+const FOUNDING_MEMBERS_LIMIT = 500;
+const FOUNDING_MEMBERS_SOLD  = 0;
+
+function foundingMembersRemaining() {
+  return Math.max(0, FOUNDING_MEMBERS_LIMIT - FOUNDING_MEMBERS_SOLD);
+}
+
+function isFoundingMemberOfferActive() {
+  return foundingMembersRemaining() > 0;
+}
+
 function getTier() {
   const s = loadSettings();
   const tier = (s.license && s.license.tier) || 'free';

@@ -46,6 +46,11 @@ function buildHomeCard() {
       .setText(settings.geminiApiKey ? 'Configured' : 'NOT configured'));
 
   if (tier === 'free') {
+    if (isFoundingMemberOfferActive()) {
+      statusSection.addWidget(CardService.newTextParagraph()
+        .setText('<b>Founding-member lifetime — $79</b><br>' +
+          '<font color="#888888">' + foundingMembersRemaining() + ' of ' + FOUNDING_MEMBERS_LIMIT + ' remaining. Retired after 500 sold.</font>'));
+    }
     statusSection.addWidget(CardService.newTextButton()
       .setText('Upgrade to Pro')
       .setOpenLink(CardService.newOpenLink().setUrl(UPGRADE_URL)));

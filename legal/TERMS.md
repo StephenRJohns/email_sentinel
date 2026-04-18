@@ -76,7 +76,7 @@ The Service is offered on a freemium model:
 
 - **Free plan** — no charge. Subject to the feature limits described in the Service's in-app pricing page (currently: up to 3 rules, minimum 15-minute polling interval, no Google Chat or MCP server channels, no AI-assisted rule writing, 30-day activity log retention).
 - **Pro plan** — paid subscription at the price published in the Google Workspace Marketplace listing at the time of purchase ("List Price"). Pro unlocks the features described in the in-app pricing page.
-- **Founding-member lifetime plan** — a one-time purchase offered in limited quantity at launch, granting Pro features for the life of the Service (see Section 6.11).
+- **Founding-member lifetime plan** — a one-time purchase of **USD $79**, available to the first **500 purchasers only**. Once 500 lifetime purchases have been recorded on the Google Workspace Marketplace, this plan will be permanently retired and will no longer be available at any price. Grants Pro features for the life of the Service (see Section 6.11).
 
 Features, limits, and List Prices are described in the in-app Help, the Marketplace listing, and the repository README. JJJJJ Enterprises, LLC reserves the right to change features or limits on notice as described in Section 6.5.
 
