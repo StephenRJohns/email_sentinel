@@ -178,10 +178,14 @@ function buildRulesCard() {
     .setHeader(CardService.newCardHeader().setTitle('Rules'));
 
   const newSection = CardService.newCardSection()
-    .addWidget(CardService.newTextButton()
-      .setText('+ New rule')
-      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-      .setOnClickAction(action_('handleNewRule')));
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Home')
+        .setOnClickAction(action_('actionShowHome')))
+      .addButton(CardService.newTextButton()
+        .setText('+ New rule')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(action_('handleNewRule'))));
   card.addSection(newSection);
 
   if (!rules.length) {
@@ -577,6 +581,11 @@ function handleCancelEditor(e) {
 function buildSettingsCard() {
   const s = loadSettings();
 
+  const homeSection = CardService.newCardSection()
+    .addWidget(CardService.newTextButton()
+      .setText('Home')
+      .setOnClickAction(action_('actionShowHome')));
+
   const aiSection = CardService.newCardSection()
     .setHeader('<b>Gemini (rule evaluation)</b>');
   if (s.geminiApiKey) {
@@ -835,6 +844,7 @@ function buildSettingsCard() {
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Settings'))
+    .addSection(homeSection)
     .addSection(aiSection)
     .addSection(pollSection)
     .addSection(bizSection)
@@ -1168,6 +1178,9 @@ function buildHelpCard() {
   var card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
   var section = CardService.newCardSection()
+    .addWidget(CardService.newTextButton()
+      .setText('Home')
+      .setOnClickAction(action_('actionShowHome')))
     .addWidget(CardService.newTextParagraph().setText(
       'Tap a topic below for details.'));
   var topics = [
@@ -1364,9 +1377,13 @@ function buildStarterRulesCard() {
 
   if (toCreate.length === 0) {
     section.setHeader('All starter rules already exist.');
-    section.addWidget(CardService.newTextButton()
-      .setText('Back')
-      .setOnClickAction(action_('handlePopCard')));
+    section.addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Home')
+        .setOnClickAction(action_('actionShowHome')))
+      .addButton(CardService.newTextButton()
+        .setText('Back')
+        .setOnClickAction(action_('handlePopCard'))));
     return CardService.newCardBuilder()
       .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
       .addSection(section)
@@ -1385,9 +1402,13 @@ function buildStarterRulesCard() {
       .setText('Create starter rules')
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
       .setOnClickAction(action_('handleCreateStarterRules')))
-    .addWidget(CardService.newTextButton()
-      .setText('Cancel')
-      .setOnClickAction(action_('handlePopCard')));
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Home')
+        .setOnClickAction(action_('actionShowHome')))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handlePopCard'))));
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
