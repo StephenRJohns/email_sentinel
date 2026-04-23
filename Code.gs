@@ -51,3 +51,12 @@ function notificationResponse_(text) {
     .setNotification(CardService.newNotification().setText(text))
     .build();
 }
+
+// ── Testing helpers (run manually from the Apps Script editor) ────────────────
+
+// Resets all add-on state for this user to pristine first-use condition.
+// Run this before each E2E test suite run so S2 starts from a clean slate.
+function resetUserPropertiesForTesting() {
+  PropertiesService.getUserProperties().deleteAllProperties();
+  Logger.log('All user properties cleared — add-on is in pristine first-use state.');
+}
