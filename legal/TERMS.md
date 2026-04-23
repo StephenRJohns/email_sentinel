@@ -242,7 +242,7 @@ If any provision of these Terms is held unenforceable, the remaining provisions 
 
 ## 20. Entire Agreement
 
-These Terms, together with the LICENSE (at the repository root), PRIVACY.md, and DISCLAIMER.md, are the entire agreement between you and JJJJJ Enterprises, LLC concerning the Service and supersede any prior agreement on the subject. Our failure to enforce any right or provision is not a waiver of that right or provision.
+These Terms, together with the LICENSE (at the repository root), the [Privacy Policy](PRIVACY.md), and the [Disclaimer](DISCLAIMER.md), are the entire agreement between you and JJJJJ Enterprises, LLC concerning the Service and supersede any prior agreement on the subject. Our failure to enforce any right or provision is not a waiver of that right or provision.
 
 ---
 

@@ -32,7 +32,7 @@ Everything runs inside your Google account — no machine to keep running, no ex
 
 When a new email arrives in a watched Gmail label, emAIl Sentinel asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
 
-- **SMS** via your configured provider (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or a generic webhook), to named recipients you define in Settings.
+- **SMS** via your configured provider (bring your own — six quick-start presets plus a generic webhook for any other provider), to named recipients you define in Settings.
 - **Google Chat**, **Google Calendar**, **Google Sheets**, or **Google Tasks** — all within your own Google account, no extra sign-up needed.
 - **MCP servers** — Slack, Microsoft 365 / Teams, Asana, or any custom Model Context Protocol endpoint over HTTPS.
 
@@ -113,7 +113,7 @@ email_sentinel/
 ├── Cards.gs               # All CardService UI (home, rules, editor, settings, log, help)
 ├── MailWatcher.gs         # Time-driven trigger handler — polls Gmail, dispatches matches
 ├── RuleEvaluator.gs       # Gemini REST calls (rule evaluation + alert formatting)
-├── AlertDispatcher.gs     # Alert dispatch: 6 SMS providers, Chat, Calendar, Sheets, Tasks, MCP
+├── AlertDispatcher.gs     # Alert dispatch: BYO SMS (presets + generic webhook), Chat, Calendar, Sheets, Tasks, MCP
 ├── McpServers.gs          # MCP server CRUD + JSON-RPC 2.0 tool dispatch
 ├── RulesManager.gs        # CRUD for rules in UserProperties
 ├── SettingsManager.gs     # CRUD for settings; business-hours helpers
@@ -121,16 +121,22 @@ email_sentinel/
 │
 ├── Help.html              # Help content rendered inside the help card
 ├── README.md              # You are here
-│
 ├── LICENSE                # Proprietary software license
-├── TERMS.md               # Terms of Service
-├── PRIVACY.md             # Privacy Policy
-├── DISCLAIMER.md          # Warranty disclaimer, AI accuracy, no-reliance notice
 │
-└── images/                # Add-on icons and card banner
-    ├── ES_128.png         # 128×128 icon
-    ├── ES_32.png          # 32×32 icon
-    └── ES_Banner.png      # card banner
+├── images/                # Add-on icons and card banner
+│   ├── ES_128.png         # 128×128 icon
+│   ├── ES_32.png          # 32×32 icon
+│   └── ES_Banner.png      # card banner
+│
+├── landing/               # Public marketing landing page
+│   ├── index.html         # Self-contained landing page (no build step)
+│   ├── sitemap.xml        # XML sitemap for search engine indexing
+│   └── images/            # Landing page image assets
+│
+└── legal/                 # Legal documents
+    ├── TERMS.md           # Terms of Service
+    ├── PRIVACY.md         # Privacy Policy (required for Google Workspace Marketplace)
+    └── DISCLAIMER.md      # Warranty disclaimer, AI accuracy, no-reliance notice
 ```
 
 There is no build step, no `requirements.txt`, no installer. The whole thing is JavaScript that runs on Google's servers.
@@ -430,8 +436,8 @@ Nothing is stored on any third-party server. The add-on has no backend. The Goog
 | "No Gemini API key configured" in the activity log | **Settings ▸ Gemini API key** — paste a key, then **Test Gemini** |
 | "Label '…' fetch failed" | Make sure the label exists in Gmail with that exact name (case-insensitive). For nested labels use the full path with `/`, e.g. `Vendors/Invoices` |
 | Alerts firing for old mail right after install | **Settings ▸ Reset baseline** — the next run will re-baseline every label |
-| Twilio "HTTP 401" | Check Account SID / Auth Token; both come from the Twilio console |
-| Twilio "21608" / "21211" | "From" number is not a verified Twilio number, or the destination isn't in E.164 format |
+| SMS "HTTP 401" or auth error | Re-check your provider credentials in **Settings ▸ SMS provider**; both key fields must be saved |
+| SMS "invalid from number" or delivery failure | Ensure the From number is provisioned on your provider account and the To number is in E.164 format (`+15551234567`) |
 | Trigger doesn't seem to be running | Apps Script editor ▸ **Triggers** (left rail clock icon) — confirm `runMailCheck` is listed. If not, click **Start monitoring** again |
 | Want to see exactly what the trigger did | **Activity log** card — newest entries first |
 
