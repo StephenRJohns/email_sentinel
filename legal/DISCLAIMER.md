@@ -7,17 +7,19 @@
 
 ## 1. No Guarantee of Alert Delivery
 
-emAIl Sentinel depends on Google Apps Script infrastructure, the Google Gemini API, and (optionally) third-party SMS providers. Any of these services may experience outages, rate limiting, quota exhaustion, or degraded performance at any time without notice. The Service may fail to check labels, evaluate rules, or dispatch alerts due to factors outside our control, including but not limited to Google infrastructure downtime, Apps Script execution timeouts, SMS provider unavailability, or network interruptions.
+emAIl Sentinel depends on Google Apps Script infrastructure, the Google Gemini API, and (optionally) third-party SMS providers and MCP server endpoints. Any of these services may experience outages, rate limiting, quota exhaustion, or degraded performance at any time without notice. The Service may fail to check labels, evaluate rules, or dispatch alerts due to factors outside our control, including but not limited to Google infrastructure downtime, Apps Script execution timeouts, Gemini quota exhaustion, Gemini API unavailability, SMS provider unavailability, carrier filtering of SMS, or network interruptions.
 
 **You must not rely on emAIl Sentinel for life-safety, medical, financial-trading, regulatory-compliance, or any other use where a missed or late alert could cause material harm.** The Service is an informational convenience tool, not a substitute for dedicated monitoring infrastructure, professional advisory services, or emergency notification systems.
 
-## 2. AI Accuracy
+The Service also depends on an active Google-issued OAuth grant for the `gmail.readonly` restricted scope. Google may, at its sole discretion, revoke, suspend, or limit that grant at any time — including as a result of its annual OAuth verification or security-assessment cycle. We have no obligation or ability to override a Google decision to restrict OAuth access, and we are not liable for any interruption, data loss, or missed alerts resulting from such a Google action.
+
+## 2. AI Accuracy and Gemini Dependency
 
 Rule evaluation and alert message generation are performed by Google Gemini, a large language model. AI-generated outputs are probabilistic, not deterministic, and may be inaccurate, incomplete, inconsistent, or misleading. emAIl Sentinel does not guarantee that Gemini will correctly classify any given email against any given rule.
 
 **False positives** (alerts fired for emails that do not match your intent) and **false negatives** (emails that match your intent but produce no alert) are expected to occur. You should not make consequential decisions — financial, legal, operational, or otherwise — based solely on emAIl Sentinel alerts without independently verifying the underlying email content.
 
-Gemini model behavior may change over time due to Google's model updates. JJJJJ Enterprises, LLC has no control over Gemini model behavior, outputs, or availability.
+Gemini model behavior may change over time due to Google's model updates. JJJJJ Enterprises, LLC has no control over Gemini model behavior, outputs, availability, quota, pricing, or data handling. If Gemini is unavailable, degraded, quota-throttled, or discontinued — in whole or in part — the Service will not evaluate rules or dispatch alerts during that period. Content you send to Gemini is subject to Google's Gemini API terms; see the [Privacy Policy](PRIVACY.md) § 4.2 for details on what Google may retain and on the difference between free-tier and paid-tier content handling.
 
 ## 3. Email Content and Legal Responsibility
 

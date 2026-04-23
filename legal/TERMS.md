@@ -26,7 +26,8 @@ The Service is designed for individuals, professionals, consultants, and small t
 - Enterprise-wide deployment across an organization's Google Workspace domain
 - Centralized monitoring of multiple users' accounts by a single administrator
 - Use as a component of a managed service or resale
-- Processing of data subject to regulatory compliance obligations (HIPAA, PCI DSS, SOX) unless you have independently ensured compliance through your own controls
+
+**Regulated data.** The Service is not designed for, and we do not hold ourselves out as compliant with, HIPAA, PCI DSS, SOX, GLBA, FERPA, or similar regulatory regimes. You are not prohibited from using the Service at all if you are a HIPAA Covered Entity, PCI merchant, or SOX-filer — but you may use the Service **only** for email that falls outside the scope of those regulations (for example, general business correspondence that is not Protected Health Information, cardholder data, or material financial reporting subject to audit scope). You remain solely responsible for segregating regulated and non-regulated email and for any consequences of comingling them.
 
 ## 3. Your Account and Credentials
 
@@ -55,6 +56,20 @@ You further agree NOT to use the Service to process:
 - classified, export-controlled, or attorney-client privileged information.
 
 We may suspend or disable your ability to use the Service if we reasonably believe you are violating these Terms.
+
+### 4.1 SMS Alerts — Your TCPA, CAN-SPAM, and Carrier Compliance Obligations
+
+When you configure SMS as an alert channel, **you**, not JJJJJ Enterprises, LLC, are the sender of every SMS message dispatched by the Service on your behalf. You are solely responsible for:
+
+- obtaining and documenting **prior express consent** (or, where applicable, prior express written consent) from each recipient phone number before any non-emergency informational SMS is dispatched, as required by the U.S. Telephone Consumer Protection Act (TCPA), 47 U.S.C. § 227, and implementing regulations at 47 C.F.R. § 64.1200;
+- honoring opt-out requests (STOP, UNSUBSCRIBE, CANCEL, END, QUIT) within the timeframe required by your SMS provider's terms and the TCPA;
+- maintaining your own internal do-not-call / do-not-text list;
+- complying with the CAN-SPAM Act (15 U.S.C. § 7701 et seq.) to the extent it applies;
+- complying with your chosen SMS provider's terms of service, acceptable use policy, and carrier-imposed messaging rules (including 10DLC registration for US A2P traffic, STIR/SHAKEN, or similar carrier requirements);
+- complying with all applicable state laws, including the Florida Telephone Solicitation Act, Washington RCW 80.36, and any other state statute regulating SMS marketing or informational text;
+- if your recipients are outside the United States, complying with local electronic-marketing law (GDPR ePrivacy Directive, Canada CASL, UK PECR, Australia Spam Act, etc.).
+
+**We do not track, verify, document, or audit recipient consent on your behalf.** The Service does not manage opt-outs, maintain do-not-call lists, append regulatory disclosures, or file carrier registrations. You indemnify JJJJJ Enterprises, LLC for any claim, fine, settlement, or cost arising from your failure to comply with this Section — see Section 11.
 
 ## 5. Third-Party Services
 
@@ -186,7 +201,7 @@ You agree to indemnify, defend, and hold harmless JJJJJ Enterprises, LLC and its
 
 ## 12. Termination
 
-You may stop using the Service at any time by uninstalling the add-on from your Google account. We may modify, suspend, or discontinue the Service, in whole or in part, at any time, with or without notice (subject to the 90-day notice obligation for Founding-member lifetime holders in Section 6.11). Sections 4–11 and 13–20 survive termination.
+You may stop using the Service at any time by uninstalling the add-on from your Google account. We may modify, suspend, or discontinue the Service, in whole or in part, at any time, with or without notice (subject to the 90-day notice obligation for Founding-member lifetime holders in Section 6.11). Sections 4–11 and 13–21 survive termination.
 
 ## 13. Changes to These Terms
 
@@ -224,23 +239,41 @@ You may opt out of the arbitration and class-action waiver provisions in Section
 
 For users who opt out of arbitration or for claims excluded from arbitration, any dispute will be resolved exclusively in the state or federal courts located in the State of Texas, USA, and you consent to the personal jurisdiction of those courts, subject to the EU/UK consumer exception in Section 15.2.
 
-## 16. Export Controls
+## 16. Google Workspace Marketplace, OAuth Verification, and Security Review
+
+The Service is listed on the Google Workspace Marketplace and uses Google OAuth scopes — including `gmail.readonly`, which Google classifies as a **restricted scope**. As a condition of listing and of your use of the Service, JJJJJ Enterprises, LLC commits to:
+
+- maintaining compliance with Google's [API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including Limited Use requirements;
+- completing the annual **Cloud Application Security Assessment (CASA)** that Google requires for restricted-scope applications, and submitting updated assessment results to Google on the schedule Google prescribes;
+- submitting to Google's OAuth verification re-review whenever Google requests;
+- maintaining compliance with Google's [Workspace Marketplace Developer Policies](https://developers.google.com/workspace/marketplace/terms), [Google APIs Terms of Service](https://developers.google.com/terms), and Gemini API terms; and
+- cooperating with Google security or policy audits at Google's reasonable request.
+
+You acknowledge that:
+- Google may, in its sole discretion, suspend, restrict, or revoke the Service's OAuth access, Marketplace listing, or API access at any time for reasons outside our control;
+- a Google-initiated suspension or delisting may interrupt your use of the Service and we are not liable for that interruption, beyond the 90-day notice commitment in Section 6.11 for Founding-member lifetime holders;
+- the Service relies on Google Gemini for all rule evaluation, and Google may independently change, limit, or discontinue the Gemini API; and
+- your use of the Gemini API (via the API key you provide) is separately governed by Google's then-current Gemini API terms.
+
+We do not currently hold SOC 2, ISO 27001, HIPAA, or PCI DSS certifications. Security documentation available on request at legal@jjjjjenterprises.com is limited to: the current CASA assessment summary, our OAuth scope justification, and our data handling representations in the Privacy Policy.
+
+## 17. Export Controls
 
 You may not use, export, or re-export the Service in violation of any U.S. or other applicable export control laws and regulations.
 
-## 17. Force Majeure
+## 18. Force Majeure
 
 Neither party will be liable for failure or delay in performance caused by circumstances beyond its reasonable control, including natural disasters, acts of government, pandemic, war, terrorism, labor disputes, power failures, internet or telecommunications outages, or failures of Google's infrastructure. This provision does not excuse payment obligations.
 
-## 18. Assignment
+## 19. Assignment
 
 You may not assign or transfer your rights under these Terms without our prior written consent. We may assign our rights and obligations under these Terms in connection with a merger, acquisition, reorganization, or sale of all or substantially all of our assets, provided the assignee agrees to be bound by these Terms. Any attempted assignment in violation of this Section is void.
 
-## 19. Severability
+## 20. Severability
 
 If any provision of these Terms is held unenforceable, the remaining provisions will continue in full force and effect.
 
-## 20. Entire Agreement
+## 21. Entire Agreement
 
 These Terms, together with the LICENSE (at the repository root), the [Privacy Policy](PRIVACY.md), and the [Disclaimer](DISCLAIMER.md), are the entire agreement between you and JJJJJ Enterprises, LLC concerning the Service and supersede any prior agreement on the subject. Our failure to enforce any right or provision is not a waiver of that right or provision.
 

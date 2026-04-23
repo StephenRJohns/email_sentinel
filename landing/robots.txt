@@ -1,0 +1,7 @@
+# emAIl Sentinel — robots.txt
+# Update the Sitemap URL below before deployment to match your production domain.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://emailsentinel.app/sitemap.xml

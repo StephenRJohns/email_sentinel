@@ -46,14 +46,34 @@ The Service does **not** read or transmit:
 
 ## 4. Google API Services User Data Policy
 
-The Service's use and transfer of information received from Google APIs adheres to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements. Specifically:
+The Service's use and transfer of information received from Google APIs adheres to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the **Limited Use** requirements. Specifically:
 
 - The Service only accesses, uses, stores, and shares Google user data for the purposes described in this Privacy Policy and that are necessary to provide or improve user-facing functionality of the Service.
 - The Service does not use Google user data for advertising, including retargeting, personalized advertising, or interest-based advertising.
 - The Service does not sell Google user data.
 - The Service does not use Google user data for generalized AI model training.
+- The Service does not allow humans to read Google user data, except (a) with your affirmative agreement, (b) as necessary for security purposes such as investigating abuse, (c) to comply with applicable law, or (d) for internal operations where the data has been aggregated and de-identified.
 - The Service does not transfer Google user data to third parties except as necessary to provide the Service (Gemini rule evaluation, outgoing alerts), as directed by the user, or as required by law.
-- Human users can view and audit all data stored by the Service by inspecting `UserProperties` in the Apps Script editor.
+- You can view and audit all data stored by the Service by inspecting `UserProperties` in the Apps Script editor.
+
+### 4.1 Restricted Scope Status and Annual Security Assessment (CASA)
+
+The Service uses the `gmail.readonly` OAuth scope, which Google classifies as a **restricted scope**. As a condition of being allowed to request this scope, JJJJJ Enterprises, LLC:
+
+- completes the annual **Cloud Application Security Assessment (CASA)** that Google requires for restricted-scope applications (CASA Tier 2 or higher, as Google prescribes);
+- submits updated assessment results to Google on the schedule Google requires;
+- submits to Google's OAuth verification re-review whenever Google requests; and
+- accepts that Google may, at its sole discretion, suspend, restrict, or revoke the Service's OAuth access or Marketplace listing at any time. A Google-initiated suspension will interrupt the Service; we are not liable for interruptions attributable to Google actions beyond the 90-day notice commitment in the Terms of Service (§ 6.11) for Founding-member lifetime holders.
+
+### 4.2 Gemini API — Content Handling and Retention
+
+When a rule evaluates, the Service sends email metadata and the first 2,000 characters of the plain-text body to the Google Gemini API. Handling of that content by Google is governed by Google's **Gemini API Additional Terms of Service** and the **Generative AI Prohibited Use Policy**, not by this Privacy Policy. As of the effective date above and based on Google's then-current public representations:
+
+- the Gemini **paid API** does not use your prompts or responses to train Google's generative models;
+- the Gemini **free tier** may cache prompts and responses for a limited period to improve service quality and Google may use free-tier content to improve Google services, including its AI models, consistent with the [Gemini API Additional Terms](https://ai.google.dev/gemini-api/terms);
+- Google may log API requests for abuse prevention, debugging, and to comply with law.
+
+**If your emails contain sensitive content and you are on a free Gemini API key**, you should enable billing on your Gemini API key to opt into the paid-tier protections, or not use the Service for those emails. Google's terms control; verify current policy at [ai.google.dev/gemini-api/terms](https://ai.google.dev/gemini-api/terms) before relying on the above.
 
 ## 5. Third-Party Data Sharing
 
@@ -71,11 +91,27 @@ The Service shares data with third-party services only when you explicitly enabl
 
 The Google-native channels (Chat, Calendar, Sheets, Tasks) do not send data to any third party — they write to services within your own Google account using your own OAuth credentials.
 
+**SMS — controller vs. processor roles.** You, not JJJJJ Enterprises, LLC, decide whether SMS alerts are sent, which phone numbers receive them, and which provider delivers them. For purposes of GDPR and comparable laws, you are the **data controller** of any recipient phone numbers you supply. We transmit your data (recipient numbers and alert text) to the SMS provider you select, acting as a data conduit; the SMS provider processes that data as an independent processor or sub-processor on your behalf, under its own contract with you. See § 5.4 for our subprocessor list.
+
 We do not share any data with analytics services, advertising networks, data brokers, or any party not listed above.
 
 ### 5.1 Links to JJJJJ Enterprises Related Products
 
 Our website may display links to other products operated by JJJJJ Enterprises, LLC, including PilotTrainerHQ (pilottrainerhq.com) and PlaneFacts (planefacts.online). Those products are independent services with their own privacy policies. Visiting those products is governed solely by their respective privacy policies. emAIl Sentinel does not share your personal data with those other JJJJJ products.
+
+### 5.2 Subprocessors and Data Processing Addendum (DPA)
+
+A "subprocessor" is a third party that processes personal data on behalf of another processor. The Service uses the following subprocessors:
+
+| Subprocessor | Processing activity | Location |
+|---|---|---|
+| Google LLC (Apps Script, Gmail, Calendar, Chat, Sheets, Tasks, Gemini API) | Service hosting, email access, alert delivery, AI rule evaluation | United States and other regions where Google operates |
+| Your chosen SMS provider | SMS message delivery (user-configured; not preselected) | Determined by the provider you select |
+| Any MCP server endpoint you configure | Alert dispatch via JSON-RPC 2.0 | Determined by the endpoint operator |
+
+We will notify registered users at least **30 days in advance** before we add or replace a Google-level subprocessor that processes email content (for example, if we introduce a non-Google model provider as an optional rule evaluator in a future release). Notice will be posted at the URL where this Privacy Policy is hosted and, if you have subscribed to a paid plan, emailed to the Google account associated with your subscription. You may terminate the Service, with a pro-rata refund of unused prepaid fees, if you object to a proposed subprocessor change before it takes effect.
+
+**Data Processing Addendum.** If you are an EU/EEA, UK, or Swiss controller who requires a signed Data Processing Addendum (DPA) incorporating the Standard Contractual Clauses (EU Commission Decision 2021/914), you may request one at legal@jjjjjenterprises.com. We will countersign and return a DPA template within a reasonable time.
 
 ### 5.3 Payment Data
 
@@ -99,11 +135,13 @@ PropertiesService.getUserProperties().deleteAllProperties();
 
 ## 7. Data Security
 
-- All `UserProperties` values are encrypted at rest by Google's infrastructure (this is a property of Google Apps Script's `PropertiesService` — the Service itself does not implement encryption).
-- All outbound network calls from the Service use HTTPS (TLS).
-- Your Gemini API key is masked in the add-on Settings UI after you save it — only the last four characters are shown; the input field is left blank so the full key is never redisplayed. SMS provider credentials are visible within the Settings UI so you can review and update them; they are stored encrypted at rest by Google's infrastructure (see above).
-- The Service has no external backend. There is no attack surface beyond your own Google account and the third-party APIs you configure.
-- The Service does not set cookies.
+- **Encryption at rest.** All `UserProperties` values are encrypted at rest using AES-256 on Google's infrastructure. This is a default property of Google Apps Script's `PropertiesService`; the Service does not implement its own encryption layer, and we do not offer customer-managed or bring-your-own encryption keys. For workloads that require FIPS 140-2 validated cryptography, customer-managed keys, or HSM-backed key storage, the Service is not suitable.
+- **Encryption in transit.** All outbound network calls from the Service use HTTPS (TLS 1.2 or higher, negotiated by Google's `UrlFetchApp` runtime).
+- **Credential handling.** Your Gemini API key is masked in the Settings UI after you save it — only the last four characters are shown; the input field is left blank so the full key is never redisplayed. SMS provider credentials are visible within the Settings UI so you can review and update them; all credentials are stored encrypted at rest as described above.
+- **Attack surface.** The Service has no external backend, no database, and no staff access to your `UserProperties` store. The only attack surface is your own Google account and the third-party APIs you configure.
+- **Cookies.** The Service does not set cookies. Our public marketing website may use strictly functional session or analytics cookies; when it does, a cookie notice will be posted on the website.
+- **Annual security assessment.** The Service undergoes the annual Cloud Application Security Assessment (CASA) required by Google for `gmail.readonly` scope. See § 4.1.
+- **Certifications.** JJJJJ Enterprises, LLC does not currently hold SOC 2 Type II, ISO 27001, HIPAA, or PCI DSS certifications. The Terms of Service (§ 16) describe the security documentation we make available on request.
 
 ### 7.1 Incident Notification
 
@@ -135,9 +173,15 @@ Because all data is stored in `UserProperties` within your own Google account, y
 PropertiesService.getUserProperties().deleteAllProperties();
 ```
 
-**Legal basis for processing.** The primary legal basis under GDPR Article 6 for processing your personal data is **performance of a contract** (Article 6(1)(b)): when you install the Service, accept the Terms, and configure rules, processing your Gmail messages as you direct is necessary to deliver the Service you requested. For optional alert channels involving third-party services (such as SMS delivery through a provider you select), the legal basis is your **consent** (Article 6(1)(a)), which you provide by enabling the channel and supplying the required credentials. For security monitoring and abuse prevention, we rely on **legitimate interests** (Article 6(1)(f)). You may withdraw consent for any optional channel at any time by disabling it or removing your credentials; withdrawal does not affect the lawfulness of processing carried out before withdrawal, nor does it affect processing under Article 6(1)(b) for core Service delivery.
+**Controller / processor roles.** For personal data contained in the **emails you process** through the Service (the sender address of an inbound email, its subject, body excerpt, attachment filenames, any phone numbers you supply as SMS recipients, etc.):
 
-**Controller status.** You are the data controller for any personal data contained in the emails you process through the Service. JJJJJ Enterprises, LLC provides the software tool but does not determine the purposes or means of processing your email data — you do, through your rule configurations and channel selections. We act as a data controller only for account-level data (your subscription status, support correspondence).
+- **You are the data controller.** You determine the purposes and means of processing by selecting which Gmail labels to watch, writing the rules, and choosing the alert channels.
+- **JJJJJ Enterprises, LLC acts as a data processor** on your behalf under GDPR Article 4(8), performing the rule evaluation and alert dispatch you directed. We do not independently decide what email content to process or where to send it.
+- **Google (Apps Script, Gmail, Gemini, and Google-native alert channels) and your chosen SMS provider act as subprocessors** (or, for SMS providers selected by you, as independent processors under a direct contract between you and them). See § 5.2.
+
+For **account-level data** (your subscription tier, billing entitlement status received from Google, support correspondence with us) JJJJJ Enterprises, LLC acts as a data controller.
+
+**Legal basis for our processing.** For our activity as a processor performing the Service at your direction, the lawful basis is **performance of a contract** (Article 6(1)(b)) — specifically the Terms of Service you accepted on installation. You remain responsible for establishing and documenting your own lawful basis under Article 6 (and, where applicable, Article 9) for processing personal data contained in the emails of the data subjects whose messages you monitor. For our own account-level processing, our basis is **performance of a contract** (Article 6(1)(b)) for subscription administration and **legitimate interest** (Article 6(1)(f)) for abuse prevention and service security (balancing test documented on request).
 
 **Data protection contact.** Direct GDPR inquiries to legal@jjjjjenterprises.com (see Section 11). We will respond within 30 days. You also have the right to lodge a complaint with your local data protection authority.
 
@@ -165,7 +209,7 @@ If you are a California resident, the California Consumer Privacy Act (CCPA) as 
 
 **Sale or sharing of personal information.** **We do not sell or share personal information** as those terms are defined under CCPA/CPRA, and we have not done so in the 12 months preceding the effective date of this Policy. The Service has no advertising integrations and no cross-context behavioral advertising.
 
-**Sensitive personal information.** Email body excerpts may contain sensitive personal information. The Service uses such information **solely to perform the Service you requested** — specifically, to evaluate rules against your emails and to format alert messages you configure. This processing falls within the permissible business purposes under CPRA §1798.121(a). Sensitive personal information is not used to infer characteristics about you, build profiles, or for any secondary purpose, and is not retained beyond the transient in-memory processing of each check cycle.
+**Sensitive personal information (SPI).** Email body excerpts sent to Gemini for evaluation may incidentally contain sensitive personal information (for example, health information in a message from your doctor, or account numbers in a statement from your bank). The Service uses SPI **only** for the single, narrow, disclosed purpose of: (i) evaluating whether the email matches a rule you configured, and (ii) composing the alert message your configured channels receive. We do not use SPI to infer characteristics, build profiles, train or fine-tune any model, cross-reference against other users' data, or for any secondary purpose. SPI is not stored by the Service beyond the transient in-memory processing of each check cycle — once Gemini has returned a match decision and the alert has dispatched, the in-memory copy is discarded. This use is within the narrow set of permissible purposes enumerated at Cal. Civ. Code § 1798.121(a); accordingly, the **right to limit use and disclosure of sensitive personal information** does not restrict this processing further.
 
 **Your rights.**
 - **Right to know** — request disclosure of the categories and specific pieces of personal information we process about you

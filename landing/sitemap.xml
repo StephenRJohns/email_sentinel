@@ -17,26 +17,26 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Legal pages (update paths once served as HTML) -->
+  <!-- Legal pages -->
   <url>
-    <loc>https://emailsentinel.app/legal/terms</loc>
+    <loc>https://emailsentinel.app/legal/terms.html</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.4</priority>
   </url>
 
   <url>
-    <loc>https://emailsentinel.app/legal/privacy</loc>
+    <loc>https://emailsentinel.app/legal/privacy.html</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.4</priority>
   </url>
 
   <url>
-    <loc>https://emailsentinel.app/legal/disclaimer</loc>
+    <loc>https://emailsentinel.app/legal/disclaimer.html</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.3</priority>
   </url>
 
 </urlset>

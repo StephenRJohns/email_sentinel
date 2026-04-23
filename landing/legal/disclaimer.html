@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disclaimer &mdash; emAIl Sentinel</title>
+<meta name="description" content="Warranty disclaimer and AI accuracy notice for emAIl Sentinel.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://emailsentinel.app/legal/disclaimer.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="emAIl Sentinel">
+<meta property="og:title" content="Disclaimer &mdash; emAIl Sentinel">
+<meta property="og:description" content="Warranty disclaimer and AI accuracy notice for emAIl Sentinel.">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+:root {
+  --bg:        #0a0612;
+  --bg-2:      #0d0818;
+  --bg-card:   #130d20;
+  --border:    rgba(160,80,255,.15);
+  --border-h:  rgba(160,80,255,.4);
+  --purple:    #a050ff;
+  --purple-b:  #c080ff;
+  --text:      #e2e8f0;
+  --text-2:    #94a3b8;
+  --text-3:    #475569;
+  --amber:     #fbbf24;
+  --serif:     Georgia, 'Times New Roman', serif;
+  --sans:      -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --mono:      'Courier New', Courier, monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.7;
+  font-size: 15.5px;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(160,80,255,.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+nav {
+  position: sticky; top: 0; z-index: 100;
+  padding: 15px 0;
+  background: rgba(10,6,18,.9);
+  backdrop-filter: blur(18px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 900px; margin: 0 auto; padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: var(--sans); font-size: 1.1rem; font-weight: 600;
+  color: var(--text); text-decoration: none;
+  letter-spacing: -.01em;
+}
+.nav-brand strong { font-weight: 900; color: var(--purple-b); }
+.nav-brand span { color: var(--purple-b); font-weight: 600; }
+.nav-back {
+  font-size: .88rem; color: var(--text-2); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color .2s;
+}
+.nav-back:hover { color: var(--text); }
+
+.wrapper {
+  max-width: 820px; margin: 0 auto; padding: 60px 28px 80px;
+  position: relative; z-index: 1;
+}
+
+.page-head {
+  padding-bottom: 32px; margin-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+.page-tag {
+  font-family: var(--mono); font-size: .72rem;
+  color: var(--purple-b); letter-spacing: .14em;
+  text-transform: uppercase; margin-bottom: 14px;
+}
+.page-head h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4.5vw, 2.8rem);
+  font-weight: 700; line-height: 1.15;
+  letter-spacing: -.02em; color: var(--text);
+  margin-bottom: 10px;
+}
+
+.legal-content h1 {
+  font-family: var(--serif);
+  font-size: 2rem; font-weight: 700;
+  color: var(--text); margin: 0 0 24px 0;
+  letter-spacing: -.02em;
+  display: none; /* hide the duplicate H1 from markdown since page-head shows it */
+}
+.legal-content h2 {
+  font-family: var(--serif);
+  font-size: 1.35rem; font-weight: 700;
+  color: var(--text); margin: 40px 0 14px 0;
+  letter-spacing: -.015em;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.legal-content h3 {
+  font-family: var(--serif);
+  font-size: 1.08rem; font-weight: 700;
+  color: var(--text); margin: 28px 0 10px 0;
+  letter-spacing: -.01em;
+}
+.legal-content h2:first-of-type { border-top: none; padding-top: 0; }
+
+.legal-content p {
+  color: var(--text-2); margin: 0 0 14px 0;
+  font-size: .98rem; line-height: 1.72;
+}
+.legal-content strong { color: var(--text); font-weight: 600; }
+.legal-content em { color: var(--text); font-style: italic; }
+.legal-content a {
+  color: var(--purple-b); text-decoration: none;
+  border-bottom: 1px solid rgba(192,128,255,.3);
+  transition: border-color .2s;
+}
+.legal-content a:hover { border-bottom-color: var(--purple-b); }
+.legal-content ul, .legal-content ol {
+  margin: 0 0 16px 22px; color: var(--text-2);
+}
+.legal-content li {
+  margin-bottom: 8px; font-size: .96rem; line-height: 1.7;
+}
+.legal-content table {
+  width: 100%; border-collapse: collapse;
+  margin: 18px 0 22px 0; font-size: .9rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.legal-content th, .legal-content td {
+  padding: 10px 14px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.legal-content th {
+  background: rgba(160,80,255,.06);
+  color: var(--text); font-weight: 600;
+  font-size: .82rem; letter-spacing: .02em;
+}
+.legal-content td { color: var(--text-2); vertical-align: top; }
+.legal-content tr:last-child td { border-bottom: none; }
+.legal-content code {
+  font-family: var(--mono); font-size: .85rem;
+  background: var(--bg-card); padding: 2px 6px;
+  border-radius: 4px; color: var(--purple-b);
+  border: 1px solid var(--border);
+}
+.legal-content pre {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 18px;
+  overflow-x: auto; margin: 14px 0;
+}
+.legal-content pre code {
+  background: none; border: none; padding: 0;
+  color: var(--text-2);
+}
+.legal-content blockquote {
+  border-left: 3px solid var(--purple);
+  padding: 10px 18px; margin: 16px 0;
+  background: rgba(160,80,255,.04);
+  border-radius: 0 6px 6px 0;
+  color: var(--text-2); font-style: italic;
+}
+.legal-content hr {
+  border: none; height: 1px;
+  background: var(--border);
+  margin: 32px 0;
+}
+
+footer {
+  padding: 30px 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-2);
+  margin-top: 60px;
+}
+.footer-inner {
+  max-width: 900px; margin: 0 auto; padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.footer-links { display: flex; gap: 22px; list-style: none; flex-wrap: wrap; }
+.footer-links a {
+  font-size: .82rem; color: var(--text-3); text-decoration: none;
+  transition: color .2s;
+}
+.footer-links a:hover { color: var(--text-2); }
+.footer-copy { font-size: .78rem; color: var(--text-3); }
+
+@media (max-width: 640px) {
+  .wrapper { padding: 40px 20px 60px; }
+  .page-head h1 { font-size: 1.75rem; }
+  .legal-content h2 { font-size: 1.2rem; }
+  .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-brand">em<strong>AI</strong>l <span>Sentinel</span></a>
+    <a href="../index.html" class="nav-back">&larr; Back to home</a>
+  </div>
+</nav>
+
+<main class="wrapper">
+  <div class="page-head">
+    <div class="page-tag">Legal</div>
+    <h1>Disclaimer</h1>
+  </div>
+  <article class="legal-content">
+<h1>emAIl Sentinel™ — Disclaimer</h1>
+<p><strong>Effective date:</strong> 2026-04-23
+<strong>Operator:</strong> JJJJJ Enterprises, LLC</p>
+<hr>
+<h2>1. No Guarantee of Alert Delivery</h2>
+<p>emAIl Sentinel depends on Google Apps Script infrastructure, the Google Gemini API, and (optionally) third-party SMS providers and MCP server endpoints. Any of these services may experience outages, rate limiting, quota exhaustion, or degraded performance at any time without notice. The Service may fail to check labels, evaluate rules, or dispatch alerts due to factors outside our control, including but not limited to Google infrastructure downtime, Apps Script execution timeouts, Gemini quota exhaustion, Gemini API unavailability, SMS provider unavailability, carrier filtering of SMS, or network interruptions.</p>
+<p><strong>You must not rely on emAIl Sentinel for life-safety, medical, financial-trading, regulatory-compliance, or any other use where a missed or late alert could cause material harm.</strong> The Service is an informational convenience tool, not a substitute for dedicated monitoring infrastructure, professional advisory services, or emergency notification systems.</p>
+<p>The Service also depends on an active Google-issued OAuth grant for the <code>gmail.readonly</code> restricted scope. Google may, at its sole discretion, revoke, suspend, or limit that grant at any time — including as a result of its annual OAuth verification or security-assessment cycle. We have no obligation or ability to override a Google decision to restrict OAuth access, and we are not liable for any interruption, data loss, or missed alerts resulting from such a Google action.</p>
+<h2>2. AI Accuracy and Gemini Dependency</h2>
+<p>Rule evaluation and alert message generation are performed by Google Gemini, a large language model. AI-generated outputs are probabilistic, not deterministic, and may be inaccurate, incomplete, inconsistent, or misleading. emAIl Sentinel does not guarantee that Gemini will correctly classify any given email against any given rule.</p>
+<p><strong>False positives</strong> (alerts fired for emails that do not match your intent) and <strong>false negatives</strong> (emails that match your intent but produce no alert) are expected to occur. You should not make consequential decisions — financial, legal, operational, or otherwise — based solely on emAIl Sentinel alerts without independently verifying the underlying email content.</p>
+<p>Gemini model behavior may change over time due to Google's model updates. JJJJJ Enterprises, LLC has no control over Gemini model behavior, outputs, availability, quota, pricing, or data handling. If Gemini is unavailable, degraded, quota-throttled, or discontinued — in whole or in part — the Service will not evaluate rules or dispatch alerts during that period. Content you send to Gemini is subject to Google's Gemini API terms; see the <a href="PRIVACY.md">Privacy Policy</a> § 4.2 for details on what Google may retain and on the difference between free-tier and paid-tier content handling.</p>
+<h2>3. Email Content and Legal Responsibility</h2>
+<p>emAIl Sentinel reads the metadata and body of Gmail messages in the labels you configure. <strong>You are solely responsible</strong> for ensuring that:</p>
+<ul>
+<li>you have the legal right to access and process those messages;</li>
+<li>you have the legal right to transmit excerpts of their content to the Google Gemini API and to any SMS provider or alert channel you enable;</li>
+<li>your use of the Service complies with all applicable laws, including but not limited to privacy laws, wiretapping statutes, and employer–employee monitoring regulations in your jurisdiction; and</li>
+<li>you have obtained any required consents from senders, recipients, or other parties whose information appears in the emails you process.</li>
+</ul>
+<p>JJJJJ Enterprises, LLC bears no responsibility for unlawful or unauthorized use of the Service.</p>
+<h2>4. Third-Party Services and Pricing</h2>
+<p>The Service integrates with third-party services including Google Gemini, any SMS provider you choose to configure using your own credentials or a generic HTTPS webhook endpoint, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Model Context Protocol (MCP) servers. JJJJJ Enterprises, LLC:</p>
+<ul>
+<li>does not operate, control, or guarantee the availability of any third-party service;</li>
+<li>is not responsible for any charges, overage fees, rate limits, data handling practices, or policy changes imposed by third-party providers;</li>
+<li>does not verify the accuracy of SMS delivery cost estimates displayed in the add-on (costs are indicative only and may change at any time per the provider's pricing);</li>
+<li>is not responsible for any failure by a third-party service to deliver an alert; and</li>
+<li>is not liable for data processed by a third-party service after the Service transmits it.</li>
+</ul>
+<h2>5. Third-Party Trademarks</h2>
+<p>JJJJJ Enterprises, LLC is not affiliated with, sponsored by, or endorsed by any third-party company referenced in emAIl Sentinel's documentation, add-on interface, or marketing materials. The following are trademarks or registered trademarks of their respective owners:</p>
+<table>
+<thead>
+<tr>
+<th>Mark</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google, Gmail, Google Workspace, Google Gemini, Google Calendar, Google Sheets, Google Tasks, Google Chat, Google Apps Script</td>
+<td>Google LLC</td>
+</tr>
+<tr>
+<td>Slack</td>
+<td>Slack Technologies, LLC (a Salesforce company)</td>
+</tr>
+<tr>
+<td>Microsoft, Microsoft 365, Teams</td>
+<td>Microsoft Corporation</td>
+</tr>
+<tr>
+<td>Asana</td>
+<td>Asana, Inc.</td>
+</tr>
+</tbody>
+</table>
+<p>Any SMS provider whose trademarks appear in emAIl Sentinel documentation or marketing materials in connection with integration guidance is the property of its respective owner. emAIl Sentinel supports any SMS provider the user configures; no specific SMS provider is affiliated with or endorses emAIl Sentinel.</p>
+<p>Use of these marks in emAIl Sentinel documentation, marketing, or the add-on interface is solely for the purpose of identifying compatible or integrated services and does not imply any affiliation with, sponsorship by, or endorsement from those companies.</p>
+<h2>6. Founding Member Offer</h2>
+<p>The founding member lifetime plan (as described in the Terms of Service, §§ 6.1 and 6.11) is limited to the first 500 purchasers as recorded on the Google Workspace Marketplace. Any availability counter or "spots remaining" figure displayed in our marketing materials — including the emAIl Sentinel website, promotional emails, or other communications — reflects our best available internal estimate and <strong>may not update in real time</strong>. The authoritative record of available spots is the count of completed lifetime purchases on the Google Workspace Marketplace.</p>
+<p>JJJJJ Enterprises, LLC is not liable for any claim arising from a marketing counter displaying a higher availability than actually remained at the time of a purchase attempt. If the Marketplace has already retired the offer when you attempt to purchase, no founding member spot is available regardless of what any marketing material states.</p>
+<h2>7. Marketing and Promotional Content</h2>
+<p>Feature descriptions, integration lists, pricing summaries, and other product representations in emAIl Sentinel's marketing materials (including the website at any domain operated by JJJJJ Enterprises, LLC) are provided for informational purposes and reflect the state of the Service at the time of publication. They are subject to change at any time in accordance with the Terms of Service. No marketing representation constitutes a warranty, guarantee, or contractual commitment regarding product functionality except to the extent explicitly stated in the Terms of Service.</p>
+<h2>8. Links to Related JJJJJ Enterprises Products</h2>
+<p>Our website may display links to other products operated by JJJJJ Enterprises, LLC, including PilotTrainerHQ (pilottrainerhq.com) and PlaneFacts (planefacts.online). Those products are separate services and are governed by their own terms of service, privacy policies, and disclaimers, which are independent of emAIl Sentinel's legal documents. Links to related products do not imply any bundling of services, shared warranty coverage, or joint liability.</p>
+<h2>9. No Professional Advice</h2>
+<p>Nothing in emAIl Sentinel's output, documentation, or marketing materials constitutes legal, tax, financial, medical, or any other form of professional advice. Consult a qualified professional before making decisions based on information processed or presented by the Service.</p>
+<h2>10. Limitation of Liability</h2>
+<p>See Section 10 of the <a href="TERMS.md">Terms of Service</a> for the full limitation of liability applicable to your use of the Service.</p>
+<h2>11. Relationship to Other Documents</h2>
+<p>This Disclaimer supplements and is incorporated into the <a href="TERMS.md">Terms of Service</a>. In the event of any conflict between this Disclaimer and the Terms of Service, the Terms of Service control.</p>
+<hr>
+<p><strong>Contact:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Purpose</th>
+<th>Address</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Legal / IP inquiries</td>
+<td>legal@jjjjjenterprises.com</td>
+</tr>
+<tr>
+<td>User support</td>
+<td>support@jjjjjenterprises.com</td>
+</tr>
+<tr>
+<td>General inquiries</td>
+<td>admin@jjjjjenterprises.com</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>Copyright &copy; 2026 JJJJJ Enterprises, LLC. All rights reserved.</p>
+  </article>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <a href="../index.html" class="nav-brand" style="text-decoration:none;">em<strong>AI</strong>l <span>Sentinel</span></a>
+    <ul class="footer-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="terms.html">Terms</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+      <li><a href="disclaimer.html">Disclaimer</a></li>
+      <li><a href="mailto:support@jjjjjenterprises.com">Support</a></li>
+    </ul>
+    <p class="footer-copy">&copy; 2026 JJJJJ Enterprises, LLC. All rights reserved.</p>
+  </div>
+</footer>
+
+</body>
+</html>
