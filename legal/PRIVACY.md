@@ -1,6 +1,6 @@
 # emAIl Sentinel™ — Privacy Policy
 
-**Effective date:** 2026-04-18
+**Effective date:** 2026-04-23
 **Operator:** JJJJJ Enterprises, LLC ("we", "us", "our")
 **Service:** emAIl Sentinel, a Google Workspace Add-on for Gmail (the "Service")
 
@@ -33,7 +33,7 @@ The Service does **not** read or transmit:
 | Data | Where it is stored |
 |---|---|
 | **Gemini API key** | Encrypted-at-rest in `UserProperties` (per-user, per-script). Sent only to `generativelanguage.googleapis.com` (Google) as a URL query parameter over HTTPS. |
-| **SMS provider credentials** (Twilio, Telnyx, Plivo, ClickSend, Vonage, or Textbelt) | Encrypted-at-rest in `UserProperties`. Sent only to the provider's API endpoint in HTTPS request headers/body. |
+| **SMS provider credentials** (credentials for whichever SMS provider you choose to configure) | Encrypted-at-rest in `UserProperties`. Sent only to your chosen provider's API endpoint in HTTPS request headers/body. |
 | **Generic webhook URL** | Stored in `UserProperties`. The Service sends HTTPS POST requests to whatever endpoint you configure. |
 | **Google Chat webhook URLs** | Stored in `UserProperties`. Used to POST alert messages to your Chat Spaces. |
 | **MCP server endpoints, auth tokens, tool names, and args templates** | Stored in `UserProperties`. Used to POST JSON-RPC 2.0 `tools/call` requests to endpoints you configure. |
@@ -62,7 +62,7 @@ The Service shares data with third-party services only when you explicitly enabl
 | Third party | What is shared | When |
 |---|---|---|
 | **Google Gemini API** (`generativelanguage.googleapis.com`) | Email metadata, body excerpt, rule text, alert format prompt | Every time a new email is evaluated against a rule |
-| **SMS provider of your choice** (quick-start presets for Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or any other provider reached via the Generic webhook you configure) | Recipient phone number, alert message text, your provider credentials or webhook URL | When a rule matches AND the rule has SMS numbers AND you have configured an SMS provider |
+| **Your chosen SMS provider** (any provider you configure using your own credentials or a generic HTTPS webhook URL) | Recipient phone number, alert message text, your provider credentials or webhook URL | When a rule matches AND the rule has SMS numbers AND you have configured an SMS provider |
 | **Google Chat** (your Chat Spaces) | Alert message text | When a rule matches AND the rule has Chat spaces configured. Messages are posted to Chat Spaces within your own Google Workspace via webhook URLs you provide. |
 | **Google Calendar** (your calendar) | Alert title, email metadata, alert message text | When a rule matches AND "Calendar event" is enabled on the rule. Events are created in your own Google Calendar. |
 | **Google Sheets** (your spreadsheet) | Timestamp, rule name, email metadata, alert message text | When a rule matches AND "Sheets log" is enabled on the rule. Rows are appended to a spreadsheet in your own Google Drive. |
@@ -73,7 +73,11 @@ The Google-native channels (Chat, Calendar, Sheets, Tasks) do not send data to a
 
 We do not share any data with analytics services, advertising networks, data brokers, or any party not listed above.
 
-### 5.1 Payment Data
+### 5.1 Links to JJJJJ Enterprises Related Products
+
+Our website may display links to other products operated by JJJJJ Enterprises, LLC, including PilotTrainerHQ (pilottrainerhq.com) and PlaneFacts (planefacts.online). Those products are independent services with their own privacy policies. Visiting those products is governed solely by their respective privacy policies. emAIl Sentinel does not share your personal data with those other JJJJJ products.
+
+### 5.3 Payment Data
 
 If you subscribe to the Pro plan or purchase the Founding-member lifetime option, your payment is processed by **Google LLC through the Google Workspace Marketplace**. We do not receive, collect, or store your credit card number, bank account, or other payment details. Google provides us with limited subscription metadata (a tier entitlement and subscription status) so the add-on can unlock paid features. Google's handling of your payment data is governed by [Google's Privacy Policy](https://policies.google.com/privacy) and the Google Workspace Marketplace terms.
 
@@ -135,7 +139,7 @@ PropertiesService.getUserProperties().deleteAllProperties();
 
 **Controller status.** You are the data controller for any personal data contained in the emails you process through the Service. JJJJJ Enterprises, LLC provides the software tool but does not determine the purposes or means of processing your email data — you do, through your rule configurations and channel selections. We act as a data controller only for account-level data (your subscription status, support correspondence).
 
-**Data protection contact.** Direct GDPR inquiries to legal@jjjjjenterprises.com. We will respond within 30 days. You also have the right to lodge a complaint with your local data protection authority.
+**Data protection contact.** Direct GDPR inquiries to legal@jjjjjenterprises.com (see Section 11). We will respond within 30 days. You also have the right to lodge a complaint with your local data protection authority.
 
 ### 9.2 Your Rights Under CCPA / CPRA (California Residents)
 
@@ -171,7 +175,7 @@ If you are a California resident, the California Consumer Privacy Act (CCPA) as 
 - **Right to limit use of sensitive personal information** — not applicable; we use SPI solely for the permissible business purposes described above (performing the Service at your direction)
 - **Right to non-discrimination** — we will not discriminate against you for exercising any CCPA right
 
-**How to exercise your rights.** Email legal@jjjjjenterprises.com with the subject "CCPA Request" and your Gmail address. We will respond within 45 days. Because all data is stored in your own Google account, you can also exercise deletion directly using the Apps Script one-liner above.
+**How to exercise your rights.** Email legal@jjjjjenterprises.com with the subject "CCPA Request" and your Gmail address (see Section 11). We will respond within 45 days. Because all data is stored in your own Google account, you can also exercise deletion directly using the Apps Script one-liner above.
 
 **Authorized agents.** You may designate an authorized agent to make a request on your behalf by providing written authorization signed by you.
 
@@ -185,9 +189,15 @@ We may update this Privacy Policy from time to time. For material changes that r
 
 ## 11. Contact
 
-For questions about this Privacy Policy or to exercise your data rights, contact:
+| Purpose | Address |
+|---|---|
+| Privacy Policy questions and data-rights requests | legal@jjjjjenterprises.com |
+| GDPR inquiries | legal@jjjjjenterprises.com |
+| CCPA requests | legal@jjjjjenterprises.com (subject: "CCPA Request") |
+| User support | support@jjjjjenterprises.com |
+| Billing and subscriptions | billing@jjjjjenterprises.com |
+| General inquiries | admin@jjjjjenterprises.com |
 
-JJJJJ Enterprises, LLC
-legal@jjjjjenterprises.com
+For technical support you may also **[open an issue on GitHub](https://github.com/StephenRJohns/email_sentinel/issues)** — issues are tracked, searchable, and get the fastest response.
 
-For user support, **[open an issue on GitHub](https://github.com/StephenRJohns/email_sentinel/issues)** — issues are tracked, searchable, and get the fastest response.
+We will respond to data-rights requests within the timeframes specified in Sections 9.1 (GDPR: 30 days) and 9.2 (CCPA: 45 days).

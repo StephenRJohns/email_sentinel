@@ -1,6 +1,6 @@
 # emAIl Sentinel™ — Terms of Service
 
-**Effective date:** 2026-04-18
+**Effective date:** 2026-04-23
 **Operator:** JJJJJ Enterprises, LLC ("we", "us", "our")
 **Service:** emAIl Sentinel, a Google Workspace Add-on for Gmail (the "Service")
 
@@ -10,7 +10,7 @@ By installing or using the Service you ("you", "your") agree to these Terms of S
 
 ## 1. Description of the Service
 
-emAIl Sentinel is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via one or more channels you configure: SMS (through a third-party provider you select), Google Chat, Google Calendar, Google Sheets, Google Tasks, a generic HTTPS webhook, or a Model Context Protocol (MCP) server endpoint (such as Slack, Microsoft 365 / Teams, Asana, or any custom MCP server).
+emAIl Sentinel is a Google Workspace Add-on that runs in your own Google account. It periodically reads metadata and content from Gmail messages in labels you select, evaluates each new message against rules you write in plain English using the Google Gemini API, and — when a rule matches — sends an alert via one or more channels you configure: SMS (through a third-party SMS provider of your choice, using credentials you supply), Google Chat, Google Calendar, Google Sheets, Google Tasks, a generic HTTPS webhook, or a Model Context Protocol (MCP) server endpoint (such as Slack, Microsoft 365 / Teams, Asana, or any custom MCP server).
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 
@@ -62,10 +62,16 @@ The Service depends on, and transmits data to, third-party services that you cho
 - **Google Gmail / Google Apps Script** — runs the Service and provides access to your mail.
 - **Google Gemini API** — receives email content for rule evaluation and alert formatting.
 - **Google Calendar / Google Sheets / Google Tasks / Google Chat** — when you enable these alert channels, the Service creates events, appends rows, creates tasks, or posts messages within your own Google account using your OAuth credentials.
-- **SMS providers** (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage, or any other provider reachable via the Generic webhook you configure) — receives recipient phone numbers and alert text when you enable SMS and configure a provider.
+- **Your chosen SMS provider** (any provider you configure by supplying your own credentials or a generic HTTPS webhook URL) — receives recipient phone numbers and alert text when you enable SMS.
 - **MCP servers** (Slack, Microsoft 365 / Teams, Asana, or any custom Model Context Protocol endpoint you configure) — receives alert text and per-server arguments via JSON-RPC 2.0 over HTTPS when a rule targeting that server matches.
 
 Your use of each third-party service is governed by that provider's own terms and privacy policy. We are not responsible for the acts, omissions, availability, accuracy, or legality of any third-party service. Charges, quotas, and rate limits imposed by third-party providers are your responsibility.
+
+For the list of third-party trademarks used in the Service and its marketing materials, see the [Disclaimer](DISCLAIMER.md) (Section 5 — Third-Party Trademarks).
+
+### 5.1 Related JJJJJ Enterprises Products
+
+Our website may display links to other products operated by JJJJJ Enterprises, LLC, including PilotTrainerHQ (pilottrainerhq.com) and PlaneFacts (planefacts.online). Those products are separate services governed by their own terms of service and privacy policies. They are not part of the emAIl Sentinel Service, and these Terms do not apply to your use of those products.
 
 ## 6. Fees, Subscriptions, and Refunds
 
@@ -107,7 +113,7 @@ We may change List Prices from time to time. A price change will not affect the 
 
 **Founding-member lifetime.** Refundable within **30 days** of purchase, less any portion of that price corresponding to substantial Pro-feature use. After 30 days, non-refundable.
 
-Refund requests must be sent to legal@jjjjjenterprises.com with your Gmail address and transaction ID. Refunds, when issued, are processed through Google and may take up to **10 business days** to appear on your statement. Chargebacks initiated without first contacting us may result in termination of your account.
+Refund requests must be sent to billing@jjjjjenterprises.com with your Gmail address and transaction ID. Refunds, when issued, are processed through Google and may take up to **10 business days** to appear on your statement. Chargebacks initiated without first contacting us may result in termination of your account.
 
 ### 6.7 Taxes
 
@@ -126,7 +132,7 @@ We will not silently delete your data due to a downgrade.
 
 ### 6.9 Third-Party Charges
 
-Independent of your emAIl Sentinel subscription, third-party services you enable may charge you directly (for example, Twilio bills per SMS, your chosen SMS provider may charge for a phone number, and Google may bill for Gemini usage above its free tier). Those charges are strictly between you and the third-party provider. We do not collect, remit, or refund third-party charges.
+Independent of your emAIl Sentinel subscription, third-party services you enable may charge you directly (for example, your SMS provider may bill per message or charge for a phone number, and Google may bill for Gemini usage above its free tier). Those charges are strictly between you and the third-party provider. We do not collect, remit, or refund third-party charges.
 
 ### 6.10 Fair-Use and Abuse
 
@@ -240,8 +246,13 @@ These Terms, together with the LICENSE (at the repository root), PRIVACY.md, and
 
 ---
 
-**Contact for legal notices:**
-JJJJJ Enterprises, LLC
-legal@jjjjjenterprises.com
+**Contact:**
 
-Legal notices must be sent by email to the address above. A physical mailing address will be provided on request.
+| Purpose | Address |
+|---|---|
+| Legal notices and dispute / arbitration | legal@jjjjjenterprises.com |
+| Billing, subscriptions, and refunds | billing@jjjjjenterprises.com |
+| User support | support@jjjjjenterprises.com |
+| General inquiries | admin@jjjjjenterprises.com |
+
+Legal notices must be sent by email to legal@jjjjjenterprises.com. A physical mailing address will be provided on request.
