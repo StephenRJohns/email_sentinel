@@ -130,14 +130,11 @@ email_sentinel/
 │   ├── ES_32.png          # 32×32 icon
 │   └── ES_Banner.png      # card banner
 │
-├── landing/               # Public marketing landing page
-│   ├── index.html         # Self-contained landing page (no build step)
-│   ├── sitemap.xml        # XML sitemap for search engine indexing
-│   ├── robots.txt         # Search engine crawler directives
-│   ├── images/            # Landing page image assets
-│   └── legal/             # HTML-rendered legal pages (terms, privacy, disclaimer)
-│
 ├── legal/                 # Legal source documents (markdown)
+│   │                      # The HTML versions of these docs are generated
+│   │                      # into the sibling repo ../jjjjjenterprises.com/
+│   │                      # under emailsentinel/legal/ — this repo is the
+│   │                      # source of truth.
 │   ├── TERMS.md           # Terms of Service
 │   ├── PRIVACY.md         # Privacy Policy (required for Google Workspace Marketplace)
 │   └── DISCLAIMER.md      # Warranty disclaimer, AI accuracy, no-reliance notice

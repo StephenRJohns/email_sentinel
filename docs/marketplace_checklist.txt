@@ -255,7 +255,7 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
 --------------------------------------------------------------------------------
    Paste this into Cloud Console:
 
-     https://jjjjjenterprises.com/legal/terms.html
+     https://jjjjjenterprises.com/emailsentinel/legal/terms.html
 
    (This is the live HTML rendering of legal/TERMS.md, served from the
    public marketing site. Google's Marketplace URL validator expects a
@@ -268,7 +268,7 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
 --------------------------------------------------------------------------------
    Paste this into Cloud Console:
 
-     https://jjjjjenterprises.com/legal/privacy.html
+     https://jjjjjenterprises.com/emailsentinel/legal/privacy.html
 
    (Same reasoning as item 8 — live HTML at the marketing site, not the
    GitHub blob.)

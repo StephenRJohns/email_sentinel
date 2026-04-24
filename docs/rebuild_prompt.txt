@@ -38,8 +38,12 @@ LicenseManager.gs — Tier limits (Free vs Pro), feature gating, founding-member
 Help.html         — Help content rendered inside the in-app help card
 appsscript.json   — Manifest: OAuth scopes, add-on descriptor, time-driven trigger config
 
-landing/index.html — Self-contained public marketing landing page (no build step, no CDN dependencies)
-landing/sitemap.xml — XML sitemap
+(The public marketing website — including the emAIl Sentinel product landing
+page, all three HTML legal pages, sitemap.xml, and robots.txt — lives in a
+sibling repo: ../jjjjjenterprises.com/. This email_sentinel repo is now the
+add-on source code + the authoritative markdown for the legal documents;
+the HTML renderings are generated into jjjjjenterprises.com/emailsentinel/
+from the markdown files in this repo's legal/ dir.)
 legal/TERMS.md    — Terms of Service
 legal/PRIVACY.md  — Privacy Policy
 legal/DISCLAIMER.md — Disclaimer (AI accuracy, IP attribution, no-reliance notice)
