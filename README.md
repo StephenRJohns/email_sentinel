@@ -6,6 +6,8 @@ A Gmail Workspace Add-on that watches your Gmail for new messages and sends an a
 
 Everything runs inside your Google account — no machine to keep running, no extra accounts to create.
 
+> **Status: private pre-launch testing.** emAIl Sentinel is currently in private testing with a closed group of users. It is not yet listed on the Google Workspace Marketplace for general availability, and public sign-ups are not being accepted. The plan structure, pricing, and features documented below describe the product at launch; during private testing, access is invitation-only and free of charge. See `legal/TERMS.md` § 1.1 for the governing provision. For inquiries, contact [support@jjjjjenterprises.com](mailto:support@jjjjjenterprises.com).
+
 ---
 
 ## Table of contents
