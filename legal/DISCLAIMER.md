@@ -38,7 +38,7 @@ The Service integrates with third-party services including Google Gemini, any SM
 
 - does not operate, control, or guarantee the availability of any third-party service;
 - is not responsible for any charges, overage fees, rate limits, data handling practices, or policy changes imposed by third-party providers;
-- does not verify the accuracy of SMS delivery cost estimates displayed in the add-on (costs are indicative only and may change at any time per the provider's pricing);
+- does not verify the accuracy of any third-party pricing shown in the add-on, help content, or marketing materials — including **SMS delivery cost estimates** and **Google Gemini API pricing**; all third-party cost figures are indicative only, are captured at a point in time, and may change at any time without notice from us. Always confirm current pricing on the provider's own pricing page before committing to usage;
 - is not responsible for any failure by a third-party service to deliver an alert; and
 - is not liable for data processed by a third-party service after the Service transmits it.
 
@@ -54,6 +54,8 @@ JJJJJ Enterprises, LLC is not affiliated with, sponsored by, or endorsed by any 
 | Asana | Asana, Inc. |
 
 Any SMS provider whose trademarks appear in emAIl Sentinel documentation or marketing materials in connection with integration guidance is the property of its respective owner. emAIl Sentinel supports any SMS provider the user configures; no specific SMS provider is affiliated with or endorses emAIl Sentinel.
+
+**emAIl Sentinel trademark status.** "emAIl Sentinel" is a trademark of JJJJJ Enterprises, LLC, with a pending application at the United States Patent and Trademark Office (**USPTO serial number 99761473**, filed 2026-04-23). We use the ™ symbol to denote common-law and pending-registration status. We will replace ™ with ® only after the USPTO issues a registration certificate.
 
 Use of these marks in emAIl Sentinel documentation, marketing, or the add-on interface is solely for the purpose of identifying compatible or integrated services and does not imply any affiliation with, sponsorship by, or endorsement from those companies.
 

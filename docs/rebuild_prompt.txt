@@ -81,6 +81,7 @@ MCP servers:     JSON-RPC 2.0 tools/call over HTTPS to user-configured endpoints
 === BRANDING / IP ===
 
 Product name: emAIl Sentinel™ (exact capitalization required everywhere)
+Trademark: Pending at USPTO — serial number 99761473, filed 2026-04-23. Use ™ only, not ®, until USPTO issues a registration certificate.
 Operator: JJJJJ Enterprises, LLC
 Contact routing: legal@ / billing@ / support@ / admin@ @jjjjjenterprises.com
 Related products: PilotTrainerHQ (pilottrainerhq.com), PlaneFacts (planefacts.online)

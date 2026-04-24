@@ -107,9 +107,12 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
      no extra account to create, your API key stays in your UserProperties.
 
    ALERT CHANNELS (mix and match per rule)
-   • SMS — any provider you want. Quick-start presets for Textbelt, Telnyx,
-     Plivo, Twilio, ClickSend, and Vonage. A generic webhook handles every
-     other provider.
+   • SMS — bring your own provider. YOU select and configure the SMS
+     provider; emAIl Sentinel dispatches messages on your behalf using the
+     credentials you supply. Quick-start presets make setup trivial for
+     Textbelt, Telnyx, Plivo, Twilio, ClickSend, and Vonage. A generic
+     webhook handles every other provider. emAIl Sentinel is not itself an
+     SMS provider and does not resell messaging.
    • Google Chat — post to any Chat Space via webhook (Pro)
    • Google Calendar — creates an event with phone notifications
    • Google Sheets — appends a row for audit trails and searchable history
@@ -130,8 +133,10 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
    • Pro ($4.99/month or $39/year) — unlimited rules, 1-minute polling,
      Google Chat and MCP server alerts, AI-assisted rule writing,
      unlimited log history.
-   • Founding-member lifetime ($79 one-time) — first 500 buyers only.
-     Pro features for the life of the Service.
+   • Founding-member lifetime ($79 one-time) — limited to the first 500
+     purchasers as recorded on the Google Workspace Marketplace. Once 500
+     lifetime purchases are logged on the Marketplace, this offer is
+     permanently retired. Pro features for the life of the Service.
 
    EXAMPLE RULES
    • "Any email from anyone @example.com with a PDF attachment that
@@ -148,14 +153,22 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
    You sign up for a free Gemini API key at aistudio.google.com/app/apikey
    (no credit card). Free tier allows 1,500 calls/day — enough for most
    users. If you're a power user with lots of rules, Google bills you
-   directly at ~$0.075 per million tokens.
+   directly at approximately $0.075 per million tokens for Gemini 2.5 Flash
+   at the time of writing. All third-party pricing shown here is indicative
+   only and may change without notice from us; verify current rates at
+   ai.google.dev/pricing before committing.
 
    PRIVACY
-   Everything stays in your Google account. Rules, settings, alert history,
-   and seen-message baselines are stored in per-user UserProperties —
-   private to you. Email content is sent only to Google Gemini for rule
-   evaluation and to the alert channels you enable. We don't operate any
-   backend. We don't see your email. We don't see your rules.
+   Everything important stays in your Google account. Rules, settings,
+   credentials, alert history, and seen-message baselines are stored in
+   per-user UserProperties — private to you. Email content is sent only
+   to Google Gemini for rule evaluation and to the alert channels you
+   enable. We do not operate a backend database and we do not see your
+   email or your rules. Limited operational telemetry — uncaught script
+   exceptions (stack traces, function names, timestamps) — is routed to
+   Google Cloud Logging within our Google Cloud project so we can diagnose
+   crashes; these logs do not contain your email content, your rules, or
+   your API keys. Full details in the Privacy Policy.
 
    SETUP IN 2 MINUTES
    1. Install the add-on.

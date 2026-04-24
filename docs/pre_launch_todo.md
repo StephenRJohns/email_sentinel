@@ -1,3 +1,12 @@
+# Pre-Launch TODO (early snapshot — kept for reference)
+
+> **This file is an early-development snapshot and is not authoritative.** It is retained for historical reference only. The current, maintained pre-launch tracker lives outside the repository.
+>
+> Known status updates since this snapshot was written (as of 2026-04-23):
+> - Trademark filing — completed; USPTO serial 99761473, filed 2026-04-23.
+> - Lawyer review — identified; appointment pending.
+> - See `docs/marketplace_checklist.txt` for the current Marketplace submission guide.
+
 ┌─────┬─────────────────────────────────────────────────────────────────────┬───────────────────┬─────────────────┐
 │  #  │                                Item                                 │        Who        │     Status      │
 ├─────┼─────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┤

@@ -8,11 +8,11 @@ The emAIl Sentinel™ software, including all source code, documentation, design
 
 ## 1. No License Granted by Default
 
-No rights are granted to any third party to use, copy, modify, merge, publish, distribute, sublicense, sell, or create derivative works of the Software without the prior written authorization of Licensor. Public visibility of this repository on a hosting service (e.g., GitHub) does not constitute a grant of any license, express or implied.
+No rights are granted to any third party to use, copy, modify, merge, publish, distribute, sublicense, sell, or create derivative works of the Software without the prior written authorization of Licensor. Public visibility of this repository on a hosting service (e.g., GitHub) does not constitute a grant of any license, express or implied. Specifically, cloning, forking, downloading, or otherwise obtaining a copy of the Software from a public source-hosting service does not grant any right to use the Software; the only authorized use is installation through the Google Workspace Marketplace (or, during pre-launch private testing, direct installation by Licensor or its designated testers pursuant to a separate written agreement).
 
 ## 2. License Grant
 
-Subject to your compliance with the Terms of Service (legal/TERMS.md) and this License, JJJJJ Enterprises, LLC grants you a limited, non-exclusive, non-transferable, revocable license to install and use the Software solely as a Google Workspace Add-on within your own Google account, for your own personal or individual professional use, or for use by a small team where each member installs the Software in their own Google account.
+Subject to (i) your installation of the Software from the Google Workspace Marketplace (or under a separate written testing agreement with Licensor), and (ii) your compliance with the Terms of Service (legal/TERMS.md) and this License, JJJJJ Enterprises, LLC grants you a limited, non-exclusive, non-transferable, revocable license to install and use the Software solely as a Google Workspace Add-on within your own Google account, for your own personal or individual professional use, or for use by a small team where each member installs the Software in their own Google account.
 
 ## 3. Restrictions
 
@@ -36,7 +36,7 @@ Nothing in this License restricts Google LLC's rights under its own Terms of Ser
 
 ## 6. Trademarks
 
-"emAIl Sentinel" is a trademark of JJJJJ Enterprises, LLC. All other trademarks referenced herein are the property of their respective owners. Use of any Licensor trademark, including in forks, derivative works, or promotional material, requires prior written permission.
+"emAIl Sentinel" is a trademark of JJJJJ Enterprises, LLC, pending registration with the United States Patent and Trademark Office (USPTO serial number 99761473, filed 2026-04-23). The ™ symbol is used to denote common-law and pending-registration status; the ® symbol will only be used after registration issues. All other trademarks referenced herein are the property of their respective owners. Use of any Licensor trademark, including in forks, derivative works, or promotional material, requires prior written permission.
 
 ## 7. No Warranty
 

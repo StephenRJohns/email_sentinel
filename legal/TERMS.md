@@ -104,6 +104,8 @@ Features, limits, and List Prices are described in the in-app Help, the Marketpl
 
 All subscriptions and one-time purchases are transacted through Google LLC's Google Workspace Marketplace billing. We do not collect, store, or process your payment card details. Your billing relationship for the subscription is with Google; our relationship with you is governed by these Terms and the License. Google's terms, including its refund and billing policies, apply to the payment transaction itself in addition to these Terms.
 
+For users in the European Economic Area, the United Kingdom, or other jurisdictions subject to the Second Payment Services Directive (Directive (EU) 2015/2366, "**PSD2**") and Strong Customer Authentication (SCA) requirements, payment authentication is performed by Google as the payment services provider. We neither implement nor bypass SCA — Google handles it — and we are not liable for any payment declined or delayed as a result of SCA or 3-D Secure authentication steps imposed by Google, your card issuer, or your bank.
+
 ### 6.3 Auto-Renewal
 
 Monthly and annual Pro subscriptions automatically renew at the end of each billing period for another equivalent period at the then-current List Price, **unless you cancel before the renewal date**. You can cancel at any time from the Google Workspace Marketplace subscription management page; cancellation stops future renewals but does not entitle you to a refund of the current period's fee except as required by law.
@@ -176,9 +178,12 @@ Your use of the Service is subject to the Privacy Policy in PRIVACY.md, which is
 
 ## 9. Disclaimers
 
-THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, ACCURACY, OR UNINTERRUPTED OPERATION.
+**PLEASE READ THIS SECTION CAREFULLY. IT LIMITS OUR WARRANTIES AND AFFECTS YOUR RIGHTS.**
 
-WITHOUT LIMITING THE FOREGOING, WE DO NOT WARRANT THAT:
+**The Service is provided "as is" and "as available", without warranties of any kind, express or implied, including without limitation warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, or uninterrupted operation.**
+
+Without limiting the foregoing, we do not warrant that:
+
 - the Service will detect every relevant email;
 - alerts will be delivered promptly, in order, or at all;
 - Gemini's evaluation of any rule will be correct; or
@@ -188,9 +193,11 @@ WITHOUT LIMITING THE FOREGOING, WE DO NOT WARRANT THAT:
 
 ## 10. Limitation of Liability
 
-TO THE FULLEST EXTENT PERMITTED BY LAW, IN NO EVENT WILL JJJJJ ENTERPRISES, LLC OR ITS OFFICERS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS, REVENUE, DATA, GOODWILL, OR BUSINESS OPPORTUNITY, ARISING OUT OF OR RELATED TO YOUR USE OF OR INABILITY TO USE THE SERVICE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+**PLEASE READ THIS SECTION CAREFULLY. IT LIMITS OUR FINANCIAL LIABILITY TO YOU.**
 
-OUR TOTAL CUMULATIVE LIABILITY TO YOU FOR ALL CLAIMS ARISING OUT OF OR RELATED TO THE SERVICE IS LIMITED TO THE GREATER OF (A) THE AMOUNT YOU PAID US FOR THE SERVICE IN THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE CLAIM, OR (B) ONE HUNDRED U.S. DOLLARS (USD $100).
+**To the fullest extent permitted by law, in no event will JJJJJ Enterprises, LLC or its officers, employees, or agents be liable to you for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for any loss of profits, revenue, data, goodwill, or business opportunity, arising out of or related to your use of or inability to use the Service, even if advised of the possibility of such damages.**
+
+**Our total cumulative liability to you for all claims arising out of or related to the Service is limited to the greater of (a) the amount you paid us for the Service in the twelve (12) months preceding the event giving rise to the claim, or (b) one hundred U.S. dollars (USD $100).**
 
 Some jurisdictions do not allow the exclusion or limitation of certain damages, so some of the above limitations may not apply to you.
 
@@ -211,6 +218,8 @@ You may stop using the Service at any time by uninstalling the add-on from your 
 ## 13. Changes to These Terms
 
 We may update these Terms from time to time. For **material changes** (including changes to pricing, refund terms, liability limitations, dispute resolution, or data practices), we will notify you by email to the Google account associated with your use of the Service at least **30 days before** the change takes effect. Non-material changes (such as formatting, clarification, or correction of typographical errors) take effect when posted. The "Effective date" at the top will reflect the latest revision. Your continued use of the Service after a change becomes effective constitutes acceptance of the revised Terms. If you do not agree to a material change, you must stop using the Service before the change takes effect.
+
+We commit to **reviewing these Terms, the Privacy Policy, and the Disclaimer at least annually**, and more frequently if material changes to the Service or to applicable law require. Annual reviews do not necessarily result in textual changes; they confirm that the documents remain accurate.
 
 ## 14. Governing Law
 
