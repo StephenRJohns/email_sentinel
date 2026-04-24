@@ -115,7 +115,9 @@ We will notify registered users at least **30 days in advance** before we add or
 
 ### 5.3 Payment Data
 
-If you subscribe to the Pro plan or purchase the Founding-member lifetime option, your payment is processed by **Google LLC through the Google Workspace Marketplace**. We do not receive, collect, or store your credit card number, bank account, or other payment details. Google provides us with limited subscription metadata (a tier entitlement and subscription status) so the add-on can unlock paid features. Google's handling of your payment data is governed by [Google's Privacy Policy](https://policies.google.com/privacy) and the Google Workspace Marketplace terms.
+This subsection describes how payment data will be handled **once the Service launches paid plans on the Google Workspace Marketplace**. During private pre-launch testing (see Terms of Service § 1.1), no paid subscriptions are being offered and no payment data is collected or processed.
+
+At launch: if you subscribe to the Pro plan or purchase the Founding-member lifetime option, your payment will be processed by **Google LLC through the Google Workspace Marketplace**. We do not receive, collect, or store your credit card number, bank account, or other payment details. Google provides us with limited subscription metadata (a tier entitlement and subscription status) so the add-on can unlock paid features. Google's handling of your payment data is governed by [Google's Privacy Policy](https://policies.google.com/privacy) and the Google Workspace Marketplace terms.
 
 ## 6. Data Retention
 

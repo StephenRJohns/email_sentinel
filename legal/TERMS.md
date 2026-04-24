@@ -14,7 +14,13 @@ emAIl Sentinel is a Google Workspace Add-on that runs in your own Google account
 
 The Service runs entirely inside Google Apps Script under your own credentials. We do not operate any backend that stores your data.
 
-## 2. Eligibility and Scope
+### 1.1 Current Service Status
+
+As of the effective date above, the Service is in **private pre-launch testing**. Access is by invitation only; the Service is not yet listed on the Google Workspace Marketplace for general availability, and public sign-ups are not being accepted. During the private testing period, access is provided free of charge to invited testers. The subscription plans described in Section 6 (Free plan, Pro plan, Founding-member lifetime plan) — including their fees, auto-renewal, and refund provisions — **become applicable when the Service launches on the Google Workspace Marketplace**; until launch, those billing provisions do not engage. All other provisions of these Terms apply in full during private testing.
+
+## 2. Eligibility, Intended Use, and Scope
+
+**Intended use.** The Service is designed for **self-notification and small-team alerting** — you configure rules that fire alerts to yourself, or to a small number of colleagues, on-call recipients, or other people with whom you have a direct working relationship and from whom you have obtained any consent required for the channel in use (see Section 4.1 for SMS-specific consent obligations). The Service is **not intended for, and Section 4 prohibits**, use as a tool for unsolicited bulk or promotional SMS, mass-marketing outreach, scraping of contact information, or communication with individuals who have not opted in to hear from you.
 
 The Service is designed for individuals, professionals, consultants, and small teams. By installing or using the Service you represent that:
 
