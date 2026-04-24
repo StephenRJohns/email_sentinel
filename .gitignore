@@ -1,7 +1,12 @@
 .DS_Store
 node_modules/
-.clasprc.json
-prompt.txt
 *.swp
+
+# Google Apps Script / clasp local config
 .clasp.json
+.clasprc.json
+
+# Private working dir: secrets, internal strategy, historical test artifacts.
+# Do not move files out of here unless they are confirmed free of API keys,
+# credentials, internal strategy notes, or Gmail-account PII.
 work/

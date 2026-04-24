@@ -114,7 +114,7 @@ Launch-only $79 tier capped at the first 500 purchasers, codified in
 `legal/TERMS.md` §6.1. `FOUNDING_MEMBERS_SOLD` and `FOUNDING_MEMBERS_LIMIT`
 in `LicenseManager.gs` drive the scarcity counter on the home card. The
 counter is bumped manually (or via the standalone monitor script in
-`work/founding_member_monitor/`); when it reaches 500 the UI hides the
+`scripts/`); when it reaches 500 the UI hides the
 offer and the developer manually pauses the SKU in Cloud Console.
 
 ### Branding

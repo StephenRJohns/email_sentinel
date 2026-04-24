@@ -1,0 +1,5 @@
+# Transient test outputs
+.last_run_results.json
+
+# Archived test runs — contain real Gmail addresses and match details (PII)
+test_runs/

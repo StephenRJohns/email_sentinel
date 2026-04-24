@@ -1,0 +1,492 @@
+================================================================================
+emAIl Sentinel™ — Google Workspace Marketplace Launch Checklist
+================================================================================
+
+Everything you need to publish emAIl Sentinel on the Google Workspace
+Marketplace, in the order you'll encounter it.
+
+HOW TO USE THIS FILE
+--------------------------------------------------------------------------------
+When you're ready to submit:
+  1. Open this file.
+  2. Follow Part 1 to get to the right Cloud Console page.
+  3. Copy-paste the Part 2 items (short description, detailed description,
+     category, URLs, etc.) into the Cloud Console form fields.
+  4. Paste the Part 3 scope justifications into the OAuth verification
+     submission form.
+  5. Upload the assets from Part 2 items 5-7 (icons, banner, screenshots).
+  6. Run through Parts 4-6 as a pre-flight check before clicking Publish.
+
+Reference docs (Google):
+  https://developers.google.com/workspace/marketplace/create-listing
+  https://developers.google.com/workspace/marketplace/about-app-review
+  https://developers.google.com/workspace/add-ons/how-tos/publish-add-on-overview
+
+
+================================================================================
+PART 1 — CLOUD CONSOLE NAVIGATION
+================================================================================
+
+Most of this work happens in Google Cloud Console, not in this repo.
+
+STEP-BY-STEP:
+
+  1. Go to https://console.cloud.google.com
+  2. Top bar → select the Cloud project that is linked to your Apps Script
+     project. If you don't know which one, run `clasp open` locally, then in
+     the Apps Script editor go to Project Settings → the "Google Cloud
+     Platform (GCP) Project" section — that's the one.
+  3. Left hamburger menu → APIs & Services → Library
+  4. Search "Google Workspace Marketplace SDK" → Enable (if not enabled)
+  5. Left hamburger menu → APIs & Services → Enabled APIs & services →
+     click "Google Workspace Marketplace SDK"
+  6. You are now at the Marketplace SDK page. You will use three tabs here:
+       • OVERVIEW          — status
+       • APP CONFIGURATION — where you paste the descriptions, URLs, assets
+       • STORE LISTING     — where you preview the listing before submitting
+
+  7. Click APP CONFIGURATION tab. Fill out:
+       • App Name
+       • App integration (add-on details)
+       • OAuth scopes (must match appsscript.json)
+       • Developer details (your name/email)
+       • Terms of Service URL
+       • Privacy Policy URL
+       • Visual assets (icon, banner, screenshots)
+       • Detailed description
+  8. Click STORE LISTING tab:
+       • Short description
+       • Category
+       • Regions to publish
+       • Languages
+  9. Save (do NOT click Publish yet — do that only when OAuth verification
+     is done and everything below is complete).
+
+
+================================================================================
+PART 2 — LISTING ASSETS (copy these into Cloud Console)
+================================================================================
+
+
+1. APPLICATION NAME
+--------------------------------------------------------------------------------
+   Max 50 characters. Must match the OAuth consent screen app name exactly.
+
+   Use: emAIl Sentinel™
+
+
+2. SHORT DESCRIPTION
+--------------------------------------------------------------------------------
+   Max 200 characters. Appears in search results and on the app card.
+
+   Never miss an important email. Describe rules in plain English; AI
+   (Gemini) watches your Gmail and alerts you via SMS, Chat, Calendar,
+   Sheets, Tasks, or Slack.
+
+   (160 chars. Leads with the benefit, mentions AI, names the channels.)
+
+
+3. DETAILED DESCRIPTION
+--------------------------------------------------------------------------------
+   Max 16,000 characters. Appears on the listing page below screenshots.
+   This is your biggest SEO surface — include natural keywords.
+
+   emAIl Sentinel™ is smart email management and alerting for Gmail.
+   Describe what to watch for in plain English — AI evaluates every new
+   message against your rules and alerts you through the channels you
+   choose. No regex, no code, no extra accounts.
+
+   WHY IT'S DIFFERENT
+   • Plain-English rules. "Any email from the bank confirming a wire
+     transfer over $10,000." Done.
+   • Evaluated by Google Gemini. Real semantic understanding, not keyword
+     matching.
+   • Multi-channel alerts per rule. One email can text you, create a
+     calendar event, and log to a spreadsheet simultaneously.
+   • Runs entirely inside your own Google account. No third-party backend,
+     no extra account to create, your API key stays in your UserProperties.
+
+   ALERT CHANNELS (mix and match per rule)
+   • SMS — any provider you want. Quick-start presets for Textbelt, Telnyx,
+     Plivo, Twilio, ClickSend, and Vonage. A generic webhook handles every
+     other provider.
+   • Google Chat — post to any Chat Space via webhook (Pro)
+   • Google Calendar — creates an event with phone notifications
+   • Google Sheets — appends a row for audit trails and searchable history
+   • Google Tasks — creates a task in your Gmail sidebar
+   • MCP servers — Slack, Microsoft 365 / Teams, Asana, or any custom
+     Model Context Protocol endpoint (Pro)
+
+   HOW IT WORKS
+   A background trigger checks Gmail on the interval you choose. For each
+   new message in a watched label, Gemini reads the sender, subject, body,
+   and attachment names and decides whether it matches your rule. If yes,
+   it formats an alert message and fires every channel you configured.
+   Messages that don't match are ignored entirely — no noise.
+
+   PLANS
+   • Free — up to 3 rules, 15-minute polling, SMS and Google Calendar /
+     Sheets / Tasks alerts, 30-day activity log.
+   • Pro ($4.99/month or $39/year) — unlimited rules, 1-minute polling,
+     Google Chat and MCP server alerts, AI-assisted rule writing,
+     unlimited log history.
+   • Founding-member lifetime ($79 one-time) — first 500 buyers only.
+     Pro features for the life of the Service.
+
+   EXAMPLE RULES
+   • "Any email from anyone @example.com with a PDF attachment that
+     looks like an invoice or purchase order."
+   • "Subject contains URGENT or CRITICAL."
+   • "Email from the bank confirming a wire transfer, ACH payment, or
+     large transaction over $10,000."
+   • "Any password reset, suspicious login, or security alert for any
+     of my accounts."
+   • "Shipping or delivery update from FedEx, UPS, USPS, DHL, or Amazon
+     with a tracking number."
+
+   BRING YOUR OWN GEMINI KEY
+   You sign up for a free Gemini API key at aistudio.google.com/app/apikey
+   (no credit card). Free tier allows 1,500 calls/day — enough for most
+   users. If you're a power user with lots of rules, Google bills you
+   directly at ~$0.075 per million tokens.
+
+   PRIVACY
+   Everything stays in your Google account. Rules, settings, alert history,
+   and seen-message baselines are stored in per-user UserProperties —
+   private to you. Email content is sent only to Google Gemini for rule
+   evaluation and to the alert channels you enable. We don't operate any
+   backend. We don't see your email. We don't see your rules.
+
+   SETUP IN 2 MINUTES
+   1. Install the add-on.
+   2. Open Gmail, click the emAIl Sentinel icon, paste your free Gemini
+      API key.
+   3. Click "Starter rules" for 5 pre-built rules (Urgent emails, Invoices,
+      Shipping, Security, Subscriptions), or create your own.
+   4. Click "Start monitoring."
+
+   PERFECT FOR
+   • Freelancers and consultants who can't miss an invoice
+   • Anyone on-call who needs SMS on a specific pattern
+   • People who work across time zones and want targeted overnight alerts
+   • Privacy-minded users who refuse to add another SaaS to their inbox
+   • Google Tasks power users who want important emails to become tasks
+     automatically
+
+   Built by JJJJJ Enterprises, LLC. Email alerting is intentionally not
+   included as a channel — this add-on does not send email on your behalf.
+
+
+4. CATEGORY
+--------------------------------------------------------------------------------
+   Choose ONE in Cloud Console. Best options:
+
+     • Productivity — broader search volume, more competition
+     • Communication — more specific, less competition
+
+   Recommendation: Productivity.
+
+
+5. ICONS
+--------------------------------------------------------------------------------
+   Required sizes (PNG, transparent background, no Google trademarks):
+     • 128 x 128 — main listing icon (use images/ES_128.png)
+     • 32 x 32  — small icon (use images/ES_32.png)
+
+   Both already exist in repo at images/ES_128.png and images/ES_32.png.
+
+   MANIFEST logoUrl requirement:
+   The logoUrl in appsscript.json must be hosted at a public URL that
+   starts with https://lh3.googleusercontent.com/. Current value is
+   already set to the hosted 128px. If you ever regenerate the icon:
+     1. Upload the 128 PNG to Google Drive
+     2. Share it "Anyone with the link"
+     3. Get the file ID from the share URL
+     4. Replace logoUrl with: https://lh3.googleusercontent.com/d/<FILE_ID>
+
+
+6. CARD BANNER
+--------------------------------------------------------------------------------
+   220 x 140 pixels (Marketplace card preview image).
+   The repo has images/ES_Banner.png at 1376x768 — that is for in-app use
+   only, NOT the Marketplace card. You need a separate 220x140 crop or
+   purpose-built card banner. Same visual language as the icon; include
+   the app name if it reads well at that size.
+
+
+7. SCREENSHOTS
+--------------------------------------------------------------------------------
+   1-5 images, 1280x800 pixels each.
+   Must accurately show real app functionality (Google enforces this).
+
+   Recommended order (put strongest first):
+     1. Activity log showing a successful match and alert dispatch
+        (the "it works" proof)
+     2. Rule editor with a filled-in plain-English rule
+        (the "plain English" proof)
+     3. Home card showing Plan indicator + monitoring status + Upgrade
+        to Pro button (the "it's a real product" proof)
+     4. Settings card showing Gemini config and SMS provider
+     5. Rules list showing 2-3 rules with mixed channels
+
+   How to take them:
+     1. Deploy the add-on to your real Gmail account
+     2. Configure real rules (use SENTINEL_TEST pattern for demo)
+     3. Fire a match so the Activity log has content
+     4. Set Chrome window to 1280x800 or use DevTools device toolbar
+     5. Screenshot with the add-on panel visible
+     6. Crop to 1280x800, no padding, no rounded corners
+
+
+8. TERMS OF SERVICE URL
+--------------------------------------------------------------------------------
+   Paste this into Cloud Console:
+
+     https://github.com/StephenRJohns/email_sentinel/blob/main/legal/TERMS.md
+
+
+9. PRIVACY POLICY URL
+--------------------------------------------------------------------------------
+   Paste this into Cloud Console:
+
+     https://github.com/StephenRJohns/email_sentinel/blob/main/legal/PRIVACY.md
+
+
+10. SUPPORT URL
+--------------------------------------------------------------------------------
+    Paste this into Cloud Console:
+
+      https://github.com/StephenRJohns/email_sentinel/issues
+
+
+================================================================================
+PART 3 — OAUTH CONSENT SCREEN + VERIFICATION
+================================================================================
+
+
+11. OAUTH CONSENT SCREEN
+--------------------------------------------------------------------------------
+    In Cloud Console → APIs & Services → OAuth consent screen:
+      • User type: External
+      • Publishing status: In Production (NOT Testing)
+      • App name: "emAIl Sentinel" (must exactly match appsscript.json)
+      • User support email: your email
+      • Developer contact: your email
+      • App logo: upload the 128 PNG
+      • Authorized domains: github.com (and your own domain if you add one)
+      • Scopes: add all 7 scopes from appsscript.json
+
+    If your consent screen is in "Testing" status, Google will reject
+    your Marketplace listing. Move it to Production before submitting.
+
+
+12. OAUTH VERIFICATION
+--------------------------------------------------------------------------------
+    Because gmail.readonly is a restricted/sensitive scope, you must
+    submit for OAuth verification before Marketplace approval.
+
+    In Cloud Console → APIs & Services → OAuth consent screen →
+    Verification status → Prepare for verification.
+
+    Google requires:
+      • A video walkthrough showing how the add-on uses each scope
+        (your OAuth verification video — see docs/oauth_verification/)
+      • A written justification for each scope (below)
+      • A link to your privacy policy
+
+    SCOPE JUSTIFICATIONS — paste these into the verification form:
+
+      gmail.addons.execute
+        Required to run as a Gmail add-on. This scope is granted
+        implicitly by installing any Gmail add-on.
+
+      gmail.readonly
+        Required to read message metadata (sender, subject, received date,
+        attachment filenames) and up to the first 2,000 characters of the
+        plain-text body, for rule evaluation by the Google Gemini API.
+        The add-on only reads messages in Gmail labels the user explicitly
+        configures. No messages are modified, sent, or deleted.
+
+      calendar
+        Required to create calendar events as alerts when the user enables
+        the Google Calendar alert channel on a rule. CalendarApp requires
+        the full calendar scope; the narrower calendar.events scope is
+        only compatible with the advanced Calendar service, which is not
+        used here.
+
+      spreadsheets
+        Required to log alert data to Google Sheets when the user enables
+        the Google Sheets alert channel on a rule.
+
+      tasks
+        Required to create Google Tasks as alerts when the user enables
+        the Google Tasks alert channel on a rule.
+
+      script.external_request
+        Required to call the Google Gemini API (generativelanguage.
+        googleapis.com) for rule evaluation and alert formatting, and to
+        call user-selected third-party SMS providers (Textbelt, Telnyx,
+        Plivo, Twilio, ClickSend, Vonage) and MCP server endpoints
+        (Slack, Microsoft 365 / Teams, Asana, or user-configured
+        custom endpoints) when the user enables those alert channels.
+
+      script.scriptapp
+        Required to create and manage time-driven triggers that schedule
+        background email checks at the user-configured polling interval.
+
+
+================================================================================
+PART 4 — WHAT GOOGLE CHECKS DURING REVIEW
+================================================================================
+
+
+13. BRANDING COMPLIANCE
+--------------------------------------------------------------------------------
+    [x] App name does not contain "Google", "Gmail", "Workspace", or any
+        other Google trademark
+    [x] Icon does not use Google brand colors or logos
+    [x] Description does not imply Google endorsement
+    [x] "Google Chat", "Google Calendar", etc. are used as proper nouns
+
+
+14. FUNCTIONALITY
+--------------------------------------------------------------------------------
+    [ ] All buttons and actions work (no dead buttons, no errors)
+    [ ] Upgrade-to-Pro button opens successfully (workspace.google.com
+        is whitelisted in appsscript.json openLinkUrlPrefixes)
+    [ ] Loading states are handled (user sees feedback, not a hang)
+    [ ] Error messages are clear and suggest a fix
+    [ ] Edge cases: 0 rules, no API key, bad API key, nonexistent label
+    [ ] First-run experience is smooth
+    [ ] After OAuth authorization, the home card displays immediately
+
+
+15. USER EXPERIENCE
+--------------------------------------------------------------------------------
+    [ ] Home card exists and is useful
+    [ ] Universal actions all work (Rules, Settings, Activity Log, Help,
+        Run check now)
+    [ ] UI fits within the ~300px add-on panel without horizontal scroll
+    [ ] Text is not cut off with "..."
+    [ ] No duplicate UI elements
+    [ ] Back / refresh / update buttons work correctly
+    [ ] Confirmation feedback for every action (save, delete, toggle)
+
+
+16. LINKS
+--------------------------------------------------------------------------------
+    [ ] All URLs in the code are HTTPS
+    [ ] All URLs are valid and not localhost / staging
+    [ ] Privacy policy link is live and accessible
+    [ ] Terms of service link is live and accessible
+    [ ] Support link is live and accessible
+    [ ] SMS provider sign-up links all work
+    [ ] Upgrade URL opens the Workspace Marketplace listing
+
+
+================================================================================
+PART 5 — SEO
+================================================================================
+
+
+17. KEYWORD STRATEGY
+--------------------------------------------------------------------------------
+    People search for these terms in the Marketplace. They are already
+    woven naturally into the detailed description above:
+
+    Primary (high intent):
+      gmail alert, email alert, email notification, email monitoring,
+      gmail add-on, email watcher, smart email management, email alerting
+
+    Secondary (feature-specific):
+      ai email filter, gemini email, smart email alert, sms email
+      notification, google chat alert, email to calendar, email to sheets,
+      email to tasks, slack email alert, teams email alert
+
+    Long-tail (specific use cases):
+      alert when email arrives, notify me of important emails,
+      email rule plain english, ai email rule, email trigger alert
+
+    Do NOT keyword-stuff. Google penalizes this.
+
+
+18. SCREENSHOTS MATTER FOR CONVERSION
+--------------------------------------------------------------------------------
+    Screenshots are the first thing users see after the title. They
+    directly affect install rate, which feeds back into search ranking.
+
+      • First screenshot should show the clearest value proposition
+        (activity log with a match)
+      • Use real content (a plain-English rule, a realistic match)
+      • Brief annotations (arrows, captions) are allowed but must
+        accurately represent the app — don't edit the UI
+
+
+19. REVIEWS AND RATINGS
+--------------------------------------------------------------------------------
+    Google factors ratings into search ranking. After launch:
+      • Ask early users to leave a review
+      • Reply to every review (shows active maintenance)
+      • Fix issues reported in reviews promptly
+      • A 4.5+ star rating significantly improves discoverability
+
+
+20. GITHUB REPO DISCOVERY (already done)
+--------------------------------------------------------------------------------
+    [x] Repo description set: "Gmail add-on: smart email management and
+        alerting powered by AI (Gemini) — alerts via Chat, Calendar,
+        Sheets, Tasks, or SMS"
+    [x] Repo topics set: gmail, gmail-addon, google-workspace,
+        google-apps-script, gemini, email-alerts, email-monitoring,
+        email-management, sms-alerts, google-chat, workspace-addon,
+        alerting
+
+
+================================================================================
+PART 6 — FINAL SUBMISSION CHECKLIST
+================================================================================
+
+Run through this before clicking Publish in Cloud Console:
+
+ASSETS:
+  [ ] 128 x 128 icon uploaded (use images/ES_128.png)
+  [ ] 32 x 32 icon uploaded (use images/ES_32.png)
+  [ ] 220 x 140 card banner created and uploaded
+  [ ] 1-5 screenshots at 1280x800 uploaded
+  [ ] Short description pasted (Part 2, item 2 above)
+  [ ] Detailed description pasted (Part 2, item 3 above)
+
+URLS:
+  [ ] Privacy Policy URL live and HTTPS
+  [ ] Terms of Service URL live and HTTPS
+  [ ] Support URL live and HTTPS
+
+CLOUD CONSOLE:
+  [ ] OAuth consent screen: External, In Production
+  [ ] OAuth consent screen app name = "emAIl Sentinel" (exact match)
+  [ ] OAuth verification submitted (can take 2-6 weeks to approve)
+  [ ] Marketplace SDK enabled
+  [ ] App Configuration tab completed
+  [ ] Store Listing tab completed
+
+CODE / MANIFEST:
+  [ ] appsscript.json has all 7 scopes
+  [ ] appsscript.json openLinkUrlPrefixes includes every URL setOpenLink
+      is called with (including workspace.google.com for the upgrade flow)
+  [ ] clasp push completed with final code
+  [ ] Tested in real Gmail end-to-end (use testing/e2e_test_plan.md)
+
+LEGAL:
+  [ ] Lawyer has reviewed LICENSE, legal/TERMS.md, legal/PRIVACY.md,
+      legal/DISCLAIMER.md
+  [ ] Contact email legal@jjjjjenterprises.com is real and monitored
+  [ ] Company name "JJJJJ Enterprises, LLC" correct throughout
+
+PAID TIER (if launching Pro simultaneously):
+  [ ] Pro monthly SKU configured in Marketplace SDK
+  [ ] Pro annual SKU configured
+  [ ] Founding-member lifetime SKU configured ($79, limited availability)
+  [ ] Subscription entitlement check wired in LicenseManager.gs
+      (or plan to do this in a follow-up deploy)
+
+================================================================================

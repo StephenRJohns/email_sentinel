@@ -131,12 +131,35 @@ email_sentinel/
 ├── landing/               # Public marketing landing page
 │   ├── index.html         # Self-contained landing page (no build step)
 │   ├── sitemap.xml        # XML sitemap for search engine indexing
-│   └── images/            # Landing page image assets
+│   ├── robots.txt         # Search engine crawler directives
+│   ├── images/            # Landing page image assets
+│   └── legal/             # HTML-rendered legal pages (terms, privacy, disclaimer)
 │
-└── legal/                 # Legal documents
-    ├── TERMS.md           # Terms of Service
-    ├── PRIVACY.md         # Privacy Policy (required for Google Workspace Marketplace)
-    └── DISCLAIMER.md      # Warranty disclaimer, AI accuracy, no-reliance notice
+├── legal/                 # Legal source documents (markdown)
+│   ├── TERMS.md           # Terms of Service
+│   ├── PRIVACY.md         # Privacy Policy (required for Google Workspace Marketplace)
+│   └── DISCLAIMER.md      # Warranty disclaimer, AI accuracy, no-reliance notice
+│
+├── docs/                  # Developer and launch documentation
+│   ├── pre_launch_todo.md        # Pre-launch tracker
+│   ├── marketplace_checklist.txt # Google Workspace Marketplace listing guide
+│   ├── rebuild_prompt.txt        # Reference: how to rebuild the project from scratch
+│   ├── icon_prompts.txt          # Image-generation prompts for icon/banner
+│   ├── trademark_filing_guide.pdf
+│   └── oauth_verification/       # OAuth verification video + submission answers
+│
+├── scripts/               # Standalone helper scripts (not part of the add-on)
+│   └── FoundingMemberMonitor.gs  # Daily watcher for founding-member sales count
+│
+└── testing/               # End-to-end test plan and Playwright automation
+    ├── README.md
+    ├── e2e_test_plan.md   # Canonical checklist
+    ├── run_e2e_tests.sh   # Launch Chrome + run suite
+    ├── reset_e2e_chrome.sh
+    ├── new_manual_run.sh
+    ├── archive_run.js     # Produces annotated per-run reports
+    ├── diagnose.js        # Iframe introspector for debugging selector drift
+    └── playwright/        # Playwright project (copy e2e.config.env.example → e2e.config.env)
 ```
 
 There is no build step, no `requirements.txt`, no installer. The whole thing is JavaScript that runs on Google's servers.

@@ -1,0 +1,107 @@
+emAIl Sentinel — OAuth Verification Video Requirements
+======================================================
+
+PURPOSE
+-------
+Demonstrate to Google's trust & safety team that gmail.readonly is used solely to
+read the user's own Gmail messages for rule evaluation, and that no data is stored
+externally or shared beyond the alert channels the user explicitly configures.
+
+
+RECORDING REQUIREMENTS
+-----------------------
+- Duration: ~2 minutes
+- Resolution: 1280x800 minimum (higher is fine)
+- Account: Must use a real Gmail account — not a test account — so the OAuth consent
+  screen appears exactly as users will see it
+- Narration: Not required. On-screen captions are helpful but optional.
+- Format: Standard video file suitable for upload to Google (MP4 preferred)
+
+
+RECOMMENDED TOOLING
+--------------------
+- Screen recorder: OBS Studio (free, open source)
+    sudo apt install obs-studio
+- Caption generation (optional): Whisper (free, runs locally)
+    pip install openai-whisper
+    whisper recording.mp4 --output_format srt
+  Embed the .srt via OBS, DaVinci Resolve, or CapCut.
+
+AUTOMATION LIMITATIONS
+-----------------------
+- The OAuth consent screen cannot be automated (Google bot detection blocks it) —
+  that step must be performed manually.
+- AI video generators produce synthetic screens and will not satisfy Google's
+  requirement for a real OAuth consent screen demonstration.
+- Playwright/Puppeteer can drive the browser for non-OAuth steps but cannot replace
+  the full manual recording.
+
+
+CONTENT REQUIREMENTS
+---------------------
+The video must cover these key demonstrations, in order:
+
+1. INSTALL + OAUTH CONSENT
+   - Show the Google OAuth consent screen for emAIl Sentinel
+   - Pause on the consent screen long enough for reviewers to read it (~2-3 seconds)
+   - Consent screen must show: app name "emAIl Sentinel", and all requested scopes
+     (gmail.readonly, Calendar, Sheets, Tasks, external requests)
+   - Complete the install by clicking Allow
+
+2. SETTINGS — API KEY STORAGE
+   - Open the Settings card
+   - Show the masked API key display ("Current key: ....XXXX")
+   - Demonstrates that credentials are stored privately in Google UserProperties
+
+3. SETTINGS — ALERT CHANNELS
+   - Scroll to show SMS (set to None) and Google alert channels section
+   - Demonstrates that alert channels are user-configured and Google-account-based
+
+4. TEST GEMINI CALL
+   - Click "Test Gemini"
+   - Show the "Gemini OK — model responded" toast
+   - Demonstrates that the only external network call is to Google's own Gemini API
+
+5. CREATE A RULE
+   - Create a rule (Name: "Video demo rule", Label: INBOX,
+     Rule text: "Any email with SENTINEL_TEST in the subject line")
+   - Leave alert channels unchecked
+   - Save the rule; show it in the list with ON status
+
+6. BASELINE RUN
+   - Click "Run check now" from the home card
+   - Show the result toast (e.g. "0 new email(s), 0 match(es)")
+   - Open Activity log and show the baseline run entry
+
+7. SEND TEST EMAIL + TRIGGER MATCH
+   - Compose and send an email to your own address with subject: SENTINEL_TEST — video demo
+   - Confirm the email arrives in the inbox
+   - Click "Run check now"
+   - Show the toast: "Check complete: 1 new email(s), 1 match(es)"
+
+8. ACTIVITY LOG — KEY FRAME
+   - Open Activity log
+   - Show the match entry: label, sender, subject, evaluation step, MATCH result
+   - Pause here for 3-4 seconds — this is the primary evidence frame for reviewers
+   - Demonstrates: what gmail.readonly data is accessed, that it goes only to Gemini,
+     and that results are logged privately in the user's own Google account
+
+9. HELP / PRIVACY (optional)
+   - Navigate to Help → Privacy section
+   - Briefly show the privacy statement
+
+
+DO NOT SHOW
+-----------
+- Your actual API key value
+- Your full phone number (if SMS is configured)
+- Any real sensitive emails in your inbox during scrolling
+
+
+KEY FRAMES FOR REVIEWERS
+-------------------------
+These moments must be clearly visible and unhurried:
+- OAuth consent screen (step 1)
+- Masked API key display (step 2)
+- "Gemini OK" toast (step 4)
+- Activity log match entry (step 8)

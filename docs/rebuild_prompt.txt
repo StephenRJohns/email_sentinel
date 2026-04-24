@@ -1,0 +1,106 @@
+emAIl Sentinel — rebuild prompt
+Last updated: 2026-04-23
+
+=== WHAT THIS PROJECT IS ===
+
+emAIl Sentinel (exact branding: lowercase e, lowercase m, uppercase A, uppercase I, lowercase l, space, uppercase S, lowercase entinel) is a production Google Workspace Gmail Add-on built with Google Apps Script (V8 runtime). It watches Gmail labels for new messages, evaluates each one against user-defined plain-English rules using the Google Gemini REST API, and dispatches alerts via SMS, Google Chat, Google Calendar, Google Sheets, Google Tasks, or MCP server endpoints.
+
+Operated by JJJJJ Enterprises, LLC (jjjjj_enterprises_llc@protonmail.com).
+
+=== TECH STACK ===
+
+- Runtime: Google Apps Script (server-side JavaScript, V8 runtime)
+- Host: Google's infrastructure — no external backend, no database
+- UI: Google Cards Service (Gmail sidebar add-on cards)
+- State: PropertiesService.getUserProperties() — per-user, per-script, private, 9 KB per value limit
+- AI: Google Gemini REST API (UrlFetchApp to generativelanguage.googleapis.com)
+- Auth: OAuth 2.0 scopes declared in appsscript.json; ScriptApp.getOAuthToken() for Google-native channels
+- No npm, no build step, no transpilation. Deploy with `clasp push`.
+
+=== FILE STRUCTURE ===
+
+Code.gs           — Entry points: onHomepage(), universal actions, onUninstall()
+Cards.gs          — All CardService UI: home card, rules list, rule editor, settings, activity log, help
+MailWatcher.gs    — Time-driven trigger handler: polls Gmail, diffs against seen-IDs, dispatches matches
+RuleEvaluator.gs  — Gemini REST calls: rule evaluation (match?) + alert message formatting
+AlertDispatcher.gs — Alert dispatch: BYO SMS (presets + generic webhook), Chat, Calendar, Sheets, Tasks, MCP
+McpServers.gs     — MCP server CRUD + JSON-RPC 2.0 tool dispatch over HTTPS
+RulesManager.gs   — CRUD for rules stored in UserProperties
+SettingsManager.gs — CRUD for settings; business-hours helpers
+ActivityLog.gs    — Ring-buffered activity log with batch-write support (startLogBuffering / flushLog)
+LicenseManager.gs — Tier limits (Free vs Pro), feature gating, founding-member counter
+Help.html         — Help content rendered inside the in-app help card
+appsscript.json   — Manifest: OAuth scopes, add-on descriptor, time-driven trigger config
+
+landing/index.html — Self-contained public marketing landing page (no build step, no CDN dependencies)
+landing/sitemap.xml — XML sitemap
+legal/TERMS.md    — Terms of Service
+legal/PRIVACY.md  — Privacy Policy
+legal/DISCLAIMER.md — Disclaimer (AI accuracy, IP attribution, no-reliance notice)
+
+=== DATA MODEL ===
+
+All state in PropertiesService.getUserProperties():
+
+  mailsentinel.settings — JSON: Gemini key/model, poll interval, business hours, SMS config, alert channel IDs, license tier
+  mailsentinel.rules    — JSON array of rule objects (see RulesManager.gs header for schema)
+  mailsentinel.seen     — JSON: per-label array of recently-seen Gmail message IDs (dedup baseline)
+  mailsentinel.log      — Ring buffer of last ~60 activity log lines
+
+=== LICENSE / PRICING TIERS ===
+
+Free:  3 rules max, 15-min polling minimum, SMS + Calendar + Sheets + Tasks, 30-day log
+Pro:   Unlimited rules, 1-min polling, all channels (+ Chat + MCP), AI suggest, unlimited log — $4.99/mo or $39/yr
+Founding Member: All Pro features for life, one-time $79, limited to first 500 purchasers
+
+Tier stored in settings.license.tier ('free' | 'pro'). Pro entitlement sync with Marketplace Subscription API is planned; currently set manually via setTier_() for testing.
+
+=== ALERT CHANNELS ===
+
+SMS:             BYO provider — six quick-start presets (Textbelt, Telnyx, Plivo, Twilio, ClickSend, Vonage)
+                 plus Generic webhook (POST {"to": "+1...", "body": "..."} to any HTTPS endpoint)
+Google Chat:     Webhook POST to user-configured Chat Space URLs (Pro only)
+Google Calendar: Creates 15-min event via CalendarApp (uses 'calendar' OAuth scope)
+Google Sheets:   Appends row via SpreadsheetApp (uses 'spreadsheets' OAuth scope)
+Google Tasks:    Creates task via Tasks REST API + ScriptApp.getOAuthToken() (uses 'tasks' scope)
+MCP servers:     JSON-RPC 2.0 tools/call over HTTPS to user-configured endpoints
+                 Presets: Slack (slack_post_message), Microsoft 365 (send_message), Asana (asana_create_task)
+
+=== KEY DESIGN CONSTRAINTS ===
+
+- Apps Script execution limit: 6 min. runMailCheck() guards with MAX_RUN_MS=240000, MAX_EVALS_PER_RUN=100
+- 9 KB UserProperties limit per key. saveRules() throws if over. saveSeen_() auto-shrinks buffer
+- Log buffering: startLogBuffering() + flushLog() batch writes during trigger runs
+- Concurrency guard: LockService.getUserLock(0ms timeout) in runMailCheck(); skip if locked
+- Cards are fully stateless: read UserProperties fresh on every render
+- Home button on every top-level card (Rules, Settings, Help, Starter Rules, Activity Log)
+- First-run baseline: first check per label records seen IDs, no alerts (intentional behavior)
+- Gemini called via REST (UrlFetchApp), not SDK — only needs script.external_request scope
+- Email body: only first 2,000 characters sent to Gemini
+
+=== BRANDING / IP ===
+
+Product name: emAIl Sentinel™ (exact capitalization required everywhere)
+Operator: JJJJJ Enterprises, LLC
+Contact routing: legal@ / billing@ / support@ / admin@ @jjjjjenterprises.com
+Related products: PilotTrainerHQ (pilottrainerhq.com), PlaneFacts (planefacts.online)
+Google, Gmail, Google Workspace, Gemini, Google Chat, Calendar, Sheets, Tasks are trademarks of Google LLC
+SMS provider names are trademarks of their respective owners
+emAIl Sentinel is not affiliated with or endorsed by any third-party service provider
+
+=== OAUTH SCOPES (all actively used) ===
+
+gmail.addons.execute      — add-on execution
+gmail.readonly            — GmailApp.search() and message reading
+calendar                  — CalendarApp in sendCalendarAlert_()
+spreadsheets              — SpreadsheetApp in sendSheetsAlert_()
+tasks                     — Tasks REST API in sendTasksAlert_()
+script.external_request   — UrlFetchApp for Gemini + SMS providers + MCP servers
+script.scriptapp          — ScriptApp.newTrigger() / getProjectTriggers()
+
+=== DEPLOY ===
+
+npm install -g @google/clasp
+clasp login
+clasp push          # push all .gs / .html / appsscript.json to linked Apps Script project
+clasp open          # open in browser editor for test deployment
