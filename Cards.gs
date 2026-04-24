@@ -578,6 +578,26 @@ function handleCancelEditor(e) {
 // Settings
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Returns true if the current settings have all the pieces required to
+ * successfully dispatch a test SMS — provider selected, required
+ * credentials present for that provider, and a test phone number set.
+ * Used to gate the "Send test SMS" button's disabled state at render time.
+ */
+function isSmsConfigReady_(s) {
+  if (!s.smsProvider || s.smsProvider === 'none' || !s.smsTestNumber) return false;
+  switch (s.smsProvider) {
+    case 'textbelt':  return !!s.textbeltApiKey;
+    case 'telnyx':    return !!(s.telnyxApiKey && s.telnyxFromNumber);
+    case 'plivo':     return !!(s.plivoAuthId && s.plivoAuthToken && s.plivoFromNumber);
+    case 'twilio':    return !!(s.twilioAccountSid && s.twilioAuthToken && s.twilioFromNumber);
+    case 'clicksend': return !!(s.clicksendUsername && s.clicksendApiKey);
+    case 'vonage':    return !!(s.vonageApiKey && s.vonageApiSecret);
+    case 'webhook':   return /^https:\/\//i.test(s.smsWebhookUrl || '');
+  }
+  return false;
+}
+
 function buildSettingsCard() {
   const s = loadSettings();
 
@@ -822,19 +842,25 @@ function buildSettingsCard() {
     .setText('+ Add MCP server')
     .setOnClickAction(action_('handleShowNewMcpServer')));
 
+  var testGeminiBtn = CardService.newTextButton()
+    .setText('Test Gemini')
+    .setOnClickAction(action_('handleTestGemini'));
+  if (!s.geminiApiKey) testGeminiBtn.setDisabled(true);
+
+  var testSmsBtn = CardService.newTextButton()
+    .setText('Send test SMS')
+    .setOnClickAction(action_('handleTestSms'));
+  if (!isSmsConfigReady_(s)) testSmsBtn.setDisabled(true);
+
   const buttons = CardService.newCardSection()
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
         .setText('Save settings')
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
         .setOnClickAction(action_('handleSaveSettings')))
-      .addButton(CardService.newTextButton()
-        .setText('Test Gemini')
-        .setOnClickAction(action_('handleTestGemini'))))
+      .addButton(testGeminiBtn))
     .addWidget(CardService.newButtonSet()
-      .addButton(CardService.newTextButton()
-        .setText('Send test SMS')
-        .setOnClickAction(action_('handleTestSms')))
+      .addButton(testSmsBtn)
       .addButton(CardService.newTextButton()
         .setText('SMS setup guide')
         .setOnClickAction(action_('handleShowSmsGuide')))
@@ -913,6 +939,22 @@ function handleSaveSettings(e) {
     if (!parse12Hour(next.businessHoursEnd)) {
       return notificationResponse_('Business hours end must be 12-hour format, e.g. 9:00 PM.');
     }
+  }
+
+  // Detect whether any field actually changed. If nothing did, skip the
+  // save and tell the user — CardService can't disable the Save button
+  // reactively, so this is the closest UX we can give.
+  var hasChanges = false;
+  Object.keys(next).forEach(function(k) {
+    var a = next[k] === undefined || next[k] === null ? '' : next[k];
+    var b = prev[k] === undefined || prev[k] === null ? '' : prev[k];
+    if (String(a) !== String(b)) hasChanges = true;
+  });
+
+  if (!hasChanges) {
+    return CardService.newActionResponseBuilder()
+      .setNotification(CardService.newNotification().setText('No changes to save.'))
+      .build();
   }
 
   saveSettings(next);
@@ -1545,11 +1587,22 @@ function buildMcpServerEditorCard(server) {
     .setHint('HTTPS URL — e.g. https://your-mcp-server.example.com/mcp')
     .setValue(sv.endpoint || ''));
 
-  section.addWidget(CardService.newTextInput()
-    .setFieldName('mcpAuthToken')
-    .setTitle('Authorization header value')
-    .setHint('e.g. "Bearer YOUR_TOKEN" or "ApiKey YOUR_KEY" — blank if none')
-    .setValue(sv.authToken || ''));
+  if (sv.authToken) {
+    section.addWidget(CardService.newDecoratedText()
+      .setTopLabel('Current authorization header')
+      .setText('....' + sv.authToken.slice(-4)));
+    section.addWidget(CardService.newTextInput()
+      .setFieldName('mcpAuthToken')
+      .setTitle('New authorization header (leave blank to keep current)')
+      .setHint('Only fill in to replace the current value')
+      .setValue(''));
+  } else {
+    section.addWidget(CardService.newTextInput()
+      .setFieldName('mcpAuthToken')
+      .setTitle('Authorization header value')
+      .setHint('e.g. "Bearer YOUR_TOKEN" or "ApiKey YOUR_KEY" — blank if none')
+      .setValue(''));
+  }
 
   section.addWidget(CardService.newTextInput()
     .setFieldName('mcpToolName')
@@ -1747,6 +1800,20 @@ function handleUseSuggestedMcpArgs(e) {
     .build();
 }
 
+/**
+ * Look up an MCP server by id from the saved list. Returns null if missing.
+ * Used by handleSaveMcpServer to preserve credentials when the auth-token
+ * input is left blank.
+ */
+function findMcpServerById_(id) {
+  if (!id) return null;
+  var all = loadMcpServers();
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].id === id) return all[i];
+  }
+  return null;
+}
+
 function handleSaveMcpServer(e) {
   const inputs = e.commonEventObject.formInputs || {};
   const get = key => {
@@ -1767,12 +1834,17 @@ function handleSaveMcpServer(e) {
   if (!toolName) return notificationResponse_('Please enter a tool name.');
 
   const serverId = e.parameters.serverId || '';
+  // Preserve the existing authToken if the user left the field blank
+  // (the UI shows a "leave blank to keep current" hint when editing).
+  const existingServer = serverId ? findMcpServerById_(serverId) : null;
+  const inputAuth = get('mcpAuthToken');
+  const authToken = inputAuth !== '' ? inputAuth : (existingServer ? (existingServer.authToken || '') : '');
   const server = {
     id: serverId || Utilities.getUuid(),
     name: name,
     type: get('mcpType') || 'custom',
     endpoint: endpoint,
-    authToken: get('mcpAuthToken'),
+    authToken: authToken,
     toolName: toolName,
     toolArgsTemplate: get('mcpToolArgsTemplate') || '{"message":"{{message}}"}'
   };
