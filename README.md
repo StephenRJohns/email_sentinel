@@ -404,6 +404,8 @@ SMS recipients are managed in one place — **Settings ▸ SMS recipients** — 
 
 After configuring a provider in Settings, click **Send test SMS** to verify it works.
 
+**A2P 10DLC compliance:** SMS providers (especially Twilio) require A2P 10DLC (Application-to-Person 10-Digit Long Code) registration for US phone numbers. After buying a number from your provider, register a campaign in their console (typically under A2P 10DLC or Messaging → Campaigns). The app provides guidance if registration is missing — you'll see an error directing you to complete the registration before SMS can be sent.
+
 ### Google-native channels (free)
 
 These use your existing Google account — no third-party sign-up, no cost.
