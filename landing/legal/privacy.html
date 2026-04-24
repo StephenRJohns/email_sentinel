@@ -3,205 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#a050ff">
+<meta name="color-scheme" content="dark">
 <title>Privacy Policy &mdash; emAIl Sentinel</title>
-<meta name="description" content="Privacy Policy explaining what data emAIl Sentinel accesses and how it is used.">
-<meta name="robots" content="index, follow">
+<meta name="description" content="Privacy Policy for emAIl Sentinel. Data handling, subprocessors, GDPR, CCPA, CASA, and Google API Services User Data Policy compliance.">
+<meta name="author" content="JJJJJ Enterprises, LLC">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <link rel="canonical" href="https://emailsentinel.app/legal/privacy.html">
+<link rel="apple-touch-icon" sizes="128x128" href="../images/apple-touch-icon.png">
+
+<!-- Open Graph -->
 <meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="emAIl Sentinel">
 <meta property="og:title" content="Privacy Policy &mdash; emAIl Sentinel">
-<meta property="og:description" content="Privacy Policy explaining what data emAIl Sentinel accesses and how it is used.">
+<meta property="og:description" content="Privacy Policy for emAIl Sentinel. Data handling, subprocessors, GDPR, CCPA, CASA, and Google API Services User Data Policy compliance.">
+<meta property="og:url" content="https://emailsentinel.app/legal/privacy.html">
+<meta property="og:image" content="https://emailsentinel.app/images/og-image.png">
+<meta property="og:image:width" content="1376">
+<meta property="og:image:height" content="768">
+<meta property="og:image:alt" content="emAIl Sentinel — AI Email Monitoring">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privacy Policy &mdash; emAIl Sentinel">
+<meta name="twitter:description" content="Privacy Policy for emAIl Sentinel. Data handling, subprocessors, GDPR, CCPA, CASA, and Google API Services User Data Policy compliance.">
+<meta name="twitter:image" content="https://emailsentinel.app/images/og-image.png">
+
+<!-- BreadcrumbList schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://emailsentinel.app/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Legal",
+      "item": "https://emailsentinel.app/legal/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Privacy Policy",
+      "item": "https://emailsentinel.app/legal/privacy.html"
+    }
+  ]
+}
+</script>
+
+<!-- Article schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Privacy Policy",
+  "description": "Privacy Policy for emAIl Sentinel. Data handling, subprocessors, GDPR, CCPA, CASA, and Google API Services User Data Policy compliance.",
+  "url": "https://emailsentinel.app/legal/privacy.html",
+  "datePublished": "2026-04-18",
+  "dateModified": "2026-04-23",
+  "author": {
+    "@type": "Organization",
+    "name": "JJJJJ Enterprises, LLC",
+    "url": "https://emailsentinel.app/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "JJJJJ Enterprises, LLC",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://emailsentinel.app/images/og-image.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://emailsentinel.app/legal/privacy.html"
+  }
+}
+</script>
+
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; }
-
 :root {
-  --bg:        #0a0612;
-  --bg-2:      #0d0818;
-  --bg-card:   #130d20;
-  --border:    rgba(160,80,255,.15);
-  --border-h:  rgba(160,80,255,.4);
-  --purple:    #a050ff;
-  --purple-b:  #c080ff;
-  --text:      #e2e8f0;
-  --text-2:    #94a3b8;
-  --text-3:    #475569;
-  --amber:     #fbbf24;
-  --serif:     Georgia, 'Times New Roman', serif;
-  --sans:      -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --mono:      'Courier New', Courier, monospace;
+  --bg: #0a0612; --bg-2: #0d0818; --bg-card: #130d20;
+  --border: rgba(160,80,255,.15); --border-h: rgba(160,80,255,.4);
+  --purple: #a050ff; --purple-b: #c080ff;
+  --text: #e2e8f0; --text-2: #94a3b8; --text-3: #475569;
+  --amber: #fbbf24;
+  --serif: Georgia, 'Times New Roman', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --mono: 'Courier New', Courier, monospace;
 }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  line-height: 1.7;
-  font-size: 15.5px;
-}
-
+body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.7; font-size: 15.5px; }
 body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image: radial-gradient(circle, rgba(160,80,255,.05) 1px, transparent 1px);
   background-size: 32px 32px;
 }
-
 nav {
-  position: sticky; top: 0; z-index: 100;
-  padding: 15px 0;
-  background: rgba(10,6,18,.9);
-  backdrop-filter: blur(18px) saturate(180%);
+  position: sticky; top: 0; z-index: 100; padding: 15px 0;
+  background: rgba(10,6,18,.9); backdrop-filter: blur(18px) saturate(180%);
   border-bottom: 1px solid var(--border);
 }
-.nav-inner {
-  max-width: 900px; margin: 0 auto; padding: 0 28px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.nav-brand {
-  font-family: var(--sans); font-size: 1.1rem; font-weight: 600;
-  color: var(--text); text-decoration: none;
-  letter-spacing: -.01em;
-}
+.nav-inner { max-width: 900px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; }
+.nav-brand { font-family: var(--sans); font-size: 1.1rem; font-weight: 600; color: var(--text); text-decoration: none; letter-spacing: -.01em; }
 .nav-brand strong { font-weight: 900; color: var(--purple-b); }
 .nav-brand span { color: var(--purple-b); font-weight: 600; }
-.nav-back {
-  font-size: .88rem; color: var(--text-2); text-decoration: none;
-  display: inline-flex; align-items: center; gap: 6px;
-  transition: color .2s;
-}
+.nav-back { font-size: .88rem; color: var(--text-2); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: color .2s; }
 .nav-back:hover { color: var(--text); }
 
-.wrapper {
-  max-width: 820px; margin: 0 auto; padding: 60px 28px 80px;
-  position: relative; z-index: 1;
+.breadcrumbs {
+  max-width: 820px; margin: 0 auto; padding: 24px 28px 0;
+  font-size: .82rem; color: var(--text-3); position: relative; z-index: 1;
 }
+.breadcrumbs a { color: var(--purple-b); text-decoration: none; }
+.breadcrumbs a:hover { text-decoration: underline; }
+.breadcrumbs .sep { margin: 0 8px; color: var(--text-3); }
 
-.page-head {
-  padding-bottom: 32px; margin-bottom: 40px;
-  border-bottom: 1px solid var(--border);
-}
-.page-tag {
-  font-family: var(--mono); font-size: .72rem;
-  color: var(--purple-b); letter-spacing: .14em;
-  text-transform: uppercase; margin-bottom: 14px;
-}
-.page-head h1 {
-  font-family: var(--serif);
-  font-size: clamp(2rem, 4.5vw, 2.8rem);
-  font-weight: 700; line-height: 1.15;
-  letter-spacing: -.02em; color: var(--text);
-  margin-bottom: 10px;
-}
+.wrapper { max-width: 820px; margin: 0 auto; padding: 36px 28px 80px; position: relative; z-index: 1; }
+.page-head { padding-bottom: 32px; margin-bottom: 40px; border-bottom: 1px solid var(--border); }
+.page-tag { font-family: var(--mono); font-size: .72rem; color: var(--purple-b); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 14px; }
+.page-head h1 { font-family: var(--serif); font-size: clamp(2rem, 4.5vw, 2.8rem); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; color: var(--text); margin-bottom: 10px; }
 
-.legal-content h1 {
-  font-family: var(--serif);
-  font-size: 2rem; font-weight: 700;
-  color: var(--text); margin: 0 0 24px 0;
-  letter-spacing: -.02em;
-  display: none; /* hide the duplicate H1 from markdown since page-head shows it */
-}
-.legal-content h2 {
-  font-family: var(--serif);
-  font-size: 1.35rem; font-weight: 700;
-  color: var(--text); margin: 40px 0 14px 0;
-  letter-spacing: -.015em;
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
-}
-.legal-content h3 {
-  font-family: var(--serif);
-  font-size: 1.08rem; font-weight: 700;
-  color: var(--text); margin: 28px 0 10px 0;
-  letter-spacing: -.01em;
-}
+.legal-content h1 { display: none; }
+.legal-content h2 { font-family: var(--serif); font-size: 1.35rem; font-weight: 700; color: var(--text); margin: 40px 0 14px 0; letter-spacing: -.015em; padding-top: 18px; border-top: 1px solid var(--border); }
+.legal-content h3 { font-family: var(--serif); font-size: 1.08rem; font-weight: 700; color: var(--text); margin: 28px 0 10px 0; letter-spacing: -.01em; }
 .legal-content h2:first-of-type { border-top: none; padding-top: 0; }
-
-.legal-content p {
-  color: var(--text-2); margin: 0 0 14px 0;
-  font-size: .98rem; line-height: 1.72;
-}
+.legal-content p { color: var(--text-2); margin: 0 0 14px 0; font-size: .98rem; line-height: 1.72; }
 .legal-content strong { color: var(--text); font-weight: 600; }
 .legal-content em { color: var(--text); font-style: italic; }
-.legal-content a {
-  color: var(--purple-b); text-decoration: none;
-  border-bottom: 1px solid rgba(192,128,255,.3);
-  transition: border-color .2s;
-}
+.legal-content a { color: var(--purple-b); text-decoration: none; border-bottom: 1px solid rgba(192,128,255,.3); transition: border-color .2s; }
 .legal-content a:hover { border-bottom-color: var(--purple-b); }
-.legal-content ul, .legal-content ol {
-  margin: 0 0 16px 22px; color: var(--text-2);
-}
-.legal-content li {
-  margin-bottom: 8px; font-size: .96rem; line-height: 1.7;
-}
-.legal-content table {
-  width: 100%; border-collapse: collapse;
-  margin: 18px 0 22px 0; font-size: .9rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px; overflow: hidden;
-}
-.legal-content th, .legal-content td {
-  padding: 10px 14px; text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.legal-content th {
-  background: rgba(160,80,255,.06);
-  color: var(--text); font-weight: 600;
-  font-size: .82rem; letter-spacing: .02em;
-}
+.legal-content ul, .legal-content ol { margin: 0 0 16px 22px; color: var(--text-2); }
+.legal-content li { margin-bottom: 8px; font-size: .96rem; line-height: 1.7; }
+.legal-content table { width: 100%; border-collapse: collapse; margin: 18px 0 22px 0; font-size: .9rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.legal-content th, .legal-content td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.legal-content th { background: rgba(160,80,255,.06); color: var(--text); font-weight: 600; font-size: .82rem; letter-spacing: .02em; }
 .legal-content td { color: var(--text-2); vertical-align: top; }
 .legal-content tr:last-child td { border-bottom: none; }
-.legal-content code {
-  font-family: var(--mono); font-size: .85rem;
-  background: var(--bg-card); padding: 2px 6px;
-  border-radius: 4px; color: var(--purple-b);
-  border: 1px solid var(--border);
-}
-.legal-content pre {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 14px 18px;
-  overflow-x: auto; margin: 14px 0;
-}
-.legal-content pre code {
-  background: none; border: none; padding: 0;
-  color: var(--text-2);
-}
-.legal-content blockquote {
-  border-left: 3px solid var(--purple);
-  padding: 10px 18px; margin: 16px 0;
-  background: rgba(160,80,255,.04);
-  border-radius: 0 6px 6px 0;
-  color: var(--text-2); font-style: italic;
-}
-.legal-content hr {
-  border: none; height: 1px;
-  background: var(--border);
-  margin: 32px 0;
-}
+.legal-content code { font-family: var(--mono); font-size: .85rem; background: var(--bg-card); padding: 2px 6px; border-radius: 4px; color: var(--purple-b); border: 1px solid var(--border); }
+.legal-content pre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; overflow-x: auto; margin: 14px 0; }
+.legal-content pre code { background: none; border: none; padding: 0; color: var(--text-2); }
+.legal-content blockquote { border-left: 3px solid var(--purple); padding: 10px 18px; margin: 16px 0; background: rgba(160,80,255,.04); border-radius: 0 6px 6px 0; color: var(--text-2); font-style: italic; }
+.legal-content hr { border: none; height: 1px; background: var(--border); margin: 32px 0; }
 
-footer {
-  padding: 30px 0;
-  border-top: 1px solid var(--border);
-  background: var(--bg-2);
-  margin-top: 60px;
-}
-.footer-inner {
-  max-width: 900px; margin: 0 auto; padding: 0 28px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 16px;
-}
+footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(--bg-2); margin-top: 60px; }
+.footer-inner { max-width: 900px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 .footer-links { display: flex; gap: 22px; list-style: none; flex-wrap: wrap; }
-.footer-links a {
-  font-size: .82rem; color: var(--text-3); text-decoration: none;
-  transition: color .2s;
-}
+.footer-links a { font-size: .82rem; color: var(--text-3); text-decoration: none; transition: color .2s; }
 .footer-links a:hover { color: var(--text-2); }
 .footer-copy { font-size: .78rem; color: var(--text-3); }
 
 @media (max-width: 640px) {
-  .wrapper { padding: 40px 20px 60px; }
+  .wrapper { padding: 24px 20px 60px; }
+  .breadcrumbs { padding: 20px 20px 0; }
   .page-head h1 { font-size: 1.75rem; }
   .legal-content h2 { font-size: 1.2rem; }
   .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
@@ -216,6 +178,14 @@ footer {
     <a href="../index.html" class="nav-brand">em<strong>AI</strong>l <span>Sentinel</span></a>
     <a href="../index.html" class="nav-back">&larr; Back to home</a>
   </div>
+</nav>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="../index.html">Home</a>
+  <span class="sep">/</span>
+  <span>Legal</span>
+  <span class="sep">/</span>
+  <span>Privacy Policy</span>
 </nav>
 
 <main class="wrapper">
