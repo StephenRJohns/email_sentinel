@@ -1,5 +1,5 @@
 # emAIl Sentinel — robots.txt
-# Update the Sitemap URL below to match your production domain before deployment.
+# Canonical domain: jjjjjenterprises.com
 
 User-agent: *
 Allow: /
@@ -29,4 +29,4 @@ Allow: /
 # User-agent: CCBot
 # Disallow: /
 
-Sitemap: https://emailsentinel.app/sitemap.xml
+Sitemap: https://jjjjjenterprises.com/sitemap.xml

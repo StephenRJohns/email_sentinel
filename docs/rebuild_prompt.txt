@@ -1,5 +1,5 @@
 emAIl Sentinel — rebuild prompt
-Last updated: 2026-04-23
+Last updated: 2026-04-24
 
 === WHAT THIS PROJECT IS ===
 
@@ -21,6 +21,12 @@ Operated by JJJJJ Enterprises, LLC (jjjjj_enterprises_llc@protonmail.com).
 
 Code.gs           — Entry points: onHomepage(), universal actions, onUninstall()
 Cards.gs          — All CardService UI: home card, rules list, rule editor, settings, activity log, help
+                    Settings-card helpers: isSmsConfigReady_(s) gates the Send-test-SMS button's
+                    disabled state at render; findMcpServerById_(id) supports preserving MCP auth
+                    tokens when the field is left blank on edit. handleSaveSettings diffs the
+                    submitted form against stored settings and returns "No changes to save." when
+                    nothing changed — CardService has no client-side reactivity to build a true
+                    dirty-state button, so this toast is the closest UX equivalent
 MailWatcher.gs    — Time-driven trigger handler: polls Gmail, diffs against seen-IDs, dispatches matches
 RuleEvaluator.gs  — Gemini REST calls: rule evaluation (match?) + alert message formatting
 AlertDispatcher.gs — Alert dispatch: BYO SMS (presets + generic webhook), Chat, Calendar, Sheets, Tasks, MCP

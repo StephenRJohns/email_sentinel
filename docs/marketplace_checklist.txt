@@ -255,14 +255,23 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
 --------------------------------------------------------------------------------
    Paste this into Cloud Console:
 
-     https://github.com/StephenRJohns/email_sentinel/blob/main/legal/TERMS.md
+     https://jjjjjenterprises.com/legal/terms.html
+
+   (This is the live HTML rendering of legal/TERMS.md, served from the
+   public marketing site. Google's Marketplace URL validator expects a
+   clean 200 response with the full policy content — GitHub blob pages
+   wrap content in GitHub's own chrome and can fail validation, so use
+   the jjjjjenterprises.com URL here, not the repo URL.)
 
 
 9. PRIVACY POLICY URL
 --------------------------------------------------------------------------------
    Paste this into Cloud Console:
 
-     https://github.com/StephenRJohns/email_sentinel/blob/main/legal/PRIVACY.md
+     https://jjjjjenterprises.com/legal/privacy.html
+
+   (Same reasoning as item 8 — live HTML at the marketing site, not the
+   GitHub blob.)
 
 
 10. SUPPORT URL
