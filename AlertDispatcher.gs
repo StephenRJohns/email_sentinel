@@ -77,7 +77,8 @@ const SMS_PROVIDER_INFO = {
       '1. Sign up at twilio.com/try-twilio (free $15 credit)',
       '2. Console shows Account SID and Auth Token — copy both',
       '3. Go to Phone Numbers > Buy a Number (~$1.15/mo)',
-      '4. Paste Account SID, Auth Token, and the number below'
+      '4. Go to A2P 10DLC > Register your campaign (required for US)',
+      '5. Paste Account SID, Auth Token, and the number below'
     ]
   },
   clicksend: {
@@ -561,6 +562,10 @@ function testSms(toNumber) {
       settings);
     return 'Test SMS sent to ' + toNumber + ' via ' + settings.smsProvider + '.';
   } catch (e) {
-    return 'Test SMS FAILED: ' + e.message;
+    const msg = e.message || String(e);
+    if (msg.includes('30054') || msg.includes('Unregistered')) {
+      return 'SMS error (30054): Unregistered phone number. With Twilio, you must register your number for A2P 10DLC compliance. See: https://support.twilio.com/hc/en-us/articles/360041025133-Getting-started-with-A2P-10DLC';
+    }
+    return 'Test SMS FAILED: ' + msg;
   }
 }

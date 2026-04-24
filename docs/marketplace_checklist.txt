@@ -316,6 +316,13 @@ PART 3 — OAUTH CONSENT SCREEN + VERIFICATION
       • A written justification for each scope (below)
       • A link to your privacy policy
 
+    SMS COMPLIANCE NOTE
+    If users will be testing SMS providers (especially Twilio), they must
+    complete A2P 10DLC registration with their provider. Twilio requires
+    campaign registration in the console (A2P 10DLC > Register). Without
+    this, test SMS will fail with error 30054 (Unregistered Number).
+    The app provides guidance in error messages.
+
     SCOPE JUSTIFICATIONS — paste these into the verification form:
 
       gmail.addons.execute
