@@ -62,8 +62,8 @@ We may suspend or disable your ability to use the Service if we reasonably belie
 When you configure SMS as an alert channel, **you**, not JJJJJ Enterprises, LLC, are the sender of every SMS message dispatched by the Service on your behalf. You are solely responsible for:
 
 - obtaining and documenting **prior express consent** (or, where applicable, prior express written consent) from each recipient phone number before any non-emergency informational SMS is dispatched, as required by the U.S. Telephone Consumer Protection Act (TCPA), 47 U.S.C. § 227, and implementing regulations at 47 C.F.R. § 64.1200;
-- honoring opt-out requests (STOP, UNSUBSCRIBE, CANCEL, END, QUIT) within the timeframe required by your SMS provider's terms and the TCPA;
-- maintaining your own internal do-not-call / do-not-text list;
+- honoring opt-out requests (STOP, UNSUBSCRIBE, CANCEL, END, QUIT) **within one (1) business day** of receipt, as required by the TCPA and FCC rules;
+- maintaining a written internal do-not-call / do-not-text list and **retaining opt-out records for at least five (5) years** as required by 47 C.F.R. § 64.1200 and FTC guidance;
 - complying with the CAN-SPAM Act (15 U.S.C. § 7701 et seq.) to the extent it applies;
 - complying with your chosen SMS provider's terms of service, acceptable use policy, and carrier-imposed messaging rules (including 10DLC registration for US A2P traffic, STIR/SHAKEN, or similar carrier requirements);
 - complying with all applicable state laws, including the Florida Telephone Solicitation Act, Washington RCW 80.36, and any other state statute regulating SMS marketing or informational text;
@@ -112,9 +112,9 @@ Monthly and annual Pro subscriptions automatically renew at the end of each bill
 
 **FTC Click-to-Cancel compliance:** You may cancel your subscription at any time through the same mechanism used to subscribe (the Google Workspace Marketplace subscription management page), without being required to speak with a representative, complete additional steps beyond the cancellation itself, or accept additional offers as a condition of cancellation.
 
-### 6.4 Free Trial (if offered)
+### 6.4 Free Plan and Free Trials
 
-If we offer a free trial of Pro, the trial will convert to a paid Pro subscription at the end of the trial period unless you cancel before the trial ends. Any free-trial terms stated in the Marketplace listing (duration, eligibility, limits) control if they conflict with this Section.
+The **Free plan** is a permanent tier of the Service, not a time-limited trial. You may remain on the Free plan indefinitely without providing payment information. If at any time in the future we offer a time-limited free trial of Pro, the trial will convert to a paid Pro subscription at the end of the trial period **unless you cancel before the trial ends**, and any free-trial terms stated in the Marketplace listing at the time you enroll (duration, eligibility, automatic-conversion behavior, limits) control if they conflict with this Section.
 
 ### 6.5 Price Changes
 
@@ -157,7 +157,12 @@ The Service is priced for individual and small-team use. We may throttle, suspen
 
 The Founding-member lifetime plan grants access to Pro features for **the life of the Service**, meaning for as long as JJJJJ Enterprises, LLC continues to operate and make the Service available to end users. The grant is personal, non-transferable, and applies only to the Google account used at purchase.
 
-If we discontinue the Service entirely, we will provide Founding-member lifetime holders with at least **90 days' prior written notice** via email to the address associated with their Google account. No refund is owed upon discontinuation after the initial 30-day refund window (Section 6.6), but we will make reasonable efforts to provide data export instructions during the notice period.
+If we discontinue the Service entirely, we will provide Founding-member lifetime holders with at least **90 days' prior written notice** via email to the address associated with their Google account. No refund is owed upon discontinuation after the initial 30-day refund window (Section 6.6). During the 90-day notice period we will publish:
+
+- a **data export tool** or one-line Apps Script snippet that exports your rules, settings, and activity log in **JSON** and **CSV** formats; and
+- step-by-step instructions for retrieving any data created by the Service in your own Google account (Calendar events, Sheets, Tasks, Chat messages) before the add-on is delisted.
+
+We commit to keeping the data-export tool and instructions available for at least **180 days** after the discontinuation date, so that users who miss the 90-day window still have a reasonable opportunity to export.
 
 ## 7. Intellectual Property
 

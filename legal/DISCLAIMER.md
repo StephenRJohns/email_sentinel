@@ -79,7 +79,29 @@ Nothing in emAIl Sentinel's output, documentation, or marketing materials consti
 
 See Section 10 of the [Terms of Service](TERMS.md) for the full limitation of liability applicable to your use of the Service.
 
-## 11. Relationship to Other Documents
+## 11. Copyright / DMCA Notice and Takedown
+
+If you believe that any material made available through emAIl Sentinel (including marketing pages, documentation, or in-app content) infringes your copyright, you may submit a notice under the Digital Millennium Copyright Act, 17 U.S.C. § 512(c)(3), to:
+
+**Designated Copyright Agent**
+JJJJJ Enterprises, LLC
+legal@jjjjjenterprises.com
+
+Your notice must include (i) your physical or electronic signature; (ii) identification of the copyrighted work claimed to be infringed; (iii) identification of the allegedly infringing material and information reasonably sufficient for us to locate it; (iv) your address, telephone number, and email address; (v) a statement that you have a good-faith belief that the use of the material is not authorized by the copyright owner, its agent, or the law; and (vi) a statement, under penalty of perjury, that the information in your notice is accurate and that you are the copyright owner or are authorized to act on the copyright owner's behalf.
+
+We will respond to properly formed notices within **10 business days**. Counter-notices may be submitted per 17 U.S.C. § 512(g) to the same address.
+
+**Repeat infringer policy.** In appropriate circumstances we will terminate the accounts of users who are repeat copyright infringers, consistent with § 512(i).
+
+## 12. Accessibility
+
+JJJJJ Enterprises, LLC is committed to making emAIl Sentinel accessible to people with disabilities. We design our marketing website and legal pages to meet, where technically feasible, the **Web Content Accessibility Guidelines (WCAG) 2.1 Level AA**. The in-app experience is built on Google Workspace Add-on Cards Service, which inherits Gmail's accessibility behavior.
+
+If you encounter an accessibility barrier — inability to read text, interact with a control, or otherwise use the Service because of a disability — please contact **support@jjjjjenterprises.com** with a brief description of the barrier, the page or feature involved, and any assistive technology you are using. We will respond within **10 business days** and work with you to provide equivalent access.
+
+This accessibility statement is provided in partial fulfillment of the **European Accessibility Act (Directive (EU) 2019/882)**, applicable to in-scope digital services offered to EU consumers as of 28 June 2025, and of similar accessibility obligations under U.S. federal and state law.
+
+## 13. Relationship to Other Documents
 
 This Disclaimer supplements and is incorporated into the [Terms of Service](TERMS.md). In the event of any conflict between this Disclaimer and the Terms of Service, the Terms of Service control.
 

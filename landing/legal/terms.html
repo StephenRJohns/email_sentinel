@@ -95,7 +95,7 @@ html { scroll-behavior: smooth; font-size: 16px; }
   --bg: #0a0612; --bg-2: #0d0818; --bg-card: #130d20;
   --border: rgba(160,80,255,.15); --border-h: rgba(160,80,255,.4);
   --purple: #a050ff; --purple-b: #c080ff;
-  --text: #e2e8f0; --text-2: #94a3b8; --text-3: #475569;
+  --text: #e2e8f0; --text-2: #b8c3d1; --text-3: #8893a5;
   --amber: #fbbf24;
   --serif: Georgia, 'Times New Roman', serif;
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
@@ -107,7 +107,20 @@ body::before {
   background-image: radial-gradient(circle, rgba(160,80,255,.05) 1px, transparent 1px);
   background-size: 32px 32px;
 }
-nav {
+
+/* Accessibility */
+*:focus { outline: none; }
+*:focus-visible { outline: 2px solid var(--purple-b); outline-offset: 3px; border-radius: 3px; }
+.skip-link {
+  position: absolute; top: -48px; left: 8px;
+  background: var(--purple); color: #fff;
+  padding: 10px 16px; font-size: .9rem; font-weight: 600;
+  border-radius: 6px; text-decoration: none; z-index: 1000;
+  transition: top .15s ease;
+}
+.skip-link:focus { top: 8px; }
+
+nav.site-nav {
   position: sticky; top: 0; z-index: 100; padding: 15px 0;
   background: rgba(10,6,18,.9); backdrop-filter: blur(18px) saturate(180%);
   border-bottom: 1px solid var(--border);
@@ -119,18 +132,19 @@ nav {
 .nav-back { font-size: .88rem; color: var(--text-2); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: color .2s; }
 .nav-back:hover { color: var(--text); }
 
-.breadcrumbs {
+nav.breadcrumbs {
   max-width: 820px; margin: 0 auto; padding: 24px 28px 0;
   font-size: .82rem; color: var(--text-3); position: relative; z-index: 1;
 }
-.breadcrumbs a { color: var(--purple-b); text-decoration: none; }
-.breadcrumbs a:hover { text-decoration: underline; }
-.breadcrumbs .sep { margin: 0 8px; color: var(--text-3); }
+nav.breadcrumbs a { color: var(--purple-b); text-decoration: none; }
+nav.breadcrumbs a:hover { text-decoration: underline; }
+nav.breadcrumbs .sep { margin: 0 8px; color: var(--text-3); }
+nav.breadcrumbs [aria-current="page"] { color: var(--text-2); }
 
-.wrapper { max-width: 820px; margin: 0 auto; padding: 36px 28px 80px; position: relative; z-index: 1; }
-.page-head { padding-bottom: 32px; margin-bottom: 40px; border-bottom: 1px solid var(--border); }
+main.wrapper { max-width: 820px; margin: 0 auto; padding: 36px 28px 80px; position: relative; z-index: 1; }
+header.page-head { padding-bottom: 32px; margin-bottom: 40px; border-bottom: 1px solid var(--border); }
 .page-tag { font-family: var(--mono); font-size: .72rem; color: var(--purple-b); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 14px; }
-.page-head h1 { font-family: var(--serif); font-size: clamp(2rem, 4.5vw, 2.8rem); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; color: var(--text); margin-bottom: 10px; }
+header.page-head h1 { font-family: var(--serif); font-size: clamp(2rem, 4.5vw, 2.8rem); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; color: var(--text); margin-bottom: 10px; }
 
 .legal-content h1 { display: none; }
 .legal-content h2 { font-family: var(--serif); font-size: 1.35rem; font-weight: 700; color: var(--text); margin: 40px 0 14px 0; letter-spacing: -.015em; padding-top: 18px; border-top: 1px solid var(--border); }
@@ -162,9 +176,9 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 .footer-copy { font-size: .78rem; color: var(--text-3); }
 
 @media (max-width: 640px) {
-  .wrapper { padding: 24px 20px 60px; }
-  .breadcrumbs { padding: 20px 20px 0; }
-  .page-head h1 { font-size: 1.75rem; }
+  main.wrapper { padding: 24px 20px 60px; }
+  nav.breadcrumbs { padding: 20px 20px 0; }
+  header.page-head h1 { font-size: 1.75rem; }
   .legal-content h2 { font-size: 1.2rem; }
   .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
   .footer-links { justify-content: center; }
@@ -173,26 +187,28 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 </head>
 <body>
 
-<nav>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Primary">
   <div class="nav-inner">
-    <a href="../index.html" class="nav-brand">em<strong>AI</strong>l <span>Sentinel</span></a>
+    <a href="../index.html" class="nav-brand" aria-label="emAIl Sentinel home">em<strong>AI</strong>l <span>Sentinel</span></a>
     <a href="../index.html" class="nav-back">&larr; Back to home</a>
   </div>
 </nav>
 
 <nav class="breadcrumbs" aria-label="Breadcrumb">
   <a href="../index.html">Home</a>
-  <span class="sep">/</span>
+  <span class="sep" aria-hidden="true">/</span>
   <span>Legal</span>
-  <span class="sep">/</span>
-  <span>Terms of Service</span>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">Terms of Service</span>
 </nav>
 
-<main class="wrapper">
-  <div class="page-head">
+<main class="wrapper" id="main" tabindex="-1">
+  <header class="page-head">
     <div class="page-tag">Legal</div>
     <h1>Terms of Service</h1>
-  </div>
+  </header>
   <article class="legal-content">
 <h1>emAIl Sentinel™ — Terms of Service</h1>
 <p><strong>Effective date:</strong> 2026-04-23
@@ -240,8 +256,8 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 <p>When you configure SMS as an alert channel, <strong>you</strong>, not JJJJJ Enterprises, LLC, are the sender of every SMS message dispatched by the Service on your behalf. You are solely responsible for:</p>
 <ul>
 <li>obtaining and documenting <strong>prior express consent</strong> (or, where applicable, prior express written consent) from each recipient phone number before any non-emergency informational SMS is dispatched, as required by the U.S. Telephone Consumer Protection Act (TCPA), 47 U.S.C. § 227, and implementing regulations at 47 C.F.R. § 64.1200;</li>
-<li>honoring opt-out requests (STOP, UNSUBSCRIBE, CANCEL, END, QUIT) within the timeframe required by your SMS provider's terms and the TCPA;</li>
-<li>maintaining your own internal do-not-call / do-not-text list;</li>
+<li>honoring opt-out requests (STOP, UNSUBSCRIBE, CANCEL, END, QUIT) <strong>within one (1) business day</strong> of receipt, as required by the TCPA and FCC rules;</li>
+<li>maintaining a written internal do-not-call / do-not-text list and <strong>retaining opt-out records for at least five (5) years</strong> as required by 47 C.F.R. § 64.1200 and FTC guidance;</li>
 <li>complying with the CAN-SPAM Act (15 U.S.C. § 7701 et seq.) to the extent it applies;</li>
 <li>complying with your chosen SMS provider's terms of service, acceptable use policy, and carrier-imposed messaging rules (including 10DLC registration for US A2P traffic, STIR/SHAKEN, or similar carrier requirements);</li>
 <li>complying with all applicable state laws, including the Florida Telephone Solicitation Act, Washington RCW 80.36, and any other state statute regulating SMS marketing or informational text;</li>
@@ -256,7 +272,7 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 - <strong>Your chosen SMS provider</strong> (any provider you configure by supplying your own credentials or a generic HTTPS webhook URL) — receives recipient phone numbers and alert text when you enable SMS.
 - <strong>MCP servers</strong> (Slack, Microsoft 365 / Teams, Asana, or any custom Model Context Protocol endpoint you configure) — receives alert text and per-server arguments via JSON-RPC 2.0 over HTTPS when a rule targeting that server matches.</p>
 <p>Your use of each third-party service is governed by that provider's own terms and privacy policy. We are not responsible for the acts, omissions, availability, accuracy, or legality of any third-party service. Charges, quotas, and rate limits imposed by third-party providers are your responsibility.</p>
-<p>For the list of third-party trademarks used in the Service and its marketing materials, see the <a href="DISCLAIMER.md">Disclaimer</a> (Section 5 — Third-Party Trademarks).</p>
+<p>For the list of third-party trademarks used in the Service and its marketing materials, see the <a href="disclaimer.html">Disclaimer</a> (Section 5 — Third-Party Trademarks).</p>
 <h3>5.1 Related JJJJJ Enterprises Products</h3>
 <p>Our website may display links to other products operated by JJJJJ Enterprises, LLC, including PilotTrainerHQ (pilottrainerhq.com) and PlaneFacts (planefacts.online). Those products are separate services governed by their own terms of service and privacy policies. They are not part of the emAIl Sentinel Service, and these Terms do not apply to your use of those products.</p>
 <h2>6. Fees, Subscriptions, and Refunds</h2>
@@ -274,8 +290,8 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 <p>Monthly and annual Pro subscriptions automatically renew at the end of each billing period for another equivalent period at the then-current List Price, <strong>unless you cancel before the renewal date</strong>. You can cancel at any time from the Google Workspace Marketplace subscription management page; cancellation stops future renewals but does not entitle you to a refund of the current period's fee except as required by law.</p>
 <p><strong>California auto-renewal disclosure (Business &amp; Professions Code § 17600 et seq.):</strong> (i) the subscription will continue until you cancel; (ii) we will notify you of material subscription term changes at least 7 days before any change takes effect; (iii) cancellation can be performed entirely online through the Marketplace subscription page — no phone call, email, or additional steps are required; (iv) you will be charged at the start of each renewal period at the then-current price.</p>
 <p><strong>FTC Click-to-Cancel compliance:</strong> You may cancel your subscription at any time through the same mechanism used to subscribe (the Google Workspace Marketplace subscription management page), without being required to speak with a representative, complete additional steps beyond the cancellation itself, or accept additional offers as a condition of cancellation.</p>
-<h3>6.4 Free Trial (if offered)</h3>
-<p>If we offer a free trial of Pro, the trial will convert to a paid Pro subscription at the end of the trial period unless you cancel before the trial ends. Any free-trial terms stated in the Marketplace listing (duration, eligibility, limits) control if they conflict with this Section.</p>
+<h3>6.4 Free Plan and Free Trials</h3>
+<p>The <strong>Free plan</strong> is a permanent tier of the Service, not a time-limited trial. You may remain on the Free plan indefinitely without providing payment information. If at any time in the future we offer a time-limited free trial of Pro, the trial will convert to a paid Pro subscription at the end of the trial period <strong>unless you cancel before the trial ends</strong>, and any free-trial terms stated in the Marketplace listing at the time you enroll (duration, eligibility, automatic-conversion behavior, limits) control if they conflict with this Section.</p>
 <h3>6.5 Price Changes</h3>
 <p>We may change List Prices from time to time. A price change will not affect the current paid billing period. For monthly subscribers we will give at least <strong>30 days' notice</strong> before a price change takes effect at renewal; for annual subscribers we will give at least <strong>60 days' notice</strong>. Notice will be delivered by email to the Google account associated with the subscription or through the Marketplace. If you do not want to renew at the new price, cancel before the renewal date. Continued use after the renewal constitutes acceptance of the new price. Founding-member lifetime purchases are not subject to recurring fees.</p>
 <h3>6.6 Refunds and Cancellation</h3>
@@ -300,7 +316,12 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 <p>The Service is priced for individual and small-team use. We may throttle, suspend, or terminate accounts that we reasonably determine are abusing the Service (including but not limited to: enterprise-scale deployment through a single account, systematic circumvention of Free plan limits, or use inconsistent with the scope described in Section 2).</p>
 <h3>6.11 Founding-Member Lifetime Plan — Scope and Discontinuation</h3>
 <p>The Founding-member lifetime plan grants access to Pro features for <strong>the life of the Service</strong>, meaning for as long as JJJJJ Enterprises, LLC continues to operate and make the Service available to end users. The grant is personal, non-transferable, and applies only to the Google account used at purchase.</p>
-<p>If we discontinue the Service entirely, we will provide Founding-member lifetime holders with at least <strong>90 days' prior written notice</strong> via email to the address associated with their Google account. No refund is owed upon discontinuation after the initial 30-day refund window (Section 6.6), but we will make reasonable efforts to provide data export instructions during the notice period.</p>
+<p>If we discontinue the Service entirely, we will provide Founding-member lifetime holders with at least <strong>90 days' prior written notice</strong> via email to the address associated with their Google account. No refund is owed upon discontinuation after the initial 30-day refund window (Section 6.6). During the 90-day notice period we will publish:</p>
+<ul>
+<li>a <strong>data export tool</strong> or one-line Apps Script snippet that exports your rules, settings, and activity log in <strong>JSON</strong> and <strong>CSV</strong> formats; and</li>
+<li>step-by-step instructions for retrieving any data created by the Service in your own Google account (Calendar events, Sheets, Tasks, Chat messages) before the add-on is delisted.</li>
+</ul>
+<p>We commit to keeping the data-export tool and instructions available for at least <strong>180 days</strong> after the discontinuation date, so that users who miss the 90-day window still have a reasonable opportunity to export.</p>
 <h2>7. Intellectual Property</h2>
 <p>The Service, including all source code, design, documentation, and trademarks, is owned by JJJJJ Enterprises, LLC and is protected by copyright, trademark, and other intellectual property laws. Except for the limited right to install and use the Service in your own Google account in accordance with these Terms and the LICENSE file, no rights are transferred to you.</p>
 <p>You retain all rights in any rules, settings, recipient lists, and email content that you supply to the Service. The Service does not store your email content; processing happens transiently inside your own Apps Script execution context.</p>
@@ -369,7 +390,7 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 <h2>20. Severability</h2>
 <p>If any provision of these Terms is held unenforceable, the remaining provisions will continue in full force and effect.</p>
 <h2>21. Entire Agreement</h2>
-<p>These Terms, together with the LICENSE (at the repository root), the <a href="PRIVACY.md">Privacy Policy</a>, and the <a href="DISCLAIMER.md">Disclaimer</a>, are the entire agreement between you and JJJJJ Enterprises, LLC concerning the Service and supersede any prior agreement on the subject. Our failure to enforce any right or provision is not a waiver of that right or provision.</p>
+<p>These Terms, together with the LICENSE (at the repository root), the <a href="privacy.html">Privacy Policy</a>, and the <a href="disclaimer.html">Disclaimer</a>, are the entire agreement between you and JJJJJ Enterprises, LLC concerning the Service and supersede any prior agreement on the subject. Our failure to enforce any right or provision is not a waiver of that right or provision.</p>
 <hr>
 <p><strong>Contact:</strong></p>
 <table>
@@ -404,7 +425,7 @@ footer { padding: 30px 0; border-top: 1px solid var(--border); background: var(-
 
 <footer>
   <div class="footer-inner">
-    <a href="../index.html" class="nav-brand" style="text-decoration:none;">em<strong>AI</strong>l <span>Sentinel</span></a>
+    <a href="../index.html" class="nav-brand" style="text-decoration:none;" aria-label="emAIl Sentinel home">em<strong>AI</strong>l <span>Sentinel</span></a>
     <ul class="footer-links">
       <li><a href="../index.html">Home</a></li>
       <li><a href="terms.html">Terms</a></li>

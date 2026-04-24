@@ -111,7 +111,7 @@ A "subprocessor" is a third party that processes personal data on behalf of anot
 
 We will notify registered users at least **30 days in advance** before we add or replace a Google-level subprocessor that processes email content (for example, if we introduce a non-Google model provider as an optional rule evaluator in a future release). Notice will be posted at the URL where this Privacy Policy is hosted and, if you have subscribed to a paid plan, emailed to the Google account associated with your subscription. You may terminate the Service, with a pro-rata refund of unused prepaid fees, if you object to a proposed subprocessor change before it takes effect.
 
-**Data Processing Addendum.** If you are an EU/EEA, UK, or Swiss controller who requires a signed Data Processing Addendum (DPA) incorporating the Standard Contractual Clauses (EU Commission Decision 2021/914), you may request one at legal@jjjjjenterprises.com. We will countersign and return a DPA template within a reasonable time.
+**Data Processing Addendum.** If you are an EU/EEA, UK, or Swiss controller who requires a signed Data Processing Addendum (DPA) incorporating the Standard Contractual Clauses (EU Commission Decision 2021/914), you may request one at legal@jjjjjenterprises.com. We will countersign and return a DPA template within **15 business days** of a complete request. Data-subject-rights (DSR) requests routed to us in our processor capacity will be acknowledged within 72 hours and fulfilled within the GDPR Article 12 one-month window (extendable by two further months for complex requests, with written notice to you).
 
 ### 5.3 Payment Data
 
@@ -147,9 +147,13 @@ PropertiesService.getUserProperties().deleteAllProperties();
 
 If we become aware of a security incident affecting data the Service processes on your behalf, we will notify affected users without undue delay — and in any event within 72 hours of becoming aware of the incident where required by law (including GDPR Article 33) — via the email address associated with your Google account, and will describe the nature of the incident, the data potentially affected, and the steps you can take.
 
-## 8. Children
+## 8. Children and Young Users
 
-The Service is not directed to, and we do not knowingly collect data from, individuals under the age of 18 (or the applicable age of majority in their jurisdiction). If we learn that we have collected personal data from a child, we will take steps to delete it promptly.
+The Service is not directed to, and we do not knowingly collect personal data from, individuals under the age of 18 (or the applicable age of majority or digital consent in their jurisdiction, which may be 13 in the United States under COPPA or 16 in some EU Member States under GDPR). The Service provides no age-gating mechanism; parents and guardians who allow a minor access to a Google account on which the Service is installed remain responsible for supervising that use.
+
+If we learn that we have collected personal data from a child in violation of applicable law, we will take steps to delete it promptly. Contact legal@jjjjjenterprises.com if you believe a child's data has been collected.
+
+Where the **UK Age-Appropriate Design Code** (applicable to online services likely to be accessed by UK children) applies to your use of the Service, you remain responsible for implementing the code's standards at the level of your own account and the data subjects whose email you process. JJJJJ Enterprises, LLC does not design the Service for children's services and does not currently operate it as a "likely to be accessed by children" service under the code.
 
 ## 9. International Users
 
@@ -187,6 +191,8 @@ For **account-level data** (your subscription tier, billing entitlement status r
 
 ### 9.2 Your Rights Under CCPA / CPRA (California Residents)
 
+**Notice at Collection (Cal. Civ. Code § 1798.100(b)).** At or before the point at which the Service first collects personal information from you — which occurs when you install the add-on and open its Settings card — this Privacy Policy is linked from the add-on Help card and from the Google Workspace Marketplace listing. The categories of personal information we collect, the purposes for which they will be used, the categories of third parties with whom they may be shared, and your CCPA rights are described below and in Section 2 (Data We Access), Section 3 (Data You Provide), and Section 5 (Third-Party Data Sharing).
+
 If you are a California resident, the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA) grants you the rights described below.
 
 **Categories of personal information we process.** In the 12 months preceding the date you read this policy, the Service processes:
@@ -221,9 +227,38 @@ If you are a California resident, the California Consumer Privacy Act (CCPA) as 
 
 **How to exercise your rights.** Email legal@jjjjjenterprises.com with the subject "CCPA Request" and your Gmail address (see Section 11). We will respond within 45 days. Because all data is stored in your own Google account, you can also exercise deletion directly using the Apps Script one-liner above.
 
-**Authorized agents.** You may designate an authorized agent to make a request on your behalf by providing written authorization signed by you.
+**Authorized agents.** You may designate an authorized agent to submit a request on your behalf. To verify the agent's authority, we require:
 
-### 9.3 Do Not Track and Global Privacy Control
+1. a copy of a **written permission** signed by you (or, in lieu of written permission, a valid power of attorney issued pursuant to California Probate Code §§ 4000–4465);
+2. a signed **declaration under penalty of perjury** from the agent confirming their authorization to act on your behalf; and
+3. confirmation directly from you (by a method we specify) that you authorized the agent to submit the request.
+
+We may deny an agent's request if the above verification is not satisfied. These requirements do not apply to agents who are attorneys licensed in California acting within the scope of their representation.
+
+**Shine the Light (Cal. Civ. Code § 1798.83).** California residents may request information about whether we disclose personal information to third parties for their direct marketing purposes. We do **not** disclose personal information to third parties for their direct marketing purposes; accordingly, a Shine the Light request will return a "no disclosures" response.
+
+### 9.3 Residents of Other U.S. States with Comprehensive Privacy Laws
+
+A growing number of U.S. states have enacted comprehensive privacy laws that grant residents rights similar (but not identical) to those granted under California's CCPA/CPRA. These include, as of the effective date of this Policy: **Virginia** (VCDPA), **Colorado** (CPA), **Connecticut** (CTDPA), **Utah** (UCPA), **Texas** (TDPSA — our home-state law), **Oregon** (OCPA), **Montana** (MTCDPA), **Tennessee** (TIPA), **Delaware** (DPDPA), **New Jersey** (NJDPA), **Iowa** (IPDPA), **Indiana** (INPDPA), **New Hampshire** (NHPA), **Kentucky** (KCDPA), **Maryland** (MODPA), **Minnesota** (MCDPA), **Nebraska** (NDPA), **Rhode Island** (RI-DTPPA), and any additional state laws that enter into force after the effective date.
+
+Rights typically available to residents of these states include the right to:
+
+- **access / confirm** whether we are processing your personal data;
+- **correct** inaccurate personal data;
+- **delete** personal data we hold about you;
+- **port** your personal data in a portable, machine-readable format;
+- **opt out** of sale, sharing for cross-context behavioral advertising, targeted advertising, or profiling in furtherance of decisions producing legal or similarly significant effects about you (we do none of these, so the opt-out is automatically satisfied);
+- **appeal** our response to a rights request under laws that provide an appeal mechanism (Virginia, Colorado, Connecticut, Texas, Oregon, and others).
+
+To exercise any of these rights, email legal@jjjjjenterprises.com with your Gmail address and the state under whose law you are making the request. We will respond within **45 days** (some states allow an additional 45-day extension for complex requests; we will notify you in writing if an extension is needed). If we decline your request, you may appeal that decision by replying to the response email; we will review appeals within **60 days** and, where a state law requires, inform you of your right to contact the state attorney general.
+
+As with CCPA, we do **not** sell or share personal information, engage in targeted advertising, or conduct automated profiling producing legal or significant effects. We do not process sensitive personal data except as described in § 9.2 (SPI) above.
+
+### 9.4 Digital Services Act (DSA) Contact Point
+
+EU users and EU competent authorities may direct DSA-related inquiries to **legal@jjjjjenterprises.com**. Under Regulation (EU) 2022/2065, this email address serves as the single point of contact for users and for national authorities; inquiries will be answered in English. JJJJJ Enterprises, LLC is not a "Very Large Online Platform" (VLOP) under the DSA and does not appoint a separate DSA compliance officer at this time.
+
+### 9.5 Do Not Track and Global Privacy Control
 
 The Service does not track users across websites or services and does not respond to Do Not Track signals because it has no occasion to do so. The Service honors Global Privacy Control signals in the sense that it does not sell or share personal information regardless.
 
