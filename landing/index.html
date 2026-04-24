@@ -81,29 +81,6 @@
   "operatingSystem": "Google Workspace, Gmail",
   "description": "AI-powered Gmail alert system that watches your labels and fires instant alerts via SMS, Chat, Calendar, Sheets, or Tasks using plain-English rules evaluated by Google Gemini.",
   "url": "https://emailsentinel.app",
-  "offers": [
-    {
-      "@type": "Offer",
-      "name": "Free",
-      "price": "0",
-      "priceCurrency": "USD",
-      "description": "Up to 3 rules, 15-minute polling, SMS / Calendar / Sheets / Tasks alerts"
-    },
-    {
-      "@type": "Offer",
-      "name": "Pro",
-      "price": "4.99",
-      "priceCurrency": "USD",
-      "description": "Unlimited rules, 1-minute polling, all alert channels, AI rule suggestions"
-    },
-    {
-      "@type": "Offer",
-      "name": "Founding Member Lifetime",
-      "price": "79",
-      "priceCurrency": "USD",
-      "description": "All Pro features for life. Limited to the first 500 purchasers."
-    }
-  ],
   "publisher": {
     "@type": "Organization",
     "name": "JJJJJ Enterprises, LLC",
@@ -112,72 +89,6 @@
 }
 </script>
 
-
-<!-- FAQPage schema (mirrors the on-page FAQ) -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "Does emAIl Sentinel read all my email?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No. emAIl Sentinel only reads the Gmail labels you explicitly configure, and only the metadata plus the first 2,000 characters of the plain-text body. Attachment file contents are never read — only filenames."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How fast are alerts?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Polling is every 1, 5, 10, 15, or 30 minutes depending on your plan. Free plan is 15 minutes or slower; Pro and Founding Member unlock 1-minute polling. Alerts fire within seconds of the poll detecting a matching new email."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Who pays for Gemini and SMS?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "You do — directly. emAIl Sentinel uses your own Gemini API key (free tier gives 1,500 requests/day) and your own SMS provider credentials. The subscription price covers the add-on itself; third-party API costs are between you and the provider."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What happens if I downgrade from Pro?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Your rules and settings are preserved — we never silently delete your data. Rules above the Free plan limit stop evaluating until you remove some or re-upgrade. Polling is clamped to 15 minutes. Chat and MCP server channels stop firing (but their configuration is kept). Upgrading re-activates everything."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Is the Founding Member price real?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes — $79 one-time for Pro features for the life of the Service, capped at the first 500 purchasers on the Google Workspace Marketplace. After 500 lifetime purchases, the offer is retired and will not return."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Can I use it for HIPAA or PCI-regulated email?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "emAIl Sentinel is not designed for regulated data. If you are a HIPAA Covered Entity, PCI merchant, or similar, you may use the Service for non-regulated email only — e.g., general business correspondence that is outside audit scope."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How do I refund a purchase?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Monthly subscriptions can be cancelled any time to stop renewals. Annual subscriptions have a 14-day refund window. Founding Member lifetime has a 30-day refund window. Email billing@jjjjjenterprises.com with your transaction ID."
-      }
-    }
-  ]
-}
-</script>
 <style>
 /* ─── Reset ──────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -724,20 +635,19 @@ footer {
     <ul class="nav-links">
       <li><a href="#features">Features</a></li>
       <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#pricing">Pricing</a></li>
-      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#features">Security</a></li>
     </ul>
     <div class="nav-contact" style="font-size:.85rem;color:var(--text-2);">Questions? <a href="mailto:support@jjjjjenterprises.com" style="color:var(--blue-b);text-decoration:none;border-bottom:1px solid rgba(192,128,255,.3);">support@jjjjjenterprises.com</a></div>
     <div class="nav-actions">
-      
+      <a href="https://github.com/StephenRJohns/email_sentinel" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:.82rem;padding:.5rem 1rem;">GitHub</a>
       <button class="nav-hamburger" id="hamburger" aria-label="Open menu">☰</button>
     </div>
   </div>
   <div class="mobile-menu" id="mobile-menu">
     <a href="#features">Features</a>
     <a href="#how-it-works">How it works</a>
-    <a href="#pricing">Pricing</a>
-    
+    <a href="https://github.com/StephenRJohns/email_sentinel" target="_blank" rel="noopener">GitHub</a>
+    <a href="mailto:support@jjjjjenterprises.com?subject=General%20Inquiry" class="btn btn-primary">Contact</a>
   </div>
 </nav>
 
@@ -752,8 +662,8 @@ footer {
         em<strong>AI</strong>l Sentinel monitors your Gmail labels 24/7 and fires instant alerts the moment a message matches your plain-English rules — via SMS, Google Chat, Calendar, Sheets, or Tasks.
       </p>
       <div class="hero-actions" style="justify-content:flex-start;">
-        <a href="mailto:support@jjjjjenterprises.com?subject=Early%20Access%20Request" class="btn btn-primary">Get Early Access &rarr;</a>
-        <a href="#pricing" class="btn btn-amber">Founding Member &mdash; $79 lifetime</a>
+        <a href="mailto:support@jjjjjenterprises.com?subject=General%20Inquiry" class="btn btn-primary">Contact us &rarr;</a>
+        <a href="https://github.com/StephenRJohns/email_sentinel" target="_blank" rel="noopener" class="btn btn-ghost">View on GitHub</a>
       </div>
 
       <p class="hero-trust">
@@ -761,7 +671,7 @@ footer {
         <span class="sep"></span>
         <span>No separate app</span>
         <span class="sep"></span>
-        <span>Free tier available</span>
+        <span>In private testing</span>
         <span class="sep"></span>
         <span>Powered by Gemini</span>
       </p>
@@ -932,137 +842,14 @@ footer {
 
 <div class="grad-line"></div>
 
-<!-- ─── Pricing ───────────────────────────────────────────── -->
-<section class="pricing-section" id="pricing">
+<!-- ─── Development Status & Intended Use ───────────────────── -->
+<section style="padding:56px 0;">
   <div class="container">
-    <div class="sec-head center">
-      <div class="sec-tag">Pricing</div>
-      <h2 class="sec-title">Start free. Own it forever.</h2>
-      <p class="sec-sub">The founding member deal is the best price em<strong>AI</strong>l Sentinel will ever be — and it's capped at 500 spots.</p>
-    </div>
-    <div class="pricing-grid">
-
-      <!-- Free -->
-      <div class="price-card">
-        <div class="price-tier">Free</div>
-        <div class="price-amount">
-          <span class="cur">$</span>
-          <span class="amt">0</span>
-          <span class="per">/ month</span>
-        </div>
-        <p class="price-sub">Forever free. No credit card.</p>
-        <div class="price-div"></div>
-        <ul class="price-features">
-          <li>Up to 3 rules</li>
-          <li>15-minute polling minimum</li>
-          <li>SMS alerts (bring your own provider)</li>
-          <li>Google Calendar, Sheets &amp; Tasks</li>
-          <li>30-day activity log</li>
-          <li class="off">Google Chat alerts</li>
-          <li class="off">1-minute polling</li>
-          <li class="off">AI rule suggestions</li>
-        </ul>
-        <a href="mailto:support@jjjjjenterprises.com?subject=Early%20Access%20Request" class="btn btn-ghost price-cta">Get Early Access</a>
-      </div>
-
-      <!-- Founding Member — CENTER / FEATURED -->
-      <div class="price-card featured">
-        <div class="price-badge">&#11088; Best Value &middot; Only 500 spots</div>
-        <div class="price-tier" style="color: var(--amber);">Founding Member</div>
-        <div class="price-amount">
-          <span class="cur" style="color: var(--amber);">$</span>
-          <span class="amt" style="color: var(--amber);">79</span>
-          <span class="per">one-time</span>
-        </div>
-        <p class="price-sub">All Pro features. Forever. No subscription ever.</p>
-        <div class="price-div" style="background: rgba(251,191,36,.2);"></div>
-        <ul class="price-features">
-          <li>Unlimited rules</li>
-          <li>1-minute polling</li>
-          <li>All 5 alert channels</li>
-          <li>SMS (bring your own provider)</li>
-          <li>Google Chat, Calendar, Sheets, Tasks</li>
-          <li>MCP servers (Slack, Teams, Asana, custom)</li>
-          <li>AI rule suggestions</li>
-          <li>Unlimited activity log</li>
-          <li>Lifetime price lock</li>
-        </ul>
-        <a href="mailto:support@jjjjjenterprises.com?subject=Founding%20Member%20Inquiry" class="btn btn-amber price-cta">Claim Your Founding Spot</a>
-        <p class="scarcity">Limited to the first <span class="n">500</span> purchasers</p>
-      </div>
-
-      <!-- Pro -->
-      <div class="price-card">
-        <div class="price-tier">Pro</div>
-        <div class="price-amount">
-          <span class="cur">$</span>
-          <span class="amt">4.99</span>
-          <span class="per">/ month</span>
-        </div>
-        <p class="price-sub">Or $39/year. Cancel any time.</p>
-        <div class="price-div"></div>
-        <ul class="price-features">
-          <li>Unlimited rules</li>
-          <li>1-minute polling</li>
-          <li>All 5 alert channels</li>
-          <li>SMS (bring your own provider)</li>
-          <li>Google Chat, Calendar, Sheets, Tasks</li>
-          <li>MCP servers (Slack, Teams, Asana, custom)</li>
-          <li>AI rule suggestions</li>
-          <li>Unlimited activity log</li>
-          <li class="off">Lifetime price lock</li>
-        </ul>
-        <a href="mailto:support@jjjjjenterprises.com?subject=Pro%20Plan%20Inquiry" class="btn btn-ghost price-cta">Get Early Access</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<div class="grad-line"></div>
-
-<!-- ─── FAQ ───────────────────────────────────────────────── -->
-<section style="padding:80px 0;" id="faq">
-  <div class="container">
-    <div class="sec-head center">
-      <div class="sec-tag">FAQ</div>
-      <h2 class="sec-title">Questions, answered.</h2>
-    </div>
-    <div style="max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:12px;">
-      <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
-        <summary style="cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--text);list-style:none;position:relative;padding-right:30px;">Does em<strong>AI</strong>l Sentinel read all my email?<span style="position:absolute;right:4px;top:4px;color:var(--purple-b);font-weight:400;">+</span></summary>
-        <p style="margin-top:14px;font-size:.95rem;color:var(--text-2);line-height:1.7;">Only the Gmail labels you explicitly configure, and only the metadata + first 2,000 characters of the plain-text body. Attachment file contents are never read &mdash; only filenames. See the <a href="legal/privacy.html" style="color:var(--purple-b);">Privacy Policy</a> for the full data inventory.</p>
-      </details>
-
-      <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
-        <summary style="cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--text);list-style:none;position:relative;padding-right:30px;">How fast are alerts?<span style="position:absolute;right:4px;top:4px;color:var(--purple-b);font-weight:400;">+</span></summary>
-        <p style="margin-top:14px;font-size:.95rem;color:var(--text-2);line-height:1.7;">Polling is every 1, 5, 10, 15, or 30 minutes depending on your plan. Free plan is 15 minutes or slower; Pro and Founding Member unlock 1-minute polling. Alerts fire within seconds of the poll detecting a matching new email.</p>
-      </details>
-
-      <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
-        <summary style="cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--text);list-style:none;position:relative;padding-right:30px;">Who pays for Gemini and SMS?<span style="position:absolute;right:4px;top:4px;color:var(--purple-b);font-weight:400;">+</span></summary>
-        <p style="margin-top:14px;font-size:.95rem;color:var(--text-2);line-height:1.7;">You do &mdash; directly. em<strong>AI</strong>l Sentinel uses your own Gemini API key (free tier gives 1,500 requests/day) and your own SMS provider credentials. The subscription price covers the add-on itself; third-party API costs are between you and the provider.</p>
-      </details>
-
-      <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
-        <summary style="cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--text);list-style:none;position:relative;padding-right:30px;">What happens if I downgrade from Pro?<span style="position:absolute;right:4px;top:4px;color:var(--purple-b);font-weight:400;">+</span></summary>
-        <p style="margin-top:14px;font-size:.95rem;color:var(--text-2);line-height:1.7;">Your rules and settings are preserved &mdash; we never silently delete your data. Rules above the Free plan limit stop evaluating until you remove some or re-upgrade. Polling is clamped to 15 minutes. Chat and MCP server channels stop firing (but their configuration is kept). Upgrading re-activates everything.</p>
-      </details>
-
-      <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
-        <summary style="cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--text);list-style:none;position:relative;padding-right:30px;">Is the Founding Member price real?<span style="position:absolute;right:4px;top:4px;color:var(--purple-b);font-weight:400;">+</span></summary>
-        <p style="margin-top:14px;font-size:.95rem;color:var(--text-2);line-height:1.7;">Yes &mdash; $79 one-time for Pro features for the life of the Service, capped at the first 500 purchasers on the Google Workspace Marketplace. After 500 lifetime purchases, the offer is retired and will not return. See <a href="legal/terms.html#section-6-11" style="color:var(--purple-b);">Terms &sect; 6.11</a> for the full commitment.</p>
-      </details>
-
-      <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
-        <summary style="cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--text);list-style:none;position:relative;padding-right:30px;">Can I use it for HIPAA or PCI-regulated email?<span style="position:absolute;right:4px;top:4px;color:var(--purple-b);font-weight:400;">+</span></summary>
-        <p style="margin-top:14px;font-size:.95rem;color:var(--text-2);line-height:1.7;">em<strong>AI</strong>l Sentinel is not designed for regulated data. If you are a HIPAA Covered Entity, PCI merchant, or similar, you may use the Service for non-regulated email only &mdash; e.g., general business correspondence that is outside audit scope. See <a href="legal/terms.html" style="color:var(--purple-b);">Terms &sect; 2</a> for the full rule.</p>
-      </details>
-
-      <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
-        <summary style="cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--text);list-style:none;position:relative;padding-right:30px;">How do I refund a purchase?<span style="position:absolute;right:4px;top:4px;color:var(--purple-b);font-weight:400;">+</span></summary>
-        <p style="margin-top:14px;font-size:.95rem;color:var(--text-2);line-height:1.7;">Monthly: cancel any time to stop renewals. Annual: 14-day refund window. Founding Member lifetime: 30-day refund window. Email <a href="mailto:billing@jjjjjenterprises.com" style="color:var(--purple-b);">billing@jjjjjenterprises.com</a> with your transaction ID. Full terms in the <a href="legal/terms.html" style="color:var(--purple-b);">Terms &sect; 6.6</a>.</p>
-      </details>
+    <div class="sec-head center" style="margin-bottom:0;">
+      <div class="sec-tag">Current status</div>
+      <h2 class="sec-title" style="font-size:clamp(1.5rem,2.8vw,2rem);margin-bottom:14px;">In private pre-launch testing</h2>
+      <p class="sec-sub" style="max-width:640px;">em<strong>AI</strong>l Sentinel is currently in private testing with a closed group of users. Public availability via the Google Workspace Marketplace is planned; general sign-ups are not being accepted at this time.</p>
+      <p class="sec-sub" style="max-width:640px;margin-top:14px;">The intended SMS use case is <strong>self-notification and small-team alerting</strong> &mdash; the installing user texts themselves or a small number of colleagues / on-call recipients about email they already have a business reason to see. Users bring their own SMS provider credentials, are the legal sender of every message dispatched on their behalf, and are responsible for TCPA, CAN-SPAM, and carrier-policy compliance under our <a href="legal/terms.html" style="color:var(--purple-b);text-decoration:none;border-bottom:1px solid rgba(192,128,255,.3);">Terms &sect; 4.1</a>. Use for unsolicited bulk or promotional SMS is expressly prohibited. For inquiries, press, or carrier / compliance review, contact <a href="mailto:support@jjjjjenterprises.com" style="color:var(--purple-b);text-decoration:none;border-bottom:1px solid rgba(192,128,255,.3);">support@jjjjjenterprises.com</a>.</p>
     </div>
   </div>
 </section>
