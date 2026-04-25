@@ -91,7 +91,7 @@ The Service shares data with third-party services only when you explicitly enabl
 
 The Google-native channels (Chat, Calendar, Sheets, Tasks) do not send data to any third party — they write to services within your own Google account using your own OAuth credentials.
 
-**SMS — controller vs. processor roles.** You, not JJJJJ Enterprises, LLC, decide whether SMS alerts are sent, which phone numbers receive them, and which provider delivers them. For purposes of GDPR and comparable laws, you are the **data controller** of any recipient phone numbers you supply. We transmit your data (recipient numbers and alert text) to the SMS provider you select, acting as a data conduit; the SMS provider processes that data as an independent processor or sub-processor on your behalf, under its own contract with you. See § 5.2 for our subprocessor list.
+**SMS — controller vs. processor roles.** You, not JJJJJ Enterprises, LLC, decide whether SMS alerts are sent, which phone numbers receive them, and which provider delivers them. For purposes of applicable U.S. state privacy laws, you are the **controller** (or "business," under the CCPA) of any recipient phone numbers you supply. We transmit your data (recipient numbers and alert text) to the SMS provider you select, acting as a data conduit; the SMS provider processes that data as an independent processor or sub-processor on your behalf, under its own contract with you. See § 5.2 for our subprocessor list.
 
 We do not share any data with analytics services, advertising networks, data brokers, or any party not listed above.
 
@@ -99,7 +99,7 @@ We do not share any data with analytics services, advertising networks, data bro
 
 Our website may display links to other products operated by JJJJJ Enterprises, LLC, including PilotTrainerHQ (pilottrainerhq.com) and PlaneFacts (planefacts.online). Those products are independent services with their own privacy policies. Visiting those products is governed solely by their respective privacy policies. emAIl Sentinel does not share your personal data with those other JJJJJ products.
 
-### 5.2 Subprocessors and Data Processing Addendum (DPA)
+### 5.2 Subprocessors
 
 A "subprocessor" is a third party that processes personal data on behalf of another processor. The Service uses the following subprocessors:
 
@@ -110,8 +110,6 @@ A "subprocessor" is a third party that processes personal data on behalf of anot
 | Any MCP server endpoint you configure | Alert dispatch via JSON-RPC 2.0 | Determined by the endpoint operator |
 
 We will notify registered users at least **30 days in advance** before we add or replace a Google-level subprocessor that processes email content (for example, if we introduce a non-Google model provider as an optional rule evaluator in a future release). Notice will be posted at the URL where this Privacy Policy is hosted and, if you have subscribed to a paid plan, emailed to the Google account associated with your subscription. You may terminate the Service, with a pro-rata refund of unused prepaid fees, if you object to a proposed subprocessor change before it takes effect.
-
-**Data Processing Addendum.** If you are an EU/EEA, UK, or Swiss controller who requires a signed Data Processing Addendum (DPA) incorporating the Standard Contractual Clauses (EU Commission Decision 2021/914), you may request one at legal@jjjjjenterprises.com. We will countersign and return a DPA template within **15 business days** of a complete request. Data-subject-rights (DSR) requests routed to us in our processor capacity will be acknowledged within 72 hours and fulfilled within the GDPR Article 12 one-month window (extendable by two further months for complex requests, with written notice to you).
 
 ### 5.3 Payment Data
 
@@ -142,57 +140,41 @@ PropertiesService.getUserProperties().deleteAllProperties();
 - **Credential handling.** Your Gemini API key is masked in the Settings UI after you save it — only the last four characters are shown; the input field is left blank so the full key is never redisplayed. SMS provider credentials are visible within the Settings UI so you can review and update them; all credentials are stored encrypted at rest as described above.
 - **Attack surface.** The Service has no external backend, no database, and no staff access to your `UserProperties` store. The only attack surface is your own Google account and the third-party APIs you configure.
 - **Operational telemetry.** The add-on's `appsscript.json` manifest sets `"exceptionLogging": "STACKDRIVER"`, which routes uncaught script exceptions (stack traces, timestamps, and line numbers) to **Google Cloud Logging** (formerly Stackdriver) within our Google Cloud project so we can diagnose crashes. These logs may include function names, Apps Script error messages, and — in rare cases — a short error-context string automatically attached by Apps Script. They do **not** include your email content, your rules, your Gemini API key, or SMS credentials. Logs are retained per Google Cloud Logging's default retention policy and are accessed only to investigate errors or abuse.
-- **Cookies and tracking — none.** The Service does not set cookies. Our public marketing website (and the HTML legal pages served from it) does not set cookies, does not use third-party analytics, does not embed tracking pixels, and does not load fonts or scripts from third-party CDNs. We make this an explicit, ongoing commitment: if we ever add analytics, it will be a cookieless, privacy-preserving provider (for example, a service that counts visits via referrer headers without storing identifiers in the browser), and we will update this Policy before doing so. Because no cookies are set and no tracking identifiers are used, no cookie-consent banner is required under the EU ePrivacy Directive, GDPR, UK PECR, or CCPA — and none is displayed.
+- **Cookies and tracking — none.** The Service does not set cookies. Our public marketing website (and the HTML legal pages served from it) does not set cookies, does not use third-party analytics, does not embed tracking pixels, and does not load fonts or scripts from third-party CDNs. We make this an explicit, ongoing commitment: if we ever add analytics, it will be a cookieless, privacy-preserving provider (for example, a service that counts visits via referrer headers without storing identifiers in the browser), and we will update this Policy before doing so. Because no cookies are set and no tracking identifiers are used, no cookie-consent banner is required under U.S. state privacy laws — and none is displayed.
 - **Annual security assessment.** The Service undergoes the annual Cloud Application Security Assessment (CASA) required by Google for `gmail.readonly` scope. See § 4.1.
 - **Certifications.** JJJJJ Enterprises, LLC does not currently hold SOC 2 Type II, ISO 27001, HIPAA, or PCI DSS certifications. The Terms of Service (§ 16) describe the security documentation we make available on request.
 
 ### 7.1 Incident Notification
 
-If we become aware of a security incident affecting data the Service processes on your behalf, we will notify affected users without undue delay — and in any event within 72 hours of becoming aware of the incident where required by law (including GDPR Article 33) — via the email address associated with your Google account, and will describe the nature of the incident, the data potentially affected, and the steps you can take.
+If we become aware of a security incident affecting data the Service processes on your behalf, we will notify affected users without undue delay — and in any event within 72 hours of becoming aware of the incident where required by applicable U.S. state breach-notification law — via the email address associated with your Google account, and will describe the nature of the incident, the data potentially affected, and the steps you can take.
 
 ## 8. Children and Young Users
 
-The Service is not directed to, and we do not knowingly collect personal data from, individuals under the age of 18 (or the applicable age of majority or digital consent in their jurisdiction, which may be 13 in the United States under COPPA or 16 in some EU Member States under GDPR). The Service provides no age-gating mechanism; parents and guardians who allow a minor access to a Google account on which the Service is installed remain responsible for supervising that use.
+The Service is not directed to, and we do not knowingly collect personal data from, individuals under the age of 18, or under 13 in the United States as defined by the Children's Online Privacy Protection Act (COPPA). The Service provides no age-gating mechanism; parents and guardians who allow a minor access to a Google account on which the Service is installed remain responsible for supervising that use.
 
 If we learn that we have collected personal data from a child in violation of applicable law, we will take steps to delete it promptly. Contact legal@jjjjjenterprises.com if you believe a child's data has been collected.
 
-Where the **UK Age-Appropriate Design Code** (applicable to online services likely to be accessed by UK children) applies to your use of the Service, you remain responsible for implementing the code's standards at the level of your own account and the data subjects whose email you process. JJJJJ Enterprises, LLC does not design the Service for children's services and does not currently operate it as a "likely to be accessed by children" service under the code.
+## 9. Geographic Scope and Your Privacy Rights
 
-## 9. International Users
+The Service is currently offered exclusively to users located in the **United States** (see Terms of Service § 2). The Google Workspace Marketplace listing is region-restricted to the United States. We do not target the European Economic Area, the United Kingdom, Switzerland, or any other jurisdiction outside the United States, and we do not currently maintain an EU/UK representative or Standard Contractual Clauses framework for transfers from those jurisdictions. If we expand availability in the future, this Policy will be updated and existing users will be notified before any cross-border transfers begin.
 
-Your data is processed by Google (Apps Script, Gemini) and, if you enable SMS, by your chosen SMS provider. Data may be processed in any country where Google or your SMS provider operates data centers. Cross-border transfers from the EU/EEA, UK, or Switzerland to the United States rely on the Standard Contractual Clauses and supplementary measures put in place by Google and the SMS provider you select.
+Your data is processed by Google (Apps Script, Gemini) and, if you enable SMS, by your chosen SMS provider, in the United States and other regions where those subprocessors operate data centers. See § 5.2.
 
-### 9.1 Your Rights Under GDPR (EU/EEA, UK, Switzerland)
+**Controller / processor roles.** For personal data contained in the **emails you process** through the Service (the sender address of an inbound email, its subject, body excerpt, attachment filenames, any phone numbers you supply as SMS recipients, etc.):
 
-If you are located in the European Economic Area, United Kingdom, or Switzerland, you may have rights under the General Data Protection Regulation (GDPR) or equivalent local law, including:
+- **You are the controller.** You determine the purposes and means of processing by selecting which Gmail labels to watch, writing the rules, and choosing the alert channels.
+- **JJJJJ Enterprises, LLC acts as a service provider / processor** on your behalf, performing the rule evaluation and alert dispatch you directed. We do not independently decide what email content to process or where to send it.
+- **Google (Apps Script, Gmail, Gemini, and Google-native alert channels) and your chosen SMS provider act as subprocessors** (or, for SMS providers selected by you, as independent processors under a direct contract between you and them). See § 5.2.
 
-- **Right of access** — request a copy of personal data we hold about you
-- **Right of rectification** — ask us to correct inaccurate data
-- **Right of erasure ("right to be forgotten")** — ask us to delete your data
-- **Right to restrict processing** — ask us to pause processing
-- **Right to data portability** — receive your data in a structured format
-- **Right to object** — object to processing based on legitimate interests
-- **Right to withdraw consent** — withdraw consent at any time, where applicable
+For **account-level data** (your subscription tier, billing entitlement status received from Google, support correspondence with us) JJJJJ Enterprises, LLC acts as a controller.
 
-Because all data is stored in `UserProperties` within your own Google account, you can exercise most of these rights directly by viewing, editing, or deleting your data through the Apps Script editor. To delete all stored data in one step, run this in the Apps Script editor:
+Because all data is stored in `UserProperties` within your own Google account, you can exercise most data-rights requests directly by viewing, editing, or deleting your data through the Apps Script editor. To delete all stored data in one step, run this in the Apps Script editor:
 
 ```
 PropertiesService.getUserProperties().deleteAllProperties();
 ```
 
-**Controller / processor roles.** For personal data contained in the **emails you process** through the Service (the sender address of an inbound email, its subject, body excerpt, attachment filenames, any phone numbers you supply as SMS recipients, etc.):
-
-- **You are the data controller.** You determine the purposes and means of processing by selecting which Gmail labels to watch, writing the rules, and choosing the alert channels.
-- **JJJJJ Enterprises, LLC acts as a data processor** on your behalf under GDPR Article 4(8), performing the rule evaluation and alert dispatch you directed. We do not independently decide what email content to process or where to send it.
-- **Google (Apps Script, Gmail, Gemini, and Google-native alert channels) and your chosen SMS provider act as subprocessors** (or, for SMS providers selected by you, as independent processors under a direct contract between you and them). See § 5.2.
-
-For **account-level data** (your subscription tier, billing entitlement status received from Google, support correspondence with us) JJJJJ Enterprises, LLC acts as a data controller.
-
-**Legal basis for our processing.** For our activity as a processor performing the Service at your direction, the lawful basis is **performance of a contract** (Article 6(1)(b)) — specifically the Terms of Service you accepted on installation. You remain responsible for establishing and documenting your own lawful basis under Article 6 (and, where applicable, Article 9) for processing personal data contained in the emails of the data subjects whose messages you monitor. For our own account-level processing, our basis is **performance of a contract** (Article 6(1)(b)) for subscription administration and **legitimate interest** (Article 6(1)(f)) for abuse prevention and service security (balancing test documented on request).
-
-**Data protection contact.** Direct GDPR inquiries to legal@jjjjjenterprises.com (see Section 11). We will respond within 30 days. You also have the right to lodge a complaint with your local data protection authority.
-
-### 9.2 Your Rights Under CCPA / CPRA (California Residents)
+### 9.1 Your Rights Under CCPA / CPRA (California Residents)
 
 **Notice at Collection (Cal. Civ. Code § 1798.100(b)).** At or before the point at which the Service first collects personal information from you — which occurs when you install the add-on and open its Settings card — this Privacy Policy is linked from the add-on Help card and from the Google Workspace Marketplace listing. The categories of personal information we collect, the purposes for which they will be used, the categories of third parties with whom they may be shared, and your CCPA rights are described below and in Section 2 (Data We Access), Section 3 (Data You Provide), and Section 5 (Third-Party Data Sharing).
 
@@ -240,7 +222,7 @@ We may deny an agent's request if the above verification is not satisfied. These
 
 **Shine the Light (Cal. Civ. Code § 1798.83).** California residents may request information about whether we disclose personal information to third parties for their direct marketing purposes. We do **not** disclose personal information to third parties for their direct marketing purposes; accordingly, a Shine the Light request will return a "no disclosures" response.
 
-### 9.3 Residents of Other U.S. States with Comprehensive Privacy Laws
+### 9.2 Residents of Other U.S. States with Comprehensive Privacy Laws
 
 A growing number of U.S. states have enacted comprehensive privacy laws that grant residents rights similar (but not identical) to those granted under California's CCPA/CPRA. These include, as of the effective date of this Policy: **Virginia** (VCDPA), **Colorado** (CPA), **Connecticut** (CTDPA), **Utah** (UCPA), **Texas** (TDPSA — our home-state law), **Oregon** (OCPA), **Montana** (MTCDPA), **Tennessee** (TIPA), **Delaware** (DPDPA), **New Jersey** (NJDPA), **Iowa** (IPDPA), **Indiana** (INPDPA), **New Hampshire** (NHPA), **Kentucky** (KCDPA), **Maryland** (MODPA), **Minnesota** (MCDPA), **Nebraska** (NDPA), **Rhode Island** (RI-DTPPA), and any additional state laws that enter into force after the effective date.
 
@@ -255,13 +237,9 @@ Rights typically available to residents of these states include the right to:
 
 To exercise any of these rights, email legal@jjjjjenterprises.com with your Gmail address and the state under whose law you are making the request. We will respond within **45 days** (some states allow an additional 45-day extension for complex requests; we will notify you in writing if an extension is needed). If we decline your request, you may appeal that decision by replying to the response email; we will review appeals within **60 days** and, where a state law requires, inform you of your right to contact the state attorney general.
 
-As with CCPA, we do **not** sell or share personal information, engage in targeted advertising, or conduct automated profiling producing legal or significant effects. We do not process sensitive personal data except as described in § 9.2 (SPI) above.
+As with CCPA, we do **not** sell or share personal information, engage in targeted advertising, or conduct automated profiling producing legal or significant effects. We do not process sensitive personal data except as described in § 9.1 (SPI) above.
 
-### 9.4 Digital Services Act (DSA) Contact Point
-
-EU users and EU competent authorities may direct DSA-related inquiries to **legal@jjjjjenterprises.com**. Under Regulation (EU) 2022/2065, this email address serves as the single point of contact for users and for national authorities; inquiries will be answered in English. JJJJJ Enterprises, LLC is not a "Very Large Online Platform" (VLOP) under the DSA and does not appoint a separate DSA compliance officer at this time.
-
-### 9.5 Do Not Track and Global Privacy Control
+### 9.3 Do Not Track and Global Privacy Control
 
 The Service does not track users across websites or services and does not respond to Do Not Track signals because it has no occasion to do so. The Service honors Global Privacy Control signals in the sense that it does not sell or share personal information regardless.
 
@@ -274,7 +252,6 @@ We may update this Privacy Policy from time to time. For material changes that r
 | Purpose | Address |
 |---|---|
 | Privacy Policy questions and data-rights requests | legal@jjjjjenterprises.com |
-| GDPR inquiries | legal@jjjjjenterprises.com |
 | CCPA requests | legal@jjjjjenterprises.com (subject: "CCPA Request") |
 | User support | support@jjjjjenterprises.com |
 | Billing and subscriptions | billing@jjjjjenterprises.com |
@@ -282,4 +259,4 @@ We may update this Privacy Policy from time to time. For material changes that r
 
 For technical support you may also **[open an issue on GitHub](https://github.com/StephenRJohns/email_sentinel/issues)** — issues are tracked, searchable, and get the fastest response.
 
-We will respond to data-rights requests within the timeframes specified in Sections 9.1 (GDPR: 30 days) and 9.2 (CCPA: 45 days).
+We will respond to data-rights requests within the timeframes specified in Section 9.1 (CCPA: 45 days) and Section 9.2 (other U.S. states: 45 days).

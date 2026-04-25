@@ -25,8 +25,11 @@ As of the effective date above, the Service is in **private pre-launch testing**
 The Service is designed for individuals, professionals, consultants, and small teams. By installing or using the Service you represent that:
 
 - you are at least 18 years old (or the age of legal majority in your jurisdiction) and capable of forming a binding contract;
+- **you are located in the United States** and are not installing or using the Service on behalf of any individual or entity located in the European Economic Area (EEA), the United Kingdom, Switzerland, or any other jurisdiction outside the United States;
 - you will use the Service only within your own Google account and only to process Gmail messages you have the legal right to access; and
 - you are not deploying the Service as part of an enterprise-wide or centralized monitoring system.
+
+**Geographic scope.** The Service is currently offered exclusively to users located in the United States. The Google Workspace Marketplace listing is region-restricted to the United States, and if you encounter the Service from outside the United States, please do not install it. We may expand availability to additional jurisdictions in the future, at which point these Terms and our Privacy Policy will be updated to reflect the applicable foreign-law requirements (including any EU/UK GDPR controller, representative, or DPA obligations), and continued use after that update will be subject to the revised terms.
 
 **Not permitted without a separate written agreement:**
 - Enterprise-wide deployment across an organization's Google Workspace domain
@@ -57,7 +60,7 @@ You agree NOT to use the Service to:
 You further agree NOT to use the Service to process:
 - Protected Health Information (PHI) as defined under HIPAA;
 - cardholder data as defined under PCI DSS;
-- "special categories" of personal data as defined under GDPR Article 9 (including racial or ethnic origin, political opinions, religious beliefs, health data, sexual orientation, biometric or genetic data) unless you have an independent lawful basis under GDPR Article 9(2) and appropriate safeguards in place;
+- sensitive personal information including racial or ethnic origin, political opinions, religious beliefs, health information, sexual orientation, biometric or genetic data, or information that would constitute "sensitive personal information" under the California Privacy Rights Act, unless you have an independent lawful basis to process such information and appropriate safeguards in place;
 - personal information of children under 13 (or the equivalent age of digital consent in your jurisdiction); or
 - classified, export-controlled, or attorney-client privileged information.
 
@@ -110,8 +113,6 @@ Features, limits, and List Prices are described in the in-app Help, the Marketpl
 
 All subscriptions and one-time purchases are transacted through Google LLC's Google Workspace Marketplace billing. We do not collect, store, or process your payment card details. Your billing relationship for the subscription is with Google; our relationship with you is governed by these Terms and the License. Google's terms, including its refund and billing policies, apply to the payment transaction itself in addition to these Terms.
 
-For users in the European Economic Area, the United Kingdom, or other jurisdictions subject to the Second Payment Services Directive (Directive (EU) 2015/2366, "**PSD2**") and Strong Customer Authentication (SCA) requirements, payment authentication is performed by Google as the payment services provider. We neither implement nor bypass SCA — Google handles it — and we are not liable for any payment declined or delayed as a result of SCA or 3-D Secure authentication steps imposed by Google, your card issuer, or your bank.
-
 ### 6.3 Auto-Renewal
 
 Monthly and annual Pro subscriptions automatically renew at the end of each billing period for another equivalent period at the then-current List Price, **unless you cancel before the renewal date**. You can cancel at any time from the Google Workspace Marketplace subscription management page; cancellation stops future renewals but does not entitle you to a refund of the current period's fee except as required by law.
@@ -130,9 +131,9 @@ We may change List Prices from time to time. A price change will not affect the 
 
 ### 6.6 Refunds and Cancellation
 
-**Monthly subscriptions.** Refunds are not generally offered for monthly subscriptions. You may cancel at any time to stop future renewals. If required by the mandatory law of your jurisdiction (for example, the EU Consumer Rights Directive's 14-day right of withdrawal for consumers in the EEA/UK), we will honor that right.
+**Monthly subscriptions.** Refunds are not generally offered for monthly subscriptions. You may cancel at any time to stop future renewals.
 
-**Annual subscriptions.** Within **14 days** of the initial purchase or first renewal charge, you may request a refund of the annual fee. For consumers in the EEA/UK exercising the right of withdrawal under the EU Consumer Rights Directive: by installing and using the Service during the 14-day withdrawal period, you expressly consent to immediate performance and acknowledge that you will lose the right of withdrawal once the Service has been fully performed; however, if you request withdrawal during this period, you will receive a refund less a proportionate amount for the Service already provided. For all other users, the 14-day refund is available if you have not substantially used Pro features during the period (continuing use beyond a brief evaluation is considered substantial use). Outside the 14-day window, annual subscriptions are non-refundable except where required by law.
+**Annual subscriptions.** Within **14 days** of the initial purchase or first renewal charge, you may request a refund of the annual fee, provided you have not substantially used Pro features during the period (continuing use beyond a brief evaluation is considered substantial use). Outside the 14-day window, annual subscriptions are non-refundable except where required by applicable U.S. state or federal law.
 
 **Founding-member lifetime.** Refundable within **30 days** of purchase, less any portion of that price corresponding to substantial Pro-feature use. After 30 days, non-refundable.
 
@@ -249,15 +250,13 @@ Any dispute, claim, or controversy arising out of or relating to these Terms or 
 
 **Fees.** JJJJJ Enterprises, LLC will pay all AAA filing, administration, and arbitrator fees for claims under $10,000 (USD), unless the arbitrator finds the claim frivolous. For claims above $10,000, fees are allocated per the AAA Consumer Arbitration Rules.
 
-**EU/UK consumer exception.** Nothing in this Section 15 prevents a consumer located in the EU, EEA, or UK from bringing proceedings in the courts of their country of residence as permitted by Regulation (EU) No 1215/2012 (Brussels I recast) or equivalent UK legislation. The arbitration and class-action waiver provisions of this Section do not apply to the extent they conflict with mandatory consumer dispute resolution rights in your jurisdiction.
-
 ### 15.3 Opt-Out
 
 You may opt out of the arbitration and class-action waiver provisions in Section 15.2 by sending written notice to legal@jjjjjenterprises.com within **30 days of first installing the Service**, stating your name, Google account email, and that you opt out of arbitration. If you opt out, disputes will be resolved exclusively in the state or federal courts located in the State of Texas, USA, and you consent to the personal jurisdiction of those courts.
 
 ### 15.4 Continued Court Jurisdiction
 
-For users who opt out of arbitration or for claims excluded from arbitration, any dispute will be resolved exclusively in the state or federal courts located in the State of Texas, USA, and you consent to the personal jurisdiction of those courts, subject to the EU/UK consumer exception in Section 15.2.
+For users who opt out of arbitration or for claims excluded from arbitration, any dispute will be resolved exclusively in the state or federal courts located in the State of Texas, USA, and you consent to the personal jurisdiction of those courts.
 
 ## 16. Google Workspace Marketplace, OAuth Verification, and Security Review
 

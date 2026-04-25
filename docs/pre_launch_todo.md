@@ -5,6 +5,7 @@
 > Known status updates since this snapshot was written (as of 2026-04-23):
 > - Trademark filing — completed; USPTO serial 99761473, filed 2026-04-23.
 > - Lawyer review — identified; appointment pending.
+> - **US-only launch decision (2026-04-25):** Item 4 (GDPR legal basis) is moot — the Service is now restricted to US users only. See `legal/TERMS.md` § 2 and `legal/PRIVACY.md` § 9. EU/UK launch deferred until demand justifies the EU representative cost.
 > - See `docs/marketplace_checklist.txt` for the current Marketplace submission guide.
 
 ┌─────┬─────────────────────────────────────────────────────────────────────┬───────────────────┬─────────────────┐

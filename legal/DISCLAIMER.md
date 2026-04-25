@@ -101,7 +101,7 @@ JJJJJ Enterprises, LLC is committed to making emAIl Sentinel accessible to peopl
 
 If you encounter an accessibility barrier — inability to read text, interact with a control, or otherwise use the Service because of a disability — please contact **support@jjjjjenterprises.com** with a brief description of the barrier, the page or feature involved, and any assistive technology you are using. We will respond within **10 business days** and work with you to provide equivalent access.
 
-This accessibility statement is provided in partial fulfillment of the **European Accessibility Act (Directive (EU) 2019/882)**, applicable to in-scope digital services offered to EU consumers as of 28 June 2025, and of similar accessibility obligations under U.S. federal and state law.
+This accessibility statement is provided in partial fulfillment of accessibility obligations under U.S. federal and state law (including, where applicable, the Americans with Disabilities Act, Section 508 of the Rehabilitation Act, and California's Unruh Civil Rights Act).
 
 ## 13. Relationship to Other Documents
 

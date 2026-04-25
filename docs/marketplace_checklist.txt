@@ -497,6 +497,11 @@ CLOUD CONSOLE:
   [ ] Marketplace SDK enabled
   [ ] App Configuration tab completed
   [ ] Store Listing tab completed
+  [ ] Region/country distribution restricted to UNITED STATES ONLY
+      (App Configuration → Distribution / Visibility → select "United States"
+      and unselect all other regions). This matches the US-only restriction in
+      legal/TERMS.md § 2 and legal/PRIVACY.md § 9. Expand later only after
+      engaging an EU representative + counsel review.
 
 CODE / MANIFEST:
   [ ] appsscript.json has all 7 scopes
