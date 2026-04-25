@@ -71,8 +71,6 @@ There is no database, no backend, no external storage.
 
 **Cards are fully stateless:** Every card builder reads UserProperties fresh. Never cache state in global variables between card renders.
 
-**Home button on every top-level card:** Gmail's sidebar back arrow (←) can disappear when the add-on navigation stack is reset (e.g. after clicking an email). Rules, Settings, Help, Starter Rules, and Activity Log each include an explicit "Home" button so the user is never stranded. The button calls `actionShowHome` which runs `buildHomeCard()` via `popToRoot` navigation.
-
 **Gemini via REST, not SDK:** `callGemini_()` uses `UrlFetchApp` + the user's own API key. No extra OAuth scope needed (only `script.external_request`).
 
 **First-run baseline:** The first time `runMailCheck()` encounters a label, it records all current message IDs as the baseline (no alerts). Alerts only fire for messages that arrive after that baseline. This is intentional — don't change this behavior.

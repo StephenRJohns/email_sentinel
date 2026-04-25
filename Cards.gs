@@ -137,10 +137,10 @@ function handleStartMonitoring(e) {
   if (!settings.geminiApiKey) {
     return notificationResponse_('Add a Gemini API key in Settings first.');
   }
-  const poll = enforcePollFloor(settings.pollMinutes || 5);
+  const poll = enforcePollFloor(settings.pollMinutes || getTierLimits().minPollMinutes);
   installTrigger(poll.value);
   const msg = poll.clamped
-    ? 'Monitoring started. Polling set to ' + poll.value + ' min (Free plan minimum).'
+    ? 'Monitoring started. Polling set to ' + poll.value + ' min (' + getTier() + ' plan minimum).'
     : 'Monitoring started.';
   return refreshHome_(msg);
 }
@@ -178,14 +178,10 @@ function buildRulesCard() {
     .setHeader(CardService.newCardHeader().setTitle('Rules'));
 
   const newSection = CardService.newCardSection()
-    .addWidget(CardService.newButtonSet()
-      .addButton(CardService.newTextButton()
-        .setText('Home')
-        .setOnClickAction(action_('actionShowHome')))
-      .addButton(CardService.newTextButton()
-        .setText('+ New rule')
-        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-        .setOnClickAction(action_('handleNewRule'))));
+    .addWidget(CardService.newTextButton()
+      .setText('+ New rule')
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setOnClickAction(action_('handleNewRule')));
   card.addSection(newSection);
 
   if (!rules.length) {
@@ -461,7 +457,7 @@ function buildRuleEditorCard(rule) {
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
   alertMsgSection.addWidget(CardService.newTextButton()
-    .setText(isPro() ? 'Suggest content for selected channels' : 'Suggest content (Pro)')
+    .setText('Suggest content for selected channels')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestAlertFormat')
       .setParameters({ ruleId: r.id || '' })));
@@ -601,11 +597,6 @@ function isSmsConfigReady_(s) {
 function buildSettingsCard() {
   const s = loadSettings();
 
-  const homeSection = CardService.newCardSection()
-    .addWidget(CardService.newTextButton()
-      .setText('Home')
-      .setOnClickAction(action_('actionShowHome')));
-
   const aiSection = CardService.newCardSection()
     .setHeader('<b>Gemini (rule evaluation)</b>');
   if (s.geminiApiKey) {
@@ -636,13 +627,14 @@ function buildSettingsCard() {
 
   const pollSection = CardService.newCardSection()
     .setHeader('<b>Polling</b>');
-  const pollSelect = CardService.newSelectionInput()
-    .setType(CardService.SelectionInputType.DROPDOWN)
+  const tierLimits = getTierLimits();
+  const pollHint = 'Allowed: 1, 5, 10, 15, or 30. Other values round up to the next allowed. ' +
+    'Free min: 15 min. Pro min: 1 min. Your plan min: ' + tierLimits.minPollMinutes + ' min.';
+  pollSection.addWidget(CardService.newTextInput()
     .setFieldName('pollMinutes')
-    .setTitle('Check for new email every');
-  [1, 5, 10, 15, 30].forEach(m => pollSelect.addItem(m + ' minute(s)', String(m),
-    Number(s.pollMinutes || 5) === m));
-  pollSection.addWidget(pollSelect);
+    .setTitle('Check for new email every (minutes)')
+    .setHint(pollHint)
+    .setValue(String(s.pollMinutes || tierLimits.minPollMinutes)));
   pollSection.addWidget(CardService.newTextInput()
     .setFieldName('maxEmailAgeDays')
     .setTitle('Only check emails newer than (days)')
@@ -725,11 +717,13 @@ function buildSettingsCard() {
         smsSection.addWidget(w);
       }
     });
+    var testSplit = splitPhoneNumber_(s.smsTestNumber || '');
+    smsSection.addWidget(buildCountryCodeDropdown_('smsTestCountryCode', 'Test number country code', testSplit.code));
     smsSection.addWidget(CardService.newTextInput()
       .setFieldName('smsTestNumber')
-      .setTitle('Test phone number')
-      .setHint('E.164 format: +15551234567  ·  Used by the "Send test SMS" button below.')
-      .setValue(s.smsTestNumber || ''));
+      .setTitle('Test phone number (digits only)')
+      .setHint('e.g. 5551234567 — country code is added from the dropdown above. Used by the "Send test SMS" button below.')
+      .setValue(testSplit.digits));
 
     // SMS recipients (named contacts to select in rules)
     var smsRecipientsArr = getSmsRecipientsArr_();
@@ -870,7 +864,6 @@ function buildSettingsCard() {
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Settings'))
-    .addSection(homeSection)
     .addSection(aiSection)
     .addSection(pollSection)
     .addSection(bizSection)
@@ -897,7 +890,24 @@ function handleSaveSettings(e) {
   const prev = loadSettings();
   const smsProvider = get('smsProvider') || 'none';
 
-  const pollEnforced = enforcePollFloor(get('pollMinutes') || '5');
+  const pollRaw = get('pollMinutes');
+  const pollEnforced = enforcePollFloor(pollRaw || String(getTierLimits().minPollMinutes));
+  if (pollEnforced.invalid) {
+    return notificationResponse_('Polling must be a positive whole number of minutes.');
+  }
+
+  // Combine the test SMS country code + local digits into E.164.
+  var testNumberCombined = { value: '' };
+  if (smsProvider !== 'none') {
+    const rawTestDigits = get('smsTestNumber');
+    if (rawTestDigits) {
+      const testCode = get('smsTestCountryCode') || DEFAULT_COUNTRY_CODE;
+      testNumberCombined = combinePhoneNumber_(testCode, rawTestDigits);
+      if (!testNumberCombined.valid) {
+        return notificationResponse_('Test phone number: ' + testNumberCombined.reason);
+      }
+    }
+  }
 
   const next = {
     geminiApiKey: get('geminiApiKey') || prev.geminiApiKey || '',
@@ -924,7 +934,7 @@ function handleSaveSettings(e) {
     vonageApiKey: smsProvider === 'vonage' ? (get('vonageApiKey') || prev.vonageApiKey || '') : (prev.vonageApiKey || ''),
     vonageApiSecret: smsProvider === 'vonage' ? (get('vonageApiSecret') || prev.vonageApiSecret || '') : (prev.vonageApiSecret || ''),
     smsWebhookUrl: smsProvider === 'webhook' ? get('smsWebhookUrl') : (prev.smsWebhookUrl || ''),
-    smsTestNumber: smsProvider !== 'none' ? get('smsTestNumber') : (prev.smsTestNumber || ''),
+    smsTestNumber: smsProvider !== 'none' ? testNumberCombined.value : (prev.smsTestNumber || ''),
     smsRecipients: prev.smsRecipients || '[]',
     chatSpaces: prev.chatSpaces || '[]',
     calendarId: get('calendarId'),
@@ -963,9 +973,16 @@ function handleSaveSettings(e) {
     installTrigger(next.pollMinutes);
   }
 
-  const toast = pollEnforced.clamped
-    ? 'Settings saved. Polling raised to ' + next.pollMinutes + ' min (Free plan minimum).'
-    : 'Settings saved.';
+  var toast = 'Settings saved.';
+  if (pollEnforced.clamped) {
+    if (pollEnforced.raisedToTierMin) {
+      toast = 'Settings saved. Polling raised to ' + next.pollMinutes + ' min (' + getTier() + ' plan minimum).';
+    } else if (pollEnforced.cappedAtMax) {
+      toast = 'Settings saved. Polling capped at ' + next.pollMinutes + ' min (Apps Script trigger maximum).';
+    } else {
+      toast = 'Settings saved. Polling adjusted to ' + next.pollMinutes + ' min (allowed: 1, 5, 10, 15, 30).';
+    }
+  }
 
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().updateCard(buildSettingsCard()))
@@ -1108,29 +1125,19 @@ function buildSmsGuideCard() {
 // Activity log
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildActivityCard(offset, showHome) {
+function buildActivityCard(offset) {
   offset = offset || 0;
-  showHome = !!showHome;
   const entries = loadLog();
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Activity log'));
 
   const btnSet = CardService.newButtonSet();
-  if (showHome) {
-    btnSet.addButton(CardService.newTextButton()
-      .setText('Home')
-      .setOnClickAction(action_('actionShowHome')));
-  }
   btnSet.addButton(CardService.newTextButton()
     .setText('Refresh')
-    .setOnClickAction(CardService.newAction()
-      .setFunctionName('handleRefreshLog')
-      .setParameters({ showHome: showHome ? '1' : '0' })));
+    .setOnClickAction(action_('handleRefreshLog')));
   btnSet.addButton(CardService.newTextButton()
     .setText('Clear')
-    .setOnClickAction(CardService.newAction()
-      .setFunctionName('handleClearLog')
-      .setParameters({ showHome: showHome ? '1' : '0' })));
+    .setOnClickAction(action_('handleClearLog')));
   card.addSection(CardService.newCardSection().addWidget(btnSet));
 
   if (!entries.length) {
@@ -1153,28 +1160,25 @@ function buildActivityCard(offset, showHome) {
         .setText('Show older (' + (reversed.length - offset - LOG_PAGE_SIZE) + ' more)')
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleShowOlderLog')
-          .setParameters({ offset: String(offset + LOG_PAGE_SIZE), showHome: showHome ? '1' : '0' }))));
+          .setParameters({ offset: String(offset + LOG_PAGE_SIZE) }))));
   }
   return card.build();
 }
 
 function handleRefreshLog(e) {
-  var showHome = (e.parameters.showHome === '1');
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(0, showHome)))
+    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(0)))
     .build();
 }
 
 function handleShowOlderLog(e) {
   var offset = parseInt(e.parameters.offset || '0', 10);
-  var showHome = (e.parameters.showHome === '1');
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(offset, showHome)))
+    .setNavigation(CardService.newNavigation().updateCard(buildActivityCard(offset)))
     .build();
 }
 
 function handleClearLog(e) {
-  var showHome = (e.parameters.showHome === '1');
   const section = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph()
       .setText('Clear the entire activity log? This cannot be undone.'))
@@ -1182,9 +1186,7 @@ function handleClearLog(e) {
       .addButton(CardService.newTextButton()
         .setText('Clear')
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-        .setOnClickAction(CardService.newAction()
-          .setFunctionName('handleConfirmClearLog')
-          .setParameters({ showHome: showHome ? '1' : '0' })))
+        .setOnClickAction(action_('handleConfirmClearLog')))
       .addButton(CardService.newTextButton()
         .setText('Cancel')
         .setOnClickAction(action_('handleCancelClearLog'))));
@@ -1198,10 +1200,9 @@ function handleClearLog(e) {
 }
 
 function handleConfirmClearLog(e) {
-  var showHome = (e.parameters.showHome === '1');
   clearLog();
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildActivityCard(0, true)))
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildActivityCard(0)))
     .setNotification(CardService.newNotification().setText('Log cleared.'))
     .build();
 }
@@ -1220,9 +1221,6 @@ function buildHelpCard() {
   var card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
   var section = CardService.newCardSection()
-    .addWidget(CardService.newTextButton()
-      .setText('Home')
-      .setOnClickAction(action_('actionShowHome')))
     .addWidget(CardService.newTextParagraph().setText(
       'Tap a topic below for details.'));
   var topics = [
@@ -1419,13 +1417,9 @@ function buildStarterRulesCard() {
 
   if (toCreate.length === 0) {
     section.setHeader('All starter rules already exist.');
-    section.addWidget(CardService.newButtonSet()
-      .addButton(CardService.newTextButton()
-        .setText('Home')
-        .setOnClickAction(action_('actionShowHome')))
-      .addButton(CardService.newTextButton()
-        .setText('Back')
-        .setOnClickAction(action_('handlePopCard'))));
+    section.addWidget(CardService.newTextButton()
+      .setText('Back')
+      .setOnClickAction(action_('handlePopCard')));
     return CardService.newCardBuilder()
       .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
       .addSection(section)
@@ -1444,13 +1438,9 @@ function buildStarterRulesCard() {
       .setText('Create starter rules')
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
       .setOnClickAction(action_('handleCreateStarterRules')))
-    .addWidget(CardService.newButtonSet()
-      .addButton(CardService.newTextButton()
-        .setText('Home')
-        .setOnClickAction(action_('actionShowHome')))
-      .addButton(CardService.newTextButton()
-        .setText('Cancel')
-        .setOnClickAction(action_('handlePopCard'))));
+    .addWidget(CardService.newTextButton()
+      .setText('Cancel')
+      .setOnClickAction(action_('handlePopCard')));
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
@@ -1895,10 +1885,6 @@ function handleConfirmDeleteMcpServer(e) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function handleSuggestAlertFormat(e) {
-  if (!isPro()) {
-    return notificationResponse_(upgradeRequiredMessage('AI-assisted alert content'));
-  }
-
   const inputs = e.commonEventObject.formInputs || {};
   const get = key => {
     const v = inputs[key];
@@ -2210,20 +2196,128 @@ function saveSmsRecipientsArr_(arr) {
   saveSettings(s);
 }
 
+// Country codes for the phone-number dropdown.
+// Stored as the E.164 dial-code prefix.
+const COUNTRY_CODES = [
+  { code: '+1',   label: '🇺🇸 +1 (US/Canada)' },
+  { code: '+44',  label: '🇬🇧 +44 (United Kingdom)' },
+  { code: '+61',  label: '🇦🇺 +61 (Australia)' },
+  { code: '+64',  label: '🇳🇿 +64 (New Zealand)' },
+  { code: '+33',  label: '🇫🇷 +33 (France)' },
+  { code: '+49',  label: '🇩🇪 +49 (Germany)' },
+  { code: '+39',  label: '🇮🇹 +39 (Italy)' },
+  { code: '+34',  label: '🇪🇸 +34 (Spain)' },
+  { code: '+31',  label: '🇳🇱 +31 (Netherlands)' },
+  { code: '+32',  label: '🇧🇪 +32 (Belgium)' },
+  { code: '+41',  label: '🇨🇭 +41 (Switzerland)' },
+  { code: '+43',  label: '🇦🇹 +43 (Austria)' },
+  { code: '+46',  label: '🇸🇪 +46 (Sweden)' },
+  { code: '+47',  label: '🇳🇴 +47 (Norway)' },
+  { code: '+45',  label: '🇩🇰 +45 (Denmark)' },
+  { code: '+358', label: '🇫🇮 +358 (Finland)' },
+  { code: '+353', label: '🇮🇪 +353 (Ireland)' },
+  { code: '+351', label: '🇵🇹 +351 (Portugal)' },
+  { code: '+30',  label: '🇬🇷 +30 (Greece)' },
+  { code: '+48',  label: '🇵🇱 +48 (Poland)' },
+  { code: '+420', label: '🇨🇿 +420 (Czechia)' },
+  { code: '+52',  label: '🇲🇽 +52 (Mexico)' },
+  { code: '+55',  label: '🇧🇷 +55 (Brazil)' },
+  { code: '+54',  label: '🇦🇷 +54 (Argentina)' },
+  { code: '+56',  label: '🇨🇱 +56 (Chile)' },
+  { code: '+57',  label: '🇨🇴 +57 (Colombia)' },
+  { code: '+91',  label: '🇮🇳 +91 (India)' },
+  { code: '+81',  label: '🇯🇵 +81 (Japan)' },
+  { code: '+82',  label: '🇰🇷 +82 (South Korea)' },
+  { code: '+86',  label: '🇨🇳 +86 (China)' },
+  { code: '+852', label: '🇭🇰 +852 (Hong Kong)' },
+  { code: '+65',  label: '🇸🇬 +65 (Singapore)' },
+  { code: '+60',  label: '🇲🇾 +60 (Malaysia)' },
+  { code: '+66',  label: '🇹🇭 +66 (Thailand)' },
+  { code: '+62',  label: '🇮🇩 +62 (Indonesia)' },
+  { code: '+63',  label: '🇵🇭 +63 (Philippines)' },
+  { code: '+84',  label: '🇻🇳 +84 (Vietnam)' },
+  { code: '+972', label: '🇮🇱 +972 (Israel)' },
+  { code: '+971', label: '🇦🇪 +971 (UAE)' },
+  { code: '+966', label: '🇸🇦 +966 (Saudi Arabia)' },
+  { code: '+27',  label: '🇿🇦 +27 (South Africa)' },
+  { code: '+234', label: '🇳🇬 +234 (Nigeria)' },
+  { code: '+254', label: '🇰🇪 +254 (Kenya)' },
+  { code: '+20',  label: '🇪🇬 +20 (Egypt)' },
+  { code: '+90',  label: '🇹🇷 +90 (Turkey)' },
+  { code: '+7',   label: '🇷🇺 +7 (Russia)' },
+  { code: '+380', label: '🇺🇦 +380 (Ukraine)' }
+];
+
+const DEFAULT_COUNTRY_CODE = '+1';
+
+/**
+ * Split a stored E.164 number into a known country-code prefix and the
+ * remaining local digits. Matches the longest known prefix; if none match,
+ * returns the default country code with the whole number (minus '+') as digits.
+ */
+function splitPhoneNumber_(e164) {
+  if (!e164) return { code: DEFAULT_COUNTRY_CODE, digits: '' };
+  const sorted = COUNTRY_CODES.map(function(c) { return c.code; })
+    .sort(function(a, b) { return b.length - a.length; });
+  for (var i = 0; i < sorted.length; i++) {
+    if (e164.indexOf(sorted[i]) === 0) {
+      return { code: sorted[i], digits: e164.substring(sorted[i].length) };
+    }
+  }
+  return { code: DEFAULT_COUNTRY_CODE, digits: e164.replace(/^\+/, '') };
+}
+
+/**
+ * Combine a selected country code (e.g. '+1') with a user-entered local
+ * number (digits, possibly with formatting) into a validated E.164 string.
+ * For US/Canada, a leading '1' on a 11-digit input is stripped.
+ *
+ * Returns { value, valid, reason }.
+ */
+function combinePhoneNumber_(countryCode, localInput) {
+  const code = countryCode || DEFAULT_COUNTRY_CODE;
+  const digits = String(localInput || '').replace(/\D/g, '');
+  if (!digits) return { value: '', valid: false, reason: 'Phone number is empty.' };
+  var localDigits = digits;
+  if (code === '+1' && /^1\d{10}$/.test(digits)) {
+    localDigits = digits.substring(1);
+  }
+  const e164 = code + localDigits;
+  if (!/^\+\d{7,15}$/.test(e164)) {
+    return { value: '', valid: false, reason: 'Phone number must be 7–15 digits.' };
+  }
+  return { value: e164, valid: true, reason: '' };
+}
+
+/** Build a country-code dropdown selection input pre-selected to `selectedCode`. */
+function buildCountryCodeDropdown_(fieldName, title, selectedCode) {
+  const sel = CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.DROPDOWN)
+    .setFieldName(fieldName)
+    .setTitle(title);
+  const chosen = selectedCode || DEFAULT_COUNTRY_CODE;
+  COUNTRY_CODES.forEach(function(c) {
+    sel.addItem(c.label, c.code, c.code === chosen);
+  });
+  return sel;
+}
+
 function buildSmsRecipientEditorCard(recipient) {
   const editing = !!(recipient && recipient.id);
   const rec = recipient || {};
+  const split = splitPhoneNumber_(rec.number || '');
   const section = CardService.newCardSection();
   section.addWidget(CardService.newTextInput()
     .setFieldName('smsRecName')
     .setTitle('Name')
     .setHint('e.g. My Phone, John')
     .setValue(rec.name || ''));
+  section.addWidget(buildCountryCodeDropdown_('smsRecCountryCode', 'Country code', split.code));
   section.addWidget(CardService.newTextInput()
     .setFieldName('smsRecNumber')
-    .setTitle('Phone number (E.164)')
-    .setHint('e.g. +15551234567')
-    .setValue(rec.number || ''));
+    .setTitle('Phone number (digits only)')
+    .setHint('e.g. 5551234567 — country code is added from the dropdown above')
+    .setValue(split.digits));
   const btns = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
       .setText('Save')
@@ -2270,22 +2364,24 @@ function handleSaveSmsRecipient(e) {
     if (!v || !v.stringInputs || !v.stringInputs.value) return '';
     return (v.stringInputs.value[0] || '').trim();
   };
-  const name   = get('smsRecName');
-  const number = get('smsRecNumber');
-  if (!name)   return notificationResponse_('Please enter a name.');
-  if (!number) return notificationResponse_('Please enter a phone number.');
-  if (!/^\+\d{7,15}$/.test(number)) {
-    return notificationResponse_('Phone number must be E.164 format, e.g. +15551234567');
+  const name        = get('smsRecName');
+  const countryCode = get('smsRecCountryCode') || DEFAULT_COUNTRY_CODE;
+  const localInput  = get('smsRecNumber');
+  if (!name)        return notificationResponse_('Please enter a name.');
+  if (!localInput)  return notificationResponse_('Please enter a phone number.');
+  const combined = combinePhoneNumber_(countryCode, localInput);
+  if (!combined.valid) {
+    return notificationResponse_(combined.reason);
   }
   const recId = e.parameters.recId || '';
   const arr = getSmsRecipientsArr_();
   const idx = arr.findIndex(function(r) { return r.id === recId; });
-  const entry = { id: recId || Utilities.getUuid(), name: name, number: number };
+  const entry = { id: recId || Utilities.getUuid(), name: name, number: combined.value };
   if (idx >= 0) { arr[idx] = entry; } else { arr.push(entry); }
   saveSmsRecipientsArr_(arr);
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popCard().updateCard(buildSettingsCard()))
-    .setNotification(CardService.newNotification().setText('Recipient "' + name + '" saved.'))
+    .setNotification(CardService.newNotification().setText('Recipient "' + name + '" saved as ' + combined.value + '.'))
     .build();
 }
 

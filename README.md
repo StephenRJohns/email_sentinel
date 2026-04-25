@@ -90,9 +90,10 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 | Alert channels — SMS (any provider — 6 quick-start presets plus generic webhook) | ✅ | ✅ |
 | Alert channels — Google Chat webhook | — | ✅ |
 | Alert channels — MCP servers (Slack, Teams, Asana, custom) | — | ✅ |
+| AI-assisted alert content (*Suggest content for selected channels*) | ✅ | ✅ |
 | AI-assisted rule writing (*Suggest rule text*) | — | ✅ |
 | Activity log retention | 30 days | Unlimited |
-| Support | GitHub Issues | Email + GitHub Issues |
+| Support | GitHub Issues | GitHub Issues |
 
 **Founding-member lifetime tier** — $79 one-time for the first 500 buyers, then this tier is retired.
 

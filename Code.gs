@@ -15,10 +15,9 @@ function onHomepage(e) {
   return buildHomeCard();
 }
 
-function actionShowHome(e)     { return universalCardResponse_(buildHomeCard()); }
 function actionShowRules(e)    { return universalCardResponse_(buildRulesCard()); }
 function actionShowSettings(e) { return universalCardResponse_(buildSettingsCard()); }
-function actionShowActivity(e) { return universalCardResponse_(buildActivityCard(0, true)); }
+function actionShowActivity(e) { return universalCardResponse_(buildActivityCard(0)); }
 function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard()); }
 
 /**

@@ -70,17 +70,33 @@ function setTier_(tier) {
   return tier;
 }
 
+// Apps Script time-driven triggers only accept these everyMinutes() values.
+const ALLOWED_POLL_MINUTES = [1, 5, 10, 15, 30];
+
 /**
- * Clamp a requested poll interval to the tier's minimum.
- * Returns { value, clamped } where clamped=true means the input was raised.
+ * Normalize a requested poll interval to a valid Apps Script trigger value
+ * that also respects the current tier's minimum. Snaps up to the nearest
+ * allowed value (1, 5, 10, 15, or 30 min).
+ *
+ * Returns { value, clamped, raisedToTierMin, cappedAtMax, snappedUp, invalid, requested }.
  */
 function enforcePollFloor(requestedMinutes) {
-  const min = getTierLimits().minPollMinutes;
-  const requested = Math.max(1, parseInt(requestedMinutes, 10) || min);
-  if (requested < min) {
-    return { value: min, clamped: true };
-  }
-  return { value: requested, clamped: false };
+  const tierMin = getTierLimits().minPollMinutes;
+  const parsed = parseInt(requestedMinutes, 10);
+  const invalid = isNaN(parsed) || parsed < 1;
+  const requested = invalid ? tierMin : parsed;
+  const target = Math.max(requested, tierMin);
+  var value = ALLOWED_POLL_MINUTES.find(function(m) { return m >= target; });
+  if (value === undefined) value = ALLOWED_POLL_MINUTES[ALLOWED_POLL_MINUTES.length - 1]; // cap at 30
+  return {
+    value: value,
+    clamped: value !== requested,
+    raisedToTierMin: !invalid && parsed < tierMin,
+    cappedAtMax: !invalid && parsed > 30,
+    snappedUp: !invalid && parsed >= tierMin && parsed <= 30 && value !== parsed,
+    invalid: invalid,
+    requested: requested
+  };
 }
 
 /**

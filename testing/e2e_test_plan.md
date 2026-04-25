@@ -30,7 +30,11 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Click Settings (either via the universal action "⋮" menu or the Settings nav button).
 - [ ] Paste your Gemini API key into the "Gemini API key" field. The aistudio.google.com/app/apikey URL is a tappable link.
 - [ ] Confirm model is "gemini-2.5-flash" (default).
-- [ ] Set polling interval to 5 minutes. On Free plan, saving this value will clamp it up to 15 minutes and toast "Settings saved. Polling raised to 15 min (Free plan minimum)."
+- [ ] Polling field is a number text input (not a dropdown), with hint mentioning allowed values 1, 5, 10, 15, 30 and tier minimums.
+- [ ] Type `5` into the polling input. On Free plan, saving will clamp up to 15 and toast "Settings saved. Polling raised to 15 min (free plan minimum)." Reload Settings — field shows 15.
+- [ ] Type `7` into the polling input. On Free plan it clamps up to 15 (tier min). On Pro it snaps up to 10 with toast "Settings saved. Polling adjusted to 10 min (allowed: 1, 5, 10, 15, 30)."
+- [ ] Type `999` into the polling input. Toast reads "Settings saved. Polling capped at 30 min (Apps Script trigger maximum)." Reload — field shows 30.
+- [ ] Type `abc` (or 0, or -1) into the polling input. Toast reads "Polling must be a positive whole number of minutes." No save occurs.
 - [ ] Confirm "Only check emails newer than (days)" field is present and defaults to 30.
 - [ ] Click "Save settings". Toast notification reads: "Settings saved."
 - [ ] Click "Test Gemini". Toast reads: "Gemini OK — model responded."
@@ -106,20 +110,14 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ---
 
-## 8 · Activity Log UI and Cross-Card Home Button
+## 8 · Activity Log UI
 
-*Verify the log controls work correctly, and that every top-level card has a Home button so the user is never stranded when Gmail's back-arrow disappears.*
+*Verify the log controls work correctly. Top-level cards rely on Gmail's native back-arrow for navigation back to the home card; no in-card Home button.*
 
 - [ ] Activity log displays entries newest-first.
 - [ ] "Refresh" button reloads the log without navigating away.
 - [ ] If log has more than 20 entries, "Show older (N more)" button appears and loads additional entries.
-- [ ] **Home button present on every top-level card.** Open each of the following cards and confirm a "Home" button is shown at the top of the card (next to, or in place of, the browser back arrow). Click Home from each and confirm it returns to the home card via `popToRoot` navigation:
-  - [ ] Rules card
-  - [ ] Settings card
-  - [ ] Help card
-  - [ ] Starter rules card
-  - [ ] Activity log card
-- [ ] Home button is shown only when the back arrow is absent (not duplicated alongside back navigation).
+- [ ] **No redundant Home button.** Open Rules, Settings, Help, Starter rules, and Activity log — confirm each card relies on Gmail's back-arrow (←) and does not display its own "Home" button.
 
 ---
 
@@ -131,7 +129,9 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 - [ ] [Optional] In Settings → SMS provider dropdown, select your provider.
 - [ ] [Optional] Enter the required provider credentials (Textbelt: API key; Telnyx/Plivo/Twilio: API/SID + Auth + From number; ClickSend: username + key; Vonage: key + secret; Webhook: HTTPS endpoint URL). Credential fields are masked — only the last 4 characters are shown; leave blank to keep the current value.
-- [ ] [Optional] Scroll to the SMS recipients section (appears once a provider is selected). Click "Add recipient". Enter Name = "E2E Phone" and Number = your E.164 phone number (e.g. +15551234567). Save the recipient card.
+- [ ] [Optional] Scroll to the SMS recipients section (appears once a provider is selected). Click "Add recipient". Confirm the editor has a "Country code" dropdown (defaults to "🇺🇸 +1 (US/Canada)") and a "Phone number (digits only)" input. Enter Name = "E2E Phone", leave country code at +1, enter `5551234567` in the digits field, save. Toast reads `Recipient "E2E Phone" saved as +15551234567.` Re-open the recipient — dropdown is still +1 and digits show `5551234567`.
+- [ ] [Optional] Edit the recipient, change the country code dropdown to a non-US entry (e.g. 🇬🇧 +44), enter `7911123456` in digits, save. Toast reads `... saved as +447911123456.` Re-open — dropdown shows +44, digits show `7911123456`.
+- [ ] [Optional] Try saving with an empty digits field — toast: "Phone number is empty." With non-numeric or too-short/too-long input — toast: "Phone number must be 7–15 digits." (or "Phone number is empty." if all non-digit characters).
 - [ ] [Optional] In the "Send test SMS to" field, enter your number. Click "Save settings". Toast: "Settings saved."
 - [ ] [Optional] Click "Send test SMS". Toast: "Test SMS sent to +1… via [provider]."
 - [ ] [Optional] Confirm SMS received on your phone with "[emAIl Sentinel] Test" in the text.
@@ -309,10 +309,11 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Home card shows "Plan: Free (N/3 rules, 15 min min poll)" and an "Upgrade to Pro" button is visible.
 - [ ] **Founding-member counter.** Home card (Free users only) shows a scarcity paragraph: "Founding-member lifetime — $79" with text like "N of 500 remaining. Retired after 500 sold." The count matches `FOUNDING_MEMBERS_LIMIT - FOUNDING_MEMBERS_SOLD` in `LicenseManager.gs`. When `FOUNDING_MEMBERS_SOLD` is bumped to 500, the scarcity paragraph disappears entirely.
 - [ ] **Rule count limit.** Delete any extras so you have 2 rules. Create a third — save succeeds. Create a fourth — save fails with toast: "Rule limit reached for your plan (3 rules on Free). Upgrade to Pro for unlimited rules."
-- [ ] **Polling floor.** In Settings, set polling interval to 1 minute and save. Toast: "Settings saved. Polling raised to 15 min (Free plan minimum)." Reload Settings — field shows 15.
+- [ ] **Polling floor.** In Settings, set polling interval to 1 minute and save. Toast: "Settings saved. Polling raised to 15 min (free plan minimum)." Reload Settings — field shows 15.
 - [ ] **Chat channel gated.** Open the rule editor. The Google Chat section shows "Google Chat webhooks — Pro plan only." instead of the space selection widget.
 - [ ] **MCP channel gated.** Same editor shows "MCP servers (Slack, Teams, Asana) — Pro plan only." instead of the server selection widget.
-- [ ] **AI Suggest gated.** In the rule editor, the "Suggest rule text (Pro)" button is visible; clicking it returns a toast: "Upgrade to Pro to use AI-assisted rule writing." The "Suggest content (Pro)" button behaves the same.
+- [ ] **AI Suggest rule text gated.** In the rule editor, the "Suggest rule text (Pro)" button is visible; clicking it returns a toast: "Upgrade to Pro to use AI-assisted rule writing."
+- [ ] **AI Suggest alert content available on Free.** The "Suggest content for selected channels" button (no "(Pro)" suffix) is visible; clicking it produces a suggestion card from Gemini.
 - [ ] **Starter rules respect limit.** With 2 existing rules, click "Starter rules" → "Create starter rules". Toast reports 1 created and indicates 4 were skipped for the Free plan limit.
 - [ ] **SMS is allowed.** (Manual-only, see Section 9.) Configure any SMS provider and a recipient, attach to a rule, send a test — SMS dispatch works (SMS is included in the Free plan).
 - [ ] **Calendar / Sheets / Tasks allowed.** Enable each on a rule and verify alerts fire (covered by Sections 11 and 12).
@@ -328,7 +329,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] **Sub-15-minute polling.** In Settings, set polling to 1 minute and save. Toast: "Settings saved." Reload — value persists as 1.
 - [ ] **Chat channel available.** Rule editor shows the Google Chat space selection widget (or the prompt to configure Chat in Settings if none exist).
 - [ ] **MCP channel available.** Rule editor shows the MCP server selection widget (or the prompt to configure MCP in Settings).
-- [ ] **AI Suggest works.** The "Suggest rule text" and "Suggest content for selected channels" buttons do not display "(Pro)"; clicking each produces a suggestion card from Gemini.
+- [ ] **AI Suggest rule text works.** The "Suggest rule text" button no longer displays "(Pro)"; clicking it produces a suggestion card from Gemini.
 - [ ] **Downgrade path.** Run `setTier_('free')`. Home card reverts to Free. Existing Pro-only channel selections on rules are ignored but preserved; verify by re-flipping to Pro and confirming selections still present on rules.
 
 ---
