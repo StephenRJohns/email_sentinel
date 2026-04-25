@@ -139,9 +139,12 @@ function handleStartMonitoring(e) {
   }
   const poll = enforcePollFloor(settings.pollMinutes || getTierLimits().minPollMinutes);
   installTrigger(poll.value);
-  const msg = poll.clamped
+  var msg = poll.clamped
     ? 'Monitoring started. Polling set to ' + poll.value + ' min (' + getTier() + ' plan minimum).'
     : 'Monitoring started.';
+  if (poll.quotaWarning) {
+    msg += ' Heads up: every-minute polling runs the script 1440 times/day — heavy rule sets may approach Google\'s daily Apps Script execution cap.';
+  }
   return refreshHome_(msg);
 }
 
@@ -628,8 +631,9 @@ function buildSettingsCard() {
   const pollSection = CardService.newCardSection()
     .setHeader('<b>Polling</b>');
   const tierLimits = getTierLimits();
-  const pollHint = 'Allowed: 1, 5, 10, 15, or 30. Other values round up to the next allowed. ' +
-    'Free min: 15 min. Pro min: 1 min. Your plan min: ' + tierLimits.minPollMinutes + ' min.';
+  const pollHint = isPro()
+    ? 'Pro: 1, or any multiple of 5 (5, 10, 15, 20, 25, 30, 60, …). Other values round up. Polling every 1 min runs the script 1440 times/day and may approach Apps Script daily execution caps with heavy rule sets.'
+    : 'Free: multiples of 15 only (15, 30, 45, 60, …). Other values round up. Pro unlocks 1-min polling.';
   pollSection.addWidget(CardService.newTextInput()
     .setFieldName('pollMinutes')
     .setTitle('Check for new email every (minutes)')
@@ -974,14 +978,14 @@ function handleSaveSettings(e) {
   }
 
   var toast = 'Settings saved.';
-  if (pollEnforced.clamped) {
-    if (pollEnforced.raisedToTierMin) {
-      toast = 'Settings saved. Polling raised to ' + next.pollMinutes + ' min (' + getTier() + ' plan minimum).';
-    } else if (pollEnforced.cappedAtMax) {
-      toast = 'Settings saved. Polling capped at ' + next.pollMinutes + ' min (Apps Script trigger maximum).';
-    } else {
-      toast = 'Settings saved. Polling adjusted to ' + next.pollMinutes + ' min (allowed: 1, 5, 10, 15, 30).';
-    }
+  if (pollEnforced.raisedToTierMin) {
+    toast = 'Settings saved. Polling raised to ' + next.pollMinutes + ' min (' + getTier() + ' plan minimum).';
+  } else if (pollEnforced.snappedToGrid) {
+    const grid = isPro() ? '5-min increments (or 1)' : '15-min increments';
+    toast = 'Settings saved. Polling rounded up to ' + next.pollMinutes + ' min (' + getTier() + ' plan uses ' + grid + ').';
+  }
+  if (pollEnforced.quotaWarning) {
+    toast += ' Heads up: every-minute polling runs the script 1440 times/day — heavy rule sets may approach Google\'s daily Apps Script execution cap (90 min/day on personal Gmail, 360 min/day on Workspace).';
   }
 
   return CardService.newActionResponseBuilder()

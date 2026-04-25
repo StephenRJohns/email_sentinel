@@ -1,6 +1,6 @@
 # emAIl Sentinel™ — Disclaimer
 
-**Effective date:** 2026-04-23
+**Effective date:** 2026-04-25
 **Operator:** JJJJJ Enterprises, LLC
 
 ---

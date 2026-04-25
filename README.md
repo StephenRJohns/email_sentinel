@@ -6,7 +6,7 @@ A Gmail Workspace Add-on that watches your Gmail for new messages and sends an a
 
 Everything runs inside your Google account — no machine to keep running, no extra accounts to create.
 
-> **Status: private pre-launch testing.** emAIl Sentinel is currently in private testing with a closed group of users. It is not yet listed on the Google Workspace Marketplace for general availability, and public sign-ups are not being accepted. The plan structure, pricing, and features documented below describe the product at launch; during private testing, access is invitation-only and free of charge. See `legal/TERMS.md` § 1.1 for the governing provision. For inquiries, contact [support@jjjjjenterprises.com](mailto:support@jjjjjenterprises.com).
+> **Status: private pre-launch testing.** emAIl Sentinel is currently in private testing with a closed group of users. It is not yet listed on the Google Workspace Marketplace for general availability, and public sign-ups are not being accepted. The plan structure, pricing, and features documented below describe the product at launch; during private testing, access is invitation-only and free of charge. **At launch, the Service will be offered to United States users only** (see `legal/TERMS.md` § 2). EU/UK availability is deferred. See `legal/TERMS.md` § 1.1 for the governing pre-launch provision. For inquiries, contact [support@jjjjjenterprises.com](mailto:support@jjjjjenterprises.com).
 
 ---
 
@@ -48,7 +48,7 @@ Rules are plain English. No regex, no code:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  Apps Script time-driven trigger (every 1/5/10/15/30 min)    │
+│  Apps Script time-driven trigger (chosen to divide pollMin)  │
 │  ┌────────────────────────────────────────────────────────┐  │
 │  │  runMailCheck()                                        │  │
 │  │  • For each enabled rule's labels:                     │  │
@@ -223,7 +223,7 @@ If you'd rather not install `clasp`:
 After installation, open Gmail and click the emAIl Sentinel icon in the right rail.
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
-2. **Settings ▸ Polling** — pick how often to check. Free plan runs every 15 minutes or slower; Pro unlocks intervals down to 1 minute.
+2. **Settings ▸ Polling** — pick how often to check. Free plan: multiples of 15 (15, 30, 45, 60, …). Pro plan: 1, or any multiple of 5. Other values round up to the next valid step.
 3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison. Then add named SMS recipients (e.g. "On-call", "CFO") below the provider fields — rules pick recipients by name, not raw phone numbers.
 4. **Settings ▸ MCP server alerts** *(optional)* — add Slack, Microsoft 365 / Teams, Asana, or a custom MCP endpoint if you want alerts routed through the Model Context Protocol.
 5. **Settings ▸ Save settings**.
@@ -371,7 +371,7 @@ If you regularly hit the free limit:
 - **Watch specific labels** (e.g. `Vendors/Invoices`) instead of INBOX — only emails in that label are evaluated against the rule.
 - **Combine conditions** — one rule "Invoice OR purchase order from any vendor" is cheaper than two separate rules.
 - **Keep alert format prompts short** — concise format instructions produce shorter output responses and lower output-token costs.
-- **Raise the polling interval** — checking every 15 or 30 minutes instead of every 5 minutes reduces calls proportionally when email arrives in bursts.
+- **Raise the polling interval** — checking every 30 or 60 minutes instead of the tier minimum reduces calls proportionally when email arrives in bursts.
 
 ---
 

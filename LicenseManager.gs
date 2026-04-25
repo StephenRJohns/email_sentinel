@@ -70,30 +70,45 @@ function setTier_(tier) {
   return tier;
 }
 
-// Apps Script time-driven triggers only accept these everyMinutes() values.
-const ALLOWED_POLL_MINUTES = [1, 5, 10, 15, 30];
-
 /**
- * Normalize a requested poll interval to a valid Apps Script trigger value
- * that also respects the current tier's minimum. Snaps up to the nearest
- * allowed value (1, 5, 10, 15, or 30 min).
+ * Validate and normalize a requested poll interval against the current tier:
+ *   - Free: rounded up to the next multiple of 15.
+ *   - Pro: 1, or rounded up to the next multiple of 5.
+ * Both grids are chosen so an Apps Script `everyMinutes()` value always
+ * divides pollMinutes evenly — no imprecise cadence, no skip-fire quota
+ * burn beyond the trigger interval itself. The 1-minute Pro option fires
+ * 1440 times/day and gets a quota warning since heavy rule sets can hit
+ * the daily Apps Script execution cap.
  *
- * Returns { value, clamped, raisedToTierMin, cappedAtMax, snappedUp, invalid, requested }.
+ * Returns { value, clamped, raisedToTierMin, snappedToGrid, quotaWarning,
+ *           invalid, requested }.
  */
 function enforcePollFloor(requestedMinutes) {
+  const tier = getTier();
   const tierMin = getTierLimits().minPollMinutes;
   const parsed = parseInt(requestedMinutes, 10);
   const invalid = isNaN(parsed) || parsed < 1;
   const requested = invalid ? tierMin : parsed;
-  const target = Math.max(requested, tierMin);
-  var value = ALLOWED_POLL_MINUTES.find(function(m) { return m >= target; });
-  if (value === undefined) value = ALLOWED_POLL_MINUTES[ALLOWED_POLL_MINUTES.length - 1]; // cap at 30
+  var value = Math.max(requested, tierMin);
+  var snappedToGrid = false;
+  if (tier === 'free') {
+    if (value % 15 !== 0) {
+      value = Math.ceil(value / 15) * 15;
+      snappedToGrid = true;
+    }
+  } else {
+    // Pro: allow 1, otherwise require multiple of 5.
+    if (value !== 1 && value % 5 !== 0) {
+      value = Math.ceil(value / 5) * 5;
+      snappedToGrid = true;
+    }
+  }
   return {
     value: value,
     clamped: value !== requested,
     raisedToTierMin: !invalid && parsed < tierMin,
-    cappedAtMax: !invalid && parsed > 30,
-    snappedUp: !invalid && parsed >= tierMin && parsed <= 30 && value !== parsed,
+    snappedToGrid: snappedToGrid,
+    quotaWarning: tier === 'pro' && value === 1,
     invalid: invalid,
     requested: requested
   };

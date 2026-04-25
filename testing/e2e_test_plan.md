@@ -30,11 +30,16 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Click Settings (either via the universal action "⋮" menu or the Settings nav button).
 - [ ] Paste your Gemini API key into the "Gemini API key" field. The aistudio.google.com/app/apikey URL is a tappable link.
 - [ ] Confirm model is "gemini-2.5-flash" (default).
-- [ ] Polling field is a number text input (not a dropdown), with hint mentioning allowed values 1, 5, 10, 15, 30 and tier minimums.
-- [ ] Type `5` into the polling input. On Free plan, saving will clamp up to 15 and toast "Settings saved. Polling raised to 15 min (free plan minimum)." Reload Settings — field shows 15.
-- [ ] Type `7` into the polling input. On Free plan it clamps up to 15 (tier min). On Pro it snaps up to 10 with toast "Settings saved. Polling adjusted to 10 min (allowed: 1, 5, 10, 15, 30)."
-- [ ] Type `999` into the polling input. Toast reads "Settings saved. Polling capped at 30 min (Apps Script trigger maximum)." Reload — field shows 30.
-- [ ] Type `abc` (or 0, or -1) into the polling input. Toast reads "Polling must be a positive whole number of minutes." No save occurs.
+- [ ] Polling field is a number text input (not a dropdown). Free hint mentions "multiples of 15 only"; Pro hint mentions "1 or any multiple of 5" plus the every-minute quota note.
+- [ ] **Free — below tier min.** Type `5`. Save clamps to 15; toast: "Settings saved. Polling raised to 15 min (free plan minimum)." Reload — field shows 15.
+- [ ] **Free — non-multiple-of-15.** Type `20`. Save snaps up to 30; toast: "Settings saved. Polling rounded up to 30 min (free plan uses 15-min increments)." Reload — field shows 30.
+- [ ] **Free — exact multiple.** Type `45`. Saves as 45; toast: "Settings saved." Reload — field shows 45.
+- [ ] **Pro — exact value.** Type `5`, `10`, `25`, `60`. Each saves as-typed; toast: "Settings saved." No quota warning.
+- [ ] **Pro — non-multiple-of-5.** Type `7`. Saves as 10; toast: "Settings saved. Polling rounded up to 10 min (pro plan uses 5-min increments (or 1))." Reload — field shows 10.
+- [ ] **Pro — every-minute quota warning.** Type `1`. Saves as 1; toast includes "Heads up: every-minute polling runs the script 1440 times/day — heavy rule sets may approach Google's daily Apps Script execution cap (90 min/day on personal Gmail, 360 min/day on Workspace)."
+- [ ] **Pro — sub-5 non-1 rounds up to 5 (no quota warning).** Type `2`. Saves as 5; toast: "Settings saved. Polling rounded up to 5 min …" — no quota warning (5 is not the every-minute case).
+- [ ] **Invalid input.** Type `abc` (or 0, or -1). Toast: "Polling must be a positive whole number of minutes." No save.
+- [ ] **Activity log on monitoring start.** With pollMinutes=20 (Pro), starting monitoring logs "Installed time-driven trigger: every 10 minute(s) (polling: every 20 min)."
 - [ ] Confirm "Only check emails newer than (days)" field is present and defaults to 30.
 - [ ] Click "Save settings". Toast notification reads: "Settings saved."
 - [ ] Click "Test Gemini". Toast reads: "Gemini OK — model responded."
@@ -228,7 +233,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] From the home card, click "Start monitoring".
 - [ ] Toast: "Monitoring started."
 - [ ] Home card refreshes: Monitoring row shows "Running". Quick setup checklist disappears (or collapses to ✓ entries).
-- [ ] (In Apps Script editor) Open Triggers (left-rail clock icon). "runMailCheck" trigger is listed with the correct interval (e.g., every 5 minutes).
+- [ ] (In Apps Script editor) Open Triggers (left-rail clock icon). "runMailCheck" trigger is listed with the correct underlying interval — for Free pollMinutes=15 → every 15 min; for Free pollMinutes=45 → every 15 min (skip-check enforces the 45-min cadence); for Pro pollMinutes=1 → every 1 min; for Pro pollMinutes=20 → every 10 min.
 - [ ] Wait one full trigger interval, then check Activity log — a new automatic run entry appears.
 
 ### 15.1 · Poll-Floor Clamp at Monitoring Start

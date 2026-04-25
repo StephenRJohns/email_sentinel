@@ -26,7 +26,7 @@ function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard());
  */
 function actionRunCheckNow(e) {
   try {
-    var result = runMailCheck() || {};
+    var result = runMailCheck({ force: true }) || {};
     activityLog('Manual check: ' + (result.messagesChecked || 0) + ' new email(s), ' +
       (result.matchesFound || 0) + ' match(es).');
   } catch (err) {

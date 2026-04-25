@@ -34,7 +34,7 @@ The `scriptId` in `.clasp.json` links this directory to the live Apps Script pro
 ### Data flow
 
 ```
-Time-driven trigger (every 1/5/10/15/30 min)
+Time-driven trigger (everyMinutes() in {1, 5, 10, 15, 30}, chosen to divide pollMinutes)
   └─ runMailCheck()                          [MailWatcher.gs]
        ├─ loadSettings() / loadRules()       [SettingsManager.gs / RulesManager.gs]
        ├─ GmailApp.search() → new messages   [MailWatcher.gs]
@@ -68,6 +68,8 @@ There is no database, no backend, no external storage.
 **Log buffering:** During trigger runs, `startLogBuffering()` + `flushLog()` batch all `activityLog()` calls into a single UserProperties write. Call them at the start and end of any function that writes many log entries.
 
 **Concurrency guard:** `runMailCheck()` takes `LockService.getUserLock()` with a 0ms timeout and skips the run if locked — prevents overlapping trigger fires.
+
+**Polling grid (Apps Script trigger constraint):** `everyMinutes()` only accepts {1, 5, 10, 15, 30}. To support arbitrary user-facing polling intervals, `enforcePollFloor()` constrains pollMinutes to a grid where one of those values divides evenly: Free → multiples of 15; Pro → 1 or multiples of 5. `installTrigger()` then picks the largest divisor; `runMailCheck()` applies a `LAST_RUN_KEY` elapsed-time skip-check so cadence is precise. `runMailCheck({force: true})` bypasses the skip-check for manual "Run check now". Pro pollMinutes=1 sets `quotaWarning` because the 1-min trigger fires 1440 times/day and can approach Apps Script's daily execution cap.
 
 **Cards are fully stateless:** Every card builder reads UserProperties fresh. Never cache state in global variables between card renders.
 

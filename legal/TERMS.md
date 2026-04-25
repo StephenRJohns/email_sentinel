@@ -1,6 +1,6 @@
 # emAIl Sentinel™ — Terms of Service
 
-**Effective date:** 2026-04-23
+**Effective date:** 2026-04-25
 **Operator:** JJJJJ Enterprises, LLC ("we", "us", "our")
 **Service:** emAIl Sentinel, a Google Workspace Add-on for Gmail (the "Service")
 

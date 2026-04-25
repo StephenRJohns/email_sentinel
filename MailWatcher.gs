@@ -14,8 +14,10 @@
 
 const SEEN_KEY = 'mailsentinel.seen';
 const SEEN_MAX_PER_LABEL = 200;
+const LAST_RUN_KEY = 'mailsentinel.lastRunAt';
 
-function runMailCheck() {
+function runMailCheck(opts) {
+  const force = !!(opts && opts.force);
   const lock = LockService.getUserLock();
   if (!lock.tryLock(0)) {
     console.info('Another check is still running — skipping.');
@@ -24,6 +26,24 @@ function runMailCheck() {
   startLogBuffering();
   try {
     const settings = loadSettings();
+
+    // Apps Script triggers only fire at coarse intervals (1, 5, 10, 15, 30 min).
+    // To honor an arbitrary user-chosen polling interval, the trigger fires at
+    // the largest allowed value <= pollMinutes and we skip here until the
+    // exact desired interval has elapsed since the last accepted run.
+    if (!force) {
+      const targetMinutes = parseInt(settings.pollMinutes, 10) || getTierLimits().minPollMinutes;
+      const props = PropertiesService.getUserProperties();
+      const lastRunAt = parseInt(props.getProperty(LAST_RUN_KEY) || '0', 10);
+      const now = Date.now();
+      // 30-second tolerance so a trigger firing slightly before the boundary
+      // still runs instead of slipping a full cycle.
+      if (lastRunAt && (now - lastRunAt) < (targetMinutes * 60 * 1000 - 30000)) {
+        return;
+      }
+      props.setProperty(LAST_RUN_KEY, String(now));
+    }
+
     if (!isInBusinessHours(settings, new Date())) {
       activityLog('Outside business hours \u2014 skipping check.');
       return;
@@ -231,12 +251,25 @@ function resetSeen() {
 
 // ── Trigger management ──────────────────────────────────────────────────────
 
-function installTrigger(everyMinutes) {
+function installTrigger(pollMinutes) {
   removeTriggers();
+  // Apps Script `everyMinutes()` only accepts these values. enforcePollFloor
+  // already constrains pollMinutes to a value that one of these divides
+  // (Free: multiples of 15; Pro: 1 or multiples of 5), so we pick the
+  // largest divisor — that gives precise cadence with the runMailCheck
+  // skip-check filling in any intermediate skipped fires.
   const allowed = [1, 5, 10, 15, 30];
-  const m = allowed.indexOf(everyMinutes) >= 0 ? everyMinutes : 5;
-  ScriptApp.newTrigger('runMailCheck').timeBased().everyMinutes(m).create();
-  activityLog('Installed time-driven trigger: every ' + m + ' minute(s).');
+  const target = parseInt(pollMinutes, 10) || 5;
+  var triggerMinutes = 1;
+  for (var i = allowed.length - 1; i >= 0; i--) {
+    if (target % allowed[i] === 0) { triggerMinutes = allowed[i]; break; }
+  }
+  ScriptApp.newTrigger('runMailCheck').timeBased().everyMinutes(triggerMinutes).create();
+  // Reset the elapsed-time gate so the first run after re-install isn't
+  // blocked by a stale lastRunAt from a previous configuration.
+  PropertiesService.getUserProperties().deleteProperty(LAST_RUN_KEY);
+  activityLog('Installed time-driven trigger: every ' + triggerMinutes +
+    ' minute(s) (polling: every ' + target + ' min).');
 }
 
 function removeTriggers() {

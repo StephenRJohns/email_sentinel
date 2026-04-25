@@ -121,7 +121,7 @@ At Flash rates, a typical user (50 emails/day, 3 rules) costs under <b>$1/month<
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>
 
 <b>Polling</b><br>
-Apps Script time-driven triggers fire every 1, 5, 10, 15, or 30 minutes. The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message. <b>Free plan</b> is clamped to 15 minutes or slower; <b>Pro</b> unlocks faster intervals down to every 1 minute.<br><br>
+On the <b>Free plan</b>, polling is set in 15-minute increments (15, 30, 45, 60, …) — minimum 15 min. On the <b>Pro plan</b>, polling is either <b>every minute</b> or any multiple of 5 (5, 10, 15, 20, 25, 30, 60, …). Other values round up to the next valid step. Choosing every-minute polling runs the script 1440 times/day; heavy rule sets may approach the daily Apps Script execution cap (90 min/day on personal Gmail, 360 min/day on Workspace). The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message.<br><br>
 
 <b>Privacy</b><br>
 Settings, rules, the seen-message baseline, and the activity log are all stored in <i>UserProperties</i>, which is private to your own Google account. Email contents are sent only to Google's Gemini API and to the alert channels you configure (SMS provider, Chat webhooks, MCP server endpoints) — never anywhere else.<br><br>
