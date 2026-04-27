@@ -27,12 +27,14 @@ function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard());
 function actionRunCheckNow(e) {
   try {
     var result = runMailCheck({ force: true }) || {};
-    activityLog('Manual check: ' + plural_(result.messagesChecked || 0, 'new email') + ', ' +
-      plural_(result.matchesFound || 0, 'match', 'matches') + '.');
+    var summary = plural_(result.messagesChecked || 0, 'new email') + ', ' +
+      plural_(result.matchesFound || 0, 'match', 'matches') + '.';
+    activityLog('Manual check: ' + summary);
+    return universalCardResponse_(buildScanResultCard_('Scan complete — ' + summary, true));
   } catch (err) {
     activityLog('Manual check failed: ' + err);
+    return universalCardResponse_(buildScanResultCard_('Scan failed: ' + (err.message || err), false));
   }
-  return universalCardResponse_(buildActivityCard());
 }
 
 function universalCardResponse_(card) {
@@ -53,6 +55,52 @@ function notificationResponse_(text) {
 
 function plural_(n, singular, opt_plural) {
   return n + ' ' + (n === 1 ? singular : (opt_plural || singular + 's'));
+}
+
+/**
+ * Returns the IANA timezone ID to use for user-facing dates in alerts.
+ * Prefers the user's primary Calendar timezone (matches what Gmail and
+ * Calendar display in the UI); falls back to the script-project timezone
+ * declared in appsscript.json if the calendar lookup fails. Without this,
+ * Date.toISOString() emits Zulu / UTC, which surfaces in spreadsheet rows
+ * and alert text as `2026-04-27T22:29:58.636Z` — confusing for users in
+ * non-UTC zones.
+ *
+ * Cached in a module-level variable so a single trigger run that writes
+ * dozens of activity-log entries doesn't pay the CalendarApp round-trip
+ * per entry. Apps Script preserves module state for the duration of one
+ * execution, which is exactly the scope we want.
+ */
+var _cachedUserTz_ = null;
+function getUserTimeZone_() {
+  if (_cachedUserTz_) return _cachedUserTz_;
+  try {
+    const cal = CalendarApp.getDefaultCalendar();
+    if (cal) {
+      _cachedUserTz_ = cal.getTimeZone();
+      return _cachedUserTz_;
+    }
+  } catch (e) { /* fall through to script TZ */ }
+  _cachedUserTz_ = Session.getScriptTimeZone();
+  return _cachedUserTz_;
+}
+
+/**
+ * Format a Date (or anything `new Date()` accepts) as a human-readable
+ * local-timezone string for alert dispatch.
+ *
+ *   formatLocalDateTime_(new Date())
+ *     → "2026-04-27 5:29:58 PM CDT"
+ *
+ * Sortable lexically (the leading yyyy-MM-dd prefix sorts chronologically),
+ * and the trailing TZ abbreviation makes the timezone unambiguous to the
+ * recipient. Returns '' for falsy or unparseable inputs.
+ */
+function formatLocalDateTime_(dateLike) {
+  if (!dateLike) return '';
+  const d = (dateLike instanceof Date) ? dateLike : new Date(dateLike);
+  if (isNaN(d.getTime())) return '';
+  return Utilities.formatDate(d, getUserTimeZone_(), 'yyyy-MM-dd h:mm:ss a z');
 }
 
 // ── Testing helpers (run manually from the Apps Script editor) ────────────────

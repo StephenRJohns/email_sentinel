@@ -73,6 +73,14 @@ There is no database, no backend, no external storage.
 
 **Cards are fully stateless:** Every card builder reads UserProperties fresh. Never cache state in global variables between card renders.
 
+**No back-arrow event in CardService:** Google's add-on framework does not emit an event when the user taps the system back arrow at the top-left of a card. Editor cards therefore cannot show a "discard unsaved changes?" confirmation dialog — pressing back instantly pops the navigation stack and the in-flight form values are dropped. The mitigation is `buildUnsavedChangesNotice_()` in `Cards.gs`, which is the first section on every editor card (rule editor, settings, MCP server editor, SMS recipient editor, chat space editor) and warns the user to click Save before navigating back. If a future iteration wants real protection, the next step would be a draft-persistence layer keyed on form-input `setOnChangeAction` (which fires on blur, not on every keystroke, and is not available on plain `TextInput` for typing-time auto-save).
+
+**Universal-action navigation has no native back arrow:** Sub-cards reached via the kebab "⋮" menu items in `appsscript.json universalActions` (Rules, Settings, Activity Log, Help) use `UniversalActionResponseBuilder.displayAddOnCards`, which *replaces* the navigation stack rather than pushing onto it. Gmail therefore does not render its native back arrow on those cards, leaving the user no way out. Every sub-card prepends `buildHomeButtonSection_()` in `Cards.gs` so a "Home" button is always available; `handleGoHome` does `popToRoot().updateCard(buildHomeCard())` which is correct for both stacked and replaced navigation. Universal-action responses also do *not* support `setNotification` toasts, so `actionRunCheckNow` returns a dedicated `buildScanResultCard_()` (green ✅ or red ⚠ banner) instead of relying on a transient toast for visible feedback after a manual scan.
+
+**All user-visible dates are localized via `formatLocalDateTime_` (`Code.gs`):** `Date.toISOString()` produces UTC/Zulu strings like `2026-04-27T22:29:58.636Z` which are confusing to non-UTC users. `formatLocalDateTime_(d)` uses `Utilities.formatDate(d, getUserTimeZone_(), 'yyyy-MM-dd h:mm:ss a z')` to emit `2026-04-27 5:29:58 PM CDT`. `getUserTimeZone_()` prefers `CalendarApp.getDefaultCalendar().getTimeZone()` (matches what Gmail/Calendar display in their UI), falling back to `Session.getScriptTimeZone()`, and is cached in a module-level `_cachedUserTz_` so a single trigger run that writes dozens of activity-log entries doesn't pay the CalendarApp round-trip per entry (Apps Script preserves module state for one execution, exactly the cache scope we want). `MailWatcher.gs:gatherMessage_` pre-formats `receivedDateTime` so all downstream presentation contexts (Calendar event descriptions, Tasks notes, Sheets rows, the Gemini evaluation prompt, and the alert text Gemini generates) inherit the localized format. `receivedMillis` (raw epoch) is kept alongside for any code that needs sortable/comparable timestamps. The activity-log timestamp prefix is also localized in 12-hour AM/PM (`yyyy-MM-dd h:mm:ss a`); the `buildActivityCard` bolding splits on the literal double-space separator between stamp and message rather than a fixed offset (older 24-hour entries still in the 60-line ring buffer continue to render correctly during rollover). New code that surfaces a date to the user should use `formatLocalDateTime_` rather than calling `.toISOString()` or `.toString()`.
+
+**MCP Streamable HTTP responses can be SSE; tool-level errors are inside `result.isError`:** `sendMcpAlert_` in `McpServers.gs` POSTs JSON-RPC `tools/call` to the MCP server and the response can come back with `Content-Type: application/json` (single JSON object) *or* `Content-Type: text/event-stream` (one or more SSE message events whose `data:` lines hold the JSON-RPC response). Asana's V2 MCP at `https://mcp.asana.com/v2/mcp` returns SSE in practice. The handler detects `text/event-stream` in the response Content-Type header and reassembles `data:`-prefixed lines into a JSON string before parsing — without that, `JSON.parse` throws on the SSE body, the catch block swallows it as a "non-JSON ack", and the dispatcher logs a misleading `MCP alert sent to: <name>` even when the tool actually failed. Three error tiers must all be checked: (1) HTTP non-2xx → `'MCP "<name>" HTTP <code>: <body>'`; (2) JSON-RPC envelope error at `body.error` → `'MCP "<name>" error: <body.error>'`; (3) tool-level error at `body.result.isError === true` with detail in `body.result.content[].text` → `'MCP "<name>" tool error: <detail>'`. New MCP server presets in `MCP_TYPE_DEFAULTS` should not skip these checks.
+
 **Gemini via REST, not SDK:** `callGemini_()` uses `UrlFetchApp` + the user's own API key. No extra OAuth scope needed (only `script.external_request`).
 
 **First-run baseline:** The first time `runMailCheck()` encounters a label, it records all current message IDs as the baseline (no alerts). Alerts only fire for messages that arrive after that baseline. This is intentional — don't change this behavior.
@@ -100,10 +108,14 @@ We do not support email as an alerting channel. Alert channels are: SMS, Google 
 
 `LicenseManager.gs` defines `TIERS` (Free vs Pro) with per-tier limits:
 `maxRules`, `minPollMinutes`, `allowChat`, `allowMcp`, `allowAiSuggest`,
-`logRetentionDays`. Enforcement is in `handleSaveSettings` (poll floor),
-`upsertRule` (rule count + Chat/MCP stripping), `handleHelpWriteRuleText` /
-`handleHelpWriteAlertText` (Pro gate), and `buildRuleEditorCard` (UI hides
-gated sections). Tier is persisted in `settings.license.tier`; for pre-launch
+`logRetentionDays`. Enforcement is layered: `handleNewRule` (early gate at
+"+ New rule" click — checks `canAddRule()` before opening the editor so the
+user doesn't fill out a rule that won't save), `upsertRule` (defense-in-depth
+rule count + Chat/MCP stripping at save time, also covers programmatic save
+paths that bypass the UI), `handleSaveSettings` (poll floor — now mostly
+unreachable from the dropdown UI but kept as defense-in-depth),
+`handleHelpWriteRuleText` / `handleHelpWriteAlertText` (Pro gate for AI rule
+writing), and `buildRuleEditorCard` (UI hides gated channel sections). Tier is persisted in `settings.license.tier`; for pre-launch
 testing, select `setTierPro` or `setTierFree` from the Apps Script editor's
 function dropdown (in `LicenseManager.gs`) and click Run. These are no-arg
 wrappers around the underscore-private `setTier_(tier)` helper. Automatic

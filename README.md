@@ -85,7 +85,7 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 |---|---|---|
 | Price | Free | **$4.99/month** or **$39/year** |
 | Active rules | Up to **3** | Unlimited |
-| Minimum automatic polling interval | Every **3 hours** (180 min) | Every **1 hour** (60 min) |
+| Minimum automatic polling interval | Every **3 hours** | Every **1 hour** |
 | Manual on-demand check (*Scan email now*) | ✅ | ✅ |
 | Alert channels — Google Calendar, Sheets, Tasks | ✅ | ✅ |
 | Alert channels — SMS (any provider — 6 quick-start presets plus generic webhook) | ✅ | ✅ |
@@ -229,7 +229,7 @@ If you'd rather not install `clasp`:
 After installation, open Gmail and click the emAIl Sentinel icon in the right rail.
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
-2. **Settings ▸ Polling** — pick how often to check. Multiples of 60 (60, 120, 180, …). Free minimum 180 (3 hours); Pro minimum 60 (1 hour). Other values round up to the next valid step. The 60-minute floor is a Google Workspace add-on platform limit and cannot be bypassed. Use **Scan email now** for an immediate check anytime regardless of plan.
+2. **Settings ▸ Polling** — pick how often to check. The dropdown offers whole-hour intervals (`1 hour`, `2 hours`, `3 hours`, `4 hours`, `6 hours`, `8 hours`, `12 hours`, `24 hours`). Free shows `3 hours` and longer; Pro adds `1 hour` and `2 hours` at the top. The 60-minute limit is a Google Workspace add-on platform limit and cannot be bypassed. Use **Scan email now** for an immediate check anytime regardless of plan.
 3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison. Then add named SMS recipients (e.g. "On-call", "CFO") below the provider fields — rules pick recipients by name, not raw phone numbers.
 4. **Settings ▸ MCP server alerts** *(optional)* — add Slack, Microsoft 365 / Teams, Asana, or a custom MCP endpoint if you want alerts routed through the Model Context Protocol.
 5. **Settings ▸ Save settings**.
@@ -377,7 +377,7 @@ If you regularly hit the free limit:
 - **Watch specific labels** (e.g. `Vendors/Invoices`) instead of INBOX — only emails in that label are evaluated against the rule.
 - **Combine conditions** — one rule "Invoice OR purchase order from any vendor" is cheaper than two separate rules.
 - **Keep alert format prompts short** — concise format instructions produce shorter output responses and lower output-token costs.
-- **Raise the polling interval** — checking every 30 or 60 minutes instead of the tier minimum reduces calls proportionally when email arrives in bursts.
+- **Raise the polling interval** — pick a longer interval in the Polling dropdown (e.g. every 6 or 12 hours) instead of the tier minimum to reduce Gemini calls proportionally when email arrives in bursts.
 
 ---
 
@@ -421,7 +421,7 @@ These use your existing Google account — no third-party sign-up, no cost.
 |---|---|---|
 | **Google Chat** | Posts to a Google Chat Space via webhook — the direct equivalent of Teams webhooks. **Requires a Google Workspace paid account** (webhooks are not available on free Gmail accounts). Pro plan only. | Create a Space at [chat.google.com](https://chat.google.com). Open the space, click the space name in the top header bar ▸ Apps & integrations ▸ Webhooks ▸ create one. In **Settings ▸ Google alert channels**, click "Add Chat space", enter the space name, and paste the webhook URL. Select the space name in each rule. |
 | **Google Calendar** | Creates a 15-minute calendar event with the alert details. Phone/desktop notifications fire automatically if you have calendar notifications on. | (Optional) Enter a calendar ID in Settings, or leave blank for your primary calendar. In the rule editor, check "Create a Google Calendar event on match." |
-| **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — emAIl Sentinel auto-creates one called "emAIl Sentinel — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
+| **Google Sheets** | Appends a row (timestamp, rule, from, subject, received, message) to a spreadsheet. Both date columns are written in the user's local timezone (`yyyy-MM-dd h:mm:ss AM/PM TZ`) — never UTC/Zulu. Great for audit trails, searching past alerts, sharing with a team. | (Optional) Enter a spreadsheet ID in Settings, or leave blank — emAIl Sentinel auto-creates one called "emAIl Sentinel — Alert Log" on the first alert. In the rule editor, check "Log to Google Sheets on match." |
 | **Google Tasks** | Creates a task in Google Tasks with the alert subject and details. Shows in the Gmail sidebar and the Google Tasks app. | Leave the Tasks list ID blank for "My Tasks" (the default list). In the rule editor, check "Create a Google Task on match." |
 
 Each Google channel is enabled per rule via a checkbox in the rule editor, so you can have some rules post to Chat and others log to Sheets, or combine all four.
@@ -469,6 +469,11 @@ Nothing is stored on any third-party server. The add-on has no backend. The Goog
 | Alerts firing for old mail right after install | **Settings ▸ Reset baseline** — the next run will re-baseline every label |
 | SMS "HTTP 401" or auth error | Re-check your provider credentials in **Settings ▸ SMS provider**; both key fields must be saved |
 | SMS "invalid from number" or delivery failure | Ensure the From number is provisioned on your provider account and the To number is in E.164 format (`+15551234567`) |
+| MCP target system (Asana/Slack/Teams/etc.) not populated, but no error in the activity log | The dispatcher now surfaces tool-level MCP errors as `MCP alert to "<name>" FAILED: MCP "<name>" tool error: <detail>`. If you used to see no log line at all, push the latest code — earlier versions silently swallowed errors when the MCP server returned a Streamable-HTTP `text/event-stream` response (e.g. Asana V2 at `https://mcp.asana.com/v2/mcp`). Common detail texts: *Project not found* (bad `project_id`), *Forbidden* (PAT lacks workspace access), *Required field missing* (args template missing a required field). |
+| MCP `Authorization` header rejected | Asana V2 / Slack / Teams expect the literal `Bearer <token>` (capital B, single space, then PAT). Pasting just the token without `Bearer ` produces an HTTP 401 in the activity log |
+| Activity log times look "off" by several hours | Activity-log timestamps are now in 12-hour AM/PM in your local timezone (taken from your primary Google Calendar). If your Calendar's timezone is wrong, fix it in [calendar.google.com](https://calendar.google.com/calendar/u/0/r/settings) ▸ Time zone — emAIl Sentinel inherits that setting on the next run |
+| Sheets row Timestamp / Received columns show `…Z` UTC strings | You're on an older deployment. Push the latest code — both columns now render as `yyyy-MM-dd h:mm:ss AM/PM TZ` in your local Calendar timezone |
+| "Manage add-on" opens the Apps Script editor source code | This is identity-aware. As the add-on **owner / developer**, Google routes "Manage add-on" to the Apps Script editor. **End users** who installed the add-on from the Workspace Marketplace get the standard consumer dialog (uninstall, view permissions, manage data access) instead. To preview the consumer experience, install the published Marketplace listing on a separate Google account that doesn't own the script |
 | Trigger doesn't seem to be running | Apps Script editor ▸ **Triggers** (left rail clock icon) — confirm `runMailCheck` is listed. If not, click **Start monitoring** again |
 | Want to see exactly what the trigger did | **Activity log** card — newest entries first |
 

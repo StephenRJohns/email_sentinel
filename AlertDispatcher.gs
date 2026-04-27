@@ -5,9 +5,9 @@
  * AlertDispatcher.gs — Send alerts via SMS and Google-native channels.
  *
  * SMS provider implementations (sendTextbeltSms_, sendTelnyxSms_, etc.) and
- * Google Chat dispatch live in the JJJJJEnterprises_NotifyLib shared library
- * (userSymbol: NotifyLib, defined in appsscript.json). This file contains the
- * emAIl Sentinel-specific orchestration layer that calls into that library.
+ * Google Chat dispatch live in the NotifyLib shared library (userSymbol
+ * defined in appsscript.json). This file contains the emAIl Sentinel-specific
+ * orchestration layer that calls into that library.
  *
  * Public surface consumed by Cards.gs — names and signatures are stable:
  *   SMS_PROVIDERS, SMS_PROVIDER_INFO   (constants)
@@ -18,9 +18,11 @@
  */
 
 // ── Constants — delegate to NotifyLib so Cards.gs gets the same values ────────
+// Apps Script libraries do not expose top-level `const` to consumers — only
+// functions (and `var`). NotifyLib provides accessor functions for these.
 
-const SMS_PROVIDERS     = NotifyLib.SMS_PROVIDERS;
-const SMS_PROVIDER_INFO = NotifyLib.SMS_PROVIDER_INFO;
+const SMS_PROVIDERS     = NotifyLib.getSmsProviders();
+const SMS_PROVIDER_INFO = NotifyLib.getSmsProviderInfo();
 
 // ── Thin wrappers for functions Cards.gs calls by name ───────────────────────
 
@@ -192,7 +194,7 @@ function sendSheetsAlert_(rule, emailData, message, settings) {
     sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
   }
   sheet.appendRow([
-    new Date().toISOString(),
+    formatLocalDateTime_(new Date()),
     rule.name,
     emailData.from || '',
     emailData.subject || '',
@@ -228,7 +230,7 @@ function testSms(toNumber) {
   try {
     sendSmsAlert_(toNumber,
       { name: 'Test' },
-      { subject: 'Test message', from: 'emAIl Sentinel', receivedDateTime: new Date().toISOString() },
+      { subject: 'Test message', from: 'emAIl Sentinel', receivedDateTime: formatLocalDateTime_(new Date()) },
       'This is a test message from emAIl Sentinel.',
       settings);
     return 'Test SMS sent to ' + toNumber + ' via ' + settings.smsProvider + '.';

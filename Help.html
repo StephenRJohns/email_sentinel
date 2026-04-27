@@ -134,7 +134,7 @@ At Flash rates, a typical user (50 emails/day, 3 rules) costs under <b>$1/month<
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>
 
 <b>Polling</b><br>
-Polling is set in 60-minute increments (60, 120, 180, …). On the <b>Free plan</b> the minimum is 180 min (every 3 hours); on the <b>Pro plan</b> the minimum is 60 min (every 1 hour). Other values round up to the next valid step. The 60-minute hard floor is a <b>Google Workspace add-on platform limit</b>: time-based triggers in any Workspace add-on cannot fire more often than once per hour. We can't go faster — it's a Google constraint, not a tier policy. The Free / Pro 3-hour vs. 1-hour difference is a tier policy on top of that platform floor.<br><br>
+Polling is selected from a whole-hour dropdown in Settings. <b>Free plan</b> options: 3, 4, 6, 8, 12, or 24 hours. <b>Pro plan</b> options: the same plus 1 hour and 2 hours at the top. The 1-hour limit is a <b>Google Workspace add-on platform limit</b>: time-based triggers in any Workspace add-on cannot fire more often than once per hour. We can't go faster — it's a Google constraint, not a tier policy. The Free / Pro 3-hour vs. 1-hour difference is a tier policy on top of that platform floor.<br><br>
 
 To run a check sooner than the next scheduled fire, click <b>Scan email now</b> on the home card — that runs immediately regardless of cadence and is available on every plan. The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message.<br><br>
 
@@ -150,6 +150,9 @@ Settings, rules, the seen-message baseline, and the activity log are all stored 
 • <i>SMS not delivered</i> — open the Activity Log to see the provider's error response.<br>
 • <i>Alerts firing for old mail after install</i> — open Settings and click <b>Reset baseline</b>; the next run will re-baseline.<br>
 • <i>Back arrow (←) disappeared from the sidebar</i> — every card (Rules, Settings, Help, Activity Log, Starter Rules) includes a <b>Home</b> button at the top. Tap it to return to the home card any time the Gmail navigation arrow is not shown.<br>
+• <i>Lost edits in the rule or settings editor</i> — always click <b>Save</b> before tapping the back arrow. Google's add-on framework gives no event when the system back arrow is pressed, so the editor cannot prompt to save unsaved changes. Each editor card shows an amber notice at the top as a reminder.<br>
+• <i>MCP target (Asana / Slack / Teams) not populated and no error in the activity log</i> — the dispatcher now parses Streamable-HTTP <code>text/event-stream</code> responses and surfaces tool-level errors as <code>MCP alert to "&lt;name&gt;" FAILED: MCP "&lt;name&gt;" tool error: &lt;detail&gt;</code>. Common details: <i>Project not found</i> (bad <code>project_id</code>), <i>Forbidden</i> (PAT lacks workspace access), <i>Required field missing</i>. The auth header must be <code>Bearer &lt;token&gt;</code> with a literal "Bearer " prefix.<br>
+• <i>Activity log or Sheets row dates look off by several hours</i> — dates use your primary Google Calendar's timezone. Fix it in calendar.google.com ▸ Settings ▸ Time zone, then run a fresh check.<br>
 • Still stuck? <b><a href="https://github.com/StephenRJohns/email_sentinel/issues">Open a GitHub issue</a></b> — issues are tracked, searchable, and get the fastest response.<br><br>
 
 <b>Contact</b><br>

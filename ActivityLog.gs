@@ -46,8 +46,11 @@ function flushLog() {
 }
 
 function activityLog(message) {
+  // 12-hour AM/PM format in the user's local timezone (via the cached
+  // getUserTimeZone_) — matches the localization used elsewhere for alert
+  // dispatch dates, so log timestamps and alert timestamps line up.
   const stamp = Utilities.formatDate(
-    new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'
+    new Date(), getUserTimeZone_(), 'yyyy-MM-dd h:mm:ss a'
   );
   const entry = (stamp + '  ' + message).substring(0, MAX_ENTRY_LENGTH);
 

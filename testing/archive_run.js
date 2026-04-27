@@ -61,10 +61,13 @@ function specStatus(spec) {
   return { status: 'unknown', error: '' };
 }
 
+// Section IDs may include a single letter suffix (e.g. "S17b") to denote a
+// sibling sub-section under the same numeric heading. Returned as strings so
+// "17" and "17b" are distinct map keys downstream.
 function sectionsForTitle(title) {
-  const m = /^((?:S\d+)(?:\+S\d+)*):/.exec(title);
+  const m = /^((?:S\d+[a-z]?)(?:\+S\d+[a-z]?)*):/.exec(title);
   if (!m) return [];
-  return m[1].split('+').map(s => parseInt(s.slice(1), 10));
+  return m[1].split('+').map(s => s.slice(1));
 }
 
 const pad2 = n => String(n).padStart(2, '0');
@@ -101,13 +104,13 @@ function main() {
   const out = [];
   let currentSection   = null;
   let summaryInserted  = false;
-  const sectionHeaderRe = /^## (\d+) · /;
+  const sectionHeaderRe = /^## (\d+[a-z]?) · /;
   const checkboxRe      = /^(\s*)- \[ \] (.*)$/;
 
   for (const line of planLines) {
     const sh = sectionHeaderRe.exec(line);
     if (sh) {
-      currentSection  = parseInt(sh[1], 10);
+      currentSection  = sh[1];
       summaryInserted = false;
       out.push(line);
       continue;
@@ -149,7 +152,7 @@ function main() {
 
   const ts       = timestampParts();
   const planBase = path.basename(opts.plan, '.md').replace(/_plan/, '_run');
-  const fname    = `${ts.date} ${ts.time}_${planBase}.md`;
+  const fname    = `${ts.date}_${ts.time}_${planBase}.md`;
   fs.mkdirSync(opts.out, { recursive: true });
   const outPath = path.join(opts.out, fname);
   fs.writeFileSync(outPath, out.join('\n'));

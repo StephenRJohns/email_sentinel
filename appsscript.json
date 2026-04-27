@@ -10,8 +10,8 @@
     ],
     "libraries": [
       {
-        "userSymbol": "JJJJJEnterprises_NotifyLib",
-        "version": "1",
+        "userSymbol": "NotifyLib",
+        "version": "2",
         "libraryId": "1YG_5kjmABwYex868cdE6IXXF1Il6ofJnvxXkZ5WDWd3hQo2TozwcQr7R",
         "developmentMode": false
       }
@@ -31,7 +31,7 @@
   "addOns": {
     "common": {
       "name": "emAIl Sentinel",
-      "logoUrl": "https://lh3.googleusercontent.com/d/12EiB_Hv663iqCrrFh1hfF5zn48XRBEQA",
+      "logoUrl": "https://raw.githubusercontent.com/StephenRJohns/email_sentinel/main/images/ES_32.png",
       "homepageTrigger": {
         "runFunction": "onHomepage",
         "enabled": true

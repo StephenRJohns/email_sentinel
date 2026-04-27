@@ -211,7 +211,13 @@ function normalizeMessage_(m) {
     from: m.getFrom(),
     subject: m.getSubject() || '(no subject)',
     body: body,
-    receivedDateTime: m.getDate().toISOString(),
+    // Formatted in the user's local timezone (e.g. "2026-04-27 5:29:58 PM
+    // CDT") so all downstream presentation contexts — Calendar event
+    // descriptions, Tasks notes, Sheets rows, the Gemini evaluation prompt,
+    // and the alert message Gemini generates — render in the user's local
+    // time. receivedMillis stays as the raw epoch for any code that needs
+    // sortable/comparable timestamps.
+    receivedDateTime: formatLocalDateTime_(m.getDate()),
     receivedMillis: m.getDate().getTime(),
     attachmentNames: attachmentNames,
     hasAttachments: attachmentNames.length > 0
@@ -264,7 +270,7 @@ function installTrigger(pollMinutes) {
   // blocked by a stale lastRunAt from a previous configuration.
   PropertiesService.getUserProperties().deleteProperty(LAST_RUN_KEY);
   activityLog('Installed time-driven trigger: every ' +
-    plural_(targetHours, 'hour') + ' (polling: every ' + target + ' min).');
+    plural_(targetHours, 'hour') + '.');
 }
 
 function removeTriggers() {

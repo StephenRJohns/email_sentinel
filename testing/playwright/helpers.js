@@ -28,30 +28,19 @@ function getFrame(page) {
   return page.frameLocator(ADDON_IFRAME).first();
 }
 
-// Wait for a Gmail toast notification containing text.
-// Gmail add-on notifications appear inside the add-on iframe without standard
-// ARIA roles, so .or() with a FrameLocator is not allowed. We poll both the
-// main page (ARIA elements) and the iframe (any div/span) every 300ms.
-// text may be a plain string or a RegExp — both are handled correctly.
+// Wait for a Gmail add-on CardService toast (notification) by matching the
+// expected text inside the iframe body.
+//
+// CardService toasts are ephemeral — they appear inside the add-on iframe
+// for a few seconds and then fade. The previous .first().isVisible() polling
+// was unreliable: .first() repeatedly resolved to hidden cached nodes left
+// over from previous card renders. Playwright's expect.toContainText
+// auto-retries every ~100ms and returns as soon as the text is observed
+// anywhere in the body, so a brief on-screen toast is reliably caught.
+//
+// `text` may be a plain string or a RegExp — both are handled by toContainText.
 async function expectToast(page, text, timeout = 15_000) {
-  const frame = getFrame(page);
-  const deadline = Date.now() + timeout;
-
-  while (Date.now() < deadline) {
-    // Main page: standard ARIA notification elements
-    const mainVisible = text instanceof RegExp
-      ? await page.locator('[role="alert"], [aria-live]').filter({ hasText: text }).first().isVisible().catch(() => false)
-      : await page.locator(`[role="alert"]:has-text("${text}"), [aria-live]:has-text("${text}")`).first().isVisible().catch(() => false);
-    if (mainVisible) return;
-
-    // Add-on iframe: any div or span containing the notification text
-    const iframeVisible = await frame.locator('div, span').filter({ hasText: text }).first().isVisible().catch(() => false);
-    if (iframeVisible) return;
-
-    await page.waitForTimeout(300);
-  }
-
-  throw new Error(`Toast not found after ${timeout}ms: ${text instanceof RegExp ? text : `"${text}"`}`);
+  await expect(getFrame(page).locator('body')).toContainText(text, { timeout });
 }
 
 // Click a Card button by its visible label. Uses .first() because Gmail's
@@ -73,6 +62,10 @@ async function clickButton(frame, label) {
 // the time the click reads pre-blur form state.
 async function fillField(frame, label, value) {
   const field = frame.getByLabel(label, { exact: false });
+  // Wait explicitly for the field to be visible — Settings card re-renders
+  // after a save can take 30s+ on a slow Apps Script round-trip, and the
+  // default 15s action timeout on field.clear() is not enough.
+  await field.waitFor({ state: 'visible', timeout: 45_000 });
   await field.clear();
   await field.fill(value);
   await field.press('Tab');

@@ -74,7 +74,7 @@ The following test plan sections are NOT automated. Verify these by hand against
 
 | Section | Why manual |
 |---------|------------|
-| S2 Pro polling grid | Requires actively setting tier to Pro AND verifying tier-specific rounding toasts (60-min minimum, multiples of 60) |
+| S2 Polling dropdown options | Verifying which hour options the dropdown offers per tier requires reading the rendered option list, which Apps Script SelectionInput doesn't expose to Playwright reliably (custom Material control, not native `<select>`). Manual on the test plan. |
 | S4 Create test rule | Apps Script's FILLED-button rendering of "+ New rule" doesn't reliably expose the visible label as the accessible name in Playwright |
 | S6+S7 Send + verify match | Real outbound email send and inbox delivery; flaky in automation |
 | S9–S13 Alert channels | SMS/Chat/MCP/Calendar/Sheets/Tasks — would dispatch real alerts and burn provider credits |
@@ -88,7 +88,12 @@ The following test plan sections are NOT automated. Verify these by hand against
 
 ## Tier selection
 
-The automated suite runs the same set of tests regardless of `TEST_TIER`. The Pro-specific assertions were removed (they're manual now). If you ever re-add Pro tests, flip the live tier by running `setTierPro` from the Apps Script editor (in `LicenseManager.gs`), then revert with `setTierFree`. Both are no-arg wrappers around the underscore-private `setTier_(tier)` function (private helpers don't show up in the editor's function dropdown).
+`run_pro_e2e_tests.sh` exports `TEST_TIER=pro`; `run_free_e2e_tests.sh` leaves it unset (treated as `free`). Most tests run in both modes. A small subset is gated:
+
+- `test.skip(process.env.TEST_TIER === 'pro', ...)` — tests that assert Free-only UI (Free indicator, founding-member counter, "clamps to 180" toast). They are skipped on Pro runs.
+- No Free-skipping tests yet; add `test.skip(process.env.TEST_TIER !== 'pro', ...)` if you ever introduce Pro-only assertions.
+
+Before running the Pro wrapper, flip the live tier by running `setTierPro` from the Apps Script editor (in `LicenseManager.gs`); revert afterward with `setTierFree`. Both are no-arg wrappers around the underscore-private `setTier_(tier)` function (private helpers don't show up in the editor's function dropdown). The wrapper script prints a reminder, but doesn't enforce the flip — running the Pro suite without flipping the tier produces tier-mismatch failures.
 
 ---
 

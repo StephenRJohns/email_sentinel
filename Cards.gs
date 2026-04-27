@@ -16,6 +16,15 @@
  * fresh, applies the change, and returns a new card. No in-memory state.
  */
 
+// CardService does not expose an event for the system back arrow, so an
+// editor cannot show a confirmation dialog before navigation pops it. This
+// notice is the user-facing mitigation — each editor card adds it at the top
+// so the user knows the back arrow discards unsaved edits.
+function buildUnsavedChangesNotice_() {
+  return CardService.newCardSection().addWidget(CardService.newTextParagraph()
+    .setText('<font color="#b26a00">⚠ Click <b>Save</b> below before tapping the back arrow — the back arrow discards unsaved changes without warning.</font>'));
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Home
 // ─────────────────────────────────────────────────────────────────────────────
@@ -62,8 +71,12 @@ function buildHomeCard() {
       .setOnClickAction(action_('handleStopMonitoring')));
   } else {
     const pollVal = parseInt(settings.pollMinutes, 10) || limits.minPollMinutes;
+    // pollMinutes is always a multiple of 60 (enforced by the Settings
+    // dropdown and enforcePollFloor), so the "at every X hour(s)" label is
+    // an exact, lossless conversion.
+    const pollHours = Math.round(pollVal / 60);
     statusSection.addWidget(CardService.newTextButton()
-      .setText('Start monitoring at ' + plural_(pollVal, 'minute'))
+      .setText('Start monitoring every ' + plural_(pollHours, 'hour'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
       .setOnClickAction(action_('handleStartMonitoring')));
   }
@@ -125,7 +138,11 @@ function buildHomeCard() {
   var builder = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader()
       .setTitle('emAIl Sentinel\u2122')
-      .setImageUrl('https://lh3.googleusercontent.com/d/1xFrN1fzRxfgND6ARCcY8hYZW31NqtSpc')
+      // Served from the public GitHub repo so the icon is part of the source
+      // tree, not a separate Drive asset that drifts. Use the 128 px asset
+      // for the home-card header \u2014 CardService re-scales for the circle but
+      // the higher-resolution source stays crisp on HiDPI displays.
+      .setImageUrl('https://raw.githubusercontent.com/StephenRJohns/email_sentinel/main/images/ES_128.png')
       .setImageStyle(CardService.ImageStyle.CIRCLE))
     .addSection(statusSection);
   if (setupSection) builder.addSection(setupSection);
@@ -141,7 +158,7 @@ function handleStartMonitoring(e) {
   const poll = enforcePollFloor(settings.pollMinutes || getTierLimits().minPollMinutes);
   installTrigger(poll.value);
   var msg = poll.clamped
-    ? 'Monitoring started. Polling set to ' + poll.value + ' min (' + getTier() + ' plan minimum).'
+    ? 'Monitoring started. Polling set to ' + plural_(Math.round(poll.value / 60), 'hour') + ' (' + getTier() + ' plan minimum).'
     : 'Monitoring started.';
   return refreshHome_(msg);
 }
@@ -171,6 +188,53 @@ function refreshHome_(message) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Sub-card "Home" button
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-cards reachable via the universal-action kebab menu (Rules, Settings,
+// Help, Activity log) replace the navigation stack rather than pushing onto
+// it, so Gmail's native back arrow at the top of the card isn't shown — the
+// user has nothing to go "back" to. Without an in-card escape, they're stuck
+// on that sub-card and have to close the add-on entirely. Every sub-card
+// therefore prepends this small "Home" section so navigation home is always
+// one tap away whether the user got here via the home card (where the arrow
+// would also work) or the kebab menu (where it wouldn't).
+function buildHomeButtonSection_() {
+  return CardService.newCardSection()
+    .addWidget(CardService.newTextButton()
+      .setText('Home')
+      .setOnClickAction(action_('handleGoHome')));
+}
+
+function handleGoHome(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildHomeCard()))
+    .build();
+}
+
+// Visual receipt for the universal-action "Scan email now" path. The kebab
+// menu uses UniversalActionResponseBuilder, which does not support toast
+// notifications — the user clicked the menu item and previously had only the
+// Activity log card to look at, with no clear "I just ran" indicator. This
+// card lands prominently with a green ✅ summary on success or a red ⚠ line on
+// failure, plus a button to open the Activity log for the full per-label
+// trace.
+function buildScanResultCard_(message, success) {
+  const accent = success ? '#1e7e34' : '#b00020';
+  const icon   = success ? '✅' : '⚠️';
+  const resultSection = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('<font color="' + accent + '"><b>' + icon + '&nbsp; ' + escapeHtml_(message) + '</b></font>'))
+    .addWidget(CardService.newTextButton()
+      .setText('View activity log')
+      .setOnClickAction(navAction_('buildActivityCard')));
+  return CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Scan result'))
+    .addSection(buildHomeButtonSection_())
+    .addSection(resultSection)
+    .build();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Rules list
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -178,6 +242,8 @@ function buildRulesCard() {
   const rules = loadRules();
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Rules'));
+
+  card.addSection(buildHomeButtonSection_());
 
   const newSection = CardService.newCardSection()
     .addWidget(CardService.newTextButton()
@@ -230,13 +296,24 @@ function buildRuleSummarySection_(rule) {
   if (chatNames.length) channels.push('Chat (' + chatNames.join(', ') + ')');
   if (googleChannels.length) channels.push(googleChannels.join(', '));
   if (mcpNames.length) channels.push('MCP: ' + mcpNames.join(', '));
-  const channelSummary = channels.length > 0 ? channels.join(', ') : 'None configured';
+  // When the rule is enabled but has no channels, the rule will fire on
+  // matches but produce no alert anywhere — flag this as a misconfiguration
+  // with bold dark-red text. When the rule is disabled, plain text is fine
+  // because the rule isn't acting on anything yet.
+  var channelSummaryHtml;
+  if (channels.length > 0) {
+    channelSummaryHtml = escapeHtml_(channels.join(', '));
+  } else if (rule.enabled) {
+    channelSummaryHtml = '<font color="#b00020"><b>None configured</b></font>';
+  } else {
+    channelSummaryHtml = 'None configured';
+  }
 
   const section = CardService.newCardSection()
     .setHeader('<b>' + escapeHtml_(rule.name) + '</b> &nbsp; ' + status)
     .addWidget(CardService.newDecoratedText().setTopLabel('Labels').setText(escapeHtml_(labels)))
     .addWidget(CardService.newDecoratedText().setTopLabel('Rule').setText(escapeHtml_(ruleText)))
-    .addWidget(CardService.newDecoratedText().setTopLabel('Channels').setText(escapeHtml_(channelSummary)));
+    .addWidget(CardService.newDecoratedText().setTopLabel('Channels').setText(channelSummaryHtml));
 
   const buttons = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
@@ -297,6 +374,17 @@ function handleCancelDelete(e) {
 }
 
 function handleNewRule(e) {
+  // Block the editor entry when the active tier is already at its rule cap.
+  // The save-side check in RulesManager.upsertRule() still guards against
+  // bypass paths (programmatic save, race conditions), but failing fast here
+  // means the user doesn't fill out an entire rule editor only to be told
+  // their work can't be saved.
+  if (!canAddRule()) {
+    const limits = getTierLimits();
+    return notificationResponse_(
+      'Rule limit reached for your plan (' + limits.maxRules + ' rules on ' +
+      getTier() + '). Upgrade to Pro for unlimited rules.');
+  }
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().pushCard(buildRuleEditorCard(null)))
     .build();
@@ -494,6 +582,7 @@ function buildRuleEditorCard(rule) {
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle(editing ? 'Edit rule' : 'New rule'))
+    .addSection(buildUnsavedChangesNotice_())
     .addSection(ruleSection)
     .addSection(ruleTextSection)
     .addSection(channelsSection)
@@ -651,14 +740,56 @@ function buildSettingsCard() {
   const pollSection = CardService.newCardSection()
     .setHeader('<b>Polling</b>');
   const tierLimits = getTierLimits();
-  const pollHint = isPro()
-    ? 'Multiples of 60 (60, 120, 180, …) — minimum 60 min on Pro. Other values round up. The 60-min floor is a Google Workspace add-on platform limit (we can\'t go faster).'
-    : 'Multiples of 60 (180, 240, 300, …) — minimum 180 min (3 hours) on Free. Pro lowers it to 60 min. The 60-min hard floor is a Google Workspace add-on platform limit (we can\'t go faster). Click Scan email now anytime for an immediate check.';
-  pollSection.addWidget(CardService.newTextInput()
+  // Polling intervals are constrained to whole hours (Workspace add-on
+  // time-driven triggers don't fire faster than once per hour). Render a
+  // dropdown of hour options at or above the active tier's minimum so the
+  // user cannot enter an invalid value. enforcePollFloor() in
+  // handleSaveSettings remains the defense-in-depth check for any
+  // non-UI code path that writes pollMinutes.
+  const POLL_HOUR_OPTIONS_ = [
+    { mins: 60,   label: '1 hour' },
+    { mins: 120,  label: '2 hours' },
+    { mins: 180,  label: '3 hours' },
+    { mins: 240,  label: '4 hours' },
+    { mins: 360,  label: '6 hours' },
+    { mins: 480,  label: '8 hours' },
+    { mins: 720,  label: '12 hours' },
+    { mins: 1440, label: '24 hours' }
+  ];
+  const currentPollMins = parseInt(s.pollMinutes, 10) || tierLimits.minPollMinutes;
+  const pollSelect = CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.DROPDOWN)
     .setFieldName('pollMinutes')
-    .setTitle('Check for new email every (minutes)')
-    .setHint(pollHint)
-    .setValue(String(s.pollMinutes || tierLimits.minPollMinutes)));
+    .setTitle('Check for new email every');
+  let anyPollSelected = false;
+  POLL_HOUR_OPTIONS_.forEach(function(opt) {
+    if (opt.mins < tierLimits.minPollMinutes) return;
+    const selected = opt.mins === currentPollMins;
+    if (selected) anyPollSelected = true;
+    pollSelect.addItem(opt.label, String(opt.mins), selected);
+  });
+  // Edge case: a legacy pollMinutes value not in the option list (e.g. a
+  // pre-grid 45 or 90) — fall back to selecting the tier minimum so the
+  // dropdown isn't shown without a value.
+  if (!anyPollSelected) {
+    pollSelect.addItem(
+      String(tierLimits.minPollMinutes / 60) + ' hour' + (tierLimits.minPollMinutes === 60 ? '' : 's'),
+      String(tierLimits.minPollMinutes),
+      true
+    );
+  }
+  pollSection.addWidget(pollSelect);
+  // Bold the Scan-email-now reference so it visually reads as the actionable
+  // feature name; the button right below provides the actual click target
+  // since CardService doesn't support inline clickable text.
+  const pollHint = isPro()
+    ? 'Pro plan: minimum 1 hour. The 60-minute limit is a Google Workspace add-on platform limit; faster polling isn\'t possible. Click <b>Scan email now</b> anytime for an immediate check.'
+    : 'Free plan: minimum 3 hours. Pro lowers it to 1 hour. The 60-minute limit is a Google Workspace add-on platform limit. Click <b>Scan email now</b> anytime for an immediate check.';
+  pollSection.addWidget(CardService.newTextParagraph()
+    .setText('<font color="#888888">' + pollHint + '</font>'));
+  pollSection.addWidget(CardService.newTextButton()
+    .setText('Scan email now')
+    .setOnClickAction(action_('handleRunCheckNow')));
   pollSection.addWidget(CardService.newTextInput()
     .setFieldName('maxEmailAgeDays')
     .setTitle('Only check emails newer than (days)')
@@ -712,18 +843,31 @@ function buildSettingsCard() {
   smsSection.addWidget(smsSelect);
 
   const provider = s.smsProvider || 'none';
+  // Field defs: `secret` masks the stored value and renders a "leave blank to
+  // keep current" replacement input; `phone` renders a country-code dropdown +
+  // digits-only input pair (the stored value is E.164, the same shape used by
+  // the test number and SMS recipients) — handleSaveSettings recombines the
+  // two into E.164 via combinePhoneNumber_.
   const SMS_FIELD_DEFS_ = {
     textbelt: [{ field: 'textbeltApiKey', title: 'Textbelt API key', hint: 'Use "textbelt" for 1 free msg/day, or buy at textbelt.com', secret: true }],
-    telnyx: [{ field: 'telnyxApiKey', title: 'Telnyx API key', secret: true }, { field: 'telnyxFromNumber', title: 'Telnyx "From" number (E.164)' }],
-    plivo: [{ field: 'plivoAuthId', title: 'Plivo Auth ID', secret: true }, { field: 'plivoAuthToken', title: 'Plivo Auth Token', secret: true }, { field: 'plivoFromNumber', title: 'Plivo "From" number (E.164)' }],
-    twilio: [{ field: 'twilioAccountSid', title: 'Twilio Account SID', secret: true }, { field: 'twilioAuthToken', title: 'Twilio Auth Token', secret: true }, { field: 'twilioFromNumber', title: 'Twilio "From" number (E.164)' }],
+    telnyx: [{ field: 'telnyxApiKey', title: 'Telnyx API key', secret: true }, { field: 'telnyxFromNumber', title: 'Telnyx "From" number', phone: true, codeField: 'telnyxFromCountryCode' }],
+    plivo: [{ field: 'plivoAuthId', title: 'Plivo Auth ID', secret: true }, { field: 'plivoAuthToken', title: 'Plivo Auth Token', secret: true }, { field: 'plivoFromNumber', title: 'Plivo "From" number', phone: true, codeField: 'plivoFromCountryCode' }],
+    twilio: [{ field: 'twilioAccountSid', title: 'Twilio Account SID', secret: true }, { field: 'twilioAuthToken', title: 'Twilio Auth Token', secret: true }, { field: 'twilioFromNumber', title: 'Twilio "From" number', phone: true, codeField: 'twilioFromCountryCode' }],
     clicksend: [{ field: 'clicksendUsername', title: 'ClickSend username (your email)' }, { field: 'clicksendApiKey', title: 'ClickSend API key', secret: true }],
     vonage: [{ field: 'vonageApiKey', title: 'Vonage API key', secret: true }, { field: 'vonageApiSecret', title: 'Vonage API secret', secret: true }],
     webhook: [{ field: 'smsWebhookUrl', title: 'Generic webhook URL', hint: 'Any HTTPS endpoint. Receives POST {"to":"...","body":"..."}.' }]
   };
   if (provider !== 'none' && SMS_FIELD_DEFS_[provider]) {
     SMS_FIELD_DEFS_[provider].forEach(function(f) {
-      if (f.secret && s[f.field]) {
+      if (f.phone) {
+        var split = splitPhoneNumber_(s[f.field] || '');
+        smsSection.addWidget(buildCountryCodeDropdown_(f.codeField, f.title + ' country code', split.code));
+        smsSection.addWidget(CardService.newTextInput()
+          .setFieldName(f.field)
+          .setTitle(f.title + ' (digits only)')
+          .setHint('e.g. 5551234567 — country code is added from the dropdown above.')
+          .setValue(split.digits));
+      } else if (f.secret && s[f.field]) {
         smsSection.addWidget(CardService.newDecoratedText()
           .setTopLabel('Current ' + f.title.toLowerCase())
           .setText('....' + s[f.field].slice(-4)));
@@ -888,6 +1032,8 @@ function buildSettingsCard() {
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Settings'))
+    .addSection(buildHomeButtonSection_())
+    .addSection(buildUnsavedChangesNotice_())
     .addSection(aiSection)
     .addSection(pollSection)
     .addSection(bizSection)
@@ -933,6 +1079,31 @@ function handleSaveSettings(e) {
     }
   }
 
+  // Combine the active provider's "From" number country code + digits into
+  // E.164. Empty digits is OK (treated as "not set yet"); non-empty digits
+  // that fail validation produce a user-visible error and abort the save.
+  function combineFromNumber_(codeFieldName, digitsFieldName, providerLabel) {
+    const digits = get(digitsFieldName);
+    if (!digits) return { value: '', valid: true, reason: '' };
+    const code = get(codeFieldName) || DEFAULT_COUNTRY_CODE;
+    const r = combinePhoneNumber_(code, digits);
+    if (!r.valid) return { value: '', valid: false, reason: providerLabel + ' "From" number: ' + r.reason };
+    return r;
+  }
+  var twilioFromCombined = { value: prev.twilioFromNumber || '', valid: true };
+  var telnyxFromCombined = { value: prev.telnyxFromNumber || '', valid: true };
+  var plivoFromCombined  = { value: prev.plivoFromNumber  || '', valid: true };
+  if (smsProvider === 'twilio') {
+    twilioFromCombined = combineFromNumber_('twilioFromCountryCode', 'twilioFromNumber', 'Twilio');
+    if (!twilioFromCombined.valid) return notificationResponse_(twilioFromCombined.reason);
+  } else if (smsProvider === 'telnyx') {
+    telnyxFromCombined = combineFromNumber_('telnyxFromCountryCode', 'telnyxFromNumber', 'Telnyx');
+    if (!telnyxFromCombined.valid) return notificationResponse_(telnyxFromCombined.reason);
+  } else if (smsProvider === 'plivo') {
+    plivoFromCombined = combineFromNumber_('plivoFromCountryCode', 'plivoFromNumber', 'Plivo');
+    if (!plivoFromCombined.valid) return notificationResponse_(plivoFromCombined.reason);
+  }
+
   const next = {
     geminiApiKey: get('geminiApiKey') || prev.geminiApiKey || '',
     geminiModel: get('geminiModel') || GEMINI_DEFAULT_MODEL,
@@ -946,13 +1117,13 @@ function handleSaveSettings(e) {
     // For secret fields, blank input means "keep current" — fall back to prev value.
     textbeltApiKey: smsProvider === 'textbelt' ? (get('textbeltApiKey') || prev.textbeltApiKey || '') : (prev.textbeltApiKey || ''),
     telnyxApiKey: smsProvider === 'telnyx' ? (get('telnyxApiKey') || prev.telnyxApiKey || '') : (prev.telnyxApiKey || ''),
-    telnyxFromNumber: smsProvider === 'telnyx' ? get('telnyxFromNumber') : (prev.telnyxFromNumber || ''),
+    telnyxFromNumber: smsProvider === 'telnyx' ? telnyxFromCombined.value : (prev.telnyxFromNumber || ''),
     plivoAuthId: smsProvider === 'plivo' ? (get('plivoAuthId') || prev.plivoAuthId || '') : (prev.plivoAuthId || ''),
     plivoAuthToken: smsProvider === 'plivo' ? (get('plivoAuthToken') || prev.plivoAuthToken || '') : (prev.plivoAuthToken || ''),
-    plivoFromNumber: smsProvider === 'plivo' ? get('plivoFromNumber') : (prev.plivoFromNumber || ''),
+    plivoFromNumber: smsProvider === 'plivo' ? plivoFromCombined.value : (prev.plivoFromNumber || ''),
     twilioAccountSid: smsProvider === 'twilio' ? (get('twilioAccountSid') || prev.twilioAccountSid || '') : (prev.twilioAccountSid || ''),
     twilioAuthToken: smsProvider === 'twilio' ? (get('twilioAuthToken') || prev.twilioAuthToken || '') : (prev.twilioAuthToken || ''),
-    twilioFromNumber: smsProvider === 'twilio' ? get('twilioFromNumber') : (prev.twilioFromNumber || ''),
+    twilioFromNumber: smsProvider === 'twilio' ? twilioFromCombined.value : (prev.twilioFromNumber || ''),
     clicksendUsername: smsProvider === 'clicksend' ? get('clicksendUsername') : (prev.clicksendUsername || ''),
     clicksendApiKey: smsProvider === 'clicksend' ? (get('clicksendApiKey') || prev.clicksendApiKey || '') : (prev.clicksendApiKey || ''),
     vonageApiKey: smsProvider === 'vonage' ? (get('vonageApiKey') || prev.vonageApiKey || '') : (prev.vonageApiKey || ''),
@@ -979,14 +1150,21 @@ function handleSaveSettings(e) {
   // Detect whether any field actually changed. If nothing did, skip the
   // save and tell the user — CardService can't disable the Save button
   // reactively, so this is the closest UX we can give.
+  //
+  // Exception: if the user's typed polling value got normalized
+  // (raisedToTierMin / snappedToGrid) and the normalized value happens to
+  // equal the previously-stored value, hasChanges is false but we still want
+  // to surface the correction toast — otherwise the user types e.g. 200,
+  // clicks Save, and the field re-renders as 240 with no explanation.
   var hasChanges = false;
   Object.keys(next).forEach(function(k) {
     var a = next[k] === undefined || next[k] === null ? '' : next[k];
     var b = prev[k] === undefined || prev[k] === null ? '' : prev[k];
     if (String(a) !== String(b)) hasChanges = true;
   });
+  var pollWasCorrected = pollEnforced.raisedToTierMin || pollEnforced.snappedToGrid;
 
-  if (!hasChanges) {
+  if (!hasChanges && !pollWasCorrected) {
     return CardService.newActionResponseBuilder()
       .setNotification(CardService.newNotification().setText('No changes to save.'))
       .build();
@@ -1000,9 +1178,9 @@ function handleSaveSettings(e) {
 
   var toast = 'Settings saved.';
   if (pollEnforced.raisedToTierMin) {
-    toast = 'Settings saved. Polling raised to ' + next.pollMinutes + ' min (' + getTier() + ' plan minimum).';
+    toast = 'Settings saved. Polling raised to ' + plural_(Math.round(next.pollMinutes / 60), 'hour') + ' (' + getTier() + ' plan minimum).';
   } else if (pollEnforced.snappedToGrid) {
-    toast = 'Settings saved. Polling rounded up to ' + next.pollMinutes + ' min (Gmail add-ons require multiples of 60).';
+    toast = 'Settings saved. Polling rounded up to ' + plural_(Math.round(next.pollMinutes / 60), 'hour') + ' (Gmail add-ons require whole-hour intervals).';
   }
 
   return CardService.newActionResponseBuilder()
@@ -1044,8 +1222,29 @@ function handleShowSmsGuide(e) {
 
 function handleResetBaseline(e) {
   var section = CardService.newCardSection()
-    .addWidget(CardService.newTextParagraph()
-      .setText('Reset the seen-message baseline? The next check will re-scan all labels and skip alerting on existing messages.'))
+    .addWidget(CardService.newTextParagraph().setText(
+      '<b>Reset the seen-message baseline?</b><br><br>' +
+
+      '<b>What this does.</b> emAIl Sentinel keeps a per-label list of message ' +
+      'IDs it has already seen so it only alerts on mail that arrives after ' +
+      'install. Resetting that list throws it away. On the next check, every ' +
+      'watched label is re-scanned from scratch — every existing message in ' +
+      'each label is silently absorbed into a fresh baseline (no alerts), ' +
+      'and alerting resumes only for mail that arrives after that point.<br><br>' +
+
+      '<b>When to use it.</b> Reset if any of the following is true:<br>' +
+      '• Alerts started firing for old messages (e.g. after you renamed a label, moved messages between labels, or reinstalled the add-on).<br>' +
+      '• You added a new label to a rule and want a clean cutoff so old messages already in that label are not evaluated.<br>' +
+      '• The seen-ID list got truncated automatically (logged in Activity log) and recent mail may have slipped through.<br>' +
+      '• You want a clean slate after a long pause, and the existing inbox no longer needs to be considered "new."<br><br>' +
+
+      '<b>What might surprise you.</b><br>' +
+      '• <b>Any unread message that arrived after install but has not been alerted yet will be silently treated as already-seen and will never produce an alert.</b> If you had alerts pending for matches that have not yet run, you will lose them.<br>' +
+      '• The reset is global — it clears the baseline for <b>every</b> watched label, not just one. There is no per-label reset.<br>' +
+      '• The first check after reset takes longer than usual because every message in every watched label is fetched and recorded.<br>' +
+      '• Activity log is unaffected and history of past alerts is preserved.<br><br>' +
+
+      '<font color="#888888"><i>This cannot be undone — the previous seen-ID list is deleted, not archived.</i></font>'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
         .setText('Reset')
@@ -1152,6 +1351,8 @@ function buildActivityCard(offset) {
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Activity log'));
 
+  card.addSection(buildHomeButtonSection_());
+
   const btnSet = CardService.newButtonSet();
   btnSet.addButton(CardService.newTextButton()
     .setText('Refresh')
@@ -1172,9 +1373,13 @@ function buildActivityCard(offset) {
   var pageEntries = reversed.slice(offset, offset + LOG_PAGE_SIZE);
   var body = pageEntries.map(function(entry) {
     var esc = escapeHtml_(entry);
-    // Bold the 'yyyy-MM-dd HH:mm:ss' prefix (always 19 chars)
-    return esc.length > 19
-      ? '<b>' + esc.substring(0, 19) + '</b>' + esc.substring(19)
+    // Bold the timestamp prefix. Each entry is "<stamp>  <message>" with
+    // exactly two spaces between, so split on that — works for both the old
+    // 19-char `yyyy-MM-dd HH:mm:ss` format and the new variable-width
+    // `yyyy-MM-dd h:mm:ss a` (e.g. "2026-04-27 5:29:58 PM" / 21–22 chars).
+    var sep = esc.indexOf('  ');
+    return sep > 0
+      ? '<b>' + esc.substring(0, sep) + '</b>' + esc.substring(sep)
       : esc;
   }).join('<br><br>');
   card.addSection(CardService.newCardSection().addWidget(
@@ -1247,6 +1452,8 @@ function handleCancelClearLog(e) {
 function buildHelpCard() {
   var card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
+
+  card.addSection(buildHomeButtonSection_());
 
   var searchSection = CardService.newCardSection()
     .setHeader('<b>Search help</b>')
@@ -1496,6 +1703,8 @@ function helpTopics_() {
         'Controls how far back the Service looks when scanning a label. Default is 30 days. Emails older than this are ignored even if they\'re unread \u2014 useful for skipping long-dormant threads and cutting Gemini usage on busy labels.<br><br>' +
         '<b>Reset baseline</b><br>' +
         'The first time the Service checks a watched label, it records every existing message ID as a "seen" baseline so you don\'t get a flood of alerts on install \u2014 alerts only fire for mail that arrives after that point. Clicking <b>Reset baseline</b> in Settings deletes that stored set. On the next run, every label is treated as brand-new: existing messages are silently absorbed into a fresh baseline, and alerting resumes for mail that arrives after. Use it if alerts start firing for old mail (e.g. after changing labels or reinstalling), or any time you want a clean slate.<br><br>' +
+        '<b>Time zone for alerts</b><br>' +
+        'All dates rendered in alerts \u2014 the Sheets row Timestamp / Received columns, the Calendar event description, the Tasks notes, and any timestamp Gemini includes in the alert message \u2014 are formatted in your local time zone (taken from your primary Google Calendar). The format is <code>yyyy-MM-dd h:mm:ss AM/PM TZ</code>, e.g. <code>2026-04-27 5:29:58 PM CDT</code>. Underlying milliseconds are preserved internally for sorting; only the user-visible string is localized.<br><br>' +
         '<b>Privacy</b><br>' +
         'Settings, rules, seen messages, and the activity log are stored in UserProperties \u2014 private to your Google account. Email content goes only to Gemini and your configured alert channels.<br><br>' +
         '<b>Troubleshooting</b><br>' +
@@ -1503,6 +1712,9 @@ function helpTopics_() {
         '\u2022 <i>"Label \'...\' fetch failed"</i> \u2014 verify the label exists in Gmail (case-insensitive)<br>' +
         '\u2022 <i>SMS not delivered</i> \u2014 check Activity Log for the provider\'s error<br>' +
         '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br>' +
+        '\u2022 <i>MCP target (Asana / Slack / Teams) not populated, no error in Activity Log</i> \u2014 push the latest version. The MCP dispatcher now parses Streamable-HTTP <code>text/event-stream</code> responses (Asana V2 returns this) and surfaces tool-level errors as <code>MCP alert to "&lt;name&gt;" FAILED: MCP "&lt;name&gt;" tool error: &lt;detail&gt;</code>. Common details: <i>Project not found</i> (bad <code>project_id</code>), <i>Forbidden</i> (PAT lacks workspace access), <i>Required field missing</i>. Asana / Slack / Teams expect the auth header literal <code>Bearer &lt;token&gt;</code> \u2014 capital B, single space, then PAT.<br>' +
+        '\u2022 <i>Activity log times or alert dates look off by several hours</i> \u2014 dates use your primary Google Calendar\'s timezone. Fix at <a href="https://calendar.google.com/calendar/u/0/r/settings">calendar.google.com</a> \u25b8 Time zone, then re-run.<br>' +
+        '\u2022 <i>Lost edits in the rule or settings editor</i> \u2014 always click <b>Save</b> before tapping the back arrow. Google\'s add-on framework gives no event when the system back arrow is pressed, so the editor cannot prompt to save unsaved changes. Each editor card shows an amber notice at the top as a reminder.<br>' +
         '\u2022 Still stuck? <b><a href="https://github.com/StephenRJohns/email_sentinel/issues">Open a GitHub issue</a></b> \u2014 issues are tracked, searchable, and get the fastest response.<br><br>' +
         '<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. Not affiliated with or endorsed by Google.</font>'
     }
@@ -1552,6 +1764,7 @@ function buildStarterRulesCard() {
       .setOnClickAction(action_('handlePopCard')));
     return CardService.newCardBuilder()
       .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
+      .addSection(buildHomeButtonSection_())
       .addSection(section)
       .build();
   }
@@ -1574,6 +1787,7 @@ function buildStarterRulesCard() {
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
+    .addSection(buildHomeButtonSection_())
     .addSection(section)
     .build();
 }
@@ -1769,6 +1983,7 @@ function buildMcpServerEditorCard(server) {
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader()
       .setTitle(editing ? 'Edit MCP server' : 'Add MCP server'))
+    .addSection(buildUnsavedChangesNotice_())
     .addSection(section)
     .build();
 }
@@ -1857,7 +2072,10 @@ function handleSuggestMcpArgs(e) {
 
   let suggestion;
   try {
-    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 300);
+    // 1024 max tokens — Gemini 2.5 Flash/Pro count internal "thinking" tokens
+    // against this cap, so a tight 300 budget gets eaten almost entirely by
+    // reasoning before any output is produced (mid-sentence truncation).
+    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 1024);
     if (!suggestion) throw new Error('Empty response from Gemini.');
     suggestion = suggestion.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
     JSON.parse(suggestion); // validate
@@ -2157,7 +2375,10 @@ function handleGenerateAlertText(e) {
 
   let suggestion;
   try {
-    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 200);
+    // 1024 max tokens — Gemini 2.5 Flash/Pro count internal "thinking" tokens
+    // against this cap, so a tight 200 budget gets eaten almost entirely by
+    // reasoning before any output is produced (mid-sentence truncation).
+    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 1024);
     if (!suggestion) throw new Error('Empty response from Gemini.');
   } catch (err) {
     return notificationResponse_('Could not generate alert text: ' + err.message);
@@ -2351,7 +2572,10 @@ function handleGenerateRuleText(e) {
 
   let suggestion;
   try {
-    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 200);
+    // 1024 max tokens — Gemini 2.5 Flash/Pro count internal "thinking" tokens
+    // against this cap, so a tight 200 budget gets eaten almost entirely by
+    // reasoning before any output is produced (mid-sentence truncation).
+    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 1024);
     if (!suggestion) throw new Error('Empty response from Gemini.');
   } catch (err) {
     return notificationResponse_('Could not generate rule text: ' + err.message);
@@ -2594,6 +2818,7 @@ function buildSmsRecipientEditorCard(recipient) {
   section.addWidget(btns);
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle(editing ? 'Edit SMS recipient' : 'Add SMS recipient'))
+    .addSection(buildUnsavedChangesNotice_())
     .addSection(section)
     .build();
 }
@@ -2732,6 +2957,7 @@ function buildChatSpaceEditorCard(space) {
   section.addWidget(btns);
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle(editing ? 'Edit Chat space' : 'Add Chat space'))
+    .addSection(buildUnsavedChangesNotice_())
     .addSection(section)
     .build();
 }

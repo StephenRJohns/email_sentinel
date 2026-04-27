@@ -38,6 +38,34 @@ fi
 read_env() { grep -E "^$1=" "$ENV_FILE" | tail -1 | cut -d= -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'; }
 GOOGLE_EMAIL="$(read_env GOOGLE_EMAIL)"
 
+# ── Pre-launch monitor reminder ─────────────────────────────────────────────
+# The Chrome launch below uses xrandr to find the largest connected monitor
+# and sizes the test window to fill it. If your external display is in a
+# scaled-down mode, Chrome will be smaller than expected and some Card UI
+# checks may fail. Confirm the external monitor is at its native maximum
+# resolution BEFORE continuing — once Chrome launches, the geometry is fixed
+# for the run.
+
+echo "============================================================"
+echo "  PRE-LAUNCH DISPLAY CHECK"
+echo "============================================================"
+echo "  Tests open a Chrome window sized to your largest connected"
+echo "  monitor. Before continuing:"
+echo "    1. Connect any external monitor you intend to test on."
+echo "    2. Set it to its MAXIMUM (native) resolution in your"
+echo "       OS display settings."
+echo "    3. Confirm it is larger than any built-in laptop panel."
+echo ""
+if command -v xrandr > /dev/null 2>&1; then
+  echo "  Currently connected displays (per xrandr):"
+  xrandr 2>/dev/null | awk '/ connected / {print "    " $0}'
+  echo ""
+fi
+echo "============================================================"
+echo "Press Enter when displays are ready (or Ctrl+C to abort)."
+read -r _
+echo ""
+
 # ── Launch Chrome if not already on the debug port ──────────────────────────
 
 # Always close any existing Chrome on the debug port so a fresh launch picks
@@ -93,8 +121,17 @@ EOF
   # Detect each connected monitor's geometry from xrandr and pick the largest
   # one (highest pixel area) for Chrome to open on. xrandr emits lines like
   # "HDMI-1 connected primary 1920x1080+0+0 ..." where +0+0 is the monitor's
-  # offset in the virtual screen. Setting --window-position to that offset
-  # places the window on that specific monitor; --start-maximized then fills it.
+  # offset in the virtual screen. We then pass that offset as --window-position
+  # and the monitor's pixel dimensions (minus a small taskbar margin) as
+  # --window-size so the window fills that specific monitor.
+  #
+  # Important: do NOT also pass --start-maximized. With --start-maximized in
+  # the mix, Chrome maximizes on whichever monitor the OS first places the
+  # window on (usually the primary monitor) before --window-position can take
+  # effect, so a multi-monitor setup ends up with Chrome maximized on the
+  # smaller primary screen. Explicit size + position is reliable; the visual
+  # result fills the target monitor without depending on Chrome honoring the
+  # combination of conflicting hints.
   SCREEN_WIDTH=""
   SCREEN_HEIGHT=""
   MONITOR_X=0
@@ -136,7 +173,6 @@ EOF
   google-chrome \
     --remote-debugging-port=$CDP_PORT \
     --user-data-dir="$E2E_USER_DATA_DIR" \
-    --start-maximized \
     --window-size=${WINDOW_WIDTH},${WINDOW_HEIGHT} \
     --window-position=${MONITOR_X},${MONITOR_Y} \
     --no-first-run \

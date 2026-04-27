@@ -31,8 +31,9 @@
 const RULES_KEY = 'mailsentinel.rules';
 
 const DEFAULT_ALERT_MESSAGE_PROMPT =
-  'Include the date received, subject, sender, a short summary of the email, ' +
-  'and a list of action items and due dates if any are present.';
+  'Include the date and time received (in 12-hour AM/PM format, not 24-hour), ' +
+  'subject, sender, a short summary of the email, and a list of action items ' +
+  'and due dates if any are present.';
 
 function loadRules() {
   const raw = PropertiesService.getUserProperties().getProperty(RULES_KEY);

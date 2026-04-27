@@ -165,17 +165,58 @@ function sendMcpAlert_(server, rule, emailData, message) {
       resp.getContentText().substring(0, 200));
   }
 
-  // Surface any JSON-RPC-level error
+  // Decode the response body. MCP Streamable HTTP servers may reply with
+  // either Content-Type: application/json (a single JSON-RPC response) or
+  // Content-Type: text/event-stream (one or more SSE message events whose
+  // `data:` lines hold the JSON-RPC response). Asana's V2 MCP at
+  // https://mcp.asana.com/v2/mcp returns SSE in practice. Without explicit
+  // SSE handling JSON.parse fails on the SSE body, the catch silently
+  // swallows the error, and the dispatcher logs a false "MCP alert sent"
+  // line — leaving real tool failures invisible.
+  const respHeaders   = resp.getHeaders() || {};
+  const contentType   = String(respHeaders['Content-Type'] || respHeaders['content-type'] || '').toLowerCase();
+  const rawText       = resp.getContentText();
+  let bodyText        = rawText;
+  if (contentType.indexOf('text/event-stream') >= 0) {
+    bodyText = rawText.split(/\r?\n/)
+      .filter(function(line) { return line.indexOf('data:') === 0; })
+      .map(function(line)    { return line.substring(5).trim(); })
+      .join('\n');
+  }
+
+  // Surface any JSON-RPC-level error and any tool-level error.
+  //
+  // JSON-RPC errors land on `body.error` (transport/protocol failure: invalid
+  // method, bad params, etc.).
+  //
+  // MCP tool-level errors land inside `body.result.isError === true` with the
+  // human-readable failure text in `body.result.content[].text`. This wraps
+  // the case where the HTTP request and JSON-RPC envelope both succeeded but
+  // the underlying tool (e.g. asana_create_task with a bad project_id, no
+  // permission, or a deleted project) refused to do anything. Without this
+  // check the call returns silently — no error in the activity log, no task
+  // in the destination system, leaving the user with nothing to debug from.
   try {
-    const body = JSON.parse(resp.getContentText());
+    const body = JSON.parse(bodyText);
     if (body.error) {
       throw new Error(
         'MCP "' + server.name + '" error: ' +
         JSON.stringify(body.error).substring(0, 200));
     }
+    if (body.result && body.result.isError === true) {
+      const parts = (body.result.content || [])
+        .map(function(c) { return (c && c.text) ? c.text : ''; })
+        .filter(Boolean);
+      const detail = parts.length
+        ? parts.join(' / ').substring(0, 300)
+        : JSON.stringify(body.result).substring(0, 300);
+      throw new Error('MCP "' + server.name + '" tool error: ' + detail);
+    }
   } catch (e) {
     if (e.message.indexOf('MCP "') === 0) throw e;
-    // Non-JSON response bodies are acceptable for some servers
+    // Non-JSON response bodies are acceptable for some servers (servers that
+    // ack with empty bodies or plain-text status). Only re-throw our own
+    // structured errors above.
   }
 }
 
