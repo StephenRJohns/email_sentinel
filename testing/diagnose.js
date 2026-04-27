@@ -4,8 +4,8 @@
 // finding buttons that are visually present.
 //
 // Run with: node testing/diagnose.js
-// Prerequisite: ./testing/run_e2e_tests.sh has been run at least once
-// (so Chrome is still up on port 9222 with Gmail open).
+// Prerequisite: ./testing/run_free_e2e_tests.sh (or run_pro_e2e_tests.sh)
+// has been run at least once (so Chrome is up on port 9222 with Gmail open).
 
 const { chromium } = require('/home/stephen-johns/github/email_sentinel/testing/playwright/node_modules/@playwright/test');
 

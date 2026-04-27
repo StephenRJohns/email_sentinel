@@ -28,7 +28,7 @@ function buildHomeCard() {
 
   const tier = getTier();
   const limits = getTierLimits();
-  const planLabel = tier === 'pro' ? 'Pro' : 'Free (' + rules.length + '/' + limits.maxRules + ' rules, ' + limits.minPollMinutes + ' min min poll)';
+  const planLabel = tier === 'pro' ? 'Pro' : 'Free (' + rules.length + '/' + limits.maxRules + ' rules)';
 
   const statusSection = CardService.newCardSection()
     .setHeader('<b>Status</b>')
@@ -61,14 +61,15 @@ function buildHomeCard() {
       .setText('Stop monitoring')
       .setOnClickAction(action_('handleStopMonitoring')));
   } else {
+    const pollVal = parseInt(settings.pollMinutes, 10) || limits.minPollMinutes;
     statusSection.addWidget(CardService.newTextButton()
-      .setText('Start monitoring')
+      .setText('Start monitoring at ' + plural_(pollVal, 'minute'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
       .setOnClickAction(action_('handleStartMonitoring')));
   }
 
   statusSection.addWidget(CardService.newTextButton()
-    .setText('Run check now')
+    .setText('Scan email now')
     .setOnClickAction(action_('handleRunCheckNow')));
 
   // First-use onboarding
@@ -94,7 +95,7 @@ function buildHomeCard() {
     if (rules.length === 0) {
       steps.push('- Create a rule or click <b>Starter rules</b> below');
     } else {
-      steps.push('\u2713 ' + rules.length + ' rule(s) created');
+      steps.push('\u2713 ' + plural_(rules.length, 'rule') + ' created');
     }
     if (!monitoring) {
       steps.push('- Click <b>Start monitoring</b> above');
@@ -106,14 +107,14 @@ function buildHomeCard() {
 
   const navSection = CardService.newCardSection()
     .addWidget(CardService.newTextButton()
-      .setText('Rules')
-      .setOnClickAction(navAction_('buildRulesCard')))
+      .setText('Settings')
+      .setOnClickAction(navAction_('buildSettingsCard')))
     .addWidget(CardService.newTextButton()
       .setText('Starter rules')
       .setOnClickAction(navAction_('buildStarterRulesCard')))
     .addWidget(CardService.newTextButton()
-      .setText('Settings')
-      .setOnClickAction(navAction_('buildSettingsCard')))
+      .setText('Rules')
+      .setOnClickAction(navAction_('buildRulesCard')))
     .addWidget(CardService.newTextButton()
       .setText('Activity log')
       .setOnClickAction(navAction_('buildActivityCard')))
@@ -142,9 +143,6 @@ function handleStartMonitoring(e) {
   var msg = poll.clamped
     ? 'Monitoring started. Polling set to ' + poll.value + ' min (' + getTier() + ' plan minimum).'
     : 'Monitoring started.';
-  if (poll.quotaWarning) {
-    msg += ' Heads up: every-minute polling runs the script 1440 times/day — heavy rule sets may approach Google\'s daily Apps Script execution cap.';
-  }
   return refreshHome_(msg);
 }
 
@@ -155,9 +153,10 @@ function handleStopMonitoring(e) {
 
 function handleRunCheckNow(e) {
   try {
-    var result = runMailCheck() || {};
-    var msg = 'Check complete: ' + (result.messagesChecked || 0) + ' new email(s), ' +
-      (result.matchesFound || 0) + ' match(es).';
+    var result = runMailCheck({ force: true }) || {};
+    var msg = 'Check complete: ' + plural_(result.messagesChecked || 0, 'new email') + ', ' +
+      plural_(result.matchesFound || 0, 'match', 'matches') + '.';
+    if (!loadSettings().geminiApiKey) msg += ' No Gemini API key set — open Settings to add one.';
     return refreshHome_(msg);
   } catch (err) {
     return notificationResponse_('Check failed: ' + (err.message || err));
@@ -343,9 +342,9 @@ function buildRuleEditorCard(rule) {
     .setMultiline(true)
     .setValue(r.ruleText || ''));
   ruleTextSection.addWidget(CardService.newTextButton()
-    .setText(isPro() ? 'Suggest rule text' : 'Suggest rule text (Pro)')
+    .setText(isPro() ? 'Help me write the rule text' : 'Help me write the rule text (Pro)')
     .setOnClickAction(CardService.newAction()
-      .setFunctionName('handleSuggestRuleText')
+      .setFunctionName('handleHelpWriteRuleText')
       .setParameters({ ruleId: r.id || '' })));
 
   // ── Section 2: Alert channels ──────────────────────────────────────────────
@@ -393,7 +392,7 @@ function buildRuleEditorCard(rule) {
       channelsSection.addWidget(CardService.newTextParagraph()
         .setText('<font color="#888888">No MCP servers configured \u2014 MCP lets <b>emAIl Sentinel</b> send alerts to Slack, Microsoft 365/Teams, Asana, or any custom MCP endpoint.</font>'));
       channelsSection.addWidget(CardService.newTextButton()
-        .setText('Add MCP server(s) in Settings')
+        .setText('Add MCP servers in Settings')
         .setOnClickAction(navAction_('buildSettingsCard')));
     } else {
       const mcpInput = CardService.newSelectionInput()
@@ -434,21 +433,36 @@ function buildRuleEditorCard(rule) {
     }
   }
 
-  // Google Calendar, Sheets, Tasks
+  // Google Calendar, Sheets, Tasks \u2014 each with optional per-rule override
   channelsSection.addWidget(CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.CHECK_BOX)
     .setFieldName('calendarEnabled')
     .addItem('Google Calendar \u2014 create an event', 'true', !!alerts.calendarEnabled));
+  channelsSection.addWidget(CardService.newTextInput()
+    .setFieldName('calendarIdOverride')
+    .setTitle('Calendar ID for this rule (blank = use global setting)')
+    .setHint('Leave blank to use the Calendar ID from Settings')
+    .setValue(alerts.calendarId || ''));
 
   channelsSection.addWidget(CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.CHECK_BOX)
     .setFieldName('sheetsEnabled')
     .addItem('Google Sheets \u2014 append a log row', 'true', !!alerts.sheetsEnabled));
+  channelsSection.addWidget(CardService.newTextInput()
+    .setFieldName('sheetsIdOverride')
+    .setTitle('Sheets ID or URL for this rule (blank = use global setting)')
+    .setHint('Paste the full URL or just the ID \u2014 blank uses the Sheets ID from Settings')
+    .setValue(extractSheetId_(alerts.sheetsId || '')));
 
   channelsSection.addWidget(CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.CHECK_BOX)
     .setFieldName('tasksEnabled')
     .addItem('Google Tasks \u2014 create a task', 'true', !!alerts.tasksEnabled));
+  channelsSection.addWidget(CardService.newTextInput()
+    .setFieldName('tasksListIdOverride')
+    .setTitle('Tasks list ID for this rule (blank = use global setting)')
+    .setHint('Leave blank to use the Tasks list ID from Settings')
+    .setValue(alerts.tasksListId || ''));
 
   // ── Section 3: Alert message content ──────────────────────────────────────
   const alertMsgSection = CardService.newCardSection();
@@ -460,9 +474,9 @@ function buildRuleEditorCard(rule) {
     .setValue(r.alertMessagePrompt || DEFAULT_ALERT_MESSAGE_PROMPT));
 
   alertMsgSection.addWidget(CardService.newTextButton()
-    .setText('Suggest content for selected channels')
+    .setText('Help me write the alert text')
     .setOnClickAction(CardService.newAction()
-      .setFunctionName('handleSuggestAlertFormat')
+      .setFunctionName('handleHelpWriteAlertText')
       .setParameters({ ruleId: r.id || '' })));
 
   // ── Section 4: Buttons ─────────────────────────────────────────────────────
@@ -514,6 +528,9 @@ function handleSaveRule(e) {
   const calendarEnabled = getCheckbox('calendarEnabled');
   const sheetsEnabled   = getCheckbox('sheetsEnabled');
   const tasksEnabled    = getCheckbox('tasksEnabled');
+  const calendarId      = get('calendarIdOverride');
+  const sheetsId        = extractSheetId_(get('sheetsIdOverride'));
+  const tasksListId     = get('tasksListIdOverride');
   const mcpServerIds    = getMultiSelect('mcpServers'); // values are server IDs
 
   if (!name)     return notificationResponse_('Please enter a rule name.');
@@ -531,8 +548,11 @@ function handleSaveRule(e) {
     smsNumbers: smsNumbers,
     chatSpaces: chatSpacesFinal,
     calendarEnabled: calendarEnabled,
+    calendarId: calendarId,
     sheetsEnabled: sheetsEnabled,
+    sheetsId: sheetsId,
     tasksEnabled: tasksEnabled,
+    tasksListId: tasksListId,
     mcpServerIds: mcpServerIdsFinal
   };
 
@@ -632,8 +652,8 @@ function buildSettingsCard() {
     .setHeader('<b>Polling</b>');
   const tierLimits = getTierLimits();
   const pollHint = isPro()
-    ? 'Pro: 1, or any multiple of 5 (5, 10, 15, 20, 25, 30, 60, …). Other values round up. Polling every 1 min runs the script 1440 times/day and may approach Apps Script daily execution caps with heavy rule sets.'
-    : 'Free: multiples of 15 only (15, 30, 45, 60, …). Other values round up. Pro unlocks 1-min polling.';
+    ? 'Multiples of 60 (60, 120, 180, …) — minimum 60 min on Pro. Other values round up. The 60-min floor is a Google Workspace add-on platform limit (we can\'t go faster).'
+    : 'Multiples of 60 (180, 240, 300, …) — minimum 180 min (3 hours) on Free. Pro lowers it to 60 min. The 60-min hard floor is a Google Workspace add-on platform limit (we can\'t go faster). Click Scan email now anytime for an immediate check.';
   pollSection.addWidget(CardService.newTextInput()
     .setFieldName('pollMinutes')
     .setTitle('Check for new email every (minutes)')
@@ -799,8 +819,8 @@ function buildSettingsCard() {
   googleSection.addWidget(CardService.newTextInput()
     .setFieldName('sheetsId')
     .setTitle('Google Sheets ID (blank = auto-create on first alert)')
-    .setHint('The long ID from the spreadsheet URL, or leave blank')
-    .setValue(s.sheetsId || ''));
+    .setHint('Paste the full URL or just the ID — URL is auto-converted on save')
+    .setValue(extractSheetId_(s.sheetsId || '')));
 
   // Tasks
   googleSection.addWidget(CardService.newTextInput()
@@ -941,8 +961,9 @@ function handleSaveSettings(e) {
     smsTestNumber: smsProvider !== 'none' ? testNumberCombined.value : (prev.smsTestNumber || ''),
     smsRecipients: prev.smsRecipients || '[]',
     chatSpaces: prev.chatSpaces || '[]',
+    license: prev.license || {},
     calendarId: get('calendarId'),
-    sheetsId: get('sheetsId'),
+    sheetsId: extractSheetId_(get('sheetsId')),
     tasksListId: get('tasksListId')
   };
 
@@ -981,11 +1002,7 @@ function handleSaveSettings(e) {
   if (pollEnforced.raisedToTierMin) {
     toast = 'Settings saved. Polling raised to ' + next.pollMinutes + ' min (' + getTier() + ' plan minimum).';
   } else if (pollEnforced.snappedToGrid) {
-    const grid = isPro() ? '5-min increments (or 1)' : '15-min increments';
-    toast = 'Settings saved. Polling rounded up to ' + next.pollMinutes + ' min (' + getTier() + ' plan uses ' + grid + ').';
-  }
-  if (pollEnforced.quotaWarning) {
-    toast += ' Heads up: every-minute polling runs the script 1440 times/day — heavy rule sets may approach Google\'s daily Apps Script execution cap (90 min/day on personal Gmail, 360 min/day on Workspace).';
+    toast = 'Settings saved. Polling rounded up to ' + next.pollMinutes + ' min (Gmail add-ons require multiples of 60).';
   }
 
   return CardService.newActionResponseBuilder()
@@ -1153,7 +1170,13 @@ function buildActivityCard(offset) {
   const LOG_PAGE_SIZE = 20;
   const reversed = entries.slice().reverse();
   var pageEntries = reversed.slice(offset, offset + LOG_PAGE_SIZE);
-  var body = pageEntries.map(escapeHtml_).join('<br>');
+  var body = pageEntries.map(function(entry) {
+    var esc = escapeHtml_(entry);
+    // Bold the 'yyyy-MM-dd HH:mm:ss' prefix (always 19 chars)
+    return esc.length > 19
+      ? '<b>' + esc.substring(0, 19) + '</b>' + esc.substring(19)
+      : esc;
+  }).join('<br><br>');
   card.addSection(CardService.newCardSection().addWidget(
     CardService.newTextParagraph().setText(body)));
 
@@ -1224,7 +1247,21 @@ function handleCancelClearLog(e) {
 function buildHelpCard() {
   var card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
+
+  var searchSection = CardService.newCardSection()
+    .setHeader('<b>Search help</b>')
+    .addWidget(CardService.newTextInput()
+      .setFieldName('helpSearchQuery')
+      .setTitle('Search all topics')
+      .setHint('e.g. "Reset baseline", "polling", "Founding member"'))
+    .addWidget(CardService.newTextButton()
+      .setText('Search')
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setOnClickAction(action_('handleSearchHelp')));
+  card.addSection(searchSection);
+
   var section = CardService.newCardSection()
+    .setHeader('<b>Browse topics</b>')
     .addWidget(CardService.newTextParagraph().setText(
       'Tap a topic below for details.'));
   var topics = [
@@ -1249,6 +1286,91 @@ function buildHelpCard() {
     .addWidget(CardService.newTextParagraph().setText(
       '<font color="#888888">emAIl Sentinel\u2122 is a product of JJJJJ Enterprises, LLC.</font>')));
   return card.build();
+}
+
+function handleSearchHelp(e) {
+  var query = ((e.formInput && e.formInput.helpSearchQuery) || '').trim();
+  if (!query) {
+    return notificationResponse_('Enter a search term first.');
+  }
+
+  var topicMeta = [
+    { id: 'quickstart', label: 'Quick start & writing rules' },
+    { id: 'examples',   label: 'Rule examples by channel' },
+    { id: 'channels',   label: 'Alert channel setup' },
+    { id: 'pricing',    label: 'Gemini pricing & models' },
+    { id: 'settings',   label: 'Settings & troubleshooting' }
+  ];
+  var topics = helpTopics_();
+  var lowerQuery = query.toLowerCase();
+  var results = [];
+
+  topicMeta.forEach(function(meta) {
+    var topic = topics[meta.id];
+    if (!topic) return;
+    // Strip HTML tags and collapse whitespace for searching and snippet extraction.
+    var plain = topic.content.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
+    var lowerPlain = plain.toLowerCase();
+    var idx = lowerPlain.indexOf(lowerQuery);
+    if (idx === -1) return;
+
+    // Count total matches and pick a snippet around the first one.
+    var matchCount = 0;
+    var pos = 0;
+    while (pos !== -1) {
+      pos = lowerPlain.indexOf(lowerQuery, pos);
+      if (pos === -1) break;
+      matchCount++;
+      pos += lowerQuery.length;
+    }
+
+    var start = Math.max(0, idx - 60);
+    var end = Math.min(plain.length, idx + query.length + 100);
+    var prefix = start > 0 ? '\u2026' : '';
+    var suffix = end < plain.length ? '\u2026' : '';
+    var rawSnippet = plain.substring(start, end);
+    // Bold the first occurrence of the query within the snippet (case-insensitive).
+    var matchOffset = idx - start;
+    var snippet = escapeHtml_(rawSnippet.substring(0, matchOffset)) +
+                  '<b>' + escapeHtml_(rawSnippet.substring(matchOffset, matchOffset + query.length)) + '</b>' +
+                  escapeHtml_(rawSnippet.substring(matchOffset + query.length));
+
+    results.push({
+      id: meta.id,
+      title: meta.label,
+      snippet: prefix + snippet + suffix,
+      matchCount: matchCount
+    });
+  });
+
+  var resultsCard = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Search: "' + query + '"'));
+
+  if (results.length === 0) {
+    resultsCard.addSection(CardService.newCardSection()
+      .addWidget(CardService.newTextParagraph()
+        .setText('<i>No matches in any help topic. Try a different keyword.</i>')));
+  } else {
+    var summary = results.length + ' topic' + (results.length === 1 ? '' : 's') + ' matched.';
+    resultsCard.addSection(CardService.newCardSection()
+      .addWidget(CardService.newTextParagraph()
+        .setText('<font color="#888888">' + summary + '</font>')));
+    results.forEach(function(r) {
+      var countLabel = r.matchCount > 1 ? ' &nbsp;<font color="#888888">(' + r.matchCount + ' matches)</font>' : '';
+      resultsCard.addSection(CardService.newCardSection()
+        .setHeader('<b>' + escapeHtml_(r.title) + '</b>' + countLabel)
+        .addWidget(CardService.newTextParagraph().setText(r.snippet))
+        .addWidget(CardService.newTextButton()
+          .setText('Open: ' + r.title)
+          .setOnClickAction(CardService.newAction()
+            .setFunctionName('handleShowHelpTopic')
+            .setParameters({ topic: r.id }))));
+    });
+  }
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(resultsCard.build()))
+    .build();
 }
 
 function handleShowHelpTopic(e) {
@@ -1281,9 +1403,11 @@ function helpTopics_() {
         '\u2022 "Any email from @example.com with a PDF that looks like an invoice."<br>' +
         '\u2022 "Subject contains URGENT or CRITICAL."<br>' +
         '\u2022 "Email from boss@example.com asking for a status update."<br><br>' +
-        'Each rule has an <b>Alert message content</b> field \u2014 plain-English instructions that tell Gemini how to format the alert. The default includes date, sender, subject, summary, and action items. Click <b>Suggest rule text</b> or <b>Suggest content for selected channels</b> in the rule editor to have Gemini draft a starting point.<br><br>' +
+        'Each rule has an <b>Alert message content</b> field \u2014 plain-English instructions that tell Gemini how to format the alert. The default includes date, sender, subject, summary, and action items. Click <b>Help me write the rule text</b> or <b>Help me write the alert text</b> in the rule editor to have Gemini draft a starting point.<br><br>' +
         '<b>Labels</b><br>' +
-        'Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as shown in Gmail. Multiple labels: comma-separated.'
+        'Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as shown in Gmail. Multiple labels: comma-separated.<br><br>' +
+        '<b>Searching help</b><br>' +
+        'Use the <b>Search help</b> box at the top of the Help card to find any keyword or phrase across all topics — e.g. "Reset baseline", "polling", or "Founding member". Each result shows the topic name plus a snippet, and clicking opens the full topic.'
     },
     examples: {
       title: 'Rule examples',
@@ -1367,9 +1491,11 @@ function helpTopics_() {
         '<b>Business hours</b><br>' +
         'Restrict checks to a daily window. Outside hours, the trigger fires but skips the check \u2014 no Gemini quota used.<br><br>' +
         '<b>Polling</b><br>' +
-        'Time-driven triggers fire every 1\u201330 minutes. The first run baselines existing messages so you don\'t get a flood of alerts.<br><br>' +
+        'Background polling: <b>Free</b> = every 3 hours minimum; <b>Pro</b> = every 1 hour minimum. The 1-hour hard floor is a <b>Google Workspace add-on platform limit</b>. We could poll faster by running our own backend that stores your Gmail tokens and reads your email on our servers \u2014 but we deliberately don\'t. The add-on runs entirely inside your own Google account; your email content never reaches our infrastructure. The polling floor is the price of that privacy posture. Click <b>Scan email now</b> any time for an immediate on-demand check. The first run baselines existing messages so you don\'t get a flood of alerts.<br><br>' +
         '<b>Max email age</b><br>' +
         'Controls how far back the Service looks when scanning a label. Default is 30 days. Emails older than this are ignored even if they\'re unread \u2014 useful for skipping long-dormant threads and cutting Gemini usage on busy labels.<br><br>' +
+        '<b>Reset baseline</b><br>' +
+        'The first time the Service checks a watched label, it records every existing message ID as a "seen" baseline so you don\'t get a flood of alerts on install \u2014 alerts only fire for mail that arrives after that point. Clicking <b>Reset baseline</b> in Settings deletes that stored set. On the next run, every label is treated as brand-new: existing messages are silently absorbed into a fresh baseline, and alerting resumes for mail that arrives after. Use it if alerts start firing for old mail (e.g. after changing labels or reinstalling), or any time you want a clean slate.<br><br>' +
         '<b>Privacy</b><br>' +
         'Settings, rules, seen messages, and the activity log are stored in UserProperties \u2014 private to your Google account. Email content goes only to Gemini and your configured alert channels.<br><br>' +
         '<b>Troubleshooting</b><br>' +
@@ -1518,6 +1644,12 @@ function handleNavTo(e) {
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().pushCard(builderFn()))
     .build();
+}
+
+function extractSheetId_(value) {
+  if (!value) return '';
+  var m = value.trim().match(/\/d\/([a-zA-Z0-9_-]{25,})/);
+  return m ? m[1] : value.trim();
 }
 
 function splitCsv_(s) {
@@ -1888,7 +2020,7 @@ function handleConfirmDeleteMcpServer(e) {
 // AI format suggestion
 // ─────────────────────────────────────────────────────────────────────────────
 
-function handleSuggestAlertFormat(e) {
+function handleHelpWriteAlertText(e) {
   const inputs = e.commonEventObject.formInputs || {};
   const get = key => {
     const v = inputs[key];
@@ -1905,8 +2037,10 @@ function handleSuggestAlertFormat(e) {
       v.stringInputs.value.indexOf('true') >= 0);
   };
 
-  const ruleId   = e.parameters.ruleId || '';
-  const ruleText = get('ruleText') || '(no rule text entered)';
+  const s = loadSettings();
+  if (!s.geminiApiKey) {
+    return notificationResponse_('Add a Gemini API key in Settings first.');
+  }
 
   const smsNums      = getMultiSelect('smsRecipients');
   const chatSelected = getMultiSelect('chatSpaces');
@@ -1927,24 +2061,98 @@ function handleSuggestAlertFormat(e) {
     channels.push('MCP server (' + mcpNamesList.join(', ') + ')');
   }
 
+  const ctx = {
+    name:                  get('name'),
+    labels:                get('labels'),
+    ruleText:              get('ruleText'),
+    existingAlertPrompt:   get('alertMessagePrompt'),
+    channels:              channels,
+    smsRecipients:         smsNums,
+    chatSpaces:            chatSelected,
+    calendarEnabled:       getCheckbox('calendarEnabled'),
+    sheetsEnabled:         getCheckbox('sheetsEnabled'),
+    tasksEnabled:          getCheckbox('tasksEnabled'),
+    mcpServerIds:          mcpIds
+  };
+  PropertiesService.getUserProperties()
+    .setProperty('mailsentinel.tmp.fmtctx', JSON.stringify(ctx));
+
+  const channelLine = channels.length
+    ? 'Selected ' + (channels.length === 1 ? 'channel' : 'channels') + ': <b>' + escapeHtml_(channels.join(', ')) + '</b>. The AI will tailor the format accordingly.'
+    : '<i>No alert channels selected yet — the suggestion will be generic. Tick channels in the rule editor first for a tailored format.</i>';
+
+  const ruleId = e.parameters.ruleId || '';
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph().setText(channelLine))
+    .addWidget(CardService.newTextParagraph()
+      .setText('Describe what the alert message should say, in your own words. The AI will turn it into a clear instruction Gemini uses to format every alert.'))
+    .addWidget(CardService.newTextInput()
+      .setFieldName('alertDescription')
+      .setTitle('What should the alert message include?')
+      .setHint('e.g. "just the sender name and a one-line summary" or "date, subject, key action items, and any due dates"')
+      .setMultiline(true)
+      .setValue(ctx.existingAlertPrompt || ''))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Generate')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleGenerateAlertText')
+          .setParameters({ ruleId: ruleId })))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handlePopCard'))));
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('Help me write the alert text'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleGenerateAlertText(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+
+  const description = get('alertDescription');
+  if (!description) {
+    return notificationResponse_('Please describe what the alert message should include.');
+  }
+
   const s = loadSettings();
   if (!s.geminiApiKey) {
     return notificationResponse_('Add a Gemini API key in Settings first.');
   }
 
+  const ctxRaw = PropertiesService.getUserProperties()
+    .getProperty('mailsentinel.tmp.fmtctx');
+  let ctx = {};
+  try { ctx = JSON.parse(ctxRaw || '{}'); } catch (_) {}
+
+  const channels = Array.isArray(ctx.channels) ? ctx.channels : [];
   const channelNote = channels.length
-    ? 'Alert destination(s): ' + channels.join(', ') + '.\n\n'
+    ? 'Alert ' + (channels.length === 1 ? 'destination' : 'destinations') + ': ' + channels.join(', ') + '.\n\n'
     : '';
+
+  const ruleText = ctx.ruleText || '(no rule text entered)';
 
   const prompt =
     'You help configure an email monitoring alert system. ' +
     'A rule triggers when an email matches this description:\n\n' +
     '"' + ruleText + '"\n\n' +
     channelNote +
-    'Write a concise plain-English instruction (2–5 sentences) telling an AI how to format the alert message. ' +
+    'A user has described what the alert message should say, in their own words:\n\n' +
+    '"' + description + '"\n\n' +
+    'Rewrite this as a concise plain-English instruction (2–5 sentences) telling an AI how to format the alert message. ' +
     'The AI will use this instruction to summarize the matching email. ' +
     'Be specific about what information to include and how to present it. ' +
-    'Tailor the format for the destination(s) — brief for SMS, richer for Sheets. ' +
+    'Tailor the format for each destination — brief for SMS, richer for Sheets. ' +
     'Output only the instruction itself, no preamble or quotes.';
 
   let suggestion;
@@ -1952,25 +2160,14 @@ function handleSuggestAlertFormat(e) {
     suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 200);
     if (!suggestion) throw new Error('Empty response from Gemini.');
   } catch (err) {
-    return notificationResponse_('Could not generate suggestion: ' + err.message);
+    return notificationResponse_('Could not generate alert text: ' + err.message);
   }
 
-  // Store suggestion + full form context so "Use this" can rebuild the editor
-  const ctx = {
-    suggestion:      suggestion,
-    name:            get('name'),
-    labels:          get('labels'),
-    ruleText:        get('ruleText'),
-    smsRecipients:   smsNums,
-    chatSpaces:      chatSelected,
-    calendarEnabled: getCheckbox('calendarEnabled'),
-    sheetsEnabled:   getCheckbox('sheetsEnabled'),
-    tasksEnabled:    getCheckbox('tasksEnabled'),
-    mcpServerIds:    mcpIds
-  };
+  ctx.suggestion = suggestion;
   PropertiesService.getUserProperties()
     .setProperty('mailsentinel.tmp.fmtctx', JSON.stringify(ctx));
 
+  const ruleId = e.parameters.ruleId || '';
   const section = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph()
       .setText('<b>Suggested alert format:</b><br><br>' + escapeHtml_(suggestion)))
@@ -1982,7 +2179,7 @@ function handleSuggestAlertFormat(e) {
           .setFunctionName('handleUseSuggestedFormat')
           .setParameters({ ruleId: ruleId })))
       .addButton(CardService.newTextButton()
-        .setText('Close')
+        .setText('Try again')
         .setOnClickAction(action_('handlePopCard'))));
 
   return CardService.newActionResponseBuilder()
@@ -2034,8 +2231,9 @@ function handleUseSuggestedFormat(e) {
     };
   }
 
+  // Pop the suggestion card and the description-input card, then update the editor
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().popCard()
+    .setNavigation(CardService.newNavigation().popCard().popCard()
       .updateCard(buildRuleEditorCard(r)))
     .build();
 }
@@ -2044,7 +2242,7 @@ function handleUseSuggestedFormat(e) {
 // AI rule text suggestion
 // ─────────────────────────────────────────────────────────────────────────────
 
-function handleSuggestRuleText(e) {
+function handleHelpWriteRuleText(e) {
   const inputs = e.commonEventObject.formInputs || {};
   const get = key => {
     const v = inputs[key];
@@ -2064,43 +2262,16 @@ function handleSuggestRuleText(e) {
   if (!isPro()) {
     return notificationResponse_(upgradeRequiredMessage('AI-assisted rule writing'));
   }
-
-  const ruleId          = e.parameters.ruleId || '';
-  const name            = get('name');
-  const labels          = get('labels') || 'INBOX';
-  const existingText    = get('ruleText') || '';
-
   const s = loadSettings();
   if (!s.geminiApiKey) {
     return notificationResponse_('Add a Gemini API key in Settings first.');
   }
 
-  const intro = name
-    ? 'The rule is named "' + name + '" and watches the "' + labels + '" Gmail label(s). '
-    : '';
-  const existing = existingText
-    ? 'The current rule text is:\n\n"' + existingText + '"\n\nRefine or improve it. '
-    : 'Write a clear, concise plain-English rule description (1–3 sentences) that an AI can use to decide whether an incoming email matches the intent. ';
-
-  const prompt =
-    'You help configure an email monitoring rule. ' + intro + existing +
-    'The AI evaluates each email against this description and returns yes or no. ' +
-    'Be specific about senders, subjects, keywords, or content patterns that should match. ' +
-    'Output only the rule text itself, no preamble or quotes.';
-
-  let suggestion;
-  try {
-    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 200);
-    if (!suggestion) throw new Error('Empty response from Gemini.');
-  } catch (err) {
-    return notificationResponse_('Could not generate suggestion: ' + err.message);
-  }
-
-  // Store suggestion + full form context so "Use this" can rebuild the editor
+  // Stash the rest of the form so the editor can be restored intact after generation
   const ctx = {
-    suggestion:         suggestion,
-    name:               name,
-    labels:             labels,
+    name:               get('name'),
+    labels:             get('labels') || 'INBOX',
+    existingRuleText:   get('ruleText'),
     alertMessagePrompt: get('alertMessagePrompt'),
     smsRecipients:      getMultiSelect('smsRecipients'),
     chatSpaces:         getMultiSelect('chatSpaces'),
@@ -2112,6 +2283,86 @@ function handleSuggestRuleText(e) {
   PropertiesService.getUserProperties()
     .setProperty('mailsentinel.tmp.rulectx', JSON.stringify(ctx));
 
+  const ruleId = e.parameters.ruleId || '';
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Describe in your own words what kind of emails should trigger this alert. Be as informal as you like — the AI will clean it up into a clear rule description.'))
+    .addWidget(CardService.newTextInput()
+      .setFieldName('ruleDescription')
+      .setTitle('What kind of emails should this rule match?')
+      .setHint('e.g. "anything urgent from my boss" or "shipping notices from amazon"')
+      .setMultiline(true)
+      .setValue(ctx.existingRuleText || ''))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText('Generate')
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setOnClickAction(CardService.newAction()
+          .setFunctionName('handleGenerateRuleText')
+          .setParameters({ ruleId: ruleId })))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handlePopCard'))));
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(
+      CardService.newCardBuilder()
+        .setHeader(CardService.newCardHeader().setTitle('Help me write the rule text'))
+        .addSection(section)
+        .build()))
+    .build();
+}
+
+function handleGenerateRuleText(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const get = key => {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+
+  const description = get('ruleDescription');
+  if (!description) {
+    return notificationResponse_('Please describe the kind of emails you want to match.');
+  }
+
+  const s = loadSettings();
+  if (!s.geminiApiKey) {
+    return notificationResponse_('Add a Gemini API key in Settings first.');
+  }
+
+  const ctxRaw = PropertiesService.getUserProperties()
+    .getProperty('mailsentinel.tmp.rulectx');
+  let ctx = {};
+  try { ctx = JSON.parse(ctxRaw || '{}'); } catch (_) {}
+
+  const labels = ctx.labels || 'INBOX';
+  const intro = ctx.name
+    ? 'The rule is named "' + ctx.name + '" and watches the "' + labels + '" Gmail ' + (labels.split(',').filter(Boolean).length === 1 ? 'label' : 'labels') + '. '
+    : '';
+
+  const prompt =
+    'You help configure an email monitoring rule. ' + intro +
+    'A user has described the emails they want to be alerted about, in their own words:\n\n' +
+    '"' + description + '"\n\n' +
+    'Rewrite this as a clear, concise plain-English rule description (1–3 sentences) that an AI can use to decide whether an incoming email matches. ' +
+    'Be specific about senders, subjects, keywords, or content patterns that should match. ' +
+    'Output only the rule text itself, no preamble or quotes.';
+
+  let suggestion;
+  try {
+    suggestion = callGemini_(s.geminiApiKey, s.geminiModel, prompt, 200);
+    if (!suggestion) throw new Error('Empty response from Gemini.');
+  } catch (err) {
+    return notificationResponse_('Could not generate rule text: ' + err.message);
+  }
+
+  // Save the suggestion alongside the existing context for handleUseSuggestedRuleText
+  ctx.suggestion = suggestion;
+  PropertiesService.getUserProperties()
+    .setProperty('mailsentinel.tmp.rulectx', JSON.stringify(ctx));
+
+  const ruleId = e.parameters.ruleId || '';
   const section = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph()
       .setText('<b>Suggested rule text:</b><br><br>' + escapeHtml_(suggestion)))
@@ -2123,7 +2374,7 @@ function handleSuggestRuleText(e) {
           .setFunctionName('handleUseSuggestedRuleText')
           .setParameters({ ruleId: ruleId })))
       .addButton(CardService.newTextButton()
-        .setText('Close')
+        .setText('Try again')
         .setOnClickAction(action_('handlePopCard'))));
 
   return CardService.newActionResponseBuilder()
@@ -2175,8 +2426,9 @@ function handleUseSuggestedRuleText(e) {
     };
   }
 
+  // Pop the suggestion card and the description-input card, then update the editor
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().popCard()
+    .setNavigation(CardService.newNavigation().popCard().popCard()
       .updateCard(buildRuleEditorCard(r)))
     .build();
 }

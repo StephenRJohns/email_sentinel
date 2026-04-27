@@ -69,7 +69,7 @@ There is no database, no backend, no external storage.
 
 **Concurrency guard:** `runMailCheck()` takes `LockService.getUserLock()` with a 0ms timeout and skips the run if locked — prevents overlapping trigger fires.
 
-**Polling grid (Apps Script trigger constraint):** `everyMinutes()` only accepts {1, 5, 10, 15, 30}. To support arbitrary user-facing polling intervals, `enforcePollFloor()` constrains pollMinutes to a grid where one of those values divides evenly: Free → multiples of 15; Pro → 1 or multiples of 5. `installTrigger()` then picks the largest divisor; `runMailCheck()` applies a `LAST_RUN_KEY` elapsed-time skip-check so cadence is precise. `runMailCheck({force: true})` bypasses the skip-check for manual "Run check now". Pro pollMinutes=1 sets `quotaWarning` because the 1-min trigger fires 1440 times/day and can approach Apps Script's daily execution cap.
+**Polling grid (Workspace add-on trigger constraint):** Gmail/Workspace add-on time-based triggers must fire no more often than once per hour — this is a Google platform constraint, not an Apps Script `everyMinutes()` quirk, and there is no add-on-level workaround. The 60-minute floor applies to every plan. Tier policy on top of that floor: `free.minPollMinutes = 180` (every 3 hours), `pro.minPollMinutes = 60` (every 1 hour, the platform floor itself). `enforcePollFloor()` snaps `pollMinutes` up to the nearest multiple of 60 and clamps to the active tier's minimum. `installTrigger()` uses `everyHours(round(pollMinutes / 60))`. `runMailCheck()` still applies a `LAST_RUN_KEY` elapsed-time skip-check so longer-than-hourly cadences (e.g. 240, 360) are precise. `runMailCheck({force: true})` bypasses the skip-check for manual "Scan email now" — that button is how users get sub-hour responsiveness on demand on any plan.
 
 **Cards are fully stateless:** Every card builder reads UserProperties fresh. Never cache state in global variables between card renders.
 
@@ -101,12 +101,14 @@ We do not support email as an alerting channel. Alert channels are: SMS, Google 
 `LicenseManager.gs` defines `TIERS` (Free vs Pro) with per-tier limits:
 `maxRules`, `minPollMinutes`, `allowChat`, `allowMcp`, `allowAiSuggest`,
 `logRetentionDays`. Enforcement is in `handleSaveSettings` (poll floor),
-`upsertRule` (rule count + Chat/MCP stripping), `handleSuggestRuleText` /
-`handleSuggestAlertFormat` (Pro gate), and `buildRuleEditorCard` (UI hides
+`upsertRule` (rule count + Chat/MCP stripping), `handleHelpWriteRuleText` /
+`handleHelpWriteAlertText` (Pro gate), and `buildRuleEditorCard` (UI hides
 gated sections). Tier is persisted in `settings.license.tier`; for pre-launch
-testing, run `setTier_('pro')` or `setTier_('free')` in the Apps Script
-editor. Automatic entitlement sync with the Marketplace Subscription API
-is a planned integration for the paid-tier launch.
+testing, select `setTierPro` or `setTierFree` from the Apps Script editor's
+function dropdown (in `LicenseManager.gs`) and click Run. These are no-arg
+wrappers around the underscore-private `setTier_(tier)` helper. Automatic
+entitlement sync with the Marketplace Subscription API is a planned
+integration for the paid-tier launch.
 
 ### Founding-member lifetime offer
 

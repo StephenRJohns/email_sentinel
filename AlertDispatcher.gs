@@ -212,7 +212,7 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
 }
 
 function sendSmsAlert_(toNumber, rule, emailData, alertContent, settings) {
-  const text = ('[emAIl Sentinel] ' + rule.name + '\n' + alertContent).substring(0, 600);
+  const text = ('[emAIl Sentinel] ' + rule.name + '\n' + stripMarkdown_(alertContent)).substring(0, 600);
   const provider = settings.smsProvider;
   const dispatch = {
     textbelt:  sendTextbeltSms_,
@@ -424,9 +424,16 @@ function sendWebhookSms_(toNumber, text, settings) {
 
 // ── Google Chat webhook ─────────────────────────────────────────────────────
 
+function stripMarkdown_(text) {
+  if (!text) return text;
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold** → plain text
+    .replace(/^#{1,6} /gm, '');        // # Heading → Heading
+}
+
 function sendChatAlert_(webhookUrl, rule, emailData, message) {
   const payload = {
-    text: '*emAIl Sentinel Rule Fired: ' + rule.name + '*\n\n' + message
+    text: '*emAIl Sentinel Rule Fired: ' + rule.name + '*\n\n' + stripMarkdown_(message)
   };
   const resp = UrlFetchApp.fetch(webhookUrl, {
     method: 'post',
@@ -465,7 +472,8 @@ function parseSmsRecipients_(raw) {
 // ── Google Calendar event ───────────────────────────────────────────────────
 
 function sendCalendarAlert_(rule, emailData, message, settings) {
-  const calId = settings.calendarId || 'primary';
+  const ruleOverride = ((rule.alerts && rule.alerts.calendarId) || '').trim();
+  const calId = ruleOverride || (settings.calendarId || '').trim() || 'primary';
   const cal = CalendarApp.getCalendarById(calId);
   if (!cal) {
     throw new Error('Calendar "' + calId + '" not found. Use "primary" for your main calendar.');
@@ -476,7 +484,7 @@ function sendCalendarAlert_(rule, emailData, message, settings) {
     'From: ' + (emailData.from || '(unknown)') + '\n' +
     'Subject: ' + (emailData.subject || '(no subject)') + '\n' +
     'Received: ' + (emailData.receivedDateTime || '') + '\n\n' +
-    message;
+    stripMarkdown_(message);
 
   const now = new Date();
   const end = new Date(now.getTime() + 15 * 60 * 1000);
@@ -486,7 +494,8 @@ function sendCalendarAlert_(rule, emailData, message, settings) {
 // ── Google Sheets log ───────────────────────────────────────────────────────
 
 function sendSheetsAlert_(rule, emailData, message, settings) {
-  let ssId = settings.sheetsId;
+  const ruleOverride = extractSheetId_((rule.alerts && rule.alerts.sheetsId) || '');
+  let ssId = ruleOverride || extractSheetId_(settings.sheetsId);
   if (!ssId) {
     ssId = createAlertSpreadsheet_();
     const s = loadSettings();
@@ -495,9 +504,8 @@ function sendSheetsAlert_(rule, emailData, message, settings) {
     activityLog('  Auto-created alert spreadsheet: ' + ssId);
   }
   const ss = SpreadsheetApp.openById(ssId);
-  let sheet = ss.getSheetByName('Alerts');
-  if (!sheet) {
-    sheet = ss.insertSheet('Alerts');
+  const sheet = ss.getSheets()[0];
+  if (sheet.getLastRow() === 0) {
     sheet.appendRow([
       'Timestamp', 'Rule', 'From', 'Subject', 'Received', 'Alert Message'
     ]);
@@ -509,7 +517,7 @@ function sendSheetsAlert_(rule, emailData, message, settings) {
     emailData.from || '',
     emailData.subject || '',
     emailData.receivedDateTime || '',
-    message.substring(0, 5000)
+    stripMarkdown_(message).substring(0, 5000)
   ]);
 }
 
@@ -521,28 +529,16 @@ function createAlertSpreadsheet_() {
 // ── Google Tasks ────────────────────────────────────────────────────────────
 
 function sendTasksAlert_(rule, emailData, message, settings) {
-  const listId = settings.tasksListId || '@default';
+  const ruleOverride = ((rule.alerts && rule.alerts.tasksListId) || '').trim();
+  const listId = ruleOverride || (settings.tasksListId || '').trim() || '@default';
   const title = '[emAIl Sentinel] ' + rule.name + ': ' + (emailData.subject || '(no subject)');
   const notes =
     'Rule: ' + rule.name + '\n' +
     'From: ' + (emailData.from || '(unknown)') + '\n' +
     'Received: ' + (emailData.receivedDateTime || '') + '\n\n' +
-    message.substring(0, 8000);
+    stripMarkdown_(message).substring(0, 8000);
 
-  const url = 'https://tasks.googleapis.com/tasks/v1/lists/' +
-    encodeURIComponent(listId) + '/tasks';
-  const token = ScriptApp.getOAuthToken();
-  const resp = UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    headers: { Authorization: 'Bearer ' + token },
-    payload: JSON.stringify({ title: title, notes: notes }),
-    muteHttpExceptions: true
-  });
-  const code = resp.getResponseCode();
-  if (code < 200 || code >= 300) {
-    throw new Error('Tasks API HTTP ' + code + ': ' + resp.getContentText().substring(0, 200));
-  }
+  Tasks.Tasks.insert({ title: title, notes: notes }, listId);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -2,12 +2,12 @@
 # Clean-slate reset of the E2E Chrome environment.
 #
 # Kills every Chrome process tied to the dedicated E2E user-data-dir and
-# deletes the dir itself, so the next run of run_e2e_tests.sh starts fresh:
+# deletes the dir itself, so the next launcher run starts fresh:
 # no zombie processes, no corrupted session files, no stale cookies.
 #
 # Use this when:
 #   - Chrome keeps refreshing or crashing during the first-run sign-in.
-#   - run_e2e_tests.sh reports "Chrome did not respond on port 9222".
+#   - The launcher reports "Chrome did not respond on port 9222".
 #   - You want to re-authenticate with a different Google account.
 #   - The E2E profile is behaving strangely in any way.
 #
@@ -37,4 +37,4 @@ else
   echo "  $E2E_USER_DATA_DIR does not exist — nothing to delete."
 fi
 
-echo "Done. The next ./run_e2e_tests.sh run will be treated as a first run."
+echo "Done. The next ./run_free_e2e_tests.sh (or run_pro_e2e_tests.sh) run will be treated as a first run."

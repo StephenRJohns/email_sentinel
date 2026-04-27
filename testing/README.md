@@ -6,7 +6,8 @@ This directory holds the end-to-end test plan and the tooling to run it.
 |---|---|
 | `e2e_test_plan.md` | Canonical checklist of every required and optional E2E flow. |
 | `playwright/` | Playwright project that automates the non-SMS-sending steps. |
-| `run_e2e_tests.sh` | Launcher script for the Playwright suite. |
+| `run_free_e2e_tests.sh` | Launcher for the Free-tier Playwright suite. |
+| `run_pro_e2e_tests.sh` | Wrapper that sets `TEST_TIER=pro` and delegates to the Free launcher. |
 | `reset_e2e_chrome.sh` | Wipes the dedicated E2E Chrome profile and kills any related processes. |
 | `test_runs/` | Archived, annotated copies of the plan, one per run (auto-created). |
 | `.last_run_results.json` | JSON reporter output from the most recent run (gitignored). |
@@ -15,11 +16,16 @@ This directory holds the end-to-end test plan and the tooling to run it.
 
 ## Running the E2E suite
 
+The automated suite covers ~20 reliably-passing tests (S2 polling validation, S3 starter rules preview, S5 Run-check-now toast, S8 activity log UI, S14 Help card, S18 business hours visibility, S19 max-email-age validation, S20 home-card visibility). The rest of the test plan is manual.
+
 ```bash
-./run_e2e_tests.sh                              # full suite — required + optional
-./run_e2e_tests.sh --grep "S7"                  # single section; any args pass through to Playwright
-TEST_TIER=pro ./run_e2e_tests.sh --grep "S21"   # Pro-tier sections
+./run_free_e2e_tests.sh                         # run automated suite
+./run_free_e2e_tests.sh --grep "S2"             # single section; any args pass through to Playwright
 ```
+
+`run_pro_e2e_tests.sh` exists for legacy reasons — currently the suite runs the same set regardless of `TEST_TIER`. If you re-add Pro-specific assertions later, flip the live tier first by running **`setTierPro`** in `LicenseManager.gs` from the Apps Script editor, and revert with **`setTierFree`** when done.
+
+See `playwright/README.md` for the full list of automated tests and the manual-only sections (S4, S6+S7, S9–S13, S15–S17, S20 rule editor, S21).
 
 The script is fully self-contained:
 
@@ -32,13 +38,13 @@ Leave the Chrome window alone while tests are running.
 
 ### Resetting the E2E Chrome profile
 
-If Chrome keeps refreshing during first-run sign-in, if `run_e2e_tests.sh` reports *"Chrome did not respond on port 9222"*, or if you want to sign in with a different Google account, run:
+If Chrome keeps refreshing during first-run sign-in, if the launcher reports *"Chrome did not respond on port 9222"*, or if you want to sign in with a different Google account, run:
 
 ```bash
 ./reset_e2e_chrome.sh
 ```
 
-It kills every Chrome process tied to the dedicated E2E user-data-dir and deletes `~/.cache/email_sentinel_e2e_chrome/`. The next `run_e2e_tests.sh` run will be treated as a first run and prompt you to sign in again. Your daily Chrome and its profiles are untouched — this only operates on the isolated E2E dir.
+It kills every Chrome process tied to the dedicated E2E user-data-dir and deletes `~/.cache/email_sentinel_e2e_chrome/`. The next launcher run will be treated as a first run and prompt you to sign in again. Your daily Chrome and its profiles are untouched — this only operates on the isolated E2E dir.
 
 ### Prerequisites
 
@@ -62,7 +68,7 @@ One-time setup:
 4. Paste that path into `CHROME_PROFILE_PATH` in `playwright/e2e.config.env`.
 5. Install the add-on on that account (clasp push + test deployment, or manual paste).
 
-**Every test run requirement:** close any Chrome window that's using that profile before you run `./run_e2e_tests.sh`. Chrome locks the profile while a window has it open, and Playwright will silently fail to attach or launch a fresh fingerprint that Google blocks again. Your *other* Chrome profiles (daily driver, etc.) can stay open — profile locks are independent.
+**Every test run requirement:** close any Chrome window that's using that profile before launching tests. Chrome locks the profile while a window has it open, and Playwright will silently fail to attach or launch a fresh fingerprint that Google blocks again. Your *other* Chrome profiles (daily driver, etc.) can stay open — profile locks are independent.
 
 ### Outputs
 
@@ -72,11 +78,11 @@ One-time setup:
 
 ### SMS sends are manual-only
 
-Automation never clicks **Send test SMS** and never wires a real SMS recipient onto a rule that runs through **Run check now** — that would burn provider credits and spam phones. Section 9 of `e2e_test_plan.md` is executed by hand.
+Automation never clicks **Send test SMS** and never wires a real SMS recipient onto a rule that runs through **Scan email now** — that would burn provider credits and spam phones. Section 9 of `e2e_test_plan.md` is executed by hand.
 
 ### Tier selection
 
-`TEST_TIER` (default `free`) controls the Free/Pro branching inside S3, S20, and S21. Flip the live tier with `setTier_('pro')` / `setTier_('free')` in the Apps Script editor to match whatever `TEST_TIER` the script uses.
+The current automated suite runs the same set regardless of `TEST_TIER`. Pro-specific assertions are manual-only (see `playwright/README.md`). If you re-add tier-gated tests in the future, flip the live tier with **`setTierPro`** / **`setTierFree`** in the Apps Script editor (`LicenseManager.gs`) to match `TEST_TIER`.
 
 ---
 

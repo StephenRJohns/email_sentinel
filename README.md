@@ -85,19 +85,24 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 |---|---|---|
 | Price | Free | **$4.99/month** or **$39/year** |
 | Active rules | Up to **3** | Unlimited |
-| Minimum polling interval | Every **15 min** | Every **1 min** |
+| Minimum automatic polling interval | Every **3 hours** (180 min) | Every **1 hour** (60 min) |
+| Manual on-demand check (*Scan email now*) | ✅ | ✅ |
 | Alert channels — Google Calendar, Sheets, Tasks | ✅ | ✅ |
 | Alert channels — SMS (any provider — 6 quick-start presets plus generic webhook) | ✅ | ✅ |
 | Alert channels — Google Chat webhook | — | ✅ |
 | Alert channels — MCP servers (Slack, Teams, Asana, custom) | — | ✅ |
-| AI-assisted alert content (*Suggest content for selected channels*) | ✅ | ✅ |
-| AI-assisted rule writing (*Suggest rule text*) | — | ✅ |
+| AI-assisted alert content (*Help me write the alert text*) | ✅ | ✅ |
+| AI-assisted rule writing (*Help me write the rule text*) | — | ✅ |
 | Activity log retention | 30 days | Unlimited |
 | Support | GitHub Issues | GitHub Issues |
 
 **Founding-member lifetime tier** — $79 one-time for the first 500 buyers, then this tier is retired.
 
-Upgrading is done from the home card. Downgrading keeps all your rules intact; Chat and MCP channels are silently disabled and polling is clamped to the Free minimum until you re-upgrade.
+**About polling cadence:** Google Workspace enforces a **1-hour minimum** on time-based triggers in any Workspace add-on, regardless of plan or pricing — this is a Google platform limit, not a tier policy. Pro polls at the platform floor (every 1 hour); Free polls every 3 hours. Both plans support **Scan email now** on the home card (also available from the universal "⋮" menu) to run an immediate check at any time, bypassing the cadence entirely.
+
+**Why we don't poll faster (and why that's a feature, not a limitation):** It's technically possible to bypass the 1-hour Workspace limit by running our own backend that polls Gmail every minute and pushes results back into the add-on. We deliberately don't. Doing so would require storing your Gmail OAuth refresh tokens on our servers, routing every email's content through our infrastructure, and reading each message outside your own Google account. emAIl Sentinel runs **entirely inside your own Google account**: your email content never reaches our servers — we never see, store, or process it. The only places your email data ever goes are (1) the Google Gemini API, called with **your own** API key, and (2) the alert channels **you** configure (your SMS provider, your Calendar, your Sheets, your MCP server, etc.). The 1-hour polling floor is the price of that privacy-first architecture, and we think it's worth paying.
+
+Upgrading is done from the home card. Downgrading keeps all your rules intact; Chat and MCP channels are silently disabled and polling is clamped back to the Free 3-hour minimum until you re-upgrade.
 
 Enterprise-wide or centralized deployments across a Workspace domain are not supported; see [TERMS.md](legal/TERMS.md) §2 for the exact scope.
 
@@ -154,7 +159,8 @@ email_sentinel/
 └── testing/               # End-to-end test plan and Playwright automation
     ├── README.md
     ├── e2e_test_plan.md   # Canonical checklist
-    ├── run_e2e_tests.sh   # Launch Chrome + run suite
+    ├── run_free_e2e_tests.sh  # Launch Chrome + run Free-tier suite
+    ├── run_pro_e2e_tests.sh   # Wrapper that sets TEST_TIER=pro
     ├── reset_e2e_chrome.sh
     ├── new_manual_run.sh
     ├── archive_run.js     # Produces annotated per-run reports
@@ -223,11 +229,11 @@ If you'd rather not install `clasp`:
 After installation, open Gmail and click the emAIl Sentinel icon in the right rail.
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
-2. **Settings ▸ Polling** — pick how often to check. Free plan: multiples of 15 (15, 30, 45, 60, …). Pro plan: 1, or any multiple of 5. Other values round up to the next valid step.
+2. **Settings ▸ Polling** — pick how often to check. Multiples of 60 (60, 120, 180, …). Free minimum 180 (3 hours); Pro minimum 60 (1 hour). Other values round up to the next valid step. The 60-minute floor is a Google Workspace add-on platform limit and cannot be bypassed. Use **Scan email now** for an immediate check anytime regardless of plan.
 3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison. Then add named SMS recipients (e.g. "On-call", "CFO") below the provider fields — rules pick recipients by name, not raw phone numbers.
 4. **Settings ▸ MCP server alerts** *(optional)* — add Slack, Microsoft 365 / Teams, Asana, or a custom MCP endpoint if you want alerts routed through the Model Context Protocol.
 5. **Settings ▸ Save settings**.
-6. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and tick the channels you want (SMS recipients, Chat spaces, MCP servers, Calendar, Sheets, Tasks). Click **Suggest rule text** or **Suggest content for selected channels** to have Gemini draft a starting point. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can tick channels and enable them at your own pace.
+6. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and tick the channels you want (SMS recipients, Chat spaces, MCP servers, Calendar, Sheets, Tasks). Click **Help me write the rule text** or **Help me write the alert text** to have Gemini draft a starting point. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can tick channels and enable them at your own pace.
 7. Back on the home card, click **Start monitoring**. This installs a time-driven trigger that runs in the background even when Gmail is closed.
 
 The **first** check for any new label is treated as a baseline (no alerts) so you don't get a flood of notifications for existing mail. Alerts start with the next new message.
@@ -252,7 +258,7 @@ Good examples:
 - `"Email from boss@example.com asking for a status update."`
 - `"Automated notification about a server being down or an alert being triggered."`
 
-Each rule also has an **Alert message content** field — plain-English instructions Gemini uses to compose the alert message itself. The default produces a date / sender / subject / summary / action items block; override it per rule when you want something different (a one-liner, a bullet list, …). The **Suggest rule text** and **Suggest content for selected channels** buttons in the rule editor let Gemini draft either field for you based on the rule name, labels, and the channels you've ticked.
+Each rule also has an **Alert message content** field — plain-English instructions Gemini uses to compose the alert message itself. The default produces a date / sender / subject / summary / action items block; override it per rule when you want something different (a one-liner, a bullet list, …). The **Help me write the rule text** and **Help me write the alert text** buttons in the rule editor let Gemini draft either field for you based on the rule name, labels, and the channels you've ticked.
 
 ### Rule examples by alert channel
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * Produce an annotated, timestamped copy of e2e_test_plan.md under test_runs/
- * based on Playwright's JSON results. Invoked automatically by run_e2e_tests.sh.
+ * based on Playwright's JSON results. Invoked automatically by run_free_e2e_tests.sh.
  *
  * Mapping rule: each Playwright test is titled "S<N>: ..." (or "S<A>+S<B>: ...").
  * The test result propagates to every `- [ ]` checkbox inside the matching

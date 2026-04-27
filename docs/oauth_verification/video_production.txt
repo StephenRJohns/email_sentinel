@@ -98,7 +98,7 @@ PART 3 — CREATE A RULE (20 seconds)
 
 PART 4 — BASELINE RUN (10 seconds)
 ------------------------------------
-16. Return to the home card. Click "Run check now".
+16. Return to the home card. Click "Scan email now".
 17. Toast appears showing check result (e.g. "0 new email(s), 0 match(es)").
     [NARRATOR: The first run establishes a baseline. Existing messages are recorded
     so that only new arrivals trigger alerts — no alerts fire on this run.]
@@ -119,7 +119,7 @@ PART 5 — SEND TEST EMAIL AND TRIGGER A MATCH (30 seconds)
 23. Send. Wait ~10 seconds and confirm the email arrives in your inbox.
     [NARRATOR: We send a test email to our own address using the trigger phrase in
     the subject line.]
-24. Return to the add-on. Click "Run check now" from the home card.
+24. Return to the add-on. Click "Scan email now" from the home card.
 25. Toast shows: "Check complete: 1 new email(s), 1 match(es)."
     [NARRATOR: emAIl Sentinel detects the new message and evaluates it against our
     rule using the Gemini API. One match is found.]

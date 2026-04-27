@@ -27,8 +27,8 @@ function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard());
 function actionRunCheckNow(e) {
   try {
     var result = runMailCheck({ force: true }) || {};
-    activityLog('Manual check: ' + (result.messagesChecked || 0) + ' new email(s), ' +
-      (result.matchesFound || 0) + ' match(es).');
+    activityLog('Manual check: ' + plural_(result.messagesChecked || 0, 'new email') + ', ' +
+      plural_(result.matchesFound || 0, 'match', 'matches') + '.');
   } catch (err) {
     activityLog('Manual check failed: ' + err);
   }
@@ -49,6 +49,10 @@ function notificationResponse_(text) {
   return CardService.newActionResponseBuilder()
     .setNotification(CardService.newNotification().setText(text))
     .build();
+}
+
+function plural_(n, singular, opt_plural) {
+  return n + ' ' + (n === 1 ? singular : (opt_plural || singular + 's'));
 }
 
 // ── Testing helpers (run manually from the Apps Script editor) ────────────────

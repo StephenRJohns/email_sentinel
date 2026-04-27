@@ -1,6 +1,14 @@
 {
   "timeZone": "America/Chicago",
-  "dependencies": {},
+  "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Tasks",
+        "version": "v1",
+        "serviceId": "tasks"
+      }
+    ]
+  },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",
   "oauthScopes": [
@@ -25,7 +33,7 @@
         { "label": "Settings",       "runFunction": "actionShowSettings" },
         { "label": "Activity Log",   "runFunction": "actionShowActivity" },
         { "label": "Help",           "runFunction": "actionShowHelp" },
-        { "label": "Run check now",  "runFunction": "actionRunCheckNow" }
+        { "label": "Scan email now",  "runFunction": "actionRunCheckNow" }
       ],
       "openLinkUrlPrefixes": [
         "https://textbelt.com/",

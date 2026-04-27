@@ -69,14 +69,14 @@ The video must cover these key demonstrations, in order:
    - Save the rule; show it in the list with ON status
 
 6. BASELINE RUN
-   - Click "Run check now" from the home card
+   - Click "Scan email now" from the home card
    - Show the result toast (e.g. "0 new email(s), 0 match(es)")
    - Open Activity log and show the baseline run entry
 
 7. SEND TEST EMAIL + TRIGGER MATCH
    - Compose and send an email to your own address with subject: SENTINEL_TEST — video demo
    - Confirm the email arrives in the inbox
-   - Click "Run check now"
+   - Click "Scan email now"
    - Show the toast: "Check complete: 1 new email(s), 1 match(es)"
 
 8. ACTIVITY LOG — KEY FRAME

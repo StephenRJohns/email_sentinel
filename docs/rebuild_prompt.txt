@@ -59,11 +59,13 @@ All state in PropertiesService.getUserProperties():
 
 === LICENSE / PRICING TIERS ===
 
-Free:  3 rules max, polling in 15-min increments (min 15), SMS + Calendar + Sheets + Tasks, AI-assisted alert content, 30-day log, GitHub Issues support
-Pro:   Unlimited rules, polling 1 min OR multiples of 5, all channels (+ Chat + MCP), AI-assisted rule writing, unlimited log, GitHub Issues support — $4.99/mo or $39/yr
+Free:  3 rules max, automatic polling in 60-min increments (min 180 — every 3 hours), SMS + Calendar + Sheets + Tasks, AI-assisted alert content, 30-day log, GitHub Issues support
+Pro:   Unlimited rules, automatic polling in 60-min increments (min 60 — every 1 hour, the Workspace add-on platform floor), all channels (+ Chat + MCP), AI-assisted rule writing, unlimited log, GitHub Issues support — $4.99/mo or $39/yr
+Both:  "Scan email now" button runs an immediate manual check regardless of polling cadence; bypasses the LAST_RUN_KEY skip-check via runMailCheck({force: true}).
+Note:  The 60-minute floor is a Google Workspace platform constraint on time-based triggers — cannot be bypassed at the add-on level.
 Founding Member: All Pro features for life, one-time $79, limited to first 500 purchasers
 
-Tier stored in settings.license.tier ('free' | 'pro'). Pro entitlement sync with Marketplace Subscription API is planned; currently set manually via setTier_() for testing.
+Tier stored in settings.license.tier ('free' | 'pro'). Pro entitlement sync with Marketplace Subscription API is planned; currently set manually via setTierPro / setTierFree (no-arg wrappers in LicenseManager.gs around the private setTier_(tier) helper) for testing.
 
 === ALERT CHANNELS ===
 
@@ -84,9 +86,9 @@ MCP servers:     JSON-RPC 2.0 tools/call over HTTPS to user-configured endpoints
 - Concurrency guard: LockService.getUserLock(0ms timeout) in runMailCheck(); skip if locked
 - Cards are fully stateless: read UserProperties fresh on every render
 - No in-card Home button: top-level cards rely on Gmail's native back-arrow for navigation back home
-- Polling grid: Apps Script everyMinutes() only accepts {1,5,10,15,30}. enforcePollFloor() constrains pollMinutes to a divisor-friendly grid (Free: multiples of 15; Pro: 1 or multiples of 5). installTrigger() picks the largest allowed value that divides pollMinutes; runMailCheck() applies a LAST_RUN_KEY elapsed-time skip-check for precise cadence. runMailCheck({force: true}) bypasses the skip-check for manual "Run check now". Pro pollMinutes=1 sets quotaWarning since the 1-min trigger fires 1440 times/day.
+- Polling grid: Gmail / Workspace add-on time-based triggers must fire >= 60 min apart. enforcePollFloor() snaps pollMinutes up to the nearest multiple of 60 (Free and Pro both have minPollMinutes=60). installTrigger() uses everyHours(targetHours) where targetHours = round(pollMinutes/60). runMailCheck() still applies a LAST_RUN_KEY elapsed-time skip-check for precise cadence when the user picks longer-than-1-hour intervals. runMailCheck({force: true}) bypasses the skip-check for manual "Scan email now" — the way users get sub-hour responsiveness on demand.
 - Phone number entry: country-code dropdown (~45 countries with flag emoji + dial code, default +1) plus digits-only input. splitPhoneNumber_/combinePhoneNumber_ handle E.164 storage and round-trip on edit.
-- AI assist gating: Suggest rule text is Pro-only; Suggest content (alert format) is available on Free.
+- AI assist gating: "Help me write the rule text" is Pro-only; "Help me write the alert text" is available on Free. Both buttons open a description-input card; the user types informally, Gemini cleans it into a rule description or alert format. The alert-text flow is channel-aware — it factors in whichever channels are ticked on the rule.
 - First-run baseline: first check per label records seen IDs, no alerts (intentional behavior)
 - Gemini called via REST (UrlFetchApp), not SDK — only needs script.external_request scope
 - Email body: only first 2,000 characters sent to Gemini

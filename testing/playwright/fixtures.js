@@ -15,8 +15,7 @@ const test = base.extend({
     } catch {
       throw new Error(
         `Could not connect to Chrome at ${CDP_URL}.\n` +
-        'Run ./testing/run_e2e_tests.sh first, wait for Gmail to load, ' +
-        'then re-run ./testing/run_e2e_tests.sh.'
+        'Run ./testing/run_free_e2e_tests.sh (or run_pro_e2e_tests.sh) first.'
       );
     }
     const ctx = browser.contexts()[0];
@@ -29,6 +28,11 @@ const test = base.extend({
     // Prefer the Gmail tab if already open, otherwise open a new page.
     const gmailPage = context.pages().find(p => p.url().includes('mail.google.com'))
       || await context.newPage();
+    // Auto-dismiss any transient JavaScript dialogs (e.g. Gmail's "leave site?"
+    // beforeunload prompts that can fire when we navigate away during a save).
+    // Without a handler, Playwright fails with "No dialog is showing" if the
+    // dialog disappears before its event listener completes.
+    gmailPage.on('dialog', dialog => dialog.dismiss().catch(() => {}));
     await use(gmailPage);
   },
 });

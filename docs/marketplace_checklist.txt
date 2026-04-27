@@ -128,11 +128,20 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
    Messages that don't match are ignored entirely — no noise.
 
    PLANS
-   • Free — up to 3 rules, 15-minute polling, SMS and Google Calendar /
-     Sheets / Tasks alerts, 30-day activity log.
-   • Pro ($4.99/month or $39/year) — unlimited rules, 1-minute polling,
-     Google Chat and MCP server alerts, AI-assisted rule writing,
-     unlimited log history.
+   • Free — up to 3 rules, 3-hour minimum automatic polling, SMS and
+     Google Calendar / Sheets / Tasks alerts, 30-day activity log.
+   • Pro ($4.99/month or $39/year) — unlimited rules, 1-hour minimum
+     automatic polling (3x faster than Free), Google Chat and MCP server
+     alerts, AI-assisted rule writing, unlimited log history.
+   • Both plans support on-demand "Scan email now" — runs immediately
+     regardless of polling cadence.
+
+   IMPORTANT — POLLING PLATFORM LIMIT
+   Google enforces a 1-hour minimum on time-based triggers in every
+   Workspace add-on. This is a Google platform constraint, not a pricing
+   choice; we cannot poll faster than this on any plan. The Free 3-hour
+   vs. Pro 1-hour difference is a tier policy on top of that platform
+   floor.
    • Founding-member lifetime ($79 one-time) — limited to the first 500
      purchasers as recorded on the Google Workspace Marketplace. Once 500
      lifetime purchases are logged on the Marketplace, this offer is
@@ -394,7 +403,7 @@ PART 4 — WHAT GOOGLE CHECKS DURING REVIEW
 --------------------------------------------------------------------------------
     [ ] Home card exists and is useful
     [ ] Universal actions all work (Rules, Settings, Activity Log, Help,
-        Run check now)
+        Scan email now)
     [ ] UI fits within the ~300px add-on panel without horizontal scroll
     [ ] Text is not cut off with "..."
     [ ] No duplicate UI elements

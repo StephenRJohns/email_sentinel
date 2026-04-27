@@ -104,8 +104,8 @@ function runMailCheck(opts) {
       saveSeen_(seenAll);
 
       if (isFirstRun) {
-        activityLog('Label "' + labelName + '": baseline set (' + messages.length +
-            ' existing message(s)). Watching for new mail.');
+        activityLog('Label "' + labelName + '": baseline set (' +
+            plural_(messages.length, 'existing message') + '). Watching for new mail.');
         return;
       }
 
@@ -114,7 +114,7 @@ function runMailCheck(opts) {
         return;
       }
 
-      activityLog('Label "' + labelName + '": ' + newMessages.length + ' new message(s).');
+      activityLog('Label "' + labelName + '": ' + plural_(newMessages.length, 'new message') + '.');
 
       const matchingRules = rules.filter(r => (r.labels || []).indexOf(labelName) >= 0);
       const failedIds = [];
@@ -253,23 +253,18 @@ function resetSeen() {
 
 function installTrigger(pollMinutes) {
   removeTriggers();
-  // Apps Script `everyMinutes()` only accepts these values. enforcePollFloor
-  // already constrains pollMinutes to a value that one of these divides
-  // (Free: multiples of 15; Pro: 1 or multiples of 5), so we pick the
-  // largest divisor — that gives precise cadence with the runMailCheck
-  // skip-check filling in any intermediate skipped fires.
-  const allowed = [1, 5, 10, 15, 30];
-  const target = parseInt(pollMinutes, 10) || 5;
-  var triggerMinutes = 1;
-  for (var i = allowed.length - 1; i >= 0; i--) {
-    if (target % allowed[i] === 0) { triggerMinutes = allowed[i]; break; }
-  }
-  ScriptApp.newTrigger('runMailCheck').timeBased().everyMinutes(triggerMinutes).create();
+  // Gmail/Workspace add-ons require time-based triggers >= 60 min. enforcePollFloor
+  // already snaps pollMinutes to a multiple of 60. Use the largest hour interval
+  // that divides pollMinutes so the trigger fires exactly on cadence; the
+  // runMailCheck LAST_RUN_KEY skip-check absorbs any overshoot if it doesn't.
+  const target = Math.max(60, parseInt(pollMinutes, 10) || 60);
+  const targetHours = Math.max(1, Math.round(target / 60));
+  ScriptApp.newTrigger('runMailCheck').timeBased().everyHours(targetHours).create();
   // Reset the elapsed-time gate so the first run after re-install isn't
   // blocked by a stale lastRunAt from a previous configuration.
   PropertiesService.getUserProperties().deleteProperty(LAST_RUN_KEY);
-  activityLog('Installed time-driven trigger: every ' + triggerMinutes +
-    ' minute(s) (polling: every ' + target + ' min).');
+  activityLog('Installed time-driven trigger: every ' +
+    plural_(targetHours, 'hour') + ' (polling: every ' + target + ' min).');
 }
 
 function removeTriggers() {
@@ -281,7 +276,7 @@ function removeTriggers() {
       removed++;
     }
   });
-  if (removed) activityLog('Removed ' + removed + ' existing trigger(s).');
+  if (removed) activityLog('Removed ' + plural_(removed, 'existing trigger') + '.');
 }
 
 function isMonitoringActive() {

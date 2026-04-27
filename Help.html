@@ -1,10 +1,23 @@
 <b>emAIl Sentinel&#8482;</b> watches your Gmail for new messages and sends an alert when one matches a rule you describe in plain English. Rules are evaluated by Google Gemini.<br><br>
 
 <b>Plans &amp; pricing</b><br>
-<b>Free</b> includes up to 3 rules, polling every 15 minutes or slower, Google Calendar / Sheets / Tasks alerts, SMS alerts (any provider — 6 presets plus generic webhook), and the standard activity log (ring buffer of the most recent ~60 entries, retained for 30 days).<br>
-<b>Pro ($4.99/month or $39/year)</b> adds unlimited rules, polling as fast as every 1 minute, Google Chat webhook alerts, MCP server alerts (Slack, Teams, Asana, custom), AI-assisted rule writing, and unlimited log history.<br>
+<b>Free</b> includes up to 3 rules, automatic polling every 3 hours or slower, Google Calendar / Sheets / Tasks alerts, SMS alerts (any provider — 6 presets plus generic webhook), and the standard activity log (ring buffer of the most recent ~60 entries, retained for 30 days).<br>
+<b>Pro ($4.99/month or $39/year)</b> adds unlimited rules, automatic polling as fast as every 1 hour (3× faster than Free), Google Chat webhook alerts, MCP server alerts (Slack, Teams, Asana, custom), AI-assisted rule writing, and unlimited log history.<br>
 <b>Founding-member lifetime ($79 one-time)</b> is available to the first 500 purchasers only — permanently retired after 500 sold.<br>
-Upgrade from the home card. Downgrading preserves your rules but disables Chat / MCP channels and clamps polling back to 15 minutes.<br><br>
+Upgrade from the home card. Downgrading preserves your rules but disables Chat / MCP channels and clamps polling back to the Free 3-hour minimum.<br><br>
+
+<b>Why polling is hourly, not by-the-minute</b><br>
+Google enforces a <b>1-hour minimum</b> on time-based triggers in every Google Workspace add-on. The Free (3-hour) vs. Pro (1-hour) split is our tier policy on top of that platform floor.<br><br>
+
+We could technically poll your Gmail faster by running our own backend server — that's how some products work — but that would require:<br>
+• Storing your Gmail OAuth refresh tokens on our servers<br>
+• Routing your email content through our infrastructure<br>
+• Reading and evaluating each email outside your own Google account<br><br>
+
+<b>We deliberately don't.</b> emAIl Sentinel runs entirely as a Google Workspace add-on inside <i>your own</i> Google account. Your email content never reaches our servers — we never see, store, or process it. The only places your email data goes are: (1) the Google Gemini API, called with <i>your own</i> API key, to evaluate rules and format alerts, and (2) the alert channels <i>you</i> configure (your SMS, your Calendar, your Sheets, etc.). The 1-hour polling floor is the price of that architecture, and we think it's worth paying. Use <b>Scan email now</b> for on-demand checks whenever you need them.<br><br>
+
+<b>Manual checks anytime</b><br>
+Whatever your polling interval, you can click <b>Scan email now</b> on the home card (or pick it from the universal "⋮" menu) to run an immediate check. This is the way to verify a new rule, confirm a fresh email triggers an alert, or just bypass the polling cadence on demand. Background polling continues normally afterward.<br><br>
 
 <b>Quick start</b><br>
 1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>
@@ -19,7 +32,7 @@ Rules are plain English. Be specific about senders, subjects, attachments, or bo
 • "Subject contains URGENT or CRITICAL."<br>
 • "Email from boss@example.com asking for a status update."<br><br>
 
-Each rule has an <b>Alert message content</b> field — plain-English instructions that tell Gemini how to format the alert that recipients receive. The default includes date, sender, subject, summary, and any action items. Click <b>Suggest rule text</b> or <b>Suggest content for selected channels</b> in the rule editor to have Gemini draft a starting point for you.<br><br>
+Each rule has an <b>Alert message content</b> field — plain-English instructions that tell Gemini how to format the alert that recipients receive. The default includes date, sender, subject, summary, and any action items. Click <b>Help me write the rule text</b> or <b>Help me write the alert text</b> in the rule editor to have Gemini draft a starting point for you.<br><br>
 
 <b>Rule examples by alert channel</b><br>
 Every rule works with every channel — just enable the channels you want in the rule editor. Here are real-world examples showing which channels make sense for each use case.<br><br>
@@ -121,7 +134,12 @@ At Flash rates, a typical user (50 emails/day, 3 rules) costs under <b>$1/month<
 Optionally restrict checks to a daily window. Outside of business hours the trigger still fires but skips the actual mail check, so you don't burn Gemini quota overnight.<br><br>
 
 <b>Polling</b><br>
-On the <b>Free plan</b>, polling is set in 15-minute increments (15, 30, 45, 60, …) — minimum 15 min. On the <b>Pro plan</b>, polling is either <b>every minute</b> or any multiple of 5 (5, 10, 15, 20, 25, 30, 60, …). Other values round up to the next valid step. Choosing every-minute polling runs the script 1440 times/day; heavy rule sets may approach the daily Apps Script execution cap (90 min/day on personal Gmail, 360 min/day on Workspace). The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message.<br><br>
+Polling is set in 60-minute increments (60, 120, 180, …). On the <b>Free plan</b> the minimum is 180 min (every 3 hours); on the <b>Pro plan</b> the minimum is 60 min (every 1 hour). Other values round up to the next valid step. The 60-minute hard floor is a <b>Google Workspace add-on platform limit</b>: time-based triggers in any Workspace add-on cannot fire more often than once per hour. We can't go faster — it's a Google constraint, not a tier policy. The Free / Pro 3-hour vs. 1-hour difference is a tier policy on top of that platform floor.<br><br>
+
+To run a check sooner than the next scheduled fire, click <b>Scan email now</b> on the home card — that runs immediately regardless of cadence and is available on every plan. The first run for each label baselines existing messages so you don't get an alert flood when you first install — alerts start with the next new message.<br><br>
+
+<b>Reset baseline</b><br>
+The first time the Service checks a watched label, it records every existing message ID as a "seen" baseline so you don't get a flood of alerts on install — alerts only fire for mail that arrives after that point. Clicking <b>Reset baseline</b> in Settings deletes that stored set. On the next run, every label is treated as brand-new: existing messages are silently absorbed into a fresh baseline, and alerting resumes for mail that arrives after. Use it if alerts start firing for old mail (e.g. after changing labels or reinstalling), or any time you want a clean slate.<br><br>
 
 <b>Privacy</b><br>
 Settings, rules, the seen-message baseline, and the activity log are all stored in <i>UserProperties</i>, which is private to your own Google account. Email contents are sent only to Google's Gemini API and to the alert channels you configure (SMS provider, Chat webhooks, MCP server endpoints) — never anywhere else.<br><br>
