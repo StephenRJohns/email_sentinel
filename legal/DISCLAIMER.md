@@ -71,7 +71,7 @@ Feature descriptions, integration lists, pricing summaries, and other product re
 
 ## 8. Links to Related JJJJJ Enterprises Products
 
-Our website may display links to other products operated by JJJJJ Enterprises, LLC, including NoCrastinator™ (a Google Calendar add-on for milestone-based deadline reminders), PilotTrainerHQ (pilottrainerhq.com), and PlaneFacts (planefacts.online). Those products are separate services and are governed by their own terms of service, privacy policies, and disclaimers, which are independent of emAIl Sentinel's legal documents. Links to related products do not imply any bundling of services, shared warranty coverage, or joint liability.
+Our website may display links to other products operated by JJJJJ Enterprises, LLC, including Nocrastinator™ (a Google Calendar add-on for milestone-based deadline reminders), PilotTrainerHQ (pilottrainerhq.com), and PlaneFacts (planefacts.online). Those products are separate services and are governed by their own terms of service, privacy policies, and disclaimers, which are independent of emAIl Sentinel's legal documents. Links to related products do not imply any bundling of services, shared warranty coverage, or joint liability.
 
 ## 9. No Professional Advice
 

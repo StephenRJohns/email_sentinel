@@ -95,7 +95,7 @@ For the list of third-party trademarks used in the Service and its marketing mat
 
 ### 5.1 Related JJJJJ Enterprises Products
 
-Our website may display links to other products operated by JJJJJ Enterprises, LLC, including NoCrastinator™ (a Google Calendar add-on for milestone reminders), PilotTrainerHQ (pilottrainerhq.com), and PlaneFacts (planefacts.online). Those products are separate services governed by their own terms of service and privacy policies. They are not part of the emAIl Sentinel Service, and these Terms do not apply to your use of those products.
+Our website may display links to other products operated by JJJJJ Enterprises, LLC, including Nocrastinator™ (a Google Calendar add-on for milestone reminders), PilotTrainerHQ (pilottrainerhq.com), and PlaneFacts (planefacts.online). Those products are separate services governed by their own terms of service and privacy policies. They are not part of the emAIl Sentinel Service, and these Terms do not apply to your use of those products.
 
 ## 6. Fees, Subscriptions, and Refunds
 
