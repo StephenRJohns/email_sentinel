@@ -1,19 +1,19 @@
 {
   "timeZone": "America/Chicago",
   "dependencies": {
-    "libraries": [
-      {
-        "userSymbol": "NotifyLib",
-        "libraryId": "1YG_5kjmABwYex868cdE6lXXF1ll6ofJnvxXkZ5WDWd3hQo2TozwcQr7R",
-        "version": "1",
-        "developmentMode": false
-      }
-    ],
     "enabledAdvancedServices": [
       {
         "userSymbol": "Tasks",
         "version": "v1",
         "serviceId": "tasks"
+      }
+    ],
+    "libraries": [
+      {
+        "userSymbol": "JJJJJEnterprises_NotifyLib",
+        "version": "1",
+        "libraryId": "1YG_5kjmABwYex868cdE6IXXF1Il6ofJnvxXkZ5WDWd3hQo2TozwcQr7R",
+        "developmentMode": false
       }
     ]
   },
@@ -41,7 +41,7 @@
         { "label": "Settings",       "runFunction": "actionShowSettings" },
         { "label": "Activity Log",   "runFunction": "actionShowActivity" },
         { "label": "Help",           "runFunction": "actionShowHelp" },
-        { "label": "Scan email now",  "runFunction": "actionRunCheckNow" }
+        { "label": "Scan email now", "runFunction": "actionRunCheckNow" }
       ],
       "openLinkUrlPrefixes": [
         "https://textbelt.com/",
