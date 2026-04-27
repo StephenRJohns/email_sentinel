@@ -1,6 +1,14 @@
 {
   "timeZone": "America/Chicago",
   "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "NotifyLib",
+        "libraryId": "1YG_5kjmABwYex868cdE6lXXF1ll6ofJnvxXkZ5WDWd3hQo2TozwcQr7R",
+        "version": "1",
+        "developmentMode": false
+      }
+    ],
     "enabledAdvancedServices": [
       {
         "userSymbol": "Tasks",
