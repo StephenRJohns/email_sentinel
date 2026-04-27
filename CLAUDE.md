@@ -27,7 +27,7 @@ clasp open
 clasp pull
 ```
 
-The `scriptId` in `.clasp.json` links this directory to the live Apps Script project. Apps Script has no in-repo unit tests; manual testing is done by running functions from the Apps Script editor or triggering `runMailCheck()`.
+The `scriptId` in `.clasp.json` links this directory to the live Apps Script project. The emAIl Sentinel Script ID is `1Cq_G1N935YKuuYe-5rViGnrHybrmgqJANwKUzlOzGP9UecGNyE07ssrR`. Apps Script has no in-repo unit tests; manual testing is done by running functions from the Apps Script editor or triggering `runMailCheck()`.
 
 ## Architecture
 
