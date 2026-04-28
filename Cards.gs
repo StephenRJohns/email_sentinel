@@ -194,10 +194,18 @@ function refreshHome_(message) {
 // Help, Activity log) replace the navigation stack rather than pushing onto
 // it, so Gmail's native back arrow at the top of the card isn't shown — the
 // user has nothing to go "back" to. Without an in-card escape, they're stuck
-// on that sub-card and have to close the add-on entirely. Every sub-card
-// therefore prepends this small "Home" section so navigation home is always
-// one tap away whether the user got here via the home card (where the arrow
-// would also work) or the kebab menu (where it wouldn't).
+// on that sub-card and have to close the add-on entirely.
+//
+// CardService doesn't tell the server whether the back arrow is currently
+// rendered, so each sub-card builder accepts an optional `viaPush` flag and
+// suppresses the Home button when set — `handleNavTo` (the push path used by
+// the home-card buttons) sets `viaPush=true` because it knows the resulting
+// stack will have at least the home card underneath, guaranteeing the back
+// arrow. Every other call site (universal action handlers, popToRoot.update
+// returns, popCard.update returns) leaves it false so the button shows.
+// Slight redundancy is possible on rare nested-edit return paths, but those
+// always have a back-arrow available so the duplicate Home button is just
+// visual noise — not a trapping hazard.
 function buildHomeButtonSection_() {
   return CardService.newCardSection()
     .addWidget(CardService.newTextButton()
@@ -238,12 +246,12 @@ function buildScanResultCard_(message, success) {
 // Rules list
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildRulesCard() {
+function buildRulesCard(viaPush) {
   const rules = loadRules();
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Rules'));
 
-  card.addSection(buildHomeButtonSection_());
+  if (!viaPush) card.addSection(buildHomeButtonSection_());
 
   const newSection = CardService.newCardSection()
     .addWidget(CardService.newTextButton()
@@ -706,7 +714,7 @@ function isSmsConfigReady_(s) {
   return false;
 }
 
-function buildSettingsCard() {
+function buildSettingsCard(viaPush) {
   const s = loadSettings();
 
   const aiSection = CardService.newCardSection()
@@ -1030,9 +1038,10 @@ function buildSettingsCard() {
         .setText('Reset baseline')
         .setOnClickAction(action_('handleResetBaseline'))));
 
-  return CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Settings'))
-    .addSection(buildHomeButtonSection_())
+  const settingsBuilder = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Settings'));
+  if (!viaPush) settingsBuilder.addSection(buildHomeButtonSection_());
+  return settingsBuilder
     .addSection(buildUnsavedChangesNotice_())
     .addSection(aiSection)
     .addSection(pollSection)
@@ -1345,13 +1354,13 @@ function buildSmsGuideCard() {
 // Activity log
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildActivityCard(offset) {
+function buildActivityCard(offset, viaPush) {
   offset = offset || 0;
   const entries = loadLog();
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Activity log'));
 
-  card.addSection(buildHomeButtonSection_());
+  if (!viaPush) card.addSection(buildHomeButtonSection_());
 
   const btnSet = CardService.newButtonSet();
   btnSet.addButton(CardService.newTextButton()
@@ -1449,11 +1458,11 @@ function handleCancelClearLog(e) {
 // Help
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildHelpCard() {
+function buildHelpCard(viaPush) {
   var card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
 
-  card.addSection(buildHomeButtonSection_());
+  if (!viaPush) card.addSection(buildHomeButtonSection_());
 
   var searchSection = CardService.newCardSection()
     .setHeader('<b>Search help</b>')
@@ -1748,7 +1757,7 @@ const STARTER_RULES_ = [
   }
 ];
 
-function buildStarterRulesCard() {
+function buildStarterRulesCard(viaPush) {
   const existing = loadRules();
   const existingNames = existing.map(function(r) { return r.name; });
   const toCreate = STARTER_RULES_.filter(function(sr) {
@@ -1762,11 +1771,10 @@ function buildStarterRulesCard() {
     section.addWidget(CardService.newTextButton()
       .setText('Back')
       .setOnClickAction(action_('handlePopCard')));
-    return CardService.newCardBuilder()
-      .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
-      .addSection(buildHomeButtonSection_())
-      .addSection(section)
-      .build();
+    const emptyBuilder = CardService.newCardBuilder()
+      .setHeader(CardService.newCardHeader().setTitle('Starter rules'));
+    if (!viaPush) emptyBuilder.addSection(buildHomeButtonSection_());
+    return emptyBuilder.addSection(section).build();
   }
 
   section.setHeader(toCreate.length + ' rules will be created (disabled) watching your INBOX. Edit each rule to add alert recipients and enable it.');
@@ -1785,11 +1793,10 @@ function buildStarterRulesCard() {
       .setText('Cancel')
       .setOnClickAction(action_('handlePopCard')));
 
-  return CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Starter rules'))
-    .addSection(buildHomeButtonSection_())
-    .addSection(section)
-    .build();
+  const starterBuilder = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Starter rules'));
+  if (!viaPush) starterBuilder.addSection(buildHomeButtonSection_());
+  return starterBuilder.addSection(section).build();
 }
 
 function handlePopCard(e) {
@@ -1846,17 +1853,25 @@ function actionWithRule_(fn, ruleId) {
 
 function handleNavTo(e) {
   const builder = e.parameters.builder;
-  const map = {
-    buildRulesCard: buildRulesCard,
-    buildSettingsCard: buildSettingsCard,
-    buildActivityCard: buildActivityCard,
-    buildHelpCard: buildHelpCard,
-    buildHomeCard: buildHomeCard,
-    buildStarterRulesCard: buildStarterRulesCard
-  };
-  const builderFn = map[builder] || buildHomeCard;
+  // viaPush=true tells each sub-card builder to suppress its in-card "Home"
+  // section: this path puts the new card on top of the home card so Gmail's
+  // native back arrow is guaranteed visible, making the in-card Home button
+  // visually redundant. Universal-action handlers and post-action returns
+  // (popToRoot.update / popCard.update) call these builders without the flag,
+  // so the Home button renders for them — that's where the back arrow may not
+  // be available.
+  let card;
+  switch (builder) {
+    case 'buildRulesCard':         card = buildRulesCard(true); break;
+    case 'buildSettingsCard':      card = buildSettingsCard(true); break;
+    case 'buildActivityCard':      card = buildActivityCard(0, true); break;
+    case 'buildHelpCard':          card = buildHelpCard(true); break;
+    case 'buildStarterRulesCard':  card = buildStarterRulesCard(true); break;
+    case 'buildHomeCard':          // Home card itself never has the Home button.
+    default:                       card = buildHomeCard();
+  }
   return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().pushCard(builderFn()))
+    .setNavigation(CardService.newNavigation().pushCard(card))
     .build();
 }
 

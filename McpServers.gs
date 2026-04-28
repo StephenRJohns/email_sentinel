@@ -44,21 +44,30 @@ const MCP_TYPE_DEFAULTS = {
     toolName: 'send_message',
     toolArgsTemplate: '{"chat_id":"CHAT_ID","content":"{{message}}"}'
   },
+  'asana-rest': {
+    label: 'Asana (REST API — easier)',
+    description: 'Direct Asana REST API task creation. Works with a Personal Access Token (PAT) from app.asana.com/0/my-apps — no OAuth flow needed. Recommended for most users. Tool name field is unused for this type. Default endpoint posts to /api/1.0/tasks.',
+    defaultEndpoint: 'https://app.asana.com/api/1.0/tasks',
+    toolName: '',
+    toolArgsTemplate: '{"data":{"projects":["PROJECT_ID"],"name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}}'
+  },
   asana: {
-    label: 'Asana',
-    description: 'Official Asana MCP server — creates a task in a project.',
+    label: 'Asana (MCP V2 — requires OAuth)',
+    description: 'Official Asana MCP V2 server — creates a task via JSON-RPC. Requires an OAuth-issued access token from a registered MCP client app; PATs are rejected by the V2 gateway. Most users should pick "Asana (REST API)" instead.',
+    defaultEndpoint: 'https://mcp.asana.com/v2/mcp',
     toolName: 'asana_create_task',
     toolArgsTemplate: '{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}'
   },
   custom: {
     label: 'Custom',
     description: 'Any HTTP MCP server using JSON-RPC 2.0 (Streamable HTTP transport).',
+    defaultEndpoint: '',
     toolName: '',
     toolArgsTemplate: '{"message":"{{message}}"}'
   }
 };
 
-const MCP_TYPES = ['slack', 'ms365', 'asana', 'custom'];
+const MCP_TYPES = ['slack', 'ms365', 'asana-rest', 'asana', 'custom'];
 
 // ── Storage ─────────────────────────────────────────────────────────────────
 
@@ -116,6 +125,13 @@ function deleteMcpServer(id) {
 function sendMcpAlert_(server, rule, emailData, message) {
   if (!server.endpoint || !/^https:\/\//i.test(server.endpoint)) {
     throw new Error('MCP server "' + server.name + '" endpoint must be an HTTPS URL.');
+  }
+  // Asana REST is a non-MCP fork: posts directly to Asana's task-creation
+  // endpoint with a PAT in the Authorization header. Bypasses MCP entirely
+  // because Asana's V2 MCP gateway requires OAuth-issued tokens (rejecting
+  // the PATs that work everywhere else in the Asana API surface).
+  if (server.type === 'asana-rest') {
+    return sendAsanaRestTask_(server, rule, emailData, message);
   }
   if (!server.toolName) {
     throw new Error('MCP server "' + server.name + '" has no tool name configured.');

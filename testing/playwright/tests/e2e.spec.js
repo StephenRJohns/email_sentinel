@@ -127,15 +127,18 @@ test('S8: activity log has Refresh button', async ({ page }) => {
   await expect(getFrame(page).getByRole('button', { name: 'Refresh' })).toBeVisible();
 });
 
-test('S8: in-card Home button present on every sub-card', async ({ page }) => {
-  // Sub-cards reached via the universal-action kebab menu replace the nav
-  // stack, so Gmail's native back arrow doesn't appear and the user has no
-  // way out without an in-card escape. Every sub-card prepends a Home button
-  // for that case (also useful from stacked navigation).
+test('S8: home-card push hides redundant in-card Home button', async ({ page }) => {
+  // Sub-cards opened by clicking their button on the home card are pushed
+  // onto the nav stack, so Gmail's native back arrow is visible. The in-card
+  // Home button is suppressed in that path to avoid duplication. The
+  // universal-action (kebab menu) entry path, where the back arrow does not
+  // appear, still shows the Home button — that's exercised manually per
+  // e2e_test_plan.md Section 17c because Workspace add-on kebab menus are not
+  // reliably scriptable from Playwright.
   for (const section of ['Rules', 'Settings', 'Help', 'Activity log']) {
     const frame = await openAddon(page);
     await clickButton(frame, section);
-    await expect(getFrame(page).getByRole('button', { name: /^Home$/i }).first()).toBeVisible();
+    await expect(getFrame(page).getByRole('button', { name: /^Home$/i })).toHaveCount(0);
   }
 });
 

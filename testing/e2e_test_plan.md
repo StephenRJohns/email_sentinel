@@ -235,6 +235,28 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] [Optional] Once verified, delete the `E2E Asana` MCP server from Settings (or untick it on the rule) so future test runs don't keep creating Asana tasks.
 - [ ] [Optional] If you no longer need it, revoke the PAT at https://app.asana.com/0/my-apps for hygiene.
 
+### 13f · MCP dispatcher self-test (server-side, no UI)
+
+*Exercises every code-path branch in `McpServers.gs sendMcpAlert_` against the deliberately-misbehaving Cloudflare Worker loopback in `testing/mcp-loopback/`. Hermetic — constructs synthetic rule + email + server objects in memory, never touches saved rules / settings. Logs structured per-mode PASS / FAIL plus an aggregate summary to the activity log.*
+
+**Prerequisite:** Cloudflare Worker loopback must be deployed (one-time, see `testing/mcp-loopback/README.md`). The `MCP_LOOPBACK_BASE_URL_` constant in `Diagnostics.gs` must point at the deployed worker URL.
+
+- [ ] In the Apps Script editor (script.google.com), open `Diagnostics.gs`.
+- [ ] In the function dropdown above the editor, pick **`runMcpLoopbackTests`**. Click **Run**. (First run prompts for OAuth consent — approve.)
+- [ ] Wait ~5–10 seconds for the function to complete (one HTTPS round-trip per mode × 9 modes). The execution log at the bottom of the editor shows the function returning `{passed: 9, total: 9, allPassed: true, results: [...]}`.
+- [ ] In the add-on, open **Activity log**. The newest entries should include:
+  - `=== MCP loopback self-test ===` header line
+  - One `[PASS]` line per mode: `[PASS] success — expected sent — actual sent`, `[PASS] sse — …`, etc. through all 9 modes.
+  - Final summary: `MCP loopback self-test: 9/9 passed`.
+- [ ] **Failure interpretation.** A `[FAIL]` line names the mode and shows expected vs. actual. Common failure causes:
+  - Worker URL changed but `MCP_LOOPBACK_BASE_URL_` not updated → all 9 modes fail with HTTP / DNS error in `actual`.
+  - SSE-related fail (`sse` or `isErrorSse`) → bug in the `text/event-stream` parser in `sendMcpAlert_`.
+  - `isError` or `isErrorSse` log "sent" instead of "failed" → the `body.result.isError === true` check regressed (this was the original silent-success bug).
+  - `jsonrpcError` logs "sent" → the `body.error` envelope check regressed.
+  - `http401` / `http500` log "sent" → the HTTP non-2xx tier regressed.
+  - `empty` / `malformedJson` log "failed" → the swallow-on-non-JSON path regressed in the wrong direction.
+- [ ] **Optional — automate via scheduled remote agent.** The Asana V1 cutoff routine `trig_012bSXvsU2uyusQb2sSQS9Qf` was set up similarly. To run `runMcpLoopbackTests` on a recurring schedule (e.g. weekly), create a routine that uses the Apps Script API `scripts.run` method against this project, with the function name `runMcpLoopbackTests`, and posts a GitHub issue if `result.allPassed === false`.
+
 ---
 
 ## 14 · Help Card Navigation
