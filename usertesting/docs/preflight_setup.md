@@ -80,8 +80,8 @@ This is the most important step. You run both Scripts A and B against the deploy
 ### 3b. Procedure (for each script in turn)
 
 1. Open the script file fresh — read it through once before starting.
-   - `docs/usertesting/script_a_core.md` (15-min target)
-   - `docs/usertesting/script_b_power.md` (20-min target)
+   - `usertesting/docs/script_a_core.md` (15-min target)
+   - `usertesting/docs/script_b_power.md` (20-min target)
 2. Start the stopwatch.
 3. Run Task 1 → 2 → 3 → 4 → 5 in order, doing exactly what the script says. No shortcuts a real tester wouldn't take. Read each task aloud as if you were a UserTesting participant thinking out loud.
 4. Note any moment of confusion, broken behavior, or dead-end. Even minor ones — a verbal "wait, what is this asking me to do?" is a finding worth fixing.
@@ -163,7 +163,7 @@ UserTesting emails you when each session completes. Recordings come back gradual
 ### 5a. Watch and note
 
 ```
-cp docs/usertesting/triage_template.md docs/usertesting/round_1_$(date +%Y-%m-%d)_findings.md
+cp usertesting/docs/triage_template.md usertesting/findings/round_1_$(date +%Y-%m-%d)_findings.md
 ```
 
 Open the new findings file. Watch each recording at 1.5 × speed. Fill in the findings table as you go — one row per distinct issue, with verbatim quotes when possible.

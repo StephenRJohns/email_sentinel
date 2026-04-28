@@ -1,6 +1,6 @@
 # UserTesting — Round triage template
 
-Copy this file to `docs/usertesting/round_<N>_<YYYY-MM-DD>_findings.md` at the start of each triage pass and fill it in as you watch the recordings.
+Copy this file to `usertesting/findings/round_<N>_<YYYY-MM-DD>_findings.md` at the start of each triage pass and fill it in as you watch the recordings.
 
 ---
 

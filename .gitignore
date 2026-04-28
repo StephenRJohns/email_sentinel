@@ -13,3 +13,15 @@ node_modules/
 # Do not move files out of here unless they are confirmed free of API keys,
 # credentials, internal strategy notes, or Gmail-account PII.
 work/
+
+# UserTesting per-round artifacts that contain secrets or PII:
+#   outgoing/  — filled task scripts with real Gemini API key + deployment URL
+#   incoming/  — downloaded session recordings, transcripts (tester PII)
+# Both directories themselves are kept (via .gitkeep + README.md) so the
+# structure survives a fresh clone; only their working contents are ignored.
+usertesting/outgoing/*
+usertesting/incoming/*
+!usertesting/outgoing/.gitkeep
+!usertesting/outgoing/README.md
+!usertesting/incoming/.gitkeep
+!usertesting/incoming/README.md
