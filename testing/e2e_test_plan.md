@@ -191,6 +191,8 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 *Optional — send alerts to Asana via the official Asana MCP server. Creates a task in a chosen project for every match.*
 
+> ⚠ **Asana V1 MCP cutoff: 2026-05-11.** The instructions below target Asana's V1 SSE endpoint at `https://mcp.asana.com/v1/sse`, which accepts Personal Access Tokens (PATs). Asana's V2 endpoint at `https://mcp.asana.com/v2/mcp` requires OAuth-issued tokens (PATs are rejected with `Invalid token signature`) and a 200–400-line OAuth+PKCE implementation in the add-on; that is not currently in scope. **After 2026-05-11**, V1 will be shut down and this section needs to be migrated to a self-hosted MCP server (community Asana MCP image deployed to Cloudflare Workers / Render / Fly) — see scheduled routine `trig_012bSXvsU2uyusQb2sSQS9Qf` (fires 2026-05-09) which will open a GitHub issue if/when V1 stops responding. In the meantime, the steps below assume V1.
+
 ### 13a · Get your Asana credentials
 
 - [ ] [Optional] Sign in to Asana at https://app.asana.com (the free tier is fine).
@@ -203,8 +205,8 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] [Optional] **Name:** `E2E Asana`
 - [ ] [Optional] **Type:** select `Asana` from the dropdown, then click **Load defaults**. This pre-fills both the Tool name and Tool args template fields below.
 - [ ] [Optional] **Tool name:** leave as `asana_create_task` (the value populated by Load defaults). This is the canonical name of Asana's MCP "create task" tool — do not change it unless you know your Asana MCP exposes a different tool name.
-- [ ] [Optional] **Endpoint:** `https://mcp.asana.com/v2/mcp` (the V1 `/sse` endpoint is deprecated and shuts down 2026-05-11 — do not use it).
-- [ ] [Optional] **Auth token:** paste `Bearer ` followed by the PAT from step 13a (so the field looks like `Bearer 1/123456789abcdef…`).
+- [ ] [Optional] **Endpoint:** `https://mcp.asana.com/v1/sse` until 2026-05-11. The V2 endpoint (`https://mcp.asana.com/v2/mcp`) requires an OAuth-issued access token issued through Asana's MCP-registered client flow; PATs are rejected by V2 with `Invalid token signature - token was not issued by Asana OAuth`. After the V1 cutoff, switch to a self-hosted MCP server per the section heading note.
+- [ ] [Optional] **Auth token:** paste `Bearer ` followed by the PAT from step 13a (so the field looks like `Bearer 1/123456789abcdef…` for legacy PATs, or `Bearer 2/<workspace>/<user>:<hash>` for current PAT format — Asana's PAT format changed at some point and both shapes work with V1).
 - [ ] [Optional] **Tool args template:** the Load-defaults click pre-fills this as `{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}`. Replace the literal text `PROJECT_ID` with your actual project GID from step 13a. Leave `{{subject}}` and `{{message}}` placeholders intact.
 - [ ] [Optional] Click **Save**. "E2E Asana" appears in the MCP server list.
 
@@ -324,13 +326,14 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ---
 
-## 17c · Home Button on Sub-Cards
+## 17c · Home Button on Sub-Cards (conditional)
 
-*Sub-cards reached via the kebab "⋮" menu replace the navigation stack and Gmail's native back arrow doesn't render. Every sub-card therefore prepends a Home button so users always have an escape.*
+*The in-card Home button is shown only when Gmail's native back arrow is unavailable. Specifically, the home-card push path suppresses it (back arrow already there); the kebab-menu universal-action path shows it (no back arrow because the stack was replaced).*
 
-- [ ] **Via home-card buttons (stacked nav).** From the home card, click each sub-card button in turn — Settings, Rules, Activity log, Help, Starter rules. The first section on each card is a "Home" button (above any other content). Clicking it returns to the home card.
-- [ ] **Via kebab menu (replaced nav).** Click the "⋮" menu in the add-on header, then in turn pick Rules, Settings, Activity Log, Help. The Gmail back arrow at the top-left of the card is NOT shown (this is the case the Home button exists to handle). The in-card Home button works identically and returns to the home card.
-- [ ] **Cross-pollination.** From the kebab menu, open Activity Log → click Home → click Settings (home-card button) → click Home. Each Home click lands on the home card with no errors and no stacked navigation residue.
+- [ ] **Via home-card buttons (stacked nav, back arrow visible).** From the home card, click each sub-card button in turn — Settings, Rules, Activity log, Help, Starter rules. Gmail's native back arrow (←) is visible at the top-left of each card. The in-card "Home" button is **NOT** shown (suppressed because the back arrow already provides escape). The back arrow returns to the home card.
+- [ ] **Via kebab menu (replaced nav, no back arrow).** Click the "⋮" menu in the add-on header, then in turn pick Rules, Settings, Activity Log, Help. The Gmail back arrow at the top-left of the card is **NOT** shown — the stack was replaced rather than pushed. The first section on each card is a "Home" button. Clicking it returns to the home card.
+- [ ] **Mixed paths.** From the kebab menu open Settings (Home button shows). Click Home — lands on home card. Click Settings on home card (Home button suppressed, back arrow shows). Click back arrow — lands on home card. No stacked navigation residue or error states.
+- [ ] **Post-edit return paths.** Open Settings via home-card button (no Home button, back arrow visible). Click Add SMS recipient (push → editor opens). Save the recipient — Settings card re-renders. Whether the in-card Home button appears here is acceptable either way (CardService cannot tell the server whether the back arrow is currently visible on a popCard.update path); the important thing is that the user is never trapped.
 
 ---
 
