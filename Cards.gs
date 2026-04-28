@@ -84,6 +84,12 @@ function buildHomeCard() {
   statusSection.addWidget(CardService.newTextButton()
     .setText('Scan email now')
     .setOnClickAction(action_('handleRunCheckNow')));
+  // CardService action handlers run blocking and the platform shows only a
+  // subtle default spinner during execution. Set expectations on the button
+  // beforehand — users have reported that clicking and seeing nothing happen
+  // for 10-60 seconds feels broken even though it isn't.
+  statusSection.addWidget(CardService.newTextParagraph().setText(
+    '<font color="#888888">Scans typically take 10–60 seconds; you\'ll see the result on a confirmation card when it finishes.</font>'));
 
   // First-use onboarding
   var setupSection = null;
@@ -169,14 +175,28 @@ function handleStopMonitoring(e) {
 }
 
 function handleRunCheckNow(e) {
+  // Land the user on the persistent buildScanResultCard_ — same surface the
+  // kebab-menu universal-action path uses. The previous refreshHome_ + toast
+  // path was reported as "no feedback" because the toast vanishes after a few
+  // seconds and the home card otherwise looks identical to its pre-scan
+  // state. The Scan result card has the green ✅ / red ⚠ banner with the
+  // count and stays on screen until the user explicitly navigates back.
   try {
     var result = runMailCheck({ force: true }) || {};
-    var msg = 'Check complete: ' + plural_(result.messagesChecked || 0, 'new email') + ', ' +
-      plural_(result.matchesFound || 0, 'match', 'matches') + '.';
+    var summary = plural_(result.messagesChecked || 0, 'new email') + ', ' +
+      plural_(result.matchesFound || 0, 'match', 'matches');
+    var msg = 'Scan complete — ' + summary + '.';
     if (!loadSettings().geminiApiKey) msg += ' No Gemini API key set — open Settings to add one.';
-    return refreshHome_(msg);
+    activityLog('Manual check: ' + summary + '.');
+    return CardService.newActionResponseBuilder()
+      .setNavigation(CardService.newNavigation().pushCard(buildScanResultCard_(msg, true)))
+      .build();
   } catch (err) {
-    return notificationResponse_('Check failed: ' + (err.message || err));
+    activityLog('Manual check failed: ' + err);
+    return CardService.newActionResponseBuilder()
+      .setNavigation(CardService.newNavigation().pushCard(
+        buildScanResultCard_('Scan failed: ' + (err.message || err), false)))
+      .build();
   }
 }
 
