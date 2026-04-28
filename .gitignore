@@ -6,6 +6,9 @@ node_modules/
 .clasp.json
 .clasprc.json
 
+# Cloudflare wrangler local cache + build artifacts (testing/mcp-loopback/)
+.wrangler/
+
 # Private working dir: secrets, internal strategy, historical test artifacts.
 # Do not move files out of here unless they are confirmed free of API keys,
 # credentials, internal strategy notes, or Gmail-account PII.
