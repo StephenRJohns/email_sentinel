@@ -207,13 +207,13 @@ After fixes ship, optionally run a smaller Round 2 (~5 sessions, ~$245, unmodera
 
 | Item | Cost | Time |
 |---|---|---|
-| Step 1 — Sandbox GCP project + capped Gemini key | $0 (until tester usage; capped at $5) | ~10 min |
-| Step 2 — Test deployment + install URL | $0 | ~10 min |
+| Step 1 — Sandbox GCP project + capped Gemini key | $0 (until tester usage; capped at $5) | ~10 min hands-on + hours/days waiting on Google's project-quota approval if your account hits that limit |
+| Step 2 — Marketplace SDK setup + install URL | $0 | **~2–3 hours** (pull-forward of pre-launch critical-path work; the SDK has to be configured for public launch anyway) |
 | Step 3 — Pre-flight self-test on fresh Google account | $0 | ~30 min + ≤60 min trim/fix |
 | Step 4 — UserTesting account + Round 1 submission | ~$490 | ~30 min |
 | Wait for sessions to come back | $0 | 1–2 weeks (your time: 0) |
 | Step 5 — Triage + fix | $0 | ~3–4 hr review + 4–10 hr fixes |
 | Optional Round 2 | ~$245 | ~2 hr review |
-| **Total Round 1 only** | **~$490** | **~10 hr of dev time over ~3 weeks** |
+| **Total Round 1 only** | **~$490** | **~12–14 hr of dev time over ~3 weeks** |
 
-Calendar runs in parallel with the OAuth-verification wait, so launch date isn't pushed.
+Calendar runs in parallel with the OAuth-verification wait, so launch date isn't pushed. Step 2's Marketplace SDK setup also satisfies a launch requirement — you're not adding work to the launch path, just sequencing it earlier.
