@@ -40,29 +40,54 @@ The point: you don't want a runaway tester loop draining your real Gemini budget
 
 ---
 
-## Step 2 — Apps Script test deployment + install URL (~10 min)
+## Step 2 — Marketplace SDK install URL (~2–3 hours, NOT 10 min)
 
-### 2a. Create the test deployment
+> ⚠ **Correction over an earlier draft of this walkthrough.** The Apps Script Editor's "Test deployments" dialog only installs the add-on for the currently-signed-in (dev) account — it does NOT generate a public install URL the way Web App test deployments do. Workspace add-ons distribute exclusively through the Google Workspace Marketplace, so external testers need a Marketplace SDK install URL even for unverified pre-launch testing. This makes Step 2 substantially heavier than originally scoped.
 
-1. From your dev account, open the Apps Script editor for emAIl Sentinel: `clasp open` from the repo, or navigate to script.google.com → emAIl Sentinel project.
-2. Top right → **Deploy** → **Test deployments** (this is a *different* dialog from "New deployment" / "Manage deployments").
-3. **Install** → copy the deployment URL it shows you. Format is roughly `https://script.google.com/macros/d/{DEPLOYMENT_ID}/usercopy`.
+The 2–3 hour setup is "free" pull-forward of pre-launch critical-path work — it has to happen for the public launch anyway. Walk through `docs/marketplace_checklist.txt` Parts 1–3 in order:
 
-### 2b. Decide the tester-authorization model
+### 2a. Enable the Marketplace SDK
 
-The Test-deployments dialog gives you two options for who can install:
+1. **https://console.cloud.google.com** → top bar → select the Cloud project linked to your Apps Script project. (Verify in the Apps Script editor → Project Settings → Google Cloud Platform (GCP) Project section if unsure.)
+2. Hamburger → **APIs & Services** → **Library** → search "Google Workspace Marketplace SDK" → **Enable**.
+3. Hamburger → **APIs & Services** → **Enabled APIs & services** → click **Google Workspace Marketplace SDK**. You'll use three tabs: OVERVIEW, APP CONFIGURATION, STORE LISTING.
 
-- **Anyone with the link can install** — simpler. Hand the URL to UserTesting raw; testers' own Google accounts will be able to install. Recommended for a first round.
-- **Specific test-user emails only** — more controlled. Pre-add UserTesting tester emails individually. Use this if you've already collected emails from screener responses and want to restrict access strictly to those addresses.
+### 2b. App Configuration tab
 
-For Round 1, "Anyone with the link" is the lower-friction choice. The unverified-app warning still gates installs to people who deliberately click through it, so the practical exposure is limited to UserTesting participants who are following your task script.
+Paste in everything from `docs/marketplace_checklist.txt` Part 2:
 
-### 2c. Validate the URL works
+- App name (must match OAuth consent screen exactly)
+- Icon, banner, screenshots
+- OAuth scopes (must match `appsscript.json`)
+- Developer details
+- ToS URL, Privacy URL
+- Detailed description
 
-1. On a different device or browser (or Incognito mode signed into a fresh non-dev Google account), paste the URL.
+### 2c. Store Listing tab
+
+- Short description
+- Category
+- Regions: **United States only** (matches `legal/TERMS.md` §2)
+- Languages: English
+
+### 2d. OAuth consent screen — set publishing status to "In Production"
+
+Hamburger → **APIs & Services** → **OAuth consent screen**. If publishing status is "Testing", click **Publish App** to move to "In Production". This allows external Google accounts to install (with the unverified-app warning) up to a 100-user lifetime cap until OAuth verification clears.
+
+### 2e. Get the install URL
+
+After saving the SDK draft (don't click "Publish to Marketplace" — that triggers Google's listing review on top of OAuth review), the SDK gives you a pre-publication install URL. Format and exact location of this URL varies with the current Cloud Console UI; verify by navigating Marketplace SDK → OVERVIEW or APP CONFIGURATION → look for "Install URL" or "Direct install link".
+
+### 2f. Validate the URL works
+
+1. On a different device or browser (Incognito, signed into a fresh non-dev Google account that is NOT in your Workspace org), paste the URL.
 2. You should see Google's "unverified app" consent screen → **Continue** → **Allow**.
 3. Reload Gmail. The emAIl Sentinel icon should appear in the right rail. Open it. Home card should load.
 4. **If anything fails here, fix it before Round 1.** Testers cannot get past install issues you haven't already discovered.
+
+### 2g. Skip-this-step alternative
+
+If you don't have 2–3 hours for SDK setup right now, an acceptable temporary path is to share the Apps Script project as **Viewer** with each tester's Gmail address. They install via script.google.com. Trade-off: testers get source-code access. Acceptable for a small one-time UserTesting cohort, but the LICENSE-protected proprietary stance is weakened. If you take this path, **flip `email_sentinel` to private on GitHub first** (after the icon migration documented elsewhere) so the source the testers see is also the only source publicly visible.
 
 ---
 
