@@ -123,10 +123,9 @@ This is the most important step. You run both Scripts A and B against the deploy
 
 - Does the home card communicate "what is this product?" within 30 seconds of opening the add-on for the first time? (Script A Task 1 hinges on this.)
 - Does the AI rule-suggestion button produce useful output for the example rule in Script A? (Click it, read the suggestion, ask: would a non-technical user accept this?)
-- Does the country-code-dropdown + digits-only field in the SMS recipient editor make sense without instructions? (Script B Task 2.)
-- Does the Textbelt free `textbelt` token actually deliver an SMS to your phone? Textbelt rate-limits to 1 SMS/day per IP — if your home IP is already used or blocked, find out *now*, not after paying for sessions.
 - Does the unverified-app consent warning's wording match what's in your task scripts ("Continue → Allow")? Google occasionally tweaks the consent UI; if the buttons are renamed, update the scripts before submitting.
 - After the alert fires, is the activity log line clear and reassuring to a non-technical tester? ("Calendar event created" is fine; "MCP alert sent to: …" is jargon.)
+- Does the home card prominently display **Start monitoring at N hours** as the first FILLED button? If yes (it does), confirm Script A's briefing tells testers to ignore it — they may otherwise click it and burn your $5 Gemini sandbox budget by leaving monitoring on after the session ends.
 
 ### 3e. Fix what you find before Step 4
 
@@ -136,22 +135,24 @@ Time budget: 30 min self-test + up to 60 min script trimming / minor add-on edit
 
 ## Step 4 — Fill placeholders + submit Round 1 to UserTesting (~30 min)
 
+> **Round 1 scope (decided 2026-04-29):** All 10 sessions run **Script A** (core install + first rule + Calendar alert + manual scan). Script B (SMS path) and "Start monitoring" / auto-trigger paths are **deferred** — see `script_b_power.md` deferred banner and the project memo for rationale.
+
 ### 4a. Fill placeholders
 
-Both task scripts contain `<DEV_GEMINI_KEY>` and `<TEST_DEPLOYMENT_URL>` placeholders. Don't replace them in the repo — those values are per-round secrets and shouldn't end up in git history.
+The Script A file (`script_a_core.md`) contains `<DEV_GEMINI_KEY>` and `<TEST_DEPLOYMENT_URL>` placeholders. Don't replace them in the repo — those values are per-round secrets and shouldn't end up in git history.
 
 Instead:
 
-1. Open each script file and copy its full text.
-2. Paste into a temp file (`/tmp/script_a_filled.md`, `/tmp/script_b_filled.md`) OR paste directly into UserTesting's task editor.
-3. In the temp/UserTesting copy, replace `<DEV_GEMINI_KEY>` with the key from Step 1 and `<TEST_DEPLOYMENT_URL>` with the URL from Step 2.
-4. After the round closes (and definitely before Round 2), rotate the Gemini key (revoke old, generate new in the same sandbox project) and create a fresh test deployment URL — Round-1 testers shouldn't retain working access.
+1. Copy the full text of `script_a_core.md`.
+2. Paste into a temp file (`/tmp/script_a_filled.md` or `usertesting/outgoing/round_1/script_a_filled.md` — the `outgoing/` directory is gitignored) OR paste directly into UserTesting's task editor.
+3. In the temp / UserTesting copy, replace `<DEV_GEMINI_KEY>` with the key from Step 1 and `<TEST_DEPLOYMENT_URL>` with the URL from Step 2.
+4. After the round closes (and definitely before any future round), rotate the Gemini key (revoke old, generate new in the same sandbox project) and create a fresh test deployment URL — Round-1 testers shouldn't retain working access.
 
 ### 4b. Sign up for UserTesting
 
 If you don't already have an account: **https://www.usertesting.com/** → sign up. Onboarding asks about your company / use case; free-text answers are fine.
 
-### 4c. Configure Test 1 — Script A
+### 4c. Configure the test — Script A only, 10 sessions
 
 1. Create a new test → **Unmoderated** / **Self-serve**.
 2. Devices: **Desktop only** (the add-on is desktop Gmail).
@@ -162,20 +163,10 @@ If you don't already have an account: **https://www.usertesting.com/** → sign 
    - US-based
    - Has installed a Gmail add-on or browser extension before, OR comfortable installing software when given a link
 5. Tasks: paste Script A's 5 tasks, one per task field. Use the filled-in text from Step 4a.
-6. Session count: **6 sessions**.
+6. Session count: **10 sessions**.
 7. Submit.
 
-### 4d. Configure Test 2 — Script B
-
-1. New test → same Unmoderated / Self-serve / Desktop / any-browser config.
-2. Tester profile filters (Script B has the same as A plus one more):
-   - All four Script A filters
-   - Has a US mobile phone they're willing to receive **one** test SMS at during the session
-3. Tasks: paste Script B's 5 tasks (filled-in text from Step 4a).
-4. Session count: **4 sessions**.
-5. Submit.
-
-### 4e. Pay
+### 4d. Pay
 
 Roughly **$49 × 10 = $490** total. UserTesting charges per session at submission.
 
@@ -210,7 +201,7 @@ After fixes ship, optionally run a smaller Round 2 (~5 sessions, ~$245, unmodera
 | Step 1 — Sandbox GCP project + capped Gemini key | $0 (until tester usage; capped at $5) | ~10 min hands-on + hours/days waiting on Google's project-quota approval if your account hits that limit |
 | Step 2 — Marketplace SDK setup + install URL | $0 | **~2–3 hours** (pull-forward of pre-launch critical-path work; the SDK has to be configured for public launch anyway) |
 | Step 3 — Pre-flight self-test on fresh Google account | $0 | ~30 min + ≤60 min trim/fix |
-| Step 4 — UserTesting account + Round 1 submission | ~$490 | ~30 min |
+| Step 4 — UserTesting account + Round 1 submission (10 sessions, all Script A) | ~$490 | ~20 min |
 | Wait for sessions to come back | $0 | 1–2 weeks (your time: 0) |
 | Step 5 — Triage + fix | $0 | ~3–4 hr review + 4–10 hr fixes |
 | Optional Round 2 | ~$245 | ~2 hr review |

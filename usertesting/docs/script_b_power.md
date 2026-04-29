@@ -1,7 +1,15 @@
 # UserTesting — Script B: Power user / SMS path
 
+> ⚠ **DEFERRED — not used in Round 1.** Round 1 (10 sessions) is now all-Script-A. SMS-path testing is dropped from Round 1 because:
+> - SMS provider setup (Twilio A2P 10DLC, Telnyx/Plivo number provisioning) takes days, doesn't fit a 20-min session.
+> - Textbelt's free tier rate-limits to 1 SMS/day per IP, which fails on tester re-tries.
+> - The SMS UX risk is concentrated in the country-code-dropdown + digits-only editor, well-covered by the developer's manual testing.
+> - Skipping SMS keeps every session focused on the install + first-rule + Calendar-alert path, which is the highest-stakes pre-launch UX surface.
+>
+> **This file is preserved as a future-round reference.** If a Round N adds SMS-path coverage, revive this script (re-test the Textbelt token availability first; rate limits may have shifted).
+
 **Target session length:** 20 minutes (unmoderated, screen + audio recording)
-**Cohort within Round 1:** 4 of 10 sessions
+**Cohort within Round 1:** ~~4 of 10 sessions~~ — deferred
 **Pre-supplied to tester:**
 - Test-deployment install URL (issued by developer)
 - Gemini API key (rotate after the round)
