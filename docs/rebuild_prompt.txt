@@ -41,15 +41,16 @@ Help content lives inline in helpTopics_() in Cards.gs (5 topics: quickstart,
 examples, channels, pricing, settings). The Help card renders it via
 buildHelpCard / handleShowHelpTopic / handleSearchHelp.
 
-Exception — the Cloudflare Worker MCP code listing (~30 lines of inline
-JavaScript) is NOT in the channels topic; in step 3 of the Cloudflare Worker
-walkthrough, the channels topic links to
-https://emailsentinel.jjjjjenterprises.com/help.html#channels for the code.
-The website mirrors all five help topics in full and renders the Worker code
-in a proper pre/code block. Inlining the code in CardService caused a
-"type cannot be used by the add-ons platform" rejection on the channels
-topic detail card; moving just that block to the website is the working
-shape. The website page lives at ../jjjjjenterprises.com/emailsentinel/help.html.
+Exception — the channels topic ends with the External integrations brief
+paragraph plus a website link to setup walkthroughs. The Cloudflare Worker
+walkthrough (with its ~30-line MCP code), the Authorization header format
+note, and both Asana paths (REST and MCP V2) are NOT inlined in the
+channels topic; together they exceeded a CardService size limit and
+caused "type cannot be used by the add-ons platform" rejections on the
+topic detail card. Those walkthroughs live at
+https://emailsentinel.jjjjjenterprises.com/help.html#channels (source:
+../jjjjjenterprises.com/emailsentinel/help.html) which mirrors all five
+topics in full.
 
 (The public marketing website — including the emAIl Sentinel product landing
 page, all three HTML legal pages, sitemap.xml, and robots.txt — lives in a
