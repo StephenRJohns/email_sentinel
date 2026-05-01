@@ -1832,7 +1832,46 @@ function helpTopics_() {
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a 15-minute Cloudflare Worker walkthrough). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself. Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.<br><br>' +
+        '<b>Custom \u2014 Cloudflare Worker MCP server (recommended starting point)</b><br>' +
+        'This is the simplest reproducible MCP example. You deploy a 40-line JavaScript Worker on Cloudflare\'s free tier; the Worker speaks MCP JSON-RPC, accepts a bearer token you choose, and logs every alert to its console. No Slack workspace, no Asana account, no OAuth flow, no expiring tokens. Total setup: about 15 minutes one-time.<br>' +
+        '1. <b>Create a Cloudflare account.</b> Sign up free at <a href="https://cloudflare.com">cloudflare.com</a> if you do not already have one.<br>' +
+        '2. <b>Create a Worker.</b> From the dashboard sidebar pick <b>Workers &amp; Pages</b> \u2192 <b>Create application</b> \u2192 <b>Start with Hello World!</b>. Name it <code>es-demo-mcp</code> (or anything). Click <b>Deploy</b> to accept the default Hello World template.<br>' +
+        '3. <b>Replace the template with the MCP code.</b> After deploy, click <b>Edit code</b>. Delete the template and paste this:<br>' +
+        '<code>const SECRET = "es-demo-token-change-me";<br>' +
+        '<br>' +
+        'export default {<br>' +
+        '&nbsp;&nbsp;async fetch(request) {<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;if (request.method !== "POST") {<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return new Response("e-mail Sentinel MCP demo. POST with Bearer auth.", { status: 200 });<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;}<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;if (request.headers.get("Authorization") !== `Bearer ${SECRET}`) {<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return new Response("Unauthorized", { status: 401 });<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;}<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;const req = await request.json();<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;const { method, params = {}, id } = req;<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;if (method === "notifications/initialized") return new Response(null, { status: 204 });<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;let result, error;<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;if (method === "initialize") {<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = { protocolVersion: "2024-11-05", capabilities: { tools: {} }, serverInfo: { name: "es-demo", version: "1.0.0" } };<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;} else if (method === "tools/list") {<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = { tools: [{ name: "log_alert", description: "Logs an alert to the Worker console.", inputSchema: { type: "object", properties: { message: { type: "string" } }, required: ["message"] } }] };<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;} else if (method === "tools/call") {<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const message = params.arguments?.message || "(empty)";<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log("[ALERT RECEIVED]", message);<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = { content: [{ type: "text", text: `Logged: ${message}` }] };<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;} else {<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error = { code: -32601, message: `Method not found: ${method}` };<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;}<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;const body = { jsonrpc: "2.0", id };<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;if (error) body.error = error; else body.result = result;<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;return new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } });<br>' +
+        '&nbsp;&nbsp;}<br>' +
+        '};</code><br>' +
+        'Change the <code>SECRET</code> string to any value you like \u2014 that becomes your bearer token. Click <b>Deploy</b>.<br>' +
+        '4. <b>Copy the Worker URL.</b> After deploy, the URL appears at the top of the page (looks like <code>https://es-demo-mcp.&lt;your-subdomain&gt;.workers.dev</code>). Save it.<br>' +
+        '5. <b>Configure in e-mail Sentinel.</b> Settings \u2192 <b>+ Add external integration</b>. Server name: anything. Type: pick <b>Custom</b>, click <b>Load defaults</b>. Endpoint URL: paste the Worker URL from step 4. Authorization header value: paste <code>Bearer </code> followed by the value of <code>SECRET</code> from your Worker code (full field reads like <code>Bearer es-demo-token-change-me</code>). Tool name: <code>log_alert</code>. Tool args template: <code>{"message":"{{message}}"}</code>. Save.<br>' +
+        '6. <b>Test it.</b> Wire the new server onto a rule, send yourself a matching email, click <b>Scan email now</b>. In the Cloudflare dashboard, open the Worker \u2192 <b>Observability</b> tab \u2192 click <b>Live</b>. The line <code>[ALERT RECEIVED] &lt;your alert text&gt;</code> appears in real time. Done.'
     },
     pricing: {
       title: 'Gemini pricing & models',
