@@ -22,18 +22,7 @@ function actionShowActivity(e) { return universalCardResponse_(buildActivityCard
 function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard()); }
 
 function actionRunCheckNow(e) {
-  try {
-    var result = runMailCheck({ force: true }) || {};
-    var summary = plural_(result.messagesChecked || 0, 'new email') + ', ' +
-      plural_(result.matchesFound || 0, 'match', 'matches');
-    var msg = 'Scan complete — ' + summary + '.';
-    if (!loadSettings().geminiApiKey) msg += ' No Gemini API key set — open Settings to add one.';
-    activityLog('Manual scan: ' + summary + '.');
-    return universalCardResponse_(buildScanResultCard_(msg, true));
-  } catch (err) {
-    activityLog('Manual scan failed: ' + err);
-    return universalCardResponse_(buildScanResultCard_('Scan failed: ' + (err.message || err), false));
-  }
+  return universalCardResponse_(buildPreScanCard_());
 }
 
 function universalCardResponse_(card) {

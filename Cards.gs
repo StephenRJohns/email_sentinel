@@ -345,6 +345,25 @@ function handleGoHome(e) {
 }
 
 
+function buildPreScanCard_() {
+  const card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Scan email now'));
+  card.addSection(CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph().setText(
+      'Check all watched labels for new messages and evaluate them ' +
+      'against your rules right now, without waiting for the next ' +
+      'scheduled check.<br><br>' +
+      '<font color="#888888">Scans typically take 10–60 seconds. The ' +
+      'button will show a spinner while the scan runs, and a result ' +
+      'card will appear when it finishes.</font>'))
+    .addWidget(CardService.newTextButton()
+      .setText(whiteText_('Run scan now'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
+      .setOnClickAction(action_('handleRunCheckNow'))));
+  return card.build();
+}
+
 // Visual receipt for the universal-action "Scan email now" path. The kebab
 // menu uses UniversalActionResponseBuilder, which does not support toast
 // notifications — the user clicked the menu item and previously had only the

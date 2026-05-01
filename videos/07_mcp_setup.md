@@ -77,7 +77,7 @@ ON-SCREEN: Switch back to Gmail. Settings → External integrations
 → "+ Add external integration" → server name "Demo MCP" → Type dropdown
 already shows "Custom" as default → click Load defaults → endpoint
 URL paste the Worker URL → Authorization header value paste
-"Bearer es-demo-token-change-me" → Tool name "log_alert" → Tool
+"Bearer es_mcp_demo" → Tool name "log_alert" → Tool
 args template stays "{"message":"{{message}}"}" → Save.
 VOICEOVER:
 Click Add external integration. Name it Demo MCP. The Type dropdown defaults
@@ -173,7 +173,7 @@ already saved, side panel open on the home card.
 16. Confirm the **Type** dropdown reads **Custom** (default for new servers).
 17. Click **Load defaults**. Tool args template auto-fills to `{"message":"{{message}}"}`. Tool name field is blank for Custom by default.
 18. Click the **MCP server endpoint URL** field, paste the Worker URL from step 9.
-19. Click the **Authorization header value** field. Paste the full header literally — the word `Bearer`, a single space, then your Worker `SECRET` value. Example: `Bearer es-demo-token-change-me`.
+19. Click the **Authorization header value** field. Paste the full header literally — the word `Bearer`, a single space, then your Worker `SECRET` value. Example: `Bearer es_mcp_demo`.
 20. Click the **Tool name** field, type `log_alert`.
 21. Click **Save**.
 22. Click **3-dot menu** → **Rules**.
