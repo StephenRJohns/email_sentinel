@@ -1824,14 +1824,14 @@ function helpTopics_() {
         '\u2022 <b>Generic webhook</b> \u2014 POST to any HTTPS endpoint; use this for any provider without a built-in preset<br>' +
         'After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the <b>SMS recipients</b> section of Settings. Rules pick recipients by name via checkboxes. Click <b>Send test SMS</b> to verify.<br><br>' +
         '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
-        '1. Go to <b>chat.google.com</b> and create a Space<br>' +
+        '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +
         '2. Click the space name in the header \u25b8 Apps & integrations \u25b8 Webhooks<br>' +
         '3. Add a webhook, copy the URL, paste into Settings<br>' +
         '4. Select the space name in each rule<br><br>' +
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a <a href="https://emailsentinel.jjjjjenterprises.com/help.html#channels">15-minute Cloudflare Worker walkthrough</a>). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself. Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule. Setup walkthroughs (Cloudflare Worker code, Asana REST + MCP V2): emailsentinel.jjjjjenterprises.com/help.html'
     },
     pricing: {
       title: 'Gemini pricing & models',
