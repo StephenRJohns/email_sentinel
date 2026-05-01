@@ -127,7 +127,6 @@ email_sentinel/
 ├── SettingsManager.gs     # CRUD for settings; business-hours helpers
 ├── ActivityLog.gs         # Ring-buffered activity log with batch-write support
 │
-├── Help.html              # Help content rendered inside the help card
 ├── README.md              # You are here
 ├── LICENSE                # Proprietary software license
 │

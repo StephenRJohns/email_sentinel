@@ -35,8 +35,12 @@ RulesManager.gs   — CRUD for rules stored in UserProperties
 SettingsManager.gs — CRUD for settings; business-hours helpers
 ActivityLog.gs    — Ring-buffered activity log with batch-write support (startLogBuffering / flushLog)
 LicenseManager.gs — Tier limits (Free vs Pro), feature gating, founding-member counter
-Help.html         — Help content rendered inside the in-app help card
 appsscript.json   — Manifest: OAuth scopes, add-on descriptor, time-driven trigger config
+
+Help content lives inline in helpTopics_() in Cards.gs (5 topics: quickstart,
+examples, channels, pricing, settings). The Help card renders it via
+buildHelpCard / handleShowHelpTopic / handleSearchHelp. There is no separate
+Help.html file — the card uses CardService text widgets, not HtmlService.
 
 (The public marketing website — including the emAIl Sentinel product landing
 page, all three HTML legal pages, sitemap.xml, and robots.txt — lives in a
