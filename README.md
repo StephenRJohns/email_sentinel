@@ -231,7 +231,7 @@ After installation, open Gmail and click the emAIl Sentinel icon in the right ra
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
 2. **Settings ▸ Scan schedule** — pick how often to check. The dropdown offers whole-hour intervals (`1 hour`, `2 hours`, `3 hours`, `4 hours`, `6 hours`, `8 hours`, `12 hours`, `24 hours`). Free shows `3 hours` and longer; Pro adds `1 hour` and `2 hours` at the top. The 60-minute limit is a Google Workspace add-on platform limit and cannot be bypassed. Use **Scan email now** for an immediate scan anytime regardless of plan.
 3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison. Then add named SMS recipients (e.g. "On-call", "CFO") below the provider fields — rules pick recipients by name, not raw phone numbers.
-4. **Settings ▸ MCP server alerts** *(optional)* — add Slack, Microsoft 365 / Teams, Asana, or a custom MCP endpoint if you want alerts routed through the Model Context Protocol.
+4. **Settings ▸ External integrations** *(optional)* — add Microsoft Teams, Asana, or any custom MCP endpoint (Cloudflare Worker, self-hosted bridge, etc.) if you want alerts routed through the Model Context Protocol or directly to the Asana REST API.
 5. **Settings ▸ Save settings**.
 6. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and tick the channels you want (SMS recipients, Chat spaces, MCP servers, Calendar, Sheets, Tasks). Click **Help me write the rule text** or **Help me write the alert text** to have Gemini draft a starting point. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can tick channels and enable them at your own pace.
 7. Back on the home card, pick a scan interval from the **Scan email every** dropdown (defaults to your tier minimum — every 3 hours on Free, every 1 hour on Pro), then click **Start scheduled scans**. This installs a time-driven trigger that runs in the background even when Gmail is closed and saves the chosen interval into Settings.
@@ -426,16 +426,16 @@ These use your existing Google account — no third-party sign-up, no cost.
 
 Each Google channel is enabled per rule via a checkbox in the rule editor, so you can have some rules post to Chat and others log to Sheets, or combine all four.
 
-### MCP servers (Slack, Microsoft 365 / Teams, Asana, custom)
+### External integrations (MCP servers + Asana REST)
 
-emAIl Sentinel can call any endpoint that speaks the [Model Context Protocol](https://modelcontextprotocol.io) (JSON-RPC 2.0 over HTTPS). Configure servers once in **Settings ▸ MCP server alerts** and then tick them per rule.
+emAIl Sentinel can call any endpoint that speaks the [Model Context Protocol](https://modelcontextprotocol.io) (JSON-RPC 2.0 over HTTPS), and additionally offers a direct Asana REST path for the simplest Asana-task-creation case. Configure entries once in **Settings ▸ External integrations** and then tick them per rule.
 
 | Type | What it does | Tool name (preset) |
 |---|---|---|
-| **Slack** | Posts a message to a Slack channel via the official Slack MCP server. | `slack_post_message` |
-| **Microsoft 365** | Sends a Teams chat message via a Microsoft Graph MCP server. | `send_message` |
-| **Asana** | Creates a task in an Asana project via the official Asana MCP server. | `asana_create_task` |
-| **Custom** | Any other MCP server — you supply the tool name and argument template. | (you define) |
+| **Custom** *(recommended starting point)* | Any HTTPS MCP server — Cloudflare Worker, self-hosted bridge to Slack, your own internal tools. The Help card has a 40-line Cloudflare Worker walkthrough that gets you a working endpoint in about 15 minutes. | (you define, e.g. `log_alert`) |
+| **Microsoft Teams** | Sends a Teams chat or channel message via a Microsoft Graph MCP server. Requires Entra ID app registration + OAuth (admin consent often required in enterprise tenants). | `send_message` |
+| **Asana (REST API — easier)** | Direct Asana REST task creation — strictly speaking not MCP, but the simplest way to create Asana tasks. PAT-based, no OAuth flow. | (unused — direct REST) |
+| **Asana (MCP V2 — requires OAuth)** | Creates a task via the official Asana MCP V2 gateway. Requires OAuth-issued access tokens (PATs are rejected). | `asana_create_task` |
 
 For each server you configure:
 - **Endpoint** — the MCP server's HTTPS URL

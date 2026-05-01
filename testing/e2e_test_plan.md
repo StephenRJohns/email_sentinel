@@ -380,15 +380,18 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ---
 
-## 17d · Universal-Action Scan Result Card
+## 17d · Universal-Action Scan: pre-scan card → spinner → result card
 
-*The kebab menu's "Scan email now" entry uses UniversalActionResponseBuilder, which can't show toast notifications. After running the scan, the user lands on a dedicated result card with a clear pass/fail banner.*
+*The kebab menu's "Scan email now" entry uses UniversalActionResponseBuilder, which can't show toast notifications and (per empirical testing) provides NO platform-level loading feedback if the handler runs the scan directly. The user therefore lands on an intermediate **pre-scan card** with a "Run scan now" button — the button-attached spinner is the only loading indicator the user sees during the 10–60 s scan. Removing this intermediate step has been tried and reverted; do not regress it. The home card's "Scan email now" button is itself a button, so it goes directly to `handleRunCheckNow` and gets the spinner naturally.*
 
 - [ ] Open the kebab "⋮" menu and click **Scan email now**.
-- [ ] After the scan completes, a **Scan result** card opens (not the Activity log directly). The first section is the standard Home button.
+- [ ] **Pre-scan card opens** with title "Scan email now", a paragraph explaining the scan, and a single filled brand-purple **Run scan now** button. The first section is the standard Home button.
+- [ ] Click **Run scan now**. The button shows a spinner while `runMailCheck` runs.
+- [ ] After the scan completes, a **Scan result** card pushes on top. The first section is the standard Home button.
 - [ ] The result section shows a green ✅ banner reading "Scan complete — N new email(s), M match(es)." (text in green, e.g. `#1e7e34`). On a baseline-only run with no rules matching, the typical text is "Scan complete — 0 new emails, 0 matches."
 - [ ] A "View activity log" button below the banner navigates to the Activity log card; the most recent entry there is `Manual scan: N new email(s), M match(es).`.
 - [ ] **Failure path (optional, hard to force).** If the scan throws (e.g. Gemini quota exhausted with rules enabled), the banner is red ⚠ with "Scan failed: …" and the activity log shows `Manual scan failed: …`.
+- [ ] **Home-card path (no pre-scan card).** Go back to the home card and click **Scan email now**. There is NO intermediate card — the button itself spins and the result card pushes on completion.
 
 ---
 

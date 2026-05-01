@@ -81,7 +81,7 @@ Before you start recording any of these:
 | 04 | [SMS alerts setup](04_sms_setup.md) | 180 s | Guidde |
 | 05 | [Google Chat alerts setup](05_chat_setup.md) | 90 s | Guidde |
 | 06 | [Calendar / Sheets / Tasks alerts](06_calendar_sheets_tasks.md) | 120 s | Descript |
-| 07 | [MCP server alerts (Pro)](07_mcp_setup.md) | 180 s | Guidde |
+| 07 | [External integrations (Pro)](07_mcp_setup.md) | 180 s | Guidde |
 | 08 | [Starter rules](08_starter_rules.md) | 60 s | Guidde |
 | 09 | [AI-assisted rule writing (Pro)](09_ai_suggest.md) | 90 s | Descript |
 | 10 | [Activity log & troubleshooting](10_activity_log.md) | 120 s | Descript |

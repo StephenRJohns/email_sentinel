@@ -51,7 +51,7 @@ The Cloudflare Workers free tier covers 100,000 requests/day. This loopback uses
 
 ## Configure in emAIl Sentinel
 
-In the add-on, open **Settings → MCP server alerts → + Add MCP server** and create one entry per mode you want to test. For each:
+In the add-on, open **Settings → External integrations → + Add external integration** and create one entry per mode you want to test. For each:
 
 - **Name:** `Loopback <mode>` (e.g. `Loopback isError`)
 - **Type:** `Custom`

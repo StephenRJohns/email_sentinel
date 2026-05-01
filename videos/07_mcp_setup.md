@@ -1,4 +1,4 @@
-# MCP server alerts (Pro)
+# External integrations (Pro)
 **Duration:** ~3:05 min
 **Tool:** Guidde
 
