@@ -1639,7 +1639,7 @@ function buildHelpCard() {
   var section = CardService.newCardSection()
     .setHeader('<b>Browse topics</b>')
     .addWidget(CardService.newTextParagraph().setText(
-      'Tap a topic below for details. Full setup walkthroughs (Cloudflare Worker code, Asana REST + MCP V2) live on the website: <a href="https://emailsentinel.jjjjjenterprises.com/help.html">complete help on the web</a>.'));
+      'Tap a topic below for details.'));
   var topics = [
     { id: 'quickstart', label: 'Quick start & writing rules' },
     { id: 'examples',   label: 'Rule examples by channel' },
