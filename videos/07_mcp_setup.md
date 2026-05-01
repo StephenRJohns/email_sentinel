@@ -155,16 +155,18 @@ with **Live** already clicked (so Scene 6's live tail
 is already streaming when an alert fires), at least one rule
 already saved, side panel open on the home card.
 
+**Guidde capture note:** Guidde captures on user interaction (click, scroll, type), not on tab switches. After each tab switch below, the next step is an explicit click or scroll so the new tab is captured into the recording. Plain hover usually does not trigger a frame.
+
 1. Hit **Start capture** in the Guidde extension.
-2. Open `https://modelcontextprotocol.io/` in a new tab; hover for ~2 s.
-3. Switch back to Gmail.
+2. Open `https://modelcontextprotocol.io/` in a new tab. **Click anywhere on the page** (an empty area or the headline) and **scroll down once**, then scroll back up. This forces Guidde to capture the tab.
+3. Switch back to Gmail. **Click somewhere in the Gmail content area** (e.g., the inbox row count) so Guidde re-captures the Gmail tab.
 4. Click the **3-dot menu** → **Help**.
-5. In the Help card, click the **Search help** box, type `Integrations`, then click **Search**. The results card shows "2 topics matched." Click **Open: Alert channel setup**. Scroll to the **Custom — Cloudflare Worker MCP server** subsection and hover the code block for ~3 s.
+5. In the Help card, click the **Search help** box, type `Integrations`, then click **Search**. The results card shows "2 topics matched." Click **Open: Alert channel setup**. Scroll to the **Custom — Cloudflare Worker MCP server** subsection and click the code block (or any text within it) so it captures.
 6. Click the **Home** button on the Help card to return home.
-7. Switch to the **Cloudflare** Worker overview tab.
+7. Switch to the **Cloudflare** Worker overview tab. **Click anywhere on the page** (e.g., on the page background or a non-action element) so Guidde captures the new tab before you interact with the URL.
 8. Hover the URL at the top of the page (`https://es-demo-mcp.jjjjj-enterprises-llc.workers.dev/`) for ~1 s.
 9. Click the copy icon next to the URL.
-10. Switch back to Gmail.
+10. Switch back to Gmail. **Click somewhere in Gmail** (e.g., the inbox area) so Guidde re-captures the Gmail tab.
 11. Click the **3-dot menu** → **Settings**.
 12. Scroll to the **External integrations** section.
 13. Hover the **Pro plan only** badge for ~1 s.
@@ -184,8 +186,8 @@ already saved, side panel open on the home card.
 27. Click **3-dot menu** → **Scan email now**.
 28. Click **Run scan now**.
 29. Wait for the green ✅ result card.
-30. Switch to the **Cloudflare** Logs tab. The new `[ALERT RECEIVED] <your alert text>` line is at the bottom of the live tail.
-31. Switch back to Gmail.
+30. Switch to the **Cloudflare** Observability tab. **Click on the live-events panel** (or click any of the new event rows) and **scroll down to the latest entry**. The new `[ALERT RECEIVED] <your alert text>` line is at the bottom of the live tail. The click + scroll forces Guidde to capture this tab.
+31. Switch back to Gmail. **Click somewhere in Gmail** (e.g., the side-panel header) so Guidde re-captures the Gmail tab.
 32. Click **3-dot menu** → **Activity Log**.
 33. Scroll to (or trigger separately) a red `MCP "Demo MCP" HTTP 401: Unauthorized` line.
 34. Hit **Stop capture** in Guidde.
