@@ -644,7 +644,7 @@ function buildRuleEditorCard(rule) {
     const configuredMcpServers = loadMcpServers();
     if (configuredMcpServers.length === 0) {
       channelsSection.addWidget(CardService.newTextParagraph()
-        .setText('<font color="#888888">No external integrations configured \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a <a href="https://emailsentinel.jjjjjenterprises.com/help#channels">15-minute Cloudflare Worker walkthrough</a>).</font>'));
+        .setText('<font color="#888888">No external integrations configured \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a <a href="https://emailsentinel.jjjjjenterprises.com/help.html#channels">15-minute Cloudflare Worker walkthrough</a>).</font>'));
       channelsSection.addWidget(CardService.newTextButton()
         .setText('Add external integrations in Settings')
         .setOnClickAction(navAction_('buildSettingsCard')));
@@ -1831,7 +1831,7 @@ function helpTopics_() {
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a <a href="https://emailsentinel.jjjjjenterprises.com/help#channels">15-minute Cloudflare Worker walkthrough</a>). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a <a href="https://emailsentinel.jjjjjenterprises.com/help.html#channels">15-minute Cloudflare Worker walkthrough</a>). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
     },
     pricing: {
       title: 'Gemini pricing & models',
