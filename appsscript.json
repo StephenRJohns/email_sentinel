@@ -28,7 +28,11 @@
     "https://rest.clicksend.com/",
     "https://rest.nexmo.com/",
     "https://chat.googleapis.com/",
-    "https://email-sentinel-mcp-loopback.jjjjj-enterprises-llc.workers.dev/"
+    "https://email-sentinel-mcp-loopback.jjjjj-enterprises-llc.workers.dev/",
+    "https://es-demo-mcp.jjjjj-enterprises-llc.workers.dev/",
+    "https://app.asana.com/",
+    "https://mcp.asana.com/",
+    "https://graph.microsoft.com/"
   ],
   "oauthScopes": [
     "https://www.googleapis.com/auth/gmail.addons.execute",
