@@ -1639,28 +1639,22 @@ function handleCancelClearLog(e) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function buildHelpCard() {
-  // Help content lives on the marketing site. Putting the long-form
-  // walkthroughs into TextParagraph widgets in CardService caused
-  // "type cannot be used by the add-ons platform" rejections on the
-  // Alert channel setup card (likely a per-widget content cap with
-  // <code> blocks and multi-line content). The card now just opens
-  // the full help guide externally.
-  var openHelp = CardService.newTextButton()
-    .setText(whiteText_('Open full help guide'))
-    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-    .setBackgroundColor(BRAND_PURPLE_)
-    .setOpenLink(CardService.newOpenLink()
-      .setUrl('https://emailsentinel.jjjjjenterprises.com/help.html')
-      .setOpenAs(CardService.OpenAs.FULL_SIZE));
-
+  // Help content lives on the marketing site at
+  // https://emailsentinel.jjjjjenterprises.com/help.html. The card uses a
+  // plain HTML hyperlink in a TextParagraph instead of a TextButton with
+  // setOpenLink \u2014 the FILLED+setBackgroundColor+setOpenLink combination
+  // triggered a "type cannot be used by the add-ons platform" rejection
+  // even on a tiny card; mailto/href links in TextParagraph are reliable
+  // (the Contact section below uses the same pattern).
   var card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'))
     .addSection(CardService.newCardSection()
       .addWidget(CardService.newTextParagraph().setText(
-        'The full setup guide \u2014 quick start, rule examples, alert ' +
-        'channel setup (SMS, Chat, Calendar, Sheets, Tasks, MCP), Gemini ' +
-        'pricing, and troubleshooting \u2014 is on the website.'))
-      .addWidget(openHelp))
+        'The full setup guide is on the website:<br><br>' +
+        '<a href="https://emailsentinel.jjjjjenterprises.com/help.html"><b>Open full help guide \u2192</b></a><br><br>' +
+        '<font color="#888888">Topics: quick start, rule examples, alert channel ' +
+        'setup (SMS, Chat, Calendar, Sheets, Tasks, MCP integrations), Gemini ' +
+        'pricing, and settings &amp; troubleshooting.</font>')))
     .addSection(CardService.newCardSection()
       .setHeader('<b>Contact</b>')
       .addWidget(CardService.newTextParagraph().setText(
