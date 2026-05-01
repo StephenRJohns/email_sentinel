@@ -66,7 +66,7 @@ ready to receive alerts.
 
 ## Scene 4 — copy the Worker URL (1:15–1:30)
 ON-SCREEN: Cloudflare dashboard, Worker overview page. Highlight
-the URL at the top (https://es-demo-mcp.<account>.workers.dev).
+the URL at the top (https://es-demo-mcp.jjjjj-enterprises-llc.workers.dev/).
 Click the copy icon next to the URL.
 VOICEOVER:
 Copy the Worker URL from the top of the dashboard. This is the
@@ -162,7 +162,7 @@ already saved, side panel open on the home card.
 5. In the Help card, click the **Search help** box, type `Integrations`, then click **Search**. The results card shows "2 topics matched." Click **Open: Alert channel setup**. Scroll to the **Custom — Cloudflare Worker MCP server** subsection and hover the code block for ~3 s.
 6. Click the **Home** button on the Help card to return home.
 7. Switch to the **Cloudflare** Worker overview tab.
-8. Hover the URL at the top of the page (`https://es-demo-mcp.<account>.workers.dev`) for ~1 s.
+8. Hover the URL at the top of the page (`https://es-demo-mcp.jjjjj-enterprises-llc.workers.dev/`) for ~1 s.
 9. Click the copy icon next to the URL.
 10. Switch back to Gmail.
 11. Click the **3-dot menu** → **Settings**.
