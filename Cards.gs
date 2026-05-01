@@ -1657,7 +1657,7 @@ function buildHelpCard() {
   card.addSection(section);
   card.addSection(CardService.newCardSection()
     .addWidget(CardService.newImage()
-      .setImageUrl('https://lh3.googleusercontent.com/d/1xFrN1fzRxfgND6ARCcY8hYZW31NqtSpc')
+      .setImageUrl('https://lh3.googleusercontent.com/d/1LxponxSg1j51n9GFi5XGaxNKzLuoK_qb')
       .setAltText('JJJJJ Enterprises, LLC'))
     .addWidget(CardService.newTextParagraph().setText(
       '<font color="#888888">emAIl Sentinel\u2122 is a product of JJJJJ Enterprises, LLC.</font>')));
