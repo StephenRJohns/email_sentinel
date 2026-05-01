@@ -1,5 +1,5 @@
 # MCP server alerts (Pro)
-**Duration:** ~3 min
+**Duration:** ~3:05 min
 **Tool:** Guidde
 
 MCP is the most technical alert channel. Aim this video at the
@@ -41,23 +41,27 @@ VOICEOVER:
 External integrations are Pro-plan only. If you are on the
 Founding member tier, you have it included.
 
-## Scene 3 — the simplest MCP example (0:42–1:10)
+## Scene 3 — the simplest MCP example (0:42–1:15)
 ON-SCREEN: Help card opened, scrolled to the Custom Cloudflare
 Worker walkthrough subsection. Highlight the code block. Then
 show the actual Cloudflare dashboard with the Worker already
 deployed (named es-demo-mcp).
 VOICEOVER:
-For this video we are using a Cloudflare Worker as the MCP
-server because it is the easiest example to set up. Cloudflare
-Workers are free, you do not need to sign up for any third-party
-service, and the Worker code is forty lines of JavaScript you
-copy from the Help card. There is no OAuth flow, no bot tokens,
-nothing that expires. We will not write the code on camera —
-the full listing is in the Help card under External integrations.
-What you see on the right is the deployed Worker, ready to
-receive alerts.
+For this video I am using my Cloudflare account because it is
+the easiest target to demo — Cloudflare Workers are free, no
+OAuth flow, no bot tokens, nothing that expires, and the Worker
+code is forty lines of JavaScript you copy from the Help card.
+You would connect to whichever MCP servers you actually need
+— Microsoft Teams, Asana, Slack via a self-hosted bridge,
+your own internal tools — and you would refer to that server's
+documentation for the specifics of its tool name, args, and
+authentication. The mechanics in e-mail Sentinel are the same
+regardless of the target. We will not write the Worker code on
+camera; the full listing is in the Help card under External
+integrations. What you see on the right is the deployed Worker,
+ready to receive alerts.
 
-## Scene 4 — copy the Worker URL (1:10–1:25)
+## Scene 4 — copy the Worker URL (1:15–1:30)
 ON-SCREEN: Cloudflare dashboard, Worker overview page. Highlight
 the URL at the top (https://es-demo-mcp.<account>.workers.dev).
 Click the copy icon next to the URL.
@@ -65,15 +69,15 @@ VOICEOVER:
 Copy the Worker URL from the top of the dashboard. This is the
 endpoint e-mail Sentinel will POST alerts to.
 
-## Scene 5 — add the MCP server in e-mail Sentinel (1:25–2:10)
+## Scene 5 — add the MCP server in e-mail Sentinel (1:30–2:15)
 ON-SCREEN: Switch back to Gmail. Settings → External integrations
-→ "+ Add MCP server" → server name "Demo MCP" → Type dropdown
+→ "+ Add external integration" → server name "Demo MCP" → Type dropdown
 already shows "Custom" as default → click Load defaults → endpoint
 URL paste the Worker URL → Authorization header value paste
 "Bearer es-demo-token-change-me" → Tool name "log_alert" → Tool
 args template stays "{"message":"{{message}}"}" → Save.
 VOICEOVER:
-Click Add MCP server. Name it Demo MCP. The Type dropdown defaults
+Click Add external integration. Name it Demo MCP. The Type dropdown defaults
 to Custom — click Load defaults to populate the args template. In
 the endpoint URL field, paste the Worker URL we copied. In the
 Authorization header value field, paste the literal word Bearer,
@@ -82,7 +86,7 @@ code. The Bearer prefix is sent verbatim as the Authorization
 header, so do not omit it. Tool name is log_alert — the name we
 exposed from the Worker. Save.
 
-## Scene 6 — attach to a rule and trigger (2:10–2:35)
+## Scene 6 — attach to a rule and trigger (2:15–2:40)
 ON-SCREEN: Open a rule → check the "Demo MCP" external
 integration checkbox → Save → trigger a match. Cut to the
 Cloudflare Worker logs panel — the [ALERT RECEIVED] line
@@ -95,7 +99,7 @@ console-logging the message field e-mail Sentinel sent. From
 here, the Worker can do anything code can do — relay to Slack
 via webhook, write to a database, call another API.
 
-## Scene 7 — error handling (2:35–2:50)
+## Scene 7 — error handling (2:40–2:55)
 ON-SCREEN: Activity log showing an MCP error like 'MCP "Demo MCP"
 HTTP 401: Unauthorized'.
 VOICEOVER:
@@ -104,7 +108,7 @@ permission, server down — e-mail Sentinel logs it in the Activity
 log with the exact response. No silent failures. Other channels
 still fire, so a broken MCP does not take your alerts down.
 
-## End card (2:50–3:00)
+## End card (2:55–3:05)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
 Connect anything that speaks MCP. Pro plan. Get e-mail Sentinel —
@@ -160,7 +164,7 @@ already saved, side panel open on the home card.
 11. Click the **3-dot menu** → **Settings**.
 12. Scroll to the **External integrations** section.
 13. Hover the **Pro plan only** badge for ~1 s.
-14. Click **+ Add MCP server**.
+14. Click **+ Add external integration**.
 15. Click the **Server name** field, type `Demo MCP`.
 16. Confirm the **Type** dropdown reads **Custom** (default for new servers).
 17. Click **Load defaults**. Tool args template auto-fills to `{"message":"{{message}}"}`. Tool name field is blank for Custom by default.

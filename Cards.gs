@@ -1174,7 +1174,7 @@ function buildSettingsCard() {
       '<font color="#888888"><i>No MCP servers configured yet.</i></font>'));
   }
   mcpSection.addWidget(CardService.newTextButton()
-    .setText('+ Add MCP server')
+    .setText('+ Add external integration')
     .setOnClickAction(action_('handleShowNewMcpServer')));
 
   var testGeminiBtn = CardService.newTextButton()
@@ -2166,7 +2166,7 @@ function buildMcpServerEditorCard(server) {
 
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader()
-      .setTitle(editing ? 'Edit MCP server' : 'Add MCP server'))
+      .setTitle(editing ? 'Edit external integration' : 'Add external integration'))
     .addSection(buildUnsavedChangesNotice_())
     .addSection(section)
     .build();

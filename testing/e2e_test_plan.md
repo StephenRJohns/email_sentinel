@@ -208,7 +208,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ### 13b · Configure the MCP server in emAIl Sentinel (REST API path — recommended)
 
-- [ ] [Optional] In the add-on, open Settings → **External integrations** → **+ Add MCP server**.
+- [ ] [Optional] In the add-on, open Settings → **External integrations** → **+ Add external integration**.
 - [ ] [Optional] **Server name:** `E2E Asana`
 - [ ] [Optional] **Type:** pick **Asana (REST API — easier)** from the dropdown, then click **Load defaults**. The Endpoint URL auto-fills to `https://app.asana.com/api/1.0/tasks`, the Tool name is left blank (the REST path does not need it), and the Tool args template pre-fills with the Asana REST task body.
 - [ ] [Optional] **MCP server endpoint URL:** leave the auto-filled `https://app.asana.com/api/1.0/tasks`. Do not switch to the V1 SSE or V2 MCP endpoints — those are different paths.
@@ -360,7 +360,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 - [ ] **Rule editor.** Rules → "+ New rule". Top section is an amber notice reading roughly: "⚠ Click Save below before tapping the back arrow — the back arrow discards unsaved changes without warning." Same notice appears when editing an existing rule.
 - [ ] **Settings card.** Open Settings. Same amber notice is the first section above the Gemini key block.
-- [ ] **MCP server editor.** Settings → **External integrations** → "Add MCP server" (Pro tier; if on Free, flip to Pro temporarily via `setTierPro` in the Apps Script editor). Same amber notice appears at the top. Repeat with an existing server via Edit.
+- [ ] **MCP server editor.** Settings → **External integrations** → "Add external integration" (Pro tier; if on Free, flip to Pro temporarily via `setTierPro` in the Apps Script editor). Same amber notice appears at the top. Repeat with an existing server via Edit.
 - [ ] **SMS recipient editor.** Settings → SMS recipients → "Add recipient". Amber notice at the top. Repeat with Edit on an existing recipient.
 - [ ] **Chat space editor.** Settings → Google alert channels → "Add Chat space" (Pro tier). Amber notice at the top. Repeat with Edit on an existing space.
 - [ ] **Behavior on back arrow (negative test).** In the rule editor for "Test rule — E2E", change the rule name to `Test rule — E2E (modified)` but do NOT click Save. Tap the system back arrow at the top-left of the card. Verify (a) no confirmation dialog appears, (b) the rule list shows the original name unchanged. (This is the documented limitation the notice exists to mitigate.)
