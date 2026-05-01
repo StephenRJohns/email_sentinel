@@ -42,8 +42,11 @@ External integrations are Pro-plan only. If you are on the
 Founding member tier, you have it included.
 
 ## Scene 3 — the simplest MCP example (0:42–1:15)
-ON-SCREEN: Help card opened, scrolled to the Custom Cloudflare
-Worker walkthrough subsection. Highlight the code block. Then
+ON-SCREEN: Help card opened — shows the search box and Browse
+topics buttons. Type "Integrations" into the search box, click
+Search. Results card shows "2 topics matched" — click
+"Open: Alert channel setup". Scroll to the Custom Cloudflare
+Worker walkthrough subsection and highlight the code block. Then
 show the actual Cloudflare dashboard with the Worker already
 deployed (named es-demo-mcp).
 VOICEOVER:
@@ -118,9 +121,10 @@ link below.
 
 ## Production notes
 
-- Scene 3 frames the Help card. Make sure Help is up to date
-  before recording — it has the full Cloudflare Worker code
-  listing.
+- Scene 3 navigates Help via search: type "Integrations" → Search
+  → "Open: Alert channel setup" → scroll to the Cloudflare Worker
+  subsection. Verify that subsection and code block are present
+  before recording.
 - The Cloudflare dashboard log panel is the visual hero. Make
   sure you have clicked **Begin log stream** on the Worker's
   Logs tab before Scene 6, so the live tail is already running
@@ -146,8 +150,8 @@ Cloudflare Worker `es-demo-mcp` already deployed (per the Help
 card walkthrough — the Worker code paste is not on camera), the
 Cloudflare dashboard tab already open in another browser tab and
 focused on the Worker's overview page (so Scene 4's URL copy is
-one click), the Worker's **Logs** tab open in a third browser tab
-with **Begin log stream** already clicked (so Scene 6's live tail
+one click), the Worker's **Observability** tab open in a third browser tab
+with **Live** already clicked (so Scene 6's live tail
 is already streaming when an alert fires), at least one rule
 already saved, side panel open on the home card.
 
@@ -155,8 +159,8 @@ already saved, side panel open on the home card.
 2. Open `https://modelcontextprotocol.io/` in a new tab; hover for ~2 s.
 3. Switch back to Gmail.
 4. Click the **3-dot menu** → **Help**.
-5. In the Help card, scroll to the **External integrations** section. Hover the **Custom — Cloudflare Worker MCP server** subsection for ~3 s. Frame the code block.
-6. Click the **3-dot menu** → **Home** to leave Help.
+5. In the Help card, click the **Search help** box, type `Integrations`, then click **Search**. The results card shows "2 topics matched." Click **Open: Alert channel setup**. Scroll to the **Custom — Cloudflare Worker MCP server** subsection and hover the code block for ~3 s.
+6. Click the **Home** button on the Help card to return home.
 7. Switch to the **Cloudflare** Worker overview tab.
 8. Hover the URL at the top of the page (`https://es-demo-mcp.<account>.workers.dev`) for ~1 s.
 9. Click the copy icon next to the URL.
