@@ -1824,7 +1824,7 @@ function helpTopics_() {
         '\u2022 <b>Generic webhook</b> \u2014 POST to any HTTPS endpoint; use this for any provider without a built-in preset<br>' +
         'After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the <b>SMS recipients</b> section of Settings. Rules pick recipients by name via checkboxes. Click <b>Send test SMS</b> to verify.<br><br>' +
         '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
-        '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +
+        '1. Go to <b>chat.google.com</b> and create a Space<br>' +
         '2. Click the space name in the header \u25b8 Apps & integrations \u25b8 Webhooks<br>' +
         '3. Add a webhook, copy the URL, paste into Settings<br>' +
         '4. Select the space name in each rule<br><br>' +
