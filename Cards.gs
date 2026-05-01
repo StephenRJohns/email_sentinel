@@ -344,32 +344,6 @@ function handleGoHome(e) {
     .build();
 }
 
-// Pre-scan card shown when the user invokes "Scan email now" from the kebab
-// menu. The runMailCheck call blocks for 10-60 seconds and the universal-
-// action path can't render its own load indicator (the response just shows a
-// new card; there's no button to attach a spinner to). Landing here first
-// gives the user a "Run scan now" button whose action handler does the
-// blocking call — CardService shows the default spinner on the button while
-// the action runs, and on completion handleRunCheckNow pushes the result card
-// on top.
-function buildPreScanCard_() {
-  const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Scan email now'));
-  card.addSection(CardService.newCardSection()
-    .addWidget(CardService.newTextParagraph().setText(
-      'Check all watched labels for new messages and evaluate them ' +
-      'against your rules right now, without waiting for the next ' +
-      'scheduled check.<br><br>' +
-      '<font color="#888888">Scans typically take 10–60 seconds. The ' +
-      'button will show a spinner while the scan runs, and a result ' +
-      'card will appear when it finishes.</font>'))
-    .addWidget(CardService.newTextButton()
-      .setText(whiteText_('Run scan now'))
-      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-      .setBackgroundColor(BRAND_PURPLE_)
-      .setOnClickAction(action_('handleRunCheckNow'))));
-  return card.build();
-}
 
 // Visual receipt for the universal-action "Scan email now" path. The kebab
 // menu uses UniversalActionResponseBuilder, which does not support toast

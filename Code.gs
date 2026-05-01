@@ -21,17 +21,19 @@ function actionShowSettings(e) { return universalCardResponse_(buildSettingsCard
 function actionShowActivity(e) { return universalCardResponse_(buildActivityCard(0)); }
 function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard()); }
 
-/**
- * Universal action: open the pre-scan card. The card has a "Run scan now"
- * button whose action handler invokes runMailCheck synchronously; CardService
- * shows a default spinner on the button while the action runs, giving users
- * clear feedback during the 10-60 second scan. Running the scan directly
- * inside this handler would block with no on-screen feedback (universal-action
- * responses cannot show a load indicator), causing users to assume the app is
- * broken.
- */
 function actionRunCheckNow(e) {
-  return universalCardResponse_(buildPreScanCard_());
+  try {
+    var result = runMailCheck({ force: true }) || {};
+    var summary = plural_(result.messagesChecked || 0, 'new email') + ', ' +
+      plural_(result.matchesFound || 0, 'match', 'matches');
+    var msg = 'Scan complete — ' + summary + '.';
+    if (!loadSettings().geminiApiKey) msg += ' No Gemini API key set — open Settings to add one.';
+    activityLog('Manual scan: ' + summary + '.');
+    return universalCardResponse_(buildScanResultCard_(msg, true));
+  } catch (err) {
+    activityLog('Manual scan failed: ' + err);
+    return universalCardResponse_(buildScanResultCard_('Scan failed: ' + (err.message || err), false));
+  }
 }
 
 function universalCardResponse_(card) {
