@@ -72,7 +72,7 @@ Please **think aloud the entire time** — narrate what you're looking at, what 
 
 ### Task 3 — Create your first rule (5 min)
 
-1. Return to the home card (use the Home button or back arrow).
+1. Return to the home card (use the back arrow, or the kebab "⋮" menu → Home).
 2. Click **Rules** → **+ New rule**.
 3. Give the rule any name you want (e.g. "My first rule").
 4. In **Gmail labels to watch**, type `INBOX`.

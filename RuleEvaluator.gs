@@ -102,42 +102,54 @@ function callGemini_(apiKey, model, prompt, maxTokens) {
     }
   };
 
-  try {
-    const resp = UrlFetchApp.fetch(url, {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    });
-    const code = resp.getResponseCode();
-    if (code === 429) {
-      activityLog('Gemini HTTP 429: ' + resp.getContentText().substring(0, 800));
+  for (var attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const resp = UrlFetchApp.fetch(url, {
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify(payload),
+        muteHttpExceptions: true
+      });
+      const code = resp.getResponseCode();
+      if (code === 503) {
+        if (attempt === 1) {
+          activityLog('Gemini 503 (high demand) — retrying in 5 s…');
+          Utilities.sleep(5000);
+          continue;
+        }
+        activityLog('Gemini 503 after retry — high demand, try again in a few minutes.');
+        return null;
+      }
+      if (code === 429) {
+        activityLog('Gemini HTTP 429: ' + resp.getContentText().substring(0, 800));
+        return null;
+      }
+      if (code < 200 || code >= 300) {
+        activityLog('Gemini HTTP ' + code + ': ' + resp.getContentText().substring(0, 300));
+        return null;
+      }
+      const body = JSON.parse(resp.getContentText());
+      const candidates = body.candidates || [];
+      if (!candidates.length) {
+        activityLog('Gemini returned no candidates. Finish reason: ' +
+          (body.promptFeedback ? JSON.stringify(body.promptFeedback) : 'unknown'));
+        return null;
+      }
+      const parts = (candidates[0].content && candidates[0].content.parts) || [];
+      // Filter out thinking parts — only return text parts meant for output
+      const textParts = parts.filter(function(p) { return p.text && !p.thought; });
+      if (!textParts.length) {
+        activityLog('Gemini returned no text parts. Finish reason: ' +
+          (candidates[0].finishReason || 'unknown'));
+        return null;
+      }
+      return textParts.map(function(p) { return p.text; }).join('').trim();
+    } catch (e) {
+      activityLog('Gemini exception: ' + e);
       return null;
     }
-    if (code < 200 || code >= 300) {
-      activityLog('Gemini HTTP ' + code + ': ' + resp.getContentText().substring(0, 300));
-      return null;
-    }
-    const body = JSON.parse(resp.getContentText());
-    const candidates = body.candidates || [];
-    if (!candidates.length) {
-      activityLog('Gemini returned no candidates. Finish reason: ' +
-        (body.promptFeedback ? JSON.stringify(body.promptFeedback) : 'unknown'));
-      return null;
-    }
-    const parts = (candidates[0].content && candidates[0].content.parts) || [];
-    // Filter out thinking parts — only return text parts meant for output
-    const textParts = parts.filter(function(p) { return p.text && !p.thought; });
-    if (!textParts.length) {
-      activityLog('Gemini returned no text parts. Finish reason: ' +
-        (candidates[0].finishReason || 'unknown'));
-      return null;
-    }
-    return textParts.map(function(p) { return p.text; }).join('').trim();
-  } catch (e) {
-    activityLog('Gemini exception: ' + e);
-    return null;
   }
+  return null;
 }
 
 function fallbackAlertMessage_(emailData) {

@@ -35,9 +35,6 @@ test('S2: home card loads with all status rows', async ({ page }) => {
 test('S2: Settings card opens', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Settings');
-  // Verify Settings card loaded. (S8 separately verifies the in-card Home
-  // button is unconditionally present on the four root cards so users have
-  // a reliable escape route regardless of how they reached the card.)
   await expect(getFrame(page).getByText('Gemini (rule evaluation)')).toBeVisible();
 });
 
@@ -127,32 +124,21 @@ test('S8: activity log has Refresh button', async ({ page }) => {
   await expect(getFrame(page).getByRole('button', { name: 'Refresh' })).toBeVisible();
 });
 
-test('S8: in-card Home button present on every root card', async ({ page }) => {
-  // The four root navigation cards (Rules, Settings, Activity log, Help)
-  // unconditionally prepend a Home button as their first section. Apps Script
-  // doesn't expose navigation-stack depth at handler time, so conditional
-  // rendering would silently break on updateCard refreshes (rule toggle,
-  // log refresh, settings save) where the back-arrow state hasn't changed
-  // but the card is being re-rendered. Always-on Home guarantees an escape
-  // route regardless of entry path. Starter rules is excluded because it's
-  // only reachable via push from the home card and always has a back arrow.
-  for (const section of ['Rules', 'Settings', 'Help', 'Activity log']) {
-    const frame = await openAddon(page);
-    await clickButton(frame, section);
-    await expect(getFrame(page).getByRole('button', { name: /^Home$/i })).toBeVisible();
-  }
-});
-
 // ─── S14 · Help Card Navigation ──────────────────────────────────────────────
+// Help content was moved off-card to https://emailsentinel.jjjjjenterprises.com/help.html
+// after the in-card TextParagraph approach hit a CardService per-widget content
+// cap on the long Alert channel setup topic ("type cannot be used by the
+// add-ons platform" rejection). The card now just shows a link button and
+// contact info.
 
-test('S14: Help card loads with all five topic buttons', async ({ page }) => {
+test('S14: Help card shows external help link and contact section', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Help');
   const f = getFrame(page);
   await expect(f.getByText('emAIl Sentinel™ Help')).toBeVisible();
-  for (const topic of ['Quick start & writing rules', 'Rule examples by channel', 'Alert channel setup', 'Gemini pricing & models', 'Settings & troubleshooting']) {
-    await expect(f.getByRole('button', { name: topic })).toBeVisible();
-  }
+  await expect(f.getByRole('button', { name: 'Open full help guide' })).toBeVisible();
+  await expect(f.getByText('Contact')).toBeVisible();
+  await expect(f.getByText('support@jjjjjenterprises.com')).toBeVisible();
 });
 
 test('S14: help footer shows JJJJJ Enterprises credit', async ({ page }) => {
@@ -160,37 +146,6 @@ test('S14: help footer shows JJJJJ Enterprises credit', async ({ page }) => {
   await clickButton(frame, 'Help');
   await expect(getFrame(page).getByText('JJJJJ Enterprises')).toBeVisible();
   await expect(getFrame(page).getByText(/emAIl Sentinel.*product of JJJJJ Enterprises/i)).toBeVisible();
-});
-
-test('S14: Settings & troubleshooting topic shows GitHub Issues link', async ({ page }) => {
-  const frame = await openAddon(page);
-  await clickButton(frame, 'Help');
-  await clickButton(getFrame(page), 'Settings & troubleshooting');
-  await expect(getFrame(page).getByText('Open a GitHub issue')).toBeVisible();
-});
-
-test('S14: help search finds a known phrase across topics', async ({ page }) => {
-  const frame = await openAddon(page);
-  await clickButton(frame, 'Help');
-  // The "Search help" input + button live in their own section at the top.
-  await fillField(getFrame(page), 'Search all topics', 'Reset baseline');
-  await clickButton(getFrame(page), 'Search');
-  // Results card uses the query in its header.
-  await expect(getFrame(page).getByText(/Search:\s*"Reset baseline"/i)).toBeVisible();
-  // The Settings & troubleshooting topic mentions Reset baseline, so it should
-  // appear as a result. Apps Script keeps the previous Help card in the DOM
-  // (hidden) — a bare getByText match resolves to many nodes including hidden
-  // ones. The "Open: <topic>" button label is unique to the results card and
-  // is only rendered for matched topics, so anchor on it.
-  await expect(getFrame(page).getByRole('button', { name: /^Open:\s*Settings & troubleshooting$/i })).toBeVisible();
-});
-
-test('S14: help search empty query shows toast prompt', async ({ page }) => {
-  const frame = await openAddon(page);
-  await clickButton(frame, 'Help');
-  // Click Search without typing anything.
-  await clickButton(getFrame(page), 'Search');
-  await expectToast(page, 'Enter a search term first');
 });
 
 // ─── S17b · Unsaved-Changes Notice on Editor Cards ──────────────────────────
