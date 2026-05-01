@@ -99,10 +99,10 @@ corresponding integration.
 ### 7) https://www.googleapis.com/auth/script.scriptapp
 
 **Purpose:** Create and manage time-driven triggers that schedule
-background email checks at the user-configured polling interval.
+background email scans at the user-configured scan interval.
 **Why necessary:** Enables background execution after the user clicks
-"Start monitoring"; without this scope the add-on cannot check mail
-except when the user is actively viewing the card.
+"Start scheduled scans"; without this scope the add-on cannot scan
+mail except when the user is actively viewing the card.
 
 ---
 

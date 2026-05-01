@@ -24,17 +24,17 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 *Open the add-on, configure the Gemini key, and verify the connection.*
 
 - [ ] Click the emAIl Sentinel icon in the Gmail add-on rail.
-- [ ] Home card loads. Status row shows: Plan = "Free (0/3 rules)", Monitoring = "Stopped", Gemini API key = "NOT configured".
+- [ ] Home card loads. Status row shows: Plan = "Free (0/3 rules)", Scanning = "Stopped", Gemini API key = "NOT configured".
 - [ ] An "Upgrade to Pro" button is visible on the home card for Free users.
 - [ ] Quick setup checklist is visible on the home card with grouped structure: a top-level "- Open Settings" bullet followed by indented sub-bullets "- Paste your Gemini API key" and "- Set up alert channels", plus top-level bullets for creating a rule and starting monitoring.
 - [ ] Click Settings (either via the universal action "⋮" menu or the Settings nav button).
 - [ ] Paste your Gemini API key into the "Gemini API key" field. The aistudio.google.com/app/apikey URL is a tappable link.
 - [ ] Confirm model is "gemini-2.5-flash" (default).
-- [ ] Polling field is a dropdown titled "Check for new email every" with whole-hour options. **Free tier:** options are `3 hours / 4 hours / 6 hours / 8 hours / 12 hours / 24 hours`. **Pro tier:** options are `1 hour / 2 hours / 3 hours / 4 hours / 6 hours / 8 hours / 12 hours / 24 hours`. Below the dropdown, a grey hint paragraph explains the tier minimum and that the 60-minute limit is a Google Workspace add-on platform limit.
+- [ ] Scan-schedule field is a dropdown titled "Scan email every" with whole-hour options. **Free tier:** options are `3 hours / 4 hours / 6 hours / 8 hours / 12 hours / 24 hours`. **Pro tier:** options are `1 hour / 2 hours / 3 hours / 4 hours / 6 hours / 8 hours / 12 hours / 24 hours`. Below the dropdown, a grey hint paragraph explains the tier minimum and that the 60-minute limit is a Google Workspace add-on platform limit.
 - [ ] **Free — pick a value at or above tier min.** Select `4 hours`. Save → toast: "Settings saved." Reload Settings — dropdown shows `4 hours`.
 - [ ] **Pro — pick the platform floor.** Select `1 hour`. Save → toast: "Settings saved." Reload Settings — dropdown shows `1 hour`.
-- [ ] **Activity log on monitoring start.** With the dropdown set to `2 hours` (Pro), Start monitoring logs "Installed time-driven trigger: every 2 hours." With `1 hour` (Pro), logs "every 1 hour." With `3 hours` (Free), logs "every 3 hours."
-- [ ] Confirm "Only check emails newer than (days)" field is present and defaults to 30.
+- [ ] **Activity log on scheduled-scan start.** With the home-card "Scan email every" dropdown set to `2 hours` (Pro), click Start scheduled scans → activity log records "Installed time-driven trigger: every 2 hours." With `1 hour` (Pro), logs "every 1 hour." With `3 hours` (Free), logs "every 3 hours."
+- [ ] Confirm "Only scan emails newer than (days)" field is present and defaults to 30.
 - [ ] Click "Save settings". Toast notification reads: "Settings saved."
 - [ ] Click "Test Gemini". Toast reads: "Gemini OK — model responded."
 - [ ] Navigate back to Home card. Gemini API key row now shows "Configured". In the Quick setup checklist, the "Paste your Gemini API key" sub-bullet now shows a ✓.
@@ -118,7 +118,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] **Local timezone consistency.** Compare an activity-log timestamp to the **Timestamp** column of the same alert's Sheets row (Section 12) and the date in the Calendar event description (Section 11). All three should show the same local-timezone wall-clock time within seconds of each other. If they disagree, the user's primary Calendar timezone is wrong — fix it in [calendar.google.com](https://calendar.google.com/calendar/u/0/r/settings) ▸ Time zone.
 - [ ] "Refresh" button reloads the log without navigating away.
 - [ ] If log has more than 20 entries, "Show older (N more)" button appears and loads additional entries.
-- [ ] **Home button present on every sub-card.** Open Rules, Settings, Help, Starter rules, and Activity log via both home-card buttons (stacked nav, Gmail's native back arrow visible) and via the kebab "⋮" menu universal actions (replaced nav, no native back arrow). Each sub-card's first section is a "Home" button; clicking it returns to the home card from either entry path. (See Section 17c for the full coverage matrix.)
+- [ ] **Home button present on every root card.** Open Rules, Settings, Help, and Activity log via both home-card buttons (stacked nav, Gmail's native back arrow visible) and via the kebab "⋮" menu universal actions (replaced nav, no native back arrow). Each root card's first section is a "Home" button; clicking it returns to the home card from either entry path. The Starter rules card is the one nav target without a Home button — it's only reachable via push from home, so the back arrow is always available. (See Section 17c for the full coverage matrix.)
 
 ---
 
@@ -189,9 +189,16 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ## 13 · MCP Server Alert Channel Test (Asana)
 
-*Optional — send alerts to Asana via the official Asana MCP server. Creates a task in a chosen project for every match.*
+*Optional — send alerts to Asana, creating a task in a chosen project for every match.*
 
-> ⚠ **Asana V1 MCP cutoff: 2026-05-11.** The instructions below target Asana's V1 SSE endpoint at `https://mcp.asana.com/v1/sse`, which accepts Personal Access Tokens (PATs). Asana's V2 endpoint at `https://mcp.asana.com/v2/mcp` requires OAuth-issued tokens (PATs are rejected with `Invalid token signature`) and a 200–400-line OAuth+PKCE implementation in the add-on; that is not currently in scope. **After 2026-05-11**, V1 will be shut down and this section needs to be migrated to a self-hosted MCP server (community Asana MCP image deployed to Cloudflare Workers / Render / Fly) — see scheduled routine `trig_012bSXvsU2uyusQb2sSQS9Qf` (fires 2026-05-09) which will open a GitHub issue if/when V1 stops responding. In the meantime, the steps below assume V1.
+> **Two Asana type options in the dropdown.** The Type dropdown in the MCP server editor offers two Asana entries (plus Custom and Microsoft Teams). Slack was removed from the dropdown because Slack does not host an MCP server; users wanting to alert Slack should self-host an MCP-to-Slack bridge and pick the Custom type. Microsoft 365 was renamed to Microsoft Teams since Teams chat is the actual alert surface. The two Asana entries are:
+>
+> - **Asana (REST API — easier)** — `asana-rest`. Posts directly to Asana's REST API at `https://app.asana.com/api/1.0/tasks`. Works with a Personal Access Token (PAT) — no OAuth flow needed. This is the **recommended** path and what these instructions test by default. Endpoint auto-fills on Load defaults.
+> - **Asana (MCP V2 — requires OAuth)** — `asana`. Posts JSON-RPC tools/call to `https://mcp.asana.com/v2/mcp`. PATs are rejected by V2 with `Invalid token signature - token was not issued by Asana OAuth`; you need an OAuth-issued access token from a registered Asana MCP client app. Most users should pick the REST path above.
+>
+> The Authorization header value field accepts the **full header value** for both — paste literally `Bearer <token>` (capital B, single space, then the token). The dispatcher does not auto-prepend `Bearer `; it sends whatever you typed.
+>
+> Asana V1 SSE at `https://mcp.asana.com/v1/sse` (which used to be the easy-PAT path) was shut down 2026-05-11; it is no longer available as a Type dropdown option and steps below have been migrated to the two surviving choices.
 
 ### 13a · Get your Asana credentials
 
@@ -199,16 +206,24 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] [Optional] Pick or create a project where the test tasks should land. Open the project and copy its **project GID** from the browser URL — it's the long number between `/0/` and the next `/`. Example: in `https://app.asana.com/0/1209876543210000/list`, the GID is `1209876543210000`. Save it.
 - [ ] [Optional] Open the Asana developer console at https://app.asana.com/0/my-apps. Under **Personal access tokens**, click **Create new token**, name it "emAIl Sentinel E2E", agree to the API terms, and **copy the token immediately** — Asana only shows it once.
 
-### 13b · Configure the MCP server in emAIl Sentinel
+### 13b · Configure the MCP server in emAIl Sentinel (REST API path — recommended)
 
-- [ ] [Optional] In the add-on, open Settings → MCP server alerts → **+ Add MCP server**.
-- [ ] [Optional] **Name:** `E2E Asana`
-- [ ] [Optional] **Type:** select `Asana` from the dropdown, then click **Load defaults**. This pre-fills both the Tool name and Tool args template fields below.
-- [ ] [Optional] **Tool name:** leave as `asana_create_task` (the value populated by Load defaults). This is the canonical name of Asana's MCP "create task" tool — do not change it unless you know your Asana MCP exposes a different tool name.
-- [ ] [Optional] **Endpoint:** `https://mcp.asana.com/v1/sse` until 2026-05-11. The V2 endpoint (`https://mcp.asana.com/v2/mcp`) requires an OAuth-issued access token issued through Asana's MCP-registered client flow; PATs are rejected by V2 with `Invalid token signature - token was not issued by Asana OAuth`. After the V1 cutoff, switch to a self-hosted MCP server per the section heading note.
-- [ ] [Optional] **Auth token:** paste `Bearer ` followed by the PAT from step 13a (so the field looks like `Bearer 1/123456789abcdef…` for legacy PATs, or `Bearer 2/<workspace>/<user>:<hash>` for current PAT format — Asana's PAT format changed at some point and both shapes work with V1).
-- [ ] [Optional] **Tool args template:** the Load-defaults click pre-fills this as `{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}`. Replace the literal text `PROJECT_ID` with your actual project GID from step 13a. Leave `{{subject}}` and `{{message}}` placeholders intact.
+- [ ] [Optional] In the add-on, open Settings → **External integrations** → **+ Add MCP server**.
+- [ ] [Optional] **Server name:** `E2E Asana`
+- [ ] [Optional] **Type:** pick **Asana (REST API — easier)** from the dropdown, then click **Load defaults**. The Endpoint URL auto-fills to `https://app.asana.com/api/1.0/tasks`, the Tool name is left blank (the REST path does not need it), and the Tool args template pre-fills with the Asana REST task body.
+- [ ] [Optional] **MCP server endpoint URL:** leave the auto-filled `https://app.asana.com/api/1.0/tasks`. Do not switch to the V1 SSE or V2 MCP endpoints — those are different paths.
+- [ ] [Optional] **Authorization header value:** paste `Bearer ` followed by the PAT from step 13a, with no quotes. The full field should read like `Bearer 1/123456789abcdef…` (legacy PAT format) or `Bearer 2/<workspace>/<user>:<hash>` (current format). The capital B and the single space between `Bearer` and the token are required — the dispatcher sends this string verbatim as the `Authorization` header. Without the `Bearer ` prefix, Asana rejects with HTTP 401.
+- [ ] [Optional] **Tool args template:** the Load-defaults click pre-fills this as `{"data":{"projects":["PROJECT_ID"],"name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}}`. Replace the literal text `PROJECT_ID` with your actual project GID from step 13a. Leave `{{subject}}` and `{{message}}` placeholders intact.
 - [ ] [Optional] Click **Save**. "E2E Asana" appears in the MCP server list.
+
+### 13b-alt · Configure the MCP server (MCP V2 path — only if you have an OAuth-issued token)
+
+*Skip this entire subsection unless you have an OAuth-issued access token from a registered Asana MCP client app. Personal Access Tokens are rejected by the V2 gateway.*
+
+- [ ] [Optional] **Type:** pick **Asana (MCP V2 — requires OAuth)**. The Endpoint URL auto-fills to `https://mcp.asana.com/v2/mcp`. The Tool name auto-fills to `asana_create_task`.
+- [ ] [Optional] **Authorization header value:** paste `Bearer ` followed by your OAuth-issued access token (typically starts with `ya29.` or similar — not the `1/` or `2/` PAT format). Same `Bearer ` prefix rule applies.
+- [ ] [Optional] **Tool args template:** the Load-defaults click pre-fills this as `{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}` — the V2 schema is flatter than REST. Replace `PROJECT_ID` with your project GID.
+- [ ] [Optional] Save. The remainder of Section 13 (13c onward) works with either path.
 
 ### 13c · Wire it onto the test rule and fire an alert
 
@@ -267,15 +282,15 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Help card header reads: "emAIl Sentinel™ Help".
 - [ ] **Search help** section appears at the top with a "Search all topics" input and a filled blue **Search** button.
 - [ ] Type `Reset baseline` in the search box and click **Search**. A results card opens with header `Search: "Reset baseline"`, a grey "1 topic matched." line, and the **Settings & troubleshooting** topic listed with a snippet that has "Reset baseline" bolded. Click **Open: Settings & troubleshooting** — the full topic loads.
-- [ ] Tap back, then type `polling` in the search box and click **Search**. Results card lists multiple topics matching, each with a snippet around the first occurrence.
+- [ ] Tap back, then type `scan` in the search box and click **Search**. Results card lists multiple topics matching, each with a snippet around the first occurrence.
 - [ ] Tap back, then click **Search** with the box empty. Toast: "Enter a search term first." (no results card pushed).
 - [ ] Tap back, then type `xyzzy123nonexistent` and click **Search**. Results card shows: "No matches in any help topic. Try a different keyword."
 - [ ] Tap back to the Help card. Five topic buttons present: "Quick start & writing rules", "Rule examples by channel", "Alert channel setup", "Gemini pricing & models", "Settings & troubleshooting".
 - [ ] Tap "Quick start & writing rules" — content loads with step-by-step setup instructions, the "Alert message content" field reference, the "Help me write the rule text" / "Help me write the alert text" buttons, and a **Searching help** section near the bottom that explains the search box.
-- [ ] Tap back, then "Rule examples by channel" — content shows SMS, Chat, Calendar, Sheets, Tasks, and MCP server examples (Slack, Asana).
+- [ ] Tap back, then "Rule examples by channel" — content shows SMS, Chat, Calendar, Sheets, Tasks, and External integrations examples (Custom MCP / Asana / Microsoft Teams).
 - [ ] Tap back, then "Alert channel setup" — content covers SMS (including named recipients managed via add/edit/delete cards), Google Chat webhook setup, Calendar/Sheets/Tasks defaults, and MCP server configuration.
 - [ ] Tap back, then "Gemini pricing & models" — model list (gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro, gemini-2.0-flash-001), free-tier limits, and pay-as-you-go rates shown.
-- [ ] Tap back, then "Settings & troubleshooting" — content includes Business hours, Polling, Max email age, Privacy, and troubleshooting. GitHub Issues support link is present and reads "https://github.com/StephenRJohns/email_sentinel/issues".
+- [ ] Tap back, then "Settings & troubleshooting" — content includes Business hours, Scan schedule, Max email age, Privacy, and troubleshooting. GitHub Issues support link is present and reads "https://github.com/StephenRJohns/email_sentinel/issues".
 - [ ] Bottom of Help card shows the **Contact** block with a three-email routing table:
   - Support: `support@jjjjjenterprises.com`
   - Legal / privacy: `legal@jjjjjenterprises.com`
@@ -284,37 +299,41 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ---
 
-## 15 · Start Monitoring (Time-Driven Trigger)
+## 15 · Start Scheduled Scans (Time-Driven Trigger)
 
 *Install the background trigger and confirm it appears in Apps Script.*
 
 - [ ] Ensure the Gemini API key is configured (confirmed in Section 2).
-- [ ] From the home card, the "Start monitoring" button shows the current polling interval in hours — e.g. "Start monitoring every 1 hour" (Pro tier minimum) or "Start monitoring every 3 hours" (Free tier minimum), with `hour` / `hours` pluralized correctly.
-- [ ] Click the button. Toast: "Monitoring started."
-- [ ] Home card refreshes: Monitoring row shows "Running". Quick setup checklist disappears (or collapses to ✓ entries).
-- [ ] (In Apps Script editor) Open Triggers (left-rail clock icon). "runMailCheck" trigger is listed using `everyHours()` — for Pro `1 hour` selection → trigger runs every 1 hour; Pro `2 hours` → every 2 hours; Free `3 hours` → every 3 hours; Free `6 hours` → every 6 hours.
-- [ ] Wait one full trigger interval, then check Activity log — a new automatic run entry appears. Or click "Scan email now" anytime for an immediate check that bypasses the cadence.
+- [ ] From the home card, a "Scan email every" dropdown is visible above a filled "Start scheduled scans" button. The dropdown's selected value matches `settings.pollMinutes` — Pro tier minimum is `1 hour`, Free tier minimum is `3 hours`. Tier-disallowed options (1 / 2 hours on Free) are hidden from the home dropdown.
+- [ ] **Persistence: change interval from home card and click Start.** With the dropdown set to a non-default value (e.g. Pro tier, change `1 hour` → `4 hours`), click Start scheduled scans. Toast: "Scheduled scans started."
+- [ ] Open Settings — the scan-interval dropdown now reads `4 hours` (the home-card choice was saved into `settings.pollMinutes`).
+- [ ] Re-open the home card, click Stop scheduled scans, then re-open it — the home dropdown still reads `4 hours` (the saved value pre-selects on next render).
+- [ ] **Auto-save on change without clicking Start.** Stop scheduled scans first. On the home card, change the dropdown from the current value to a different one (e.g. `4 hours` → `6 hours`). Do NOT click Start scheduled scans — instead navigate directly to Settings via the kebab "⋮" menu. The Settings scan-interval dropdown reads `6 hours`. (CardService doesn't auto-submit form inputs on navigation; the home dropdown wires `setOnChangeAction` → `handleHomePollChange` to persist the value silently the moment the user picks a new option, so the choice sticks even if the user navigates away before clicking Start.)
+- [ ] Home card refreshes: Scanning row shows "Active". Quick setup checklist disappears (or collapses to ✓ entries).
+- [ ] (In Apps Script editor) Open Triggers (left-rail clock icon). "runMailCheck" trigger is listed using `everyHours()` — matches the dropdown value selected on Start (Pro `1 hour` → every 1 hour; `4 hours` → every 4 hours; Free `3 hours` → every 3 hours; Free `6 hours` → every 6 hours).
+- [ ] Wait one full trigger interval, then check Activity log — a new automatic run entry appears. Or click "Scan email now" anytime for an immediate scan that bypasses the cadence.
 
-### 15.1 · Poll-Floor Clamp at Monitoring Start
+### 15.1 · Scan-Interval Floor Clamp at Scheduled-Scan Start
 
 *Verify the tier-min poll floor is enforced when monitoring starts, not only when settings are saved (regression guard for the Pro→Free downgrade path).*
 
-- [ ] While on Pro, select `1 hour` in the polling dropdown and Save settings. Confirm the dropdown still shows `1 hour` after reload.
+- [ ] While on Pro, select `1 hour` in the Settings scan-schedule dropdown and Save. Confirm the dropdown still shows `1 hour` after reload.
 - [ ] Flip back to Free: in `LicenseManager.gs`, run **`setTierFree`** from the Apps Script editor.
-- [ ] **Without changing polling**, click "Stop monitoring" (if running) then "Start monitoring" from the home card.
-- [ ] Toast or activity log indicates the polling interval was clamped to the Free minimum on start ("Monitoring started. Polling set to 3 hours (free plan minimum)." or equivalent).
-- [ ] Open Settings — polling dropdown now shows `3 hours` (the Free minimum); options below 3 hours (1 hour, 2 hours) are no longer offered.
+- [ ] Open the home card. The "Scan email every" dropdown should no longer offer 1- or 2-hour options (tier filter); the displayed value falls back to the Free minimum of `3 hours` since the saved `1 hour` is no longer in the option list.
+- [ ] **Without changing the dropdown**, click "Stop scheduled scans" (if running) then "Start scheduled scans" from the home card.
+- [ ] Toast or activity log indicates the scan interval was clamped to the Free minimum on start ("Scheduled scans started. Set to every 3 hours (free plan minimum)." or equivalent).
+- [ ] Open Settings — scan-schedule dropdown now shows `3 hours` (the Free minimum); options below 3 hours (1 hour, 2 hours) are no longer offered.
 - [ ] Apps Script editor Triggers — "runMailCheck" trigger is installed at every 3 hours, not every 1 hour.
 
 ---
 
-## 16 · Stop Monitoring
+## 16 · Stop Scheduled Scans
 
 *Remove the trigger and verify it is gone.*
 
-- [ ] From the home card, click "Stop monitoring".
-- [ ] Toast: "Monitoring stopped."
-- [ ] Home card: Monitoring row shows "Stopped". "Start monitoring" button is now filled/prominent.
+- [ ] From the home card, click "Stop scheduled scans".
+- [ ] Toast: "Scheduled scans stopped."
+- [ ] Home card: Scanning row shows "Stopped". The "Scan email every" dropdown reappears with the saved interval pre-selected, and the filled "Start scheduled scans" button is back below it.
 - [ ] [Optional] In Apps Script editor Triggers — "runMailCheck" trigger is no longer listed.
 
 ---
@@ -341,21 +360,23 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 - [ ] **Rule editor.** Rules → "+ New rule". Top section is an amber notice reading roughly: "⚠ Click Save below before tapping the back arrow — the back arrow discards unsaved changes without warning." Same notice appears when editing an existing rule.
 - [ ] **Settings card.** Open Settings. Same amber notice is the first section above the Gemini key block.
-- [ ] **MCP server editor.** Settings → MCP server alerts → "Add MCP server" (Pro tier; if on Free, flip to Pro temporarily via `setTierPro` in the Apps Script editor). Same amber notice appears at the top. Repeat with an existing server via Edit.
+- [ ] **MCP server editor.** Settings → **External integrations** → "Add MCP server" (Pro tier; if on Free, flip to Pro temporarily via `setTierPro` in the Apps Script editor). Same amber notice appears at the top. Repeat with an existing server via Edit.
 - [ ] **SMS recipient editor.** Settings → SMS recipients → "Add recipient". Amber notice at the top. Repeat with Edit on an existing recipient.
 - [ ] **Chat space editor.** Settings → Google alert channels → "Add Chat space" (Pro tier). Amber notice at the top. Repeat with Edit on an existing space.
 - [ ] **Behavior on back arrow (negative test).** In the rule editor for "Test rule — E2E", change the rule name to `Test rule — E2E (modified)` but do NOT click Save. Tap the system back arrow at the top-left of the card. Verify (a) no confirmation dialog appears, (b) the rule list shows the original name unchanged. (This is the documented limitation the notice exists to mitigate.)
 
 ---
 
-## 17c · Home Button on Sub-Cards (conditional)
+## 17c · Home Button on Root Cards (always shown)
 
-*The in-card Home button is shown only when Gmail's native back arrow is unavailable. Specifically, the home-card push path suppresses it (back arrow already there); the kebab-menu universal-action path shows it (no back arrow because the stack was replaced).*
+*The four root navigation cards — Rules, Settings, Activity Log, Help — unconditionally prepend an in-card Home button as their first section. This is intentional: Apps Script doesn't expose navigation-stack depth at handler time, so we can't reliably re-detect the no-back-arrow state on subsequent updateCard calls (rule toggle, log refresh, settings save). Always-on Home guarantees an escape hatch regardless of how the user arrived. When Gmail's native back arrow is also rendered, this is mild redundancy: back arrow steps one card up, Home jumps to root.*
 
-- [ ] **Via home-card buttons (stacked nav, back arrow visible).** From the home card, click each sub-card button in turn — Settings, Rules, Activity log, Help, Starter rules. Gmail's native back arrow (←) is visible at the top-left of each card. The in-card "Home" button is **NOT** shown (suppressed because the back arrow already provides escape). The back arrow returns to the home card.
-- [ ] **Via kebab menu (replaced nav, no back arrow).** Click the "⋮" menu in the add-on header, then in turn pick Rules, Settings, Activity Log, Help. The Gmail back arrow at the top-left of the card is **NOT** shown — the stack was replaced rather than pushed. The first section on each card is a "Home" button. Clicking it returns to the home card.
-- [ ] **Mixed paths.** From the kebab menu open Settings (Home button shows). Click Home — lands on home card. Click Settings on home card (Home button suppressed, back arrow shows). Click back arrow — lands on home card. No stacked navigation residue or error states.
-- [ ] **Post-edit return paths.** Open Settings via home-card button (no Home button, back arrow visible). Click Add SMS recipient (push → editor opens). Save the recipient — Settings card re-renders. Whether the in-card Home button appears here is acceptable either way (CardService cannot tell the server whether the back arrow is currently visible on a popCard.update path); the important thing is that the user is never trapped.
+- [ ] **Via home-card buttons (stacked nav, back arrow visible).** From the home card, click each sub-card button in turn — Settings, Rules, Activity log, Help. Gmail's native back arrow (←) is visible at the top-left of each card. The in-card "Home" button **IS** shown as the first section. Both work: tapping the back arrow returns to the home card, and clicking Home also returns to the home card.
+- [ ] **Via kebab menu (replaced nav, no back arrow).** Click the "⋮" menu in the add-on header, then in turn pick Rules, Settings, Activity Log, Help. The Gmail back arrow at the top-left of the card is **NOT** shown — the stack was replaced rather than pushed. The first section on each card is a "Home" button. Clicking it returns to the home card. (This is the no-back-arrow case the Home button exists for.)
+- [ ] **After delete-rule (popToRoot path).** Open Rules (via either entry), click Delete on any rule, confirm. The Rules card re-renders without a back arrow (popToRoot replaced the stack), but the Home button is still the first section and clicking it returns to the home card.
+- [ ] **After clear-activity-log (popToRoot path).** Open Activity log, click Clear, confirm. The card re-renders without a back arrow but with the Home button. Click it — returns to the home card.
+- [ ] **After updateCard refreshes (rule toggle / settings save / log refresh).** On any root card, trigger an in-place update: toggle a rule's Enable switch on the Rules card; click Save on Settings; click Refresh on Activity log. The Home button stays visible across the re-render. (This is the case that drove the always-on choice — conditional rendering would have hidden the Home button on these updates because the navigation stack doesn't change.)
+- [ ] **Starter rules card** has no Home button. It's only reachable via push from the home card, so Gmail's back arrow is always rendered. Verify this by opening Starter rules from the home card: back arrow visible, no in-card Home button.
 
 ---
 
@@ -366,8 +387,8 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Open the kebab "⋮" menu and click **Scan email now**.
 - [ ] After the scan completes, a **Scan result** card opens (not the Activity log directly). The first section is the standard Home button.
 - [ ] The result section shows a green ✅ banner reading "Scan complete — N new email(s), M match(es)." (text in green, e.g. `#1e7e34`). On a baseline-only run with no rules matching, the typical text is "Scan complete — 0 new emails, 0 matches."
-- [ ] A "View activity log" button below the banner navigates to the Activity log card; the most recent entry there is `Manual check: N new email(s), M match(es).`.
-- [ ] **Failure path (optional, hard to force).** If the scan throws (e.g. Gemini quota exhausted with rules enabled), the banner is red ⚠ with "Scan failed: …" and the activity log shows `Manual check failed: …`.
+- [ ] A "View activity log" button below the banner navigates to the Activity log card; the most recent entry there is `Manual scan: N new email(s), M match(es).`.
+- [ ] **Failure path (optional, hard to force).** If the scan throws (e.g. Gemini quota exhausted with rules enabled), the banner is red ⚠ with "Scan failed: …" and the activity log shows `Manual scan failed: …`.
 
 ---
 
@@ -378,6 +399,25 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Create or pick a rule, ensure it is **ON** and has zero channels checked (no SMS, Chat, MCP, Calendar, Sheets, Tasks). Open Rules and locate that rule's summary section. The **Channels** row reads "None configured" in **bold** with **dark red** color (~`#b00020`).
 - [ ] Click "Disable" on the same rule (status flips to ⏸ OFF). The Channels row now reads "None configured" in **plain** styling (no bold, no red).
 - [ ] Re-enable the rule (status flips back to ✅ ON). Tick at least one channel in the editor and Save. The Channels row now lists the configured channel(s) and is no longer flagged.
+
+---
+
+## 17f · Action Color Conventions on Buttons
+
+*Destructive and cautionary actions are color-coded so the user gets a visual warning before clicking. Codified in `Cards.gs` as `BRAND_RED_` (`#c62828`) for delete and `BRAND_YELLOW_LIGHT_` (`#fde68a`) for disable.*
+
+- [ ] **Delete buttons are red with white text.** Verify on every Delete button across the UI:
+  - Rules list — each rule's Delete button.
+  - Rule delete confirmation card — the Delete (confirm) button.
+  - MCP server editor (Settings → Add/Edit MCP server) — the Delete button on the editor.
+  - MCP server delete confirmation — the Delete (confirm) button.
+  - SMS recipient editor (Settings → Add/Edit recipient) — the Delete button on the editor.
+  - SMS recipient delete confirmation — the Delete (confirm) button.
+  - Chat space editor (Settings → Add/Edit chat space) — the Delete button on the editor.
+  - Chat space delete confirmation — the Delete (confirm) button.
+  All eight render as filled red buttons with white text.
+- [ ] **Disable button is light yellow with black text** when shown on a currently-enabled rule. Open Rules with at least one ON (✅) rule. The toggle button on that rule reads "Disable" with a filled light-yellow background and black text. Click to flip the rule to OFF (⏸) — the button now reads "Enable" with the **default** plain-text style (no fill, no color background) since enabling a rule isn't a cautionary action.
+- [ ] **Other buttons unchanged.** "Edit" stays plain text; "Save", "Generate", "+ New rule", "Start scheduled scans" stay filled brand purple; "Scan email now" stays filled brand-purple-light. No other buttons should have shifted color.
 
 ---
 
@@ -398,14 +438,14 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 *Verify that the max-email-age setting limits how far back the service scans a label.*
 
-- [ ] In Settings → Polling, confirm the "Only check emails newer than (days)" field is visible with value 30.
+- [ ] In Settings → Scan schedule, confirm the "Only scan emails newer than (days)" field is visible with value 30.
 - [ ] Change the field to 1 (one day) and click "Save settings". Toast: "Settings saved."
 - [ ] Reload Settings. Confirm the field is persisted as 1.
 - [ ] Create a new rule `Age test — E2E` watching INBOX with rule text "Any email from anyone." (Do not enable alert channels.)
 - [ ] In Settings, click "Reset baseline" and confirm.
 - [ ] Click "Scan email now".
 - [ ] Activity log shows the baseline message count is limited to emails from the last 1 day (compare to a prior run with max age at 30 — baseline count should be noticeably smaller).
-- [ ] Change "Only check emails newer than (days)" back to 30 and click "Save settings".
+- [ ] Change "Only scan emails newer than (days)" back to 30 and click "Save settings".
 - [ ] Try invalid input: enter 0 (zero) and save. Confirm that the stored value is clamped to a valid minimum (reopen Settings — value should be 1 or higher, not 0).
 - [ ] Try non-numeric input: enter `abc` and save. Confirm fallback to the default (30) on reopen.
 - [ ] Delete the "Age test — E2E" rule.
@@ -419,9 +459,9 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Home card shows "Plan: Free (N/3 rules)" and an "Upgrade to Pro" button is visible.
 - [ ] **Founding-member counter.** Home card (Free users only) shows a scarcity paragraph: "Founding-member lifetime — $79" with text like "N of 500 remaining. Retired after 500 sold." The count matches `FOUNDING_MEMBERS_LIMIT - FOUNDING_MEMBERS_SOLD` in `LicenseManager.gs`. When `FOUNDING_MEMBERS_SOLD` is bumped to 500, the scarcity paragraph disappears entirely.
 - [ ] **Rule count limit.** Delete any extras so you have 2 rules. Create a third — save succeeds. With 3 rules now in place, click **+ New rule** for a fourth — the rule editor does NOT open; instead a toast fires immediately: "Rule limit reached for your plan (3 rules on free). Upgrade to Pro for unlimited rules." (The check now happens at editor-entry time so the user doesn't fill out a full rule only to be rejected on Save. The save-side check in `RulesManager.upsertRule` remains as defense-in-depth — bypassing the New-rule button via programmatic save still produces the same toast.)
-- [ ] **Polling floor.** Open Settings and confirm the polling dropdown does NOT offer `1 hour` or `2 hours` (those options are Pro-only); the lowest available choice is `3 hours`.
+- [ ] **Scan-interval floor.** Open Settings and confirm the scan-schedule dropdown does NOT offer `1 hour` or `2 hours` (those options are Pro-only); the lowest available choice is `3 hours`.
 - [ ] **Chat channel gated.** Open the rule editor. The Google Chat section shows "Google Chat webhooks — Pro plan only." instead of the space selection widget.
-- [ ] **MCP channel gated.** Same editor shows "MCP servers (Slack, Teams, Asana) — Pro plan only." instead of the server selection widget.
+- [ ] **MCP channel gated.** Same editor shows "External integrations (Microsoft Teams, Asana, custom MCP) — Pro plan only." instead of the server selection widget.
 - [ ] **AI Help me write the rule text gated.** In the rule editor, the "Help me write the rule text (Pro)" button is visible; clicking it returns a toast: "Upgrade to Pro to use AI-assisted rule writing."
 - [ ] **AI Suggest alert content available on Free.** The "Help me write the alert text" button (no "(Pro)" suffix) is visible; clicking it produces a suggestion card from Gemini.
 - [ ] **Starter rules respect limit.** With 2 existing rules, click "Starter rules" → "Create starter rules". Toast reports 1 created and indicates 4 were skipped for the Free plan limit.
@@ -436,13 +476,13 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 - [ ] Home card shows "Plan: Pro" and the "Upgrade to Pro" button is no longer displayed.
 - [ ] **Unlimited rules.** Create a 4th, 5th, 6th rule — all save successfully.
-- [ ] **1-hour polling unlocked.** Open Settings and confirm the polling dropdown now includes `1 hour` and `2 hours` at the top of the list. Select `1 hour` and save. Toast: "Settings saved." Reload — dropdown shows `1 hour`. (Pro's polling minimum is the 60-min Google Workspace platform floor; Free's lowest option is `3 hours`.)
+- [ ] **1-hour scans unlocked.** Open Settings and confirm the scan-interval dropdown now includes `1 hour` and `2 hours` at the top of the list. Select `1 hour` and save. Toast: "Settings saved." Reload — dropdown shows `1 hour`. (Pro's scan-interval minimum is the 60-min Google Workspace platform floor; Free's lowest option is `3 hours`.)
 - [ ] **Chat channel available.** Rule editor shows the Google Chat space selection widget (or the prompt to configure Chat in Settings if none exist).
 - [ ] **MCP channel available.** Rule editor shows the MCP server selection widget (or the prompt to configure MCP in Settings).
 - [ ] **AI Help me write the rule text works.** The "Help me write the rule text" button no longer displays "(Pro)"; clicking it opens a card with a multi-line text input where you describe what kinds of emails should match. Clicking Generate sends it to Gemini and produces a suggestion card with **Use this** / **Try again** buttons.
 - [ ] **AI Help me write the alert text — channel-aware.** Open a rule with at least one alert channel ticked, then click "Help me write the alert text". The new card shows the selected channels in bold at the top ("Selected channels: Google Sheets log row, SMS text message"), a description input pre-populated with the existing alert prompt, and Generate / Cancel buttons. Click Generate — the suggestion card returned by Gemini reflects the channel context (e.g. brief for SMS, richer for Sheets).
-- [ ] **Downgrade path.** Run **`setTierFree`**. Home card reverts to Free. Existing Pro-only channel selections on rules are ignored but preserved; verify by re-flipping to Pro and confirming selections still present on rules. Polling is clamped to 3 hours on the next monitoring start.
-- [ ] **License survives Settings save (regression).** While on Pro, open Settings, change any field (e.g. polling), Save. Reload home card — Plan still shows "Pro". (Earlier bug: handleSaveSettings would silently drop `settings.license` on save, reverting tier to Free.)
+- [ ] **Downgrade path.** Run **`setTierFree`**. Home card reverts to Free. Existing Pro-only channel selections on rules are ignored but preserved; verify by re-flipping to Pro and confirming selections still present on rules. The scan interval is clamped to 3 hours on the next scheduled-scan start.
+- [ ] **License survives Settings save (regression).** While on Pro, open Settings, change any field (e.g. the scan interval), Save. Reload home card — Plan still shows "Pro". (Earlier bug: handleSaveSettings would silently drop `settings.license` on save, reverting tier to Free.)
 
 ---
 
@@ -454,9 +494,9 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Any optional sections attempted (9–13, 21): all checked items passed.
 - [ ] Starter rules reviewed — edit and enable any you want active.
 - [ ] Business hours set to desired production value (or disabled).
-- [ ] Polling interval set to desired production value.
+- [ ] Scan interval set to desired production value.
 - [ ] Max email age set to desired production value (default: 30).
-- [ ] Start monitoring enabled at the chosen polling interval.
+- [ ] Start scheduled scans enabled at the chosen scan interval.
 
 Tester name: ________________________________  Date: ______________
 

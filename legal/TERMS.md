@@ -103,7 +103,7 @@ Our website may display links to other products operated by JJJJJ Enterprises, L
 
 The Service is offered on a freemium model:
 
-- **Free plan** — no charge. Subject to the feature limits described in the Service's in-app pricing page (currently: up to 3 rules, minimum 3-hour automatic polling interval, no Google Chat or MCP server channels, no AI-assisted rule writing, 30-day activity log retention). Manual on-demand checks (the "Scan email now" action) are available on every plan regardless of automatic polling cadence.
+- **Free plan** — no charge. Subject to the feature limits described in the Service's in-app pricing page (currently: up to 3 rules, minimum 3-hour automatic scan interval, no Google Chat or MCP server channels, no AI-assisted rule writing, 30-day activity log retention). Manual on-demand scans (the "Scan email now" action) are available on every plan regardless of automatic scan cadence.
 - **Pro plan** — paid subscription at the price published in the Google Workspace Marketplace listing at the time of purchase ("List Price"). Pro unlocks the features described in the in-app pricing page.
 - **Founding-member lifetime plan** — a one-time purchase of **USD $79**, available to the first **500 purchasers only**. Once 500 lifetime purchases have been recorded on the Google Workspace Marketplace, this plan will be permanently retired and will no longer be available at any price. Grants Pro features for the life of the Service (see Section 6.11).
 

@@ -45,7 +45,7 @@ function runMailCheck(opts) {
     }
 
     if (!isInBusinessHours(settings, new Date())) {
-      activityLog('Outside business hours \u2014 skipping check.');
+      activityLog('Outside business hours \u2014 skipping scan.');
       return;
     }
 
@@ -120,7 +120,8 @@ function runMailCheck(opts) {
       const failedIds = [];
       msgCount += newMessages.length;
       newMessages.forEach(msg => {
-        activityLog('  From: ' + msg.from + '  |  Subject: ' + (msg.subject || '').substring(0, 60));
+        const logMsg = applyScreenshotEmailData_(msg);
+        activityLog('  From: ' + logMsg.from + '  |  Subject: ' + (logMsg.subject || '').substring(0, 60));
         let anyFailed = false;
         matchingRules.forEach(rule => {
           if (hitLimit) return;
@@ -141,10 +142,11 @@ function runMailCheck(opts) {
           } else if (evalResult.matched) {
             matchCount++;
             activityLog('  MATCH! ' + evalResult.reason);
+            const alertEmail = applyScreenshotEmailData_(msg);
             const alertContent = generateAlertMessage(
-              msg, rule, settings.geminiApiKey, settings.geminiModel
+              alertEmail, rule, settings.geminiApiKey, settings.geminiModel
             );
-            dispatchAlerts(rule, msg, alertContent, evalResult.reason, settings);
+            dispatchAlerts(rule, alertEmail, alertContent, evalResult.reason, settings);
           } else {
             activityLog('  No match. ' + evalResult.reason);
           }

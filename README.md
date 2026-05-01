@@ -85,7 +85,7 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 |---|---|---|
 | Price | Free | **$4.99/month** or **$39/year** |
 | Active rules | Up to **3** | Unlimited |
-| Minimum automatic polling interval | Every **3 hours** | Every **1 hour** |
+| Minimum automatic scan interval | Every **3 hours** | Every **1 hour** |
 | Manual on-demand check (*Scan email now*) | ✅ | ✅ |
 | Alert channels — Google Calendar, Sheets, Tasks | ✅ | ✅ |
 | Alert channels — SMS (any provider — 6 quick-start presets plus generic webhook) | ✅ | ✅ |
@@ -98,11 +98,11 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 
 **Founding-member lifetime tier** — $79 one-time for the first 500 buyers, then this tier is retired.
 
-**About polling cadence:** Google Workspace enforces a **1-hour minimum** on time-based triggers in any Workspace add-on, regardless of plan or pricing — this is a Google platform limit, not a tier policy. Pro polls at the platform floor (every 1 hour); Free polls every 3 hours. Both plans support **Scan email now** on the home card (also available from the universal "⋮" menu) to run an immediate check at any time, bypassing the cadence entirely.
+**About scan cadence:** Google Workspace enforces a **1-hour minimum** on time-based triggers in any Workspace add-on, regardless of plan or pricing — this is a Google platform limit, not a tier policy. Pro scans at the platform floor (every 1 hour); Free scans every 3 hours. Both plans support **Scan email now** on the home card (also available from the universal "⋮" menu) to run an immediate scan at any time, bypassing the cadence entirely.
 
-**Why we don't poll faster (and why that's a feature, not a limitation):** It's technically possible to bypass the 1-hour Workspace limit by running our own backend that polls Gmail every minute and pushes results back into the add-on. We deliberately don't. Doing so would require storing your Gmail OAuth refresh tokens on our servers, routing every email's content through our infrastructure, and reading each message outside your own Google account. emAIl Sentinel runs **entirely inside your own Google account**: your email content never reaches our servers — we never see, store, or process it. The only places your email data ever goes are (1) the Google Gemini API, called with **your own** API key, and (2) the alert channels **you** configure (your SMS provider, your Calendar, your Sheets, your MCP server, etc.). The 1-hour polling floor is the price of that privacy-first architecture, and we think it's worth paying.
+**Why we don't poll faster (and why that's a feature, not a limitation):** It's technically possible to bypass the 1-hour Workspace limit by running our own backend that scans Gmail every minute and pushes results back into the add-on. We deliberately don't. Doing so would require storing your Gmail OAuth refresh tokens on our servers, routing every email's content through our infrastructure, and reading each message outside your own Google account. emAIl Sentinel runs **entirely inside your own Google account**: your email content never reaches our servers — we never see, store, or process it. The only places your email data ever goes are (1) the Google Gemini API, called with **your own** API key, and (2) the alert channels **you** configure (your SMS provider, your Calendar, your Sheets, your MCP server, etc.). The 1-hour scan-interval floor is the price of that privacy-first architecture, and we think it's worth paying.
 
-Upgrading is done from the home card. Downgrading keeps all your rules intact; Chat and MCP channels are silently disabled and polling is clamped back to the Free 3-hour minimum until you re-upgrade.
+Upgrading is done from the home card. Downgrading keeps all your rules intact; Chat and MCP channels are silently disabled and the scan interval is clamped back to the Free 3-hour minimum until you re-upgrade.
 
 Enterprise-wide or centralized deployments across a Workspace domain are not supported; see [TERMS.md](legal/TERMS.md) §2 for the exact scope.
 
@@ -229,12 +229,12 @@ If you'd rather not install `clasp`:
 After installation, open Gmail and click the emAIl Sentinel icon in the right rail.
 
 1. **Settings ▸ Gemini API key** — paste your key. Click **Test Gemini** to confirm it works.
-2. **Settings ▸ Polling** — pick how often to check. The dropdown offers whole-hour intervals (`1 hour`, `2 hours`, `3 hours`, `4 hours`, `6 hours`, `8 hours`, `12 hours`, `24 hours`). Free shows `3 hours` and longer; Pro adds `1 hour` and `2 hours` at the top. The 60-minute limit is a Google Workspace add-on platform limit and cannot be bypassed. Use **Scan email now** for an immediate check anytime regardless of plan.
+2. **Settings ▸ Scan schedule** — pick how often to check. The dropdown offers whole-hour intervals (`1 hour`, `2 hours`, `3 hours`, `4 hours`, `6 hours`, `8 hours`, `12 hours`, `24 hours`). Free shows `3 hours` and longer; Pro adds `1 hour` and `2 hours` at the top. The 60-minute limit is a Google Workspace add-on platform limit and cannot be bypassed. Use **Scan email now** for an immediate scan anytime regardless of plan.
 3. **Settings ▸ SMS provider** *(optional)* — choose a provider and fill in credentials. Click **SMS setup guide** for a comparison. Then add named SMS recipients (e.g. "On-call", "CFO") below the provider fields — rules pick recipients by name, not raw phone numbers.
 4. **Settings ▸ MCP server alerts** *(optional)* — add Slack, Microsoft 365 / Teams, Asana, or a custom MCP endpoint if you want alerts routed through the Model Context Protocol.
 5. **Settings ▸ Save settings**.
 6. **Rules ▸ + New rule** — give it a name, list one or more Gmail labels (e.g. `INBOX`), describe the match in plain English, and tick the channels you want (SMS recipients, Chat spaces, MCP servers, Calendar, Sheets, Tasks). Click **Help me write the rule text** or **Help me write the alert text** to have Gemini draft a starting point. Or click **Starter rules** on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, and subscription renewals) — they are created disabled so you can tick channels and enable them at your own pace.
-7. Back on the home card, click **Start monitoring**. This installs a time-driven trigger that runs in the background even when Gmail is closed.
+7. Back on the home card, pick a scan interval from the **Scan email every** dropdown (defaults to your tier minimum — every 3 hours on Free, every 1 hour on Pro), then click **Start scheduled scans**. This installs a time-driven trigger that runs in the background even when Gmail is closed and saves the chosen interval into Settings.
 
 The **first** check for any new label is treated as a baseline (no alerts) so you don't get a flood of notifications for existing mail. Alerts start with the next new message.
 
@@ -336,7 +336,7 @@ A key from [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apik
 - **Flash models:** 1,500 requests/day and 1,000,000 tokens/day
 - **Pro models:** 50 requests/day
 
-When you hit a limit, Gemini returns HTTP 429 and emAIl Sentinel logs `"Gemini quota exceeded"` in the Activity Log. Monitoring resumes automatically the next day — you are never charged on a free key.
+When you hit a limit, Gemini returns HTTP 429 and emAIl Sentinel logs `"Gemini quota exceeded"` in the Activity Log. Scanning resumes automatically the next day — you are never charged on a free key.
 
 ### Estimating your daily usage
 
@@ -373,11 +373,11 @@ If you regularly hit the free limit:
 ### Tips to reduce Gemini spend
 
 - **Enable Business hours** — restricts checks to your configured time window (supports overnight windows too).
-- **Lower Max email age** (Settings ▸ Polling) — default is 30 days; reducing it skips older messages entirely so they never hit Gemini.
+- **Lower Max email age** (Settings ▸ Scan schedule) — default is 30 days; reducing it skips older messages entirely so they never hit Gemini.
 - **Watch specific labels** (e.g. `Vendors/Invoices`) instead of INBOX — only emails in that label are evaluated against the rule.
 - **Combine conditions** — one rule "Invoice OR purchase order from any vendor" is cheaper than two separate rules.
 - **Keep alert format prompts short** — concise format instructions produce shorter output responses and lower output-token costs.
-- **Raise the polling interval** — pick a longer interval in the Polling dropdown (e.g. every 6 or 12 hours) instead of the tier minimum to reduce Gemini calls proportionally when email arrives in bursts.
+- **Raise the scan interval** — pick a longer interval in the Scan schedule dropdown (e.g. every 6 or 12 hours) instead of the tier minimum to reduce Gemini calls proportionally when email arrives in bursts.
 
 ---
 
@@ -474,7 +474,7 @@ Nothing is stored on any third-party server. The add-on has no backend. The Goog
 | Activity log times look "off" by several hours | Activity-log timestamps are now in 12-hour AM/PM in your local timezone (taken from your primary Google Calendar). If your Calendar's timezone is wrong, fix it in [calendar.google.com](https://calendar.google.com/calendar/u/0/r/settings) ▸ Time zone — emAIl Sentinel inherits that setting on the next run |
 | Sheets row Timestamp / Received columns show `…Z` UTC strings | You're on an older deployment. Push the latest code — both columns now render as `yyyy-MM-dd h:mm:ss AM/PM TZ` in your local Calendar timezone |
 | "Manage add-on" opens the Apps Script editor source code | This is identity-aware. As the add-on **owner / developer**, Google routes "Manage add-on" to the Apps Script editor. **End users** who installed the add-on from the Workspace Marketplace get the standard consumer dialog (uninstall, view permissions, manage data access) instead. To preview the consumer experience, install the published Marketplace listing on a separate Google account that doesn't own the script |
-| Trigger doesn't seem to be running | Apps Script editor ▸ **Triggers** (left rail clock icon) — confirm `runMailCheck` is listed. If not, click **Start monitoring** again |
+| Trigger doesn't seem to be running | Apps Script editor ▸ **Triggers** (left rail clock icon) — confirm `runMailCheck` is listed. If not, return to the home card and click **Start scheduled scans** again |
 | Want to see exactly what the trigger did | **Activity log** card — newest entries first |
 
 You can also peek at the trigger execution history in the Apps Script editor under **Executions** (left rail).
@@ -483,7 +483,7 @@ You can also peek at the trigger execution history in the Apps Script editor und
 
 ## 14. Why an Add-on instead of a Chrome extension?
 
-A Chrome extension only runs while a Chrome tab is open. emAIl Sentinel needs to monitor Gmail continuously in the background — the right primitive for that is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings.
+A Chrome extension only runs while a Chrome tab is open. emAIl Sentinel needs to scan Gmail continuously in the background — the right primitive for that is an **Apps Script time-driven trigger**, which runs server-side on Google's infrastructure whether or not you have Gmail open. A Workspace Add-on bundles that trigger together with a Gmail-rail UI for managing rules and settings.
 
 If you'd rather have an in-Gmail browser-only experience too, the same `.gs` files can also be deployed as a **Gmail Add-on web app** through Google Workspace Marketplace; the manifest is already compatible.
 

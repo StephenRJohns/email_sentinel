@@ -58,7 +58,7 @@ npm run report
 | S2 | Home card, Settings nav, polling field validation (Free), max-age field presence | 7 |
 | S3 | Starter rules preview + creation toast | 1 |
 | S5 | "Scan email now" produces a result toast | 1 |
-| S8 | Activity log UI, no-Home-button check | 2 |
+| S8 | Activity log UI, in-card Home button present on every root card | 2 |
 | S14 | Help card navigation, footer credit, GitHub Issues link, keyword search | 5 |
 | S18 | Business hours checkbox visibility | 1 |
 | S19 | Max email age field persistence + validation | 3 |
@@ -78,9 +78,11 @@ The following test plan sections are NOT automated. Verify these by hand against
 | S4 Create test rule | Apps Script's FILLED-button rendering of "+ New rule" doesn't reliably expose the visible label as the accessible name in Playwright |
 | S6+S7 Send + verify match | Real outbound email send and inbox delivery; flaky in automation |
 | S9–S13 Alert channels | SMS/Chat/MCP/Calendar/Sheets/Tasks — would dispatch real alerts and burn provider credits |
-| S15 Start monitoring | Depends on Gemini-key state and the time-driven trigger lifecycle |
-| S16 Stop monitoring | Depends on S15 having run |
+| S15 Start scheduled scans | Depends on Gemini-key state and the time-driven trigger lifecycle |
+| S15 Home polling dropdown auto-save | Requires changing the SelectionInput value, which Apps Script renders as a custom Material control Playwright can't interact with reliably. The `setOnChangeAction` save path is exercised only via manual test. |
+| S16 Stop scheduled scans | Depends on S15 having run |
 | S17 Confirmation dialogs | Multi-step Clear→Cancel→Clear→Clear sequences flake on toast detection |
+| S17f Action color conventions | CardService doesn't expose button background color or text color to Playwright in a stable way; visual color check is manual. |
 | S20 Rule editor Pro-only labels / AI button "(Pro)" suffix | Same "+ New rule" rendering issue as S4 |
 | S21 Pro plan unlocks | Tier-flip dependent; test cannot enforce the live tier |
 

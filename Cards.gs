@@ -5,7 +5,7 @@
  * Cards.gs — All CardService UI for the emAIl Sentinel add-on.
  *
  * Layout overview:
- *   Home card     — quick status, Start/Stop monitoring, links to subviews
+ *   Home card     — quick status, Start/Stop scheduled scans, links to subviews
  *   Rules card    — list of rules with edit/delete/toggle buttons
  *   Rule editor   — name, labels, rule text, alert format, recipients
  *   Settings card — Gemini key/model, poll interval, business hours, SMS
@@ -15,6 +15,58 @@
  * All cards are stateless: every action handler reads UserProperties
  * fresh, applies the change, and returns a new card. No in-memory state.
  */
+
+// Brand dark purple — used for status-row values on the home card and as the
+// background color of every FILLED TextButton in the add-on so the primary
+// CTAs match the logo mark instead of CardService's default Google blue.
+// CardService does NOT expose a text-color setter for TEXT-style buttons, so
+// nav-style links (Settings/Rules/Activity log/Help, Stop scheduled scans, etc.)
+// retain the platform blue — Google owns that color. Apply via
+// .setBackgroundColor(BRAND_PURPLE_) immediately after .setTextButtonStyle(FILLED).
+const BRAND_PURPLE_ = '#581c87';
+
+// Lighter/brighter purple used to make a secondary FILLED CTA visually
+// distinct from the primary BRAND_PURPLE_ buttons on the same card — e.g.
+// "Scan email now" sitting beside "Start scheduled scans" on the home card.
+const BRAND_PURPLE_LIGHT_ = '#6d28d9';
+
+// CardService does not auto-pick a contrasting text color when you set a
+// custom button background — the label keeps the platform default (mid-grey
+// on light themes), which is unreadable on dark purple. Wrap every FILLED
+// button's setText argument with this helper so the label renders in white.
+function whiteText_(s) {
+  return '<font color="#ffffff">' + s + '</font>';
+}
+
+function blackText_(s) {
+  return '<font color="#000000">' + s + '</font>';
+}
+
+// Action-color FILLED button backgrounds. Red for destructive (Delete);
+// light yellow for caution (Disable a currently-enabled rule). Both
+// luminance values comfortably trigger Google's auto contrast: red picks
+// white, light yellow picks black, but we wrap the text explicitly with
+// whiteText_ / blackText_ for consistency with the BRAND_PURPLE_ pattern.
+const BRAND_RED_ = '#c62828';
+const BRAND_YELLOW_LIGHT_ = '#fde68a';
+
+// Two navigation paths leave a destination card without Gmail's native back
+// arrow: kebab universal-action items use displayAddOnCards (which *replaces*
+// the navigation stack) and confirm-delete handlers use popToRoot(). Apps
+// Script doesn't expose navigation-stack depth at handler time, so we can't
+// reliably re-detect the no-back-arrow state on subsequent updateCard calls
+// (e.g. toggling a rule or refreshing the log) — the Home button would
+// disappear mid-session. To keep the escape hatch consistent we just
+// prepend this section unconditionally on the four root destinations
+// (Rules, Settings, Activity log, Help). When the back arrow is also
+// visible this is mild redundancy: back arrow steps one card up, Home
+// jumps to root.
+function homeButtonSection_() {
+  return CardService.newCardSection()
+    .addWidget(CardService.newTextButton()
+      .setText('Home')
+      .setOnClickAction(action_('handleGoHome')));
+}
 
 // CardService does not expose an event for the system back arrow, so an
 // editor cannot show a confirmation dialog before navigation pops it. This
@@ -39,20 +91,19 @@ function buildHomeCard() {
   const limits = getTierLimits();
   const planLabel = tier === 'pro' ? 'Pro' : 'Free (' + rules.length + '/' + limits.maxRules + ' rules)';
 
+  // Status rows: bold black title, brand dark purple (#581c87) value.
+  // TextParagraph (rather than DecoratedText) so each row sits flush-left to
+  // match the nav buttons below; a single <br> separates title from value.
+  const statusRow_ = function(title, value) {
+    return CardService.newTextParagraph().setText(
+      '<b>' + title + '</b><br>' +
+      '<font color="' + BRAND_PURPLE_ + '">' + value + '</font>');
+  };
   const statusSection = CardService.newCardSection()
-    .setHeader('<b>Status</b>')
-    .addWidget(CardService.newDecoratedText()
-      .setTopLabel('Plan')
-      .setText(planLabel))
-    .addWidget(CardService.newDecoratedText()
-      .setTopLabel('Monitoring')
-      .setText(monitoring ? 'Running' : 'Stopped'))
-    .addWidget(CardService.newDecoratedText()
-      .setTopLabel('Rules')
-      .setText(enabledCount + ' enabled / ' + rules.length + ' total'))
-    .addWidget(CardService.newDecoratedText()
-      .setTopLabel('Gemini API key')
-      .setText(settings.geminiApiKey ? 'Configured' : 'NOT configured'));
+    .addWidget(statusRow_('Plan', planLabel))
+    .addWidget(statusRow_('Scanning', monitoring ? 'Active' : 'Stopped'))
+    .addWidget(statusRow_('Rules', enabledCount + ' enabled / ' + rules.length + ' total'))
+    .addWidget(statusRow_('Gemini API key', settings.geminiApiKey ? 'Configured' : 'NOT configured'));
 
   if (tier === 'free') {
     if (isFoundingMemberOfferActive()) {
@@ -67,22 +118,57 @@ function buildHomeCard() {
 
   if (monitoring) {
     statusSection.addWidget(CardService.newTextButton()
-      .setText('Stop monitoring')
+      .setText('Stop scheduled scans')
       .setOnClickAction(action_('handleStopMonitoring')));
   } else {
     const pollVal = parseInt(settings.pollMinutes, 10) || limits.minPollMinutes;
-    // pollMinutes is always a multiple of 60 (enforced by the Settings
-    // dropdown and enforcePollFloor), so the "at every X hour(s)" label is
-    // an exact, lossless conversion.
-    const pollHours = Math.round(pollVal / 60);
+    // Inline polling-interval dropdown so the user can change cadence without
+    // a trip to Settings. handleStartMonitoring persists the selected value
+    // into settings.pollMinutes, so the Settings card and next render of the
+    // home card both reflect the choice. Option list mirrors POLL_HOUR_OPTIONS_
+    // in the Settings card (kept in sync manually since they're in different
+    // function scopes).
+    const HOME_POLL_OPTIONS = [
+      { mins: 60,   label: '1 hour' },
+      { mins: 120,  label: '2 hours' },
+      { mins: 180,  label: '3 hours' },
+      { mins: 240,  label: '4 hours' },
+      { mins: 360,  label: '6 hours' },
+      { mins: 480,  label: '8 hours' },
+      { mins: 720,  label: '12 hours' },
+      { mins: 1440, label: '24 hours' }
+    ];
+    const pollSelect = CardService.newSelectionInput()
+      .setType(CardService.SelectionInputType.DROPDOWN)
+      .setFieldName('pollMinutes')
+      .setTitle('Scan email every')
+      .setOnChangeAction(action_('handleHomePollChange'));
+    let homePollSelected = false;
+    HOME_POLL_OPTIONS.forEach(function(opt) {
+      if (opt.mins < limits.minPollMinutes) return;
+      const isSel = opt.mins === pollVal;
+      if (isSel) homePollSelected = true;
+      pollSelect.addItem(opt.label, String(opt.mins), isSel);
+    });
+    if (!homePollSelected) {
+      pollSelect.addItem(
+        Math.round(limits.minPollMinutes / 60) + ' hour' + (limits.minPollMinutes === 60 ? '' : 's'),
+        String(limits.minPollMinutes),
+        true
+      );
+    }
+    statusSection.addWidget(pollSelect);
     statusSection.addWidget(CardService.newTextButton()
-      .setText('Start monitoring every ' + plural_(pollHours, 'hour'))
+      .setText(whiteText_('Start scheduled scans'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
       .setOnClickAction(action_('handleStartMonitoring')));
   }
 
   statusSection.addWidget(CardService.newTextButton()
-    .setText('Scan email now')
+    .setText(whiteText_('Scan email now'))
+    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+    .setBackgroundColor(BRAND_PURPLE_LIGHT_)
     .setOnClickAction(action_('handleRunCheckNow')));
   // CardService action handlers run blocking and the platform shows only a
   // subtle default spinner during execution. Set expectations on the button
@@ -117,9 +203,9 @@ function buildHomeCard() {
       steps.push('\u2713 ' + plural_(rules.length, 'rule') + ' created');
     }
     if (!monitoring) {
-      steps.push('- Click <b>Start monitoring</b> above');
+      steps.push('- Pick a scan interval above and click <b>Start scheduled scans</b>');
     } else {
-      steps.push('\u2713 Monitoring active');
+      steps.push('\u2713 Scheduled scans active');
     }
     setupSection.addWidget(CardService.newTextParagraph().setText(steps.join('<br>')));
   }
@@ -161,17 +247,62 @@ function handleStartMonitoring(e) {
   if (!settings.geminiApiKey) {
     return notificationResponse_('Add a Gemini API key in Settings first.');
   }
-  const poll = enforcePollFloor(settings.pollMinutes || getTierLimits().minPollMinutes);
+  // The home card now includes the polling-interval dropdown alongside the
+  // Start button. Read the selected value from the form event and persist it
+  // to settings.pollMinutes so the Settings card reflects the home choice and
+  // the value sticks across renders.
+  let chosenPoll = parseInt(settings.pollMinutes, 10) || getTierLimits().minPollMinutes;
+  if (e && e.formInput && e.formInput.pollMinutes) {
+    const fromForm = parseInt(e.formInput.pollMinutes, 10);
+    if (fromForm > 0) chosenPoll = fromForm;
+  }
+  const poll = enforcePollFloor(chosenPoll);
+  if (poll.value !== settings.pollMinutes) {
+    settings.pollMinutes = poll.value;
+    saveSettings(settings);
+  }
   installTrigger(poll.value);
   var msg = poll.clamped
-    ? 'Monitoring started. Polling set to ' + plural_(Math.round(poll.value / 60), 'hour') + ' (' + getTier() + ' plan minimum).'
-    : 'Monitoring started.';
+    ? 'Scheduled scans started. Set to every ' + plural_(Math.round(poll.value / 60), 'hour') + ' (' + getTier() + ' plan minimum).'
+    : 'Scheduled scans started.';
   return refreshHome_(msg);
 }
 
 function handleStopMonitoring(e) {
   removeTriggers();
-  return refreshHome_('Monitoring stopped.');
+  return refreshHome_('Scheduled scans stopped.');
+}
+
+// Fires when the user changes the home-card polling dropdown. CardService
+// does not auto-save form input values when the user navigates away — only
+// an action button submits them — so without this handler the user could
+// pick "2 hours" on the home card, navigate to Settings, and find the old
+// value still selected because no save ever happened. Persist the chosen
+// value silently here so it sticks regardless of whether the user clicks
+// Start scheduled scans.
+function handleHomePollChange(e) {
+  if (!e || !e.formInput || !e.formInput.pollMinutes) {
+    return CardService.newActionResponseBuilder()
+      .setNavigation(CardService.newNavigation().updateCard(buildHomeCard()))
+      .build();
+  }
+  const fromForm = parseInt(e.formInput.pollMinutes, 10);
+  const settings = loadSettings();
+  if (fromForm > 0) {
+    const poll = enforcePollFloor(fromForm);
+    if (poll.value !== settings.pollMinutes) {
+      settings.pollMinutes = poll.value;
+      saveSettings(settings);
+    }
+  }
+  // CardService rejects an empty ActionResponse on setOnChangeAction — it
+  // needs at least a navigation, notification, or openLink. Re-render the
+  // home card so the response is well-formed; the rebuild reads the just-
+  // saved settings.pollMinutes and selects the same option, so visually
+  // nothing changes for the user beyond a brief refresh.
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().updateCard(buildHomeCard()))
+    .build();
 }
 
 function handleRunCheckNow(e) {
@@ -187,12 +318,12 @@ function handleRunCheckNow(e) {
       plural_(result.matchesFound || 0, 'match', 'matches');
     var msg = 'Scan complete — ' + summary + '.';
     if (!loadSettings().geminiApiKey) msg += ' No Gemini API key set — open Settings to add one.';
-    activityLog('Manual check: ' + summary + '.');
+    activityLog('Manual scan: ' + summary + '.');
     return CardService.newActionResponseBuilder()
       .setNavigation(CardService.newNavigation().pushCard(buildScanResultCard_(msg, true)))
       .build();
   } catch (err) {
-    activityLog('Manual check failed: ' + err);
+    activityLog('Manual scan failed: ' + err);
     return CardService.newActionResponseBuilder()
       .setNavigation(CardService.newNavigation().pushCard(
         buildScanResultCard_('Scan failed: ' + (err.message || err), false)))
@@ -207,36 +338,37 @@ function refreshHome_(message) {
     .build();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sub-card "Home" button
-// ─────────────────────────────────────────────────────────────────────────────
-// Sub-cards reachable via the universal-action kebab menu (Rules, Settings,
-// Help, Activity log) replace the navigation stack rather than pushing onto
-// it, so Gmail's native back arrow at the top of the card isn't shown — the
-// user has nothing to go "back" to. Without an in-card escape, they're stuck
-// on that sub-card and have to close the add-on entirely.
-//
-// CardService doesn't tell the server whether the back arrow is currently
-// rendered, so each sub-card builder accepts an optional `viaPush` flag and
-// suppresses the Home button when set — `handleNavTo` (the push path used by
-// the home-card buttons) sets `viaPush=true` because it knows the resulting
-// stack will have at least the home card underneath, guaranteeing the back
-// arrow. Every other call site (universal action handlers, popToRoot.update
-// returns, popCard.update returns) leaves it false so the button shows.
-// Slight redundancy is possible on rare nested-edit return paths, but those
-// always have a back-arrow available so the duplicate Home button is just
-// visual noise — not a trapping hazard.
-function buildHomeButtonSection_() {
-  return CardService.newCardSection()
-    .addWidget(CardService.newTextButton()
-      .setText('Home')
-      .setOnClickAction(action_('handleGoHome')));
-}
-
 function handleGoHome(e) {
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildHomeCard()))
     .build();
+}
+
+// Pre-scan card shown when the user invokes "Scan email now" from the kebab
+// menu. The runMailCheck call blocks for 10-60 seconds and the universal-
+// action path can't render its own load indicator (the response just shows a
+// new card; there's no button to attach a spinner to). Landing here first
+// gives the user a "Run scan now" button whose action handler does the
+// blocking call — CardService shows the default spinner on the button while
+// the action runs, and on completion handleRunCheckNow pushes the result card
+// on top.
+function buildPreScanCard_() {
+  const card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Scan email now'));
+  card.addSection(CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph().setText(
+      'Check all watched labels for new messages and evaluate them ' +
+      'against your rules right now, without waiting for the next ' +
+      'scheduled check.<br><br>' +
+      '<font color="#888888">Scans typically take 10–60 seconds. The ' +
+      'button will show a spinner while the scan runs, and a result ' +
+      'card will appear when it finishes.</font>'))
+    .addWidget(CardService.newTextButton()
+      .setText(whiteText_('Run scan now'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
+      .setOnClickAction(action_('handleRunCheckNow'))));
+  return card.build();
 }
 
 // Visual receipt for the universal-action "Scan email now" path. The kebab
@@ -257,7 +389,6 @@ function buildScanResultCard_(message, success) {
       .setOnClickAction(navAction_('buildActivityCard')));
   return CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Scan result'))
-    .addSection(buildHomeButtonSection_())
     .addSection(resultSection)
     .build();
 }
@@ -266,17 +397,17 @@ function buildScanResultCard_(message, success) {
 // Rules list
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildRulesCard(viaPush) {
+function buildRulesCard() {
   const rules = loadRules();
   const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Rules'));
-
-  if (!viaPush) card.addSection(buildHomeButtonSection_());
+    .setHeader(CardService.newCardHeader().setTitle('Rules'))
+    .addSection(homeButtonSection_());
 
   const newSection = CardService.newCardSection()
     .addWidget(CardService.newTextButton()
-      .setText('+ New rule')
+      .setText(whiteText_('+ New rule'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
       .setOnClickAction(action_('handleNewRule')));
   card.addSection(newSection);
 
@@ -318,7 +449,7 @@ function buildRuleSummarySection_(rule) {
 
   const channels = [];
   if (smsNums.length) {
-    const smsLabels = smsNums.map(function(num) { return smsPhoneToName[num] || num; });
+    const smsLabels = smsNums.map(function(num) { return applyScreenshotName_(smsPhoneToName[num] || num); });
     channels.push('SMS (' + smsLabels.join(', ') + ')');
   }
   if (chatNames.length) channels.push('Chat (' + chatNames.join(', ') + ')');
@@ -343,15 +474,26 @@ function buildRuleSummarySection_(rule) {
     .addWidget(CardService.newDecoratedText().setTopLabel('Rule').setText(escapeHtml_(ruleText)))
     .addWidget(CardService.newDecoratedText().setTopLabel('Channels').setText(channelSummaryHtml));
 
+  const toggleBtn = CardService.newTextButton()
+    .setOnClickAction(actionWithRule_('handleToggleRule', rule.id));
+  if (rule.enabled) {
+    toggleBtn
+      .setText(blackText_('Disable'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_YELLOW_LIGHT_);
+  } else {
+    toggleBtn.setText('Enable');
+  }
+
   const buttons = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
       .setText('Edit')
       .setOnClickAction(actionWithRule_('handleEditRule', rule.id)))
+    .addButton(toggleBtn)
     .addButton(CardService.newTextButton()
-      .setText(rule.enabled ? 'Disable' : 'Enable')
-      .setOnClickAction(actionWithRule_('handleToggleRule', rule.id)))
-    .addButton(CardService.newTextButton()
-      .setText('Delete')
+      .setText(whiteText_('Delete'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_RED_)
       .setOnClickAction(actionWithRule_('handleDeleteRule', rule.id)));
   section.addWidget(buttons);
   return section;
@@ -372,8 +514,9 @@ function handleDeleteRule(e) {
       .setText('Delete <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Delete')
+        .setText(whiteText_('Delete'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_RED_)
         .setOnClickAction(actionWithRule_('handleConfirmDeleteRule', e.parameters.ruleId)))
       .addButton(CardService.newTextButton()
         .setText('Cancel')
@@ -490,7 +633,9 @@ function buildRuleEditorCard(rule) {
         .setTitle('SMS');
       smsRecipientsList.forEach(function(rec) {
         const selected = (alerts.smsNumbers || []).indexOf(rec.number) >= 0;
-        smsInput.addItem(rec.name + ' (' + rec.number + ')', rec.number, selected);
+        const displayName = applyScreenshotName_(rec.name);
+        const displayNum  = applyScreenshotPhone_(rec.number);
+        smsInput.addItem(displayName + ' (' + displayNum + ')', rec.number, selected);
       });
       channelsSection.addWidget(smsInput);
     }
@@ -498,23 +643,23 @@ function buildRuleEditorCard(rule) {
 
   const editorLimits = getTierLimits();
 
-  // MCP servers (Pro)
+  // External integrations (MCP servers + REST webhooks; Pro)
   if (!editorLimits.allowMcp) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">MCP servers (Slack, Teams, Asana) \u2014 <b>Pro plan only</b>.</font>'));
+      .setText('<font color="#888888">External integrations (Microsoft Teams, Asana, custom MCP) \u2014 <b>Pro plan only</b>.</font>'));
   } else {
     const configuredMcpServers = loadMcpServers();
     if (configuredMcpServers.length === 0) {
       channelsSection.addWidget(CardService.newTextParagraph()
-        .setText('<font color="#888888">No MCP servers configured \u2014 MCP lets <b>emAIl Sentinel</b> send alerts to Slack, Microsoft 365/Teams, Asana, or any custom MCP endpoint.</font>'));
+        .setText('<font color="#888888">No external integrations configured \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a 15-minute Cloudflare Worker walkthrough).</font>'));
       channelsSection.addWidget(CardService.newTextButton()
-        .setText('Add MCP servers in Settings')
+        .setText('Add external integrations in Settings')
         .setOnClickAction(navAction_('buildSettingsCard')));
     } else {
       const mcpInput = CardService.newSelectionInput()
         .setType(CardService.SelectionInputType.CHECK_BOX)
         .setFieldName('mcpServers')
-        .setTitle('MCP servers');
+        .setTitle('External integrations');
       configuredMcpServers.forEach(function(sv) {
         const selected = (alerts.mcpServerIds || []).indexOf(sv.id) >= 0;
         mcpInput.addItem(sv.name, sv.id, selected);
@@ -599,8 +744,9 @@ function buildRuleEditorCard(rule) {
   const buttonsSection = CardService.newCardSection()
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Save')
+        .setText(whiteText_('Save'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleSaveRule')
           .setParameters({ ruleId: r.id || '' })))
@@ -734,7 +880,7 @@ function isSmsConfigReady_(s) {
   return false;
 }
 
-function buildSettingsCard(viaPush) {
+function buildSettingsCard() {
   const s = loadSettings();
 
   const aiSection = CardService.newCardSection()
@@ -766,7 +912,7 @@ function buildSettingsCard(viaPush) {
   aiSection.addWidget(modelSelect);
 
   const pollSection = CardService.newCardSection()
-    .setHeader('<b>Polling</b>');
+    .setHeader('<b>Scan schedule</b>');
   const tierLimits = getTierLimits();
   // Polling intervals are constrained to whole hours (Workspace add-on
   // time-driven triggers don't fire faster than once per hour). Render a
@@ -788,7 +934,7 @@ function buildSettingsCard(viaPush) {
   const pollSelect = CardService.newSelectionInput()
     .setType(CardService.SelectionInputType.DROPDOWN)
     .setFieldName('pollMinutes')
-    .setTitle('Check for new email every');
+    .setTitle('Scan email every');
   let anyPollSelected = false;
   POLL_HOUR_OPTIONS_.forEach(function(opt) {
     if (opt.mins < tierLimits.minPollMinutes) return;
@@ -807,20 +953,17 @@ function buildSettingsCard(viaPush) {
     );
   }
   pollSection.addWidget(pollSelect);
-  // Bold the Scan-email-now reference so it visually reads as the actionable
-  // feature name; the button right below provides the actual click target
-  // since CardService doesn't support inline clickable text.
+  // The "Scan email now" button itself lives on the home card and on the
+  // kebab "⋮" menu — Settings just points users at it via this hint so we
+  // do not duplicate the same CTA on three cards.
   const pollHint = isPro()
-    ? 'Pro plan: minimum 1 hour. The 60-minute limit is a Google Workspace add-on platform limit; faster polling isn\'t possible. Click <b>Scan email now</b> anytime for an immediate check.'
-    : 'Free plan: minimum 3 hours. Pro lowers it to 1 hour. The 60-minute limit is a Google Workspace add-on platform limit. Click <b>Scan email now</b> anytime for an immediate check.';
+    ? 'Pro plan: minimum 1 hour. The 60-minute limit is a Google Workspace add-on platform limit; faster scanning is not possible. For an immediate scan, click <b>Scan email now</b> on the home card or in the kebab "⋮" menu.'
+    : 'Free plan: minimum 3 hours. Pro lowers it to 1 hour. The 60-minute limit is a Google Workspace add-on platform limit. For an immediate scan, click <b>Scan email now</b> on the home card or in the kebab "⋮" menu.';
   pollSection.addWidget(CardService.newTextParagraph()
     .setText('<font color="#888888">' + pollHint + '</font>'));
-  pollSection.addWidget(CardService.newTextButton()
-    .setText('Scan email now')
-    .setOnClickAction(action_('handleRunCheckNow')));
   pollSection.addWidget(CardService.newTextInput()
     .setFieldName('maxEmailAgeDays')
-    .setTitle('Only check emails newer than (days)')
+    .setTitle('Only scan emails newer than (days)')
     .setHint('Default: 30. Emails older than this are ignored.')
     .setValue(String(s.maxEmailAgeDays || 30)));
   pollSection.addWidget(CardService.newTextParagraph().setText(
@@ -929,8 +1072,8 @@ function buildSettingsCard(viaPush) {
     if (smsRecipientsArr.length) {
       smsRecipientsArr.forEach(function(rec) {
         smsSection.addWidget(CardService.newDecoratedText()
-          .setTopLabel(rec.number)
-          .setText(rec.name)
+          .setTopLabel(applyScreenshotPhone_(rec.number))
+          .setText(applyScreenshotName_(rec.name))
           .setButton(CardService.newTextButton()
             .setText('Edit')
             .setOnClickAction(CardService.newAction()
@@ -1001,12 +1144,14 @@ function buildSettingsCard(viaPush) {
     .setHint('Leave blank to use your default task list')
     .setValue(s.tasksListId || ''));
 
-  // ── MCP server alerts ───────────────────────────────────────────────────
+  // ── External integrations (MCP servers + REST webhooks) ─────────────────
   const mcpSection = CardService.newCardSection()
-    .setHeader('<b>MCP server alerts</b>')
+    .setHeader('<b>External integrations</b>')
     .addWidget(CardService.newTextParagraph().setText(
-      'Send alerts to Slack, Microsoft 365, Asana, or any custom MCP server ' +
-      'via HTTP (JSON-RPC 2.0). Add a server here, then select it in each rule.'));
+      'Send alerts to Microsoft Teams, Asana, or any custom MCP server you ' +
+      'host yourself (Cloudflare Workers, Smithery, etc.). MCP types speak ' +
+      'JSON-RPC 2.0 over HTTPS; the Asana REST option posts directly. Add a ' +
+      'server here, then tick it on each rule.'));
 
   const existingMcpServers = loadMcpServers();
   if (existingMcpServers.length) {
@@ -1045,8 +1190,9 @@ function buildSettingsCard(viaPush) {
   const buttons = CardService.newCardSection()
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Save settings')
+        .setText(whiteText_('Save settings'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(action_('handleSaveSettings')))
       .addButton(testGeminiBtn))
     .addWidget(CardService.newButtonSet()
@@ -1059,8 +1205,8 @@ function buildSettingsCard(viaPush) {
         .setOnClickAction(action_('handleResetBaseline'))));
 
   const settingsBuilder = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Settings'));
-  if (!viaPush) settingsBuilder.addSection(buildHomeButtonSection_());
+    .setHeader(CardService.newCardHeader().setTitle('Settings'))
+    .addSection(homeButtonSection_());
   return settingsBuilder
     .addSection(buildUnsavedChangesNotice_())
     .addSection(aiSection)
@@ -1092,7 +1238,7 @@ function handleSaveSettings(e) {
   const pollRaw = get('pollMinutes');
   const pollEnforced = enforcePollFloor(pollRaw || String(getTierLimits().minPollMinutes));
   if (pollEnforced.invalid) {
-    return notificationResponse_('Polling must be a positive whole number of minutes.');
+    return notificationResponse_('Scan interval must be a positive whole number of minutes.');
   }
 
   // Combine the test SMS country code + local digits into E.164.
@@ -1207,9 +1353,9 @@ function handleSaveSettings(e) {
 
   var toast = 'Settings saved.';
   if (pollEnforced.raisedToTierMin) {
-    toast = 'Settings saved. Polling raised to ' + plural_(Math.round(next.pollMinutes / 60), 'hour') + ' (' + getTier() + ' plan minimum).';
+    toast = 'Settings saved. Scan interval raised to every ' + plural_(Math.round(next.pollMinutes / 60), 'hour') + ' (' + getTier() + ' plan minimum).';
   } else if (pollEnforced.snappedToGrid) {
-    toast = 'Settings saved. Polling rounded up to ' + plural_(Math.round(next.pollMinutes / 60), 'hour') + ' (Gmail add-ons require whole-hour intervals).';
+    toast = 'Settings saved. Scan interval rounded up to every ' + plural_(Math.round(next.pollMinutes / 60), 'hour') + ' (Gmail add-ons require whole-hour intervals).';
   }
 
   return CardService.newActionResponseBuilder()
@@ -1276,8 +1422,9 @@ function handleResetBaseline(e) {
       '<font color="#888888"><i>This cannot be undone — the previous seen-ID list is deleted, not archived.</i></font>'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Reset')
+        .setText(whiteText_('Reset'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(action_('handleConfirmResetBaseline')))
       .addButton(CardService.newTextButton()
         .setText('Cancel')
@@ -1374,13 +1521,12 @@ function buildSmsGuideCard() {
 // Activity log
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildActivityCard(offset, viaPush) {
+function buildActivityCard(offset) {
   offset = offset || 0;
   const entries = loadLog();
   const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Activity log'));
-
-  if (!viaPush) card.addSection(buildHomeButtonSection_());
+    .setHeader(CardService.newCardHeader().setTitle('Activity log'))
+    .addSection(homeButtonSection_());
 
   const btnSet = CardService.newButtonSet();
   btnSet.addButton(CardService.newTextButton()
@@ -1445,8 +1591,9 @@ function handleClearLog(e) {
       .setText('Clear the entire activity log? This cannot be undone.'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Clear')
+        .setText(whiteText_('Clear'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(action_('handleConfirmClearLog')))
       .addButton(CardService.newTextButton()
         .setText('Cancel')
@@ -1478,21 +1625,21 @@ function handleCancelClearLog(e) {
 // Help
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildHelpCard(viaPush) {
+function buildHelpCard() {
   var card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
-
-  if (!viaPush) card.addSection(buildHomeButtonSection_());
+    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'))
+    .addSection(homeButtonSection_());
 
   var searchSection = CardService.newCardSection()
     .setHeader('<b>Search help</b>')
     .addWidget(CardService.newTextInput()
       .setFieldName('helpSearchQuery')
       .setTitle('Search all topics')
-      .setHint('e.g. "Reset baseline", "polling", "Founding member"'))
+      .setHint('e.g. "Reset baseline", "scan", "Founding member"'))
     .addWidget(CardService.newTextButton()
-      .setText('Search')
+      .setText(whiteText_('Search'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
       .setOnClickAction(action_('handleSearchHelp')));
   card.addSection(searchSection);
 
@@ -1633,7 +1780,7 @@ function helpTopics_() {
         '2. (Optional) Configure SMS \u2014 pick a provider and add named SMS recipients in Settings.<br>' +
         '3. (Optional) Add Google Chat spaces or MCP servers in Settings if you want to route alerts there.<br>' +
         '4. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to tick channels and enable it.<br>' +
-        '5. Click <b>Start monitoring</b>. A time-driven trigger runs in the background even when Gmail is closed.<br><br>' +
+        '5. On the home card, pick a scan interval from the <b>Scan email every</b> dropdown, then click <b>Start scheduled scans</b>. A time-driven trigger runs in the background even when Gmail is closed; the interval you pick is also saved into Settings.<br><br>' +
         '<b>Writing a rule</b><br>' +
         'Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>' +
         '\u2022 "Any email from @example.com with a PDF that looks like an invoice."<br>' +
@@ -1643,7 +1790,7 @@ function helpTopics_() {
         '<b>Labels</b><br>' +
         'Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as shown in Gmail. Multiple labels: comma-separated.<br><br>' +
         '<b>Searching help</b><br>' +
-        'Use the <b>Search help</b> box at the top of the Help card to find any keyword or phrase across all topics — e.g. "Reset baseline", "polling", or "Founding member". Each result shows the topic name plus a snippet, and clicking opens the full topic.'
+        'Use the <b>Search help</b> box at the top of the Help card to find any keyword or phrase across all topics — e.g. "Reset baseline", "scan", or "Founding member". Each result shows the topic name plus a snippet, and clicking opens the full topic.'
     },
     examples: {
       title: 'Rule examples',
@@ -1663,9 +1810,10 @@ function helpTopics_() {
         '<b>Tasks</b> \u2014 to-do items<br>' +
         '\u2022 <b>Action items:</b> "Email explicitly asking me to do, review, or approve something." \u2192 Task<br>' +
         '\u2022 <b>Follow-up:</b> "Email saying \'let me know\' or \'awaiting your response\'." \u2192 Task<br><br>' +
-        '<b>MCP servers</b> \u2014 route to external tools<br>' +
-        '\u2022 <b>Sales lead \u2192 Slack:</b> "Email mentioning pricing or demo from a new contact." \u2192 Slack MCP<br>' +
-        '\u2022 <b>Support ticket \u2192 Asana:</b> "Customer email tagged P1 or ESCALATION." \u2192 Asana MCP task<br><br>' +
+        '<b>External integrations</b> \u2014 route to external tools<br>' +
+        '\u2022 <b>Sales lead \u2192 Teams:</b> "Email mentioning pricing or demo from a new contact." \u2192 Microsoft Teams MCP<br>' +
+        '\u2022 <b>Support ticket \u2192 Asana:</b> "Customer email tagged P1 or ESCALATION." \u2192 Asana task<br>' +
+        '\u2022 <b>Custom downstream \u2192 Cloudflare Worker:</b> any rule \u2192 Custom MCP server you host yourself<br><br>' +
         '<b>Combining channels</b><br>' +
         '\u2022 <b>Critical vendor issue:</b> SMS + Chat + Calendar + Sheets<br>' +
         '\u2022 <b>New hire onboarding:</b> Task + Sheets + Chat'
@@ -1691,7 +1839,7 @@ function helpTopics_() {
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>MCP servers</b> \u2014 send alerts to Slack, Microsoft 365 / Teams, Asana, or any custom endpoint that speaks JSON-RPC 2.0. Configure servers in Settings \u25b8 <b>MCP server alerts</b>, then tick them per rule.'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a 15-minute Cloudflare Worker walkthrough). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
     },
     pricing: {
       title: 'Gemini pricing & models',
@@ -1715,8 +1863,8 @@ function helpTopics_() {
         '\u2022 Pro: ~$1.25/M input, ~$5.00/M output<br>' +
         '50 emails/day, 3 rules \u2248 under <b>$1/month</b>.<br><br>' +
         '<b>Tips to minimize usage</b><br>' +
-        '\u2022 Enable <b>Business hours</b> \u2014 skips checks outside your window<br>' +
-        '\u2022 Lower <b>Max email age</b> (Settings \u25b8 Polling) \u2014 skips older messages entirely<br>' +
+        '\u2022 Enable <b>Business hours</b> \u2014 skips scans outside your window<br>' +
+        '\u2022 Lower <b>Max email age</b> (Settings \u25b8 Scan schedule) \u2014 skips older messages entirely<br>' +
         '\u2022 Watch specific labels instead of INBOX<br>' +
         '\u2022 Combine related conditions into one rule<br>' +
         '\u2022 Keep alert format prompts concise'
@@ -1725,9 +1873,9 @@ function helpTopics_() {
       title: 'Settings & troubleshooting',
       content:
         '<b>Business hours</b><br>' +
-        'Restrict checks to a daily window. Outside hours, the trigger fires but skips the check \u2014 no Gemini quota used.<br><br>' +
-        '<b>Polling</b><br>' +
-        'Background polling: <b>Free</b> = every 3 hours minimum; <b>Pro</b> = every 1 hour minimum. The 1-hour hard floor is a <b>Google Workspace add-on platform limit</b>. We could poll faster by running our own backend that stores your Gmail tokens and reads your email on our servers \u2014 but we deliberately don\'t. The add-on runs entirely inside your own Google account; your email content never reaches our infrastructure. The polling floor is the price of that privacy posture. Click <b>Scan email now</b> any time for an immediate on-demand check. The first run baselines existing messages so you don\'t get a flood of alerts.<br><br>' +
+        'Restrict scans to a daily window. Outside hours, the trigger fires but skips the scan \u2014 no Gemini quota used.<br><br>' +
+        '<b>Scan schedule</b><br>' +
+        'Background scans: <b>Free</b> = every 3 hours minimum; <b>Pro</b> = every 1 hour minimum. The 1-hour hard floor is a <b>Google Workspace add-on platform limit</b>. We could scan faster by running our own backend that stores your Gmail tokens and reads your email on our servers \u2014 but we deliberately don\'t. The add-on runs entirely inside your own Google account; your email content never reaches our infrastructure. The scan-interval floor is the price of that privacy posture. Click <b>Scan email now</b> any time for an immediate on-demand scan. The first run baselines existing messages so you don\'t get a flood of alerts.<br><br>' +
         '<b>Max email age</b><br>' +
         'Controls how far back the Service looks when scanning a label. Default is 30 days. Emails older than this are ignored even if they\'re unread \u2014 useful for skipping long-dormant threads and cutting Gemini usage on busy labels.<br><br>' +
         '<b>Reset baseline</b><br>' +
@@ -1741,7 +1889,7 @@ function helpTopics_() {
         '\u2022 <i>"Label \'...\' fetch failed"</i> \u2014 verify the label exists in Gmail (case-insensitive)<br>' +
         '\u2022 <i>SMS not delivered</i> \u2014 check Activity Log for the provider\'s error<br>' +
         '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br>' +
-        '\u2022 <i>MCP target (Asana / Slack / Teams) not populated, no error in Activity Log</i> \u2014 push the latest version. The MCP dispatcher now parses Streamable-HTTP <code>text/event-stream</code> responses (Asana V2 returns this) and surfaces tool-level errors as <code>MCP alert to "&lt;name&gt;" FAILED: MCP "&lt;name&gt;" tool error: &lt;detail&gt;</code>. Common details: <i>Project not found</i> (bad <code>project_id</code>), <i>Forbidden</i> (PAT lacks workspace access), <i>Required field missing</i>. Asana / Slack / Teams expect the auth header literal <code>Bearer &lt;token&gt;</code> \u2014 capital B, single space, then PAT.<br>' +
+        '\u2022 <i>MCP target (Asana / Teams / Custom) not populated, no error in Activity Log</i> \u2014 push the latest version. The MCP dispatcher now parses Streamable-HTTP <code>text/event-stream</code> responses (Asana V2 returns this) and surfaces tool-level errors as <code>MCP alert to "&lt;name&gt;" FAILED: MCP "&lt;name&gt;" tool error: &lt;detail&gt;</code>. Common details: <i>Project not found</i> (bad <code>project_id</code>), <i>Forbidden</i> (PAT lacks workspace access), <i>Required field missing</i>. All MCP types expect the auth header literal <code>Bearer &lt;token&gt;</code> \u2014 capital B, single space, then the token.<br>' +
         '\u2022 <i>Activity log times or alert dates look off by several hours</i> \u2014 dates use your primary Google Calendar\'s timezone. Fix at <a href="https://calendar.google.com/calendar/u/0/r/settings">calendar.google.com</a> \u25b8 Time zone, then re-run.<br>' +
         '\u2022 <i>Lost edits in the rule or settings editor</i> \u2014 always click <b>Save</b> before tapping the back arrow. Google\'s add-on framework gives no event when the system back arrow is pressed, so the editor cannot prompt to save unsaved changes. Each editor card shows an amber notice at the top as a reminder.<br>' +
         '\u2022 Still stuck? <b><a href="https://github.com/StephenRJohns/email_sentinel/issues">Open a GitHub issue</a></b> \u2014 issues are tracked, searchable, and get the fastest response.<br><br>' +
@@ -1777,7 +1925,7 @@ const STARTER_RULES_ = [
   }
 ];
 
-function buildStarterRulesCard(viaPush) {
+function buildStarterRulesCard() {
   const existing = loadRules();
   const existingNames = existing.map(function(r) { return r.name; });
   const toCreate = STARTER_RULES_.filter(function(sr) {
@@ -1793,7 +1941,6 @@ function buildStarterRulesCard(viaPush) {
       .setOnClickAction(action_('handlePopCard')));
     const emptyBuilder = CardService.newCardBuilder()
       .setHeader(CardService.newCardHeader().setTitle('Starter rules'));
-    if (!viaPush) emptyBuilder.addSection(buildHomeButtonSection_());
     return emptyBuilder.addSection(section).build();
   }
 
@@ -1806,8 +1953,9 @@ function buildStarterRulesCard(viaPush) {
 
   section
     .addWidget(CardService.newTextButton()
-      .setText('Create starter rules')
+      .setText(whiteText_('Create starter rules'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
       .setOnClickAction(action_('handleCreateStarterRules')))
     .addWidget(CardService.newTextButton()
       .setText('Cancel')
@@ -1815,7 +1963,6 @@ function buildStarterRulesCard(viaPush) {
 
   const starterBuilder = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Starter rules'));
-  if (!viaPush) starterBuilder.addSection(buildHomeButtonSection_());
   return starterBuilder.addSection(section).build();
 }
 
@@ -1873,21 +2020,14 @@ function actionWithRule_(fn, ruleId) {
 
 function handleNavTo(e) {
   const builder = e.parameters.builder;
-  // viaPush=true tells each sub-card builder to suppress its in-card "Home"
-  // section: this path puts the new card on top of the home card so Gmail's
-  // native back arrow is guaranteed visible, making the in-card Home button
-  // visually redundant. Universal-action handlers and post-action returns
-  // (popToRoot.update / popCard.update) call these builders without the flag,
-  // so the Home button renders for them — that's where the back arrow may not
-  // be available.
   let card;
   switch (builder) {
-    case 'buildRulesCard':         card = buildRulesCard(true); break;
-    case 'buildSettingsCard':      card = buildSettingsCard(true); break;
-    case 'buildActivityCard':      card = buildActivityCard(0, true); break;
-    case 'buildHelpCard':          card = buildHelpCard(true); break;
-    case 'buildStarterRulesCard':  card = buildStarterRulesCard(true); break;
-    case 'buildHomeCard':          // Home card itself never has the Home button.
+    case 'buildRulesCard':         card = buildRulesCard(); break;
+    case 'buildSettingsCard':      card = buildSettingsCard(); break;
+    case 'buildActivityCard':      card = buildActivityCard(0); break;
+    case 'buildHelpCard':          card = buildHelpCard(); break;
+    case 'buildStarterRulesCard':  card = buildStarterRulesCard(); break;
+    case 'buildHomeCard':
     default:                       card = buildHomeCard();
   }
   return CardService.newActionResponseBuilder()
@@ -1927,10 +2067,16 @@ function actionWithServerId_(fn, serverId) {
 function buildMcpServerEditorCard(server) {
   const editing = server !== null && server !== undefined && !!server.id;
   const sv = server || {};
-  // New servers default to 'slack' so tool name and args template prepopulate
-  // with the most common preset. Switching the Type dropdown + Load defaults
-  // repopulates for other types.
-  const type = sv.type || (editing ? 'custom' : 'slack');
+  // Map legacy stored types to current ones so existing user configs survive
+  // dropdown changes. 'slack' was removed (Slack does not host an MCP server,
+  // so the type was misleading) — fall back to 'custom'. 'ms365' was renamed
+  // to 'teams' since Teams is the actual alert surface. New servers default
+  // to 'custom' since the Cloudflare Worker walkthrough in Help is the
+  // recommended starting point.
+  const rawType = sv.type;
+  const type = (rawType === 'ms365' ? 'teams'
+              : rawType === 'slack' ? 'custom'
+              : rawType) || 'custom';
   const def = MCP_TYPE_DEFAULTS[type] || MCP_TYPE_DEFAULTS.custom;
 
   const section = CardService.newCardSection();
@@ -1938,7 +2084,7 @@ function buildMcpServerEditorCard(server) {
   section.addWidget(CardService.newTextInput()
     .setFieldName('mcpName')
     .setTitle('Server name')
-    .setHint('e.g. "Sales Slack", "Asana Marketing"')
+    .setHint('e.g. "Demo MCP", "Asana Marketing"')
     .setValue(sv.name || ''));
 
   const typeSelect = CardService.newSelectionInput()
@@ -1982,7 +2128,7 @@ function buildMcpServerEditorCard(server) {
   section.addWidget(CardService.newTextInput()
     .setFieldName('mcpToolName')
     .setTitle('Tool name')
-    .setHint('The MCP tool to call, e.g. slack_post_message')
+    .setHint(def.toolNameHint || 'The MCP tool to call, e.g. slack_post_message')
     .setValue(sv.toolName !== undefined ? sv.toolName : def.toolName));
 
   section.addWidget(CardService.newTextInput()
@@ -2000,8 +2146,9 @@ function buildMcpServerEditorCard(server) {
 
   const btns = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
-      .setText('Save')
+      .setText(whiteText_('Save'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
       .setOnClickAction(CardService.newAction()
         .setFunctionName('handleSaveMcpServer')
         .setParameters({ serverId: sv.id || '' })))
@@ -2010,7 +2157,9 @@ function buildMcpServerEditorCard(server) {
       .setOnClickAction(action_('handlePopCard')));
   if (editing) {
     btns.addButton(CardService.newTextButton()
-      .setText('Delete')
+      .setText(whiteText_('Delete'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_RED_)
       .setOnClickAction(actionWithServerId_('handleDeleteMcpServerPrompt', sv.id)));
   }
   section.addWidget(btns);
@@ -2136,8 +2285,9 @@ function handleSuggestMcpArgs(e) {
         '<font color="#888888">Review and replace any UPPERCASE placeholders (e.g. CHANNEL_ID) with real values before saving.</font>'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Use this')
+        .setText(whiteText_('Use this'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleUseSuggestedMcpArgs')
           .setParameters({ serverId: serverId })))
@@ -2246,8 +2396,9 @@ function handleDeleteMcpServerPrompt(e) {
       .setText('Delete MCP server <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Delete')
+        .setText(whiteText_('Delete'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_RED_)
         .setOnClickAction(actionWithServerId_('handleConfirmDeleteMcpServer', e.parameters.serverId)))
       .addButton(CardService.newTextButton()
         .setText('Cancel')
@@ -2347,8 +2498,9 @@ function handleHelpWriteAlertText(e) {
       .setValue(ctx.existingAlertPrompt || ''))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Generate')
+        .setText(whiteText_('Generate'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleGenerateAlertText')
           .setParameters({ ruleId: ruleId })))
@@ -2396,7 +2548,7 @@ function handleGenerateAlertText(e) {
   const ruleText = ctx.ruleText || '(no rule text entered)';
 
   const prompt =
-    'You help configure an email monitoring alert system. ' +
+    'You help configure an email scanning alert system. ' +
     'A rule triggers when an email matches this description:\n\n' +
     '"' + ruleText + '"\n\n' +
     channelNote +
@@ -2429,8 +2581,9 @@ function handleGenerateAlertText(e) {
       .setText('<b>Suggested alert format:</b><br><br>' + escapeHtml_(suggestion)))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Use this')
+        .setText(whiteText_('Use this'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleUseSuggestedFormat')
           .setParameters({ ruleId: ruleId })))
@@ -2551,8 +2704,9 @@ function handleHelpWriteRuleText(e) {
       .setValue(ctx.existingRuleText || ''))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Generate')
+        .setText(whiteText_('Generate'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleGenerateRuleText')
           .setParameters({ ruleId: ruleId })))
@@ -2598,7 +2752,7 @@ function handleGenerateRuleText(e) {
     : '';
 
   const prompt =
-    'You help configure an email monitoring rule. ' + intro +
+    'You help configure an email scanning rule. ' + intro +
     'A user has described the emails they want to be alerted about, in their own words:\n\n' +
     '"' + description + '"\n\n' +
     'Rewrite this as a clear, concise plain-English rule description (1–3 sentences) that an AI can use to decide whether an incoming email matches. ' +
@@ -2627,8 +2781,9 @@ function handleGenerateRuleText(e) {
       .setText('<b>Suggested rule text:</b><br><br>' + escapeHtml_(suggestion)))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Use this')
+        .setText(whiteText_('Use this'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_PURPLE_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleUseSuggestedRuleText')
           .setParameters({ ruleId: ruleId })))
@@ -2835,8 +2990,9 @@ function buildSmsRecipientEditorCard(recipient) {
     .setValue(split.digits));
   const btns = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
-      .setText('Save')
+      .setText(whiteText_('Save'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
       .setOnClickAction(CardService.newAction()
         .setFunctionName('handleSaveSmsRecipient')
         .setParameters({ recId: rec.id || '' })))
@@ -2845,7 +3001,9 @@ function buildSmsRecipientEditorCard(recipient) {
       .setOnClickAction(action_('handlePopCard')));
   if (editing) {
     btns.addButton(CardService.newTextButton()
-      .setText('Delete')
+      .setText(whiteText_('Delete'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_RED_)
       .setOnClickAction(CardService.newAction()
         .setFunctionName('handleDeleteSmsRecipientPrompt')
         .setParameters({ recId: rec.id })));
@@ -2910,8 +3068,9 @@ function handleDeleteSmsRecipientPrompt(e) {
       .setText('Delete SMS recipient <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Delete')
+        .setText(whiteText_('Delete'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_RED_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleConfirmDeleteSmsRecipient')
           .setParameters({ recId: e.parameters.recId })))
@@ -2974,8 +3133,9 @@ function buildChatSpaceEditorCard(space) {
     '\u25b8 Apps &amp; integrations \u25b8 Webhooks \u25b8 Add webhook.</font>'));
   const btns = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
-      .setText('Save')
+      .setText(whiteText_('Save'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
       .setOnClickAction(CardService.newAction()
         .setFunctionName('handleSaveChatSpace')
         .setParameters({ spaceId: cs.id || '' })))
@@ -2984,7 +3144,9 @@ function buildChatSpaceEditorCard(space) {
       .setOnClickAction(action_('handlePopCard')));
   if (editing) {
     btns.addButton(CardService.newTextButton()
-      .setText('Delete')
+      .setText(whiteText_('Delete'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_RED_)
       .setOnClickAction(CardService.newAction()
         .setFunctionName('handleDeleteChatSpacePrompt')
         .setParameters({ spaceId: cs.id })));
@@ -3045,8 +3207,9 @@ function handleDeleteChatSpacePrompt(e) {
       .setText('Delete Chat space <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
-        .setText('Delete')
+        .setText(whiteText_('Delete'))
         .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_RED_)
         .setOnClickAction(CardService.newAction()
           .setFunctionName('handleConfirmDeleteChatSpace')
           .setParameters({ spaceId: e.parameters.spaceId })))

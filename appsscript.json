@@ -19,6 +19,17 @@
   },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",
+  "urlFetchWhitelist": [
+    "https://generativelanguage.googleapis.com/",
+    "https://textbelt.com/",
+    "https://api.telnyx.com/",
+    "https://api.plivo.com/",
+    "https://api.twilio.com/",
+    "https://rest.clicksend.com/",
+    "https://rest.nexmo.com/",
+    "https://chat.googleapis.com/",
+    "https://email-sentinel-mcp-loopback.jjjjj-enterprises-llc.workers.dev/"
+  ],
   "oauthScopes": [
     "https://www.googleapis.com/auth/gmail.addons.execute",
     "https://www.googleapis.com/auth/gmail.readonly",
@@ -37,6 +48,7 @@
         "enabled": true
       },
       "universalActions": [
+        { "label": "Home",           "runFunction": "actionShowHome" },
         { "label": "Rules",          "runFunction": "actionShowRules" },
         { "label": "Settings",       "runFunction": "actionShowSettings" },
         { "label": "Activity Log",   "runFunction": "actionShowActivity" },

@@ -11,11 +11,11 @@
  * Each server config:
  *   {
  *     id:               string,   UUID
- *     name:             string,   e.g. "Sales Slack"
- *     type:             string,   "slack" | "ms365" | "asana" | "custom"
+ *     name:             string,   e.g. "Demo MCP" or "Asana Marketing"
+ *     type:             string,   "custom" | "teams" | "asana-rest" | "asana"
  *     endpoint:         string,   HTTPS URL of the MCP server
  *     authToken:        string,   Authorization header value, e.g. "Bearer sk-..."
- *     toolName:         string,   MCP tool to call, e.g. "slack_post_message"
+ *     toolName:         string,   MCP tool to call, e.g. "log_alert" or "asana_create_task"
  *     toolArgsTemplate: string    JSON with {{message}}, {{subject}}, {{from}},
  *                                 {{rule}} as placeholders
  *   }
@@ -32,42 +32,40 @@ const MCP_SERVERS_KEY = 'mailsentinel.mcpservers';
  * from whichever type is selected.
  */
 const MCP_TYPE_DEFAULTS = {
-  slack: {
-    label: 'Slack',
-    description: 'Official Slack MCP server — posts a message to a channel.',
-    toolName: 'slack_post_message',
-    toolArgsTemplate: '{"channel_id":"CHANNEL_ID","text":"{{message}}"}'
+  custom: {
+    label: 'Custom',
+    description: 'Any HTTPS MCP server speaking JSON-RPC 2.0 (Streamable HTTP transport). Recommended starting point — see the Help card for a 40-line Cloudflare Worker MCP server walkthrough that gets you a working endpoint in about 15 minutes with no third-party signup.',
+    defaultEndpoint: '',
+    toolName: '',
+    toolNameHint: 'The MCP tool to call on your server. For the Help-card Cloudflare Worker example, the tool name is "log_alert".',
+    toolArgsTemplate: '{"message":"{{message}}"}'
   },
-  ms365: {
-    label: 'Microsoft 365',
-    description: 'Microsoft Graph MCP server — sends a Teams chat message.',
+  teams: {
+    label: 'Microsoft Teams',
+    description: 'Microsoft Graph MCP server — sends a Teams chat or channel message. Requires registering an app in Entra ID (Azure AD), granting Chat.ReadWrite (or scoped variants), and running an OAuth flow to get an access token. Tokens expire roughly hourly. Note: enterprise tenants often require admin consent, which can be a hard blocker for non-admin employees.',
     toolName: 'send_message',
+    toolNameHint: 'Microsoft Teams MCP exposes "send_message" for sending a chat or channel message.',
     toolArgsTemplate: '{"chat_id":"CHAT_ID","content":"{{message}}"}'
   },
   'asana-rest': {
     label: 'Asana (REST API — easier)',
-    description: 'Direct Asana REST API task creation. Works with a Personal Access Token (PAT) from app.asana.com/0/my-apps — no OAuth flow needed. Recommended for most users. Tool name field is unused for this type. Default endpoint posts to /api/1.0/tasks.',
+    description: 'Direct Asana REST API task creation — strictly speaking not MCP, but the simplest way to create Asana tasks from rule alerts. Works with a Personal Access Token (PAT) from app.asana.com/0/my-apps — no OAuth flow needed. Recommended for most Asana users. Tool name field is unused for this type. Default endpoint posts to /api/1.0/tasks.',
     defaultEndpoint: 'https://app.asana.com/api/1.0/tasks',
     toolName: '',
+    toolNameHint: 'Not used for the REST API path — leave blank. The endpoint posts a task directly without an MCP tool call.',
     toolArgsTemplate: '{"data":{"projects":["PROJECT_ID"],"name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}}'
   },
   asana: {
     label: 'Asana (MCP V2 — requires OAuth)',
-    description: 'Official Asana MCP V2 server — creates a task via JSON-RPC. Requires an OAuth-issued access token from a registered MCP client app; PATs are rejected by the V2 gateway. Most users should pick "Asana (REST API)" instead.',
+    description: 'Official Asana MCP V2 server — creates a task via JSON-RPC. Requires an OAuth-issued access token from a registered MCP client app; PATs are rejected by the V2 gateway. Tokens expire roughly hourly. Most users should pick "Asana (REST API)" instead.',
     defaultEndpoint: 'https://mcp.asana.com/v2/mcp',
     toolName: 'asana_create_task',
+    toolNameHint: 'Asana MCP V2 exposes "asana_create_task" for creating a task in a project.',
     toolArgsTemplate: '{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}'
-  },
-  custom: {
-    label: 'Custom',
-    description: 'Any HTTP MCP server using JSON-RPC 2.0 (Streamable HTTP transport).',
-    defaultEndpoint: '',
-    toolName: '',
-    toolArgsTemplate: '{"message":"{{message}}"}'
   }
 };
 
-const MCP_TYPES = ['slack', 'ms365', 'asana-rest', 'asana', 'custom'];
+const MCP_TYPES = ['custom', 'teams', 'asana-rest', 'asana'];
 
 // ── Storage ─────────────────────────────────────────────────────────────────
 

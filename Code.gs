@@ -15,26 +15,23 @@ function onHomepage(e) {
   return buildHomeCard();
 }
 
+function actionShowHome(e)     { return universalCardResponse_(buildHomeCard()); }
 function actionShowRules(e)    { return universalCardResponse_(buildRulesCard()); }
 function actionShowSettings(e) { return universalCardResponse_(buildSettingsCard()); }
 function actionShowActivity(e) { return universalCardResponse_(buildActivityCard(0)); }
 function actionShowHelp(e)     { return universalCardResponse_(buildHelpCard()); }
 
 /**
- * Universal action: run a mail check immediately. Useful for verifying a
- * brand new rule without waiting for the next time-driven trigger.
+ * Universal action: open the pre-scan card. The card has a "Run scan now"
+ * button whose action handler invokes runMailCheck synchronously; CardService
+ * shows a default spinner on the button while the action runs, giving users
+ * clear feedback during the 10-60 second scan. Running the scan directly
+ * inside this handler would block with no on-screen feedback (universal-action
+ * responses cannot show a load indicator), causing users to assume the app is
+ * broken.
  */
 function actionRunCheckNow(e) {
-  try {
-    var result = runMailCheck({ force: true }) || {};
-    var summary = plural_(result.messagesChecked || 0, 'new email') + ', ' +
-      plural_(result.matchesFound || 0, 'match', 'matches') + '.';
-    activityLog('Manual check: ' + summary);
-    return universalCardResponse_(buildScanResultCard_('Scan complete — ' + summary, true));
-  } catch (err) {
-    activityLog('Manual check failed: ' + err);
-    return universalCardResponse_(buildScanResultCard_('Scan failed: ' + (err.message || err), false));
-  }
+  return universalCardResponse_(buildPreScanCard_());
 }
 
 function universalCardResponse_(card) {

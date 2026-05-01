@@ -36,7 +36,7 @@ You're going to test a Gmail add-on called emAIl Sentinel that's in private pre-
 
 **Important — you'll see a warning page during install** that says *"This app hasn't been verified by Google yet."* That's expected — this is a private pre-launch test, not a publicly listed app. Click **Continue** and **Allow** when you see those screens.
 
-**Please do NOT click "Start monitoring at N hours"** even though it's the most prominent button on the home card. Background monitoring runs every 1+ hour and can't deliver a result during this 15-minute session — we'll use the **Scan email now** button instead, which runs an immediate check on demand. You'll see Start monitoring early; just leave it alone and follow the tasks below.
+**Please do NOT click "Start scheduled scans"** (the filled button below the **Scan email every** dropdown) even though it's prominent on the home card. Background scans runs every 1+ hour and can't deliver a result during this 15-minute session — we'll use the **Scan email now** button instead, which runs an immediate scan on demand. You'll see Start scheduled scans and the dropdown early; just leave them alone and follow the tasks below.
 
 Please **think aloud the entire time** — narrate what you're looking at, what you expect to happen, what's confusing, and what you'd do next. There are no wrong answers; we want to understand your honest reactions to the product.
 

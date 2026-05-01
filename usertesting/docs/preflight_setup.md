@@ -125,7 +125,7 @@ This is the most important step. You run both Scripts A and B against the deploy
 - Does the AI rule-suggestion button produce useful output for the example rule in Script A? (Click it, read the suggestion, ask: would a non-technical user accept this?)
 - Does the unverified-app consent warning's wording match what's in your task scripts ("Continue → Allow")? Google occasionally tweaks the consent UI; if the buttons are renamed, update the scripts before submitting.
 - After the alert fires, is the activity log line clear and reassuring to a non-technical tester? ("Calendar event created" is fine; "MCP alert sent to: …" is jargon.)
-- Does the home card prominently display **Start monitoring at N hours** as the first FILLED button? If yes (it does), confirm Script A's briefing tells testers to ignore it — they may otherwise click it and burn your $5 Gemini sandbox budget by leaving monitoring on after the session ends.
+- Does the home card show a **Scan email every** dropdown above a filled **Start scheduled scans** button? Confirm Script A's briefing tells testers to ignore both — they may otherwise click Start scheduled scans and burn your $5 Gemini sandbox budget by leaving monitoring on after the session ends.
 
 ### 3e. Fix what you find before Step 4
 
@@ -135,7 +135,7 @@ Time budget: 30 min self-test + up to 60 min script trimming / minor add-on edit
 
 ## Step 4 — Fill placeholders + submit Round 1 to UserTesting (~30 min)
 
-> **Round 1 scope (decided 2026-04-29):** All 10 sessions run **Script A** (core install + first rule + Calendar alert + manual scan). Script B (SMS path) and "Start monitoring" / auto-trigger paths are **deferred** — see `script_b_power.md` deferred banner and the project memo for rationale.
+> **Round 1 scope (decided 2026-04-29):** All 10 sessions run **Script A** (core install + first rule + Calendar alert + manual scan). Script B (SMS path) and "Start scheduled scans" / auto-trigger paths are **deferred** — see `script_b_power.md` deferred banner and the project memo for rationale.
 
 ### 4a. Fill placeholders
 

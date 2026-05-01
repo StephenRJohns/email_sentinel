@@ -47,11 +47,12 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
       activityLog('  SMS alert skipped — no SMS provider configured in Settings.');
     } else {
       smsNumbers.forEach(num => {
+        const toNumber = applyScreenshotPhone_(num);
         try {
-          sendSmsAlert_(num, rule, emailData, message, settings);
-          activityLog('  SMS alert sent to: ' + num);
+          sendSmsAlert_(toNumber, rule, emailData, message, settings);
+          activityLog('  SMS alert sent to: ' + toNumber);
         } catch (e) {
-          activityLog('  SMS alert to ' + num + ' FAILED: ' + e);
+          activityLog('  SMS alert to ' + toNumber + ' FAILED: ' + e);
         }
       });
     }

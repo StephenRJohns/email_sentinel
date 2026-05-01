@@ -36,8 +36,8 @@ test('S2: Settings card opens', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Settings');
   // Verify Settings card loaded. (S8 separately verifies the in-card Home
-  // button is present so users reaching Settings via the kebab universal
-  // action — which doesn't show Gmail's native back arrow — can escape.)
+  // button is unconditionally present on the four root cards so users have
+  // a reliable escape route regardless of how they reached the card.)
   await expect(getFrame(page).getByText('Gemini (rule evaluation)')).toBeVisible();
 });
 
@@ -56,7 +56,7 @@ test('S2: polling and max-age fields visible in Settings', async ({ page }) => {
   const f = getFrame(page);
   // Polling is now a dropdown — check by visible label/title rather than
   // getByLabel which targets text inputs.
-  await expect(f.getByText('Check for new email every').first()).toBeVisible();
+  await expect(f.getByText('Scan email every').first()).toBeVisible();
   await expect(f.getByLabel('Only check emails newer than', { exact: false })).toBeVisible();
 });
 
@@ -127,18 +127,19 @@ test('S8: activity log has Refresh button', async ({ page }) => {
   await expect(getFrame(page).getByRole('button', { name: 'Refresh' })).toBeVisible();
 });
 
-test('S8: home-card push hides redundant in-card Home button', async ({ page }) => {
-  // Sub-cards opened by clicking their button on the home card are pushed
-  // onto the nav stack, so Gmail's native back arrow is visible. The in-card
-  // Home button is suppressed in that path to avoid duplication. The
-  // universal-action (kebab menu) entry path, where the back arrow does not
-  // appear, still shows the Home button — that's exercised manually per
-  // e2e_test_plan.md Section 17c because Workspace add-on kebab menus are not
-  // reliably scriptable from Playwright.
+test('S8: in-card Home button present on every root card', async ({ page }) => {
+  // The four root navigation cards (Rules, Settings, Activity log, Help)
+  // unconditionally prepend a Home button as their first section. Apps Script
+  // doesn't expose navigation-stack depth at handler time, so conditional
+  // rendering would silently break on updateCard refreshes (rule toggle,
+  // log refresh, settings save) where the back-arrow state hasn't changed
+  // but the card is being re-rendered. Always-on Home guarantees an escape
+  // route regardless of entry path. Starter rules is excluded because it's
+  // only reachable via push from the home card and always has a back arrow.
   for (const section of ['Rules', 'Settings', 'Help', 'Activity log']) {
     const frame = await openAddon(page);
     await clickButton(frame, section);
-    await expect(getFrame(page).getByRole('button', { name: /^Home$/i })).toHaveCount(0);
+    await expect(getFrame(page).getByRole('button', { name: /^Home$/i })).toBeVisible();
   }
 });
 
