@@ -644,7 +644,7 @@ function buildRuleEditorCard(rule) {
     const configuredMcpServers = loadMcpServers();
     if (configuredMcpServers.length === 0) {
       channelsSection.addWidget(CardService.newTextParagraph()
-        .setText('<font color="#888888">No external integrations configured \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a 15-minute Cloudflare Worker walkthrough).</font>'));
+        .setText('<font color="#888888">No external integrations configured \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a <a href="https://emailsentinel.jjjjjenterprises.com/help#channels">15-minute Cloudflare Worker walkthrough</a>).</font>'));
       channelsSection.addWidget(CardService.newTextButton()
         .setText('Add external integrations in Settings')
         .setOnClickAction(navAction_('buildSettingsCard')));
@@ -1815,14 +1815,13 @@ function helpTopics_() {
       title: 'Alert channel setup',
       content:
         '<b>SMS</b> \u2014 any provider you want. Six quick-start presets built in (see <b>SMS setup guide</b>); the Generic webhook handles anything else.<br>' +
-        '\u2022 <b>Textbelt</b> \u2014 easiest: 1 free SMS/day with key "textbelt", no sign-up<br>' +
-        '\u2022 <b>ClickSend</b> \u2014 free trial, username + API key, no phone number<br>' +
-        '\u2022 <b>Vonage</b> \u2014 free trial credits, no credit card<br>' +
-        '\u2022 <b>Telnyx</b> \u2014 cheapest per SMS at scale; needs a rented phone number<br>' +
-        '\u2022 <b>Plivo</b> \u2014 $10 free credit; needs a rented phone number<br>' +
-        '\u2022 <b>Twilio</b> \u2014 most popular and best docs; $15 free credit; needs a rented phone number<br>' +
+        '\u2022 <b>Textbelt</b> \u2014 easiest, no sign-up<br>' +
+        '\u2022 <b>ClickSend</b> \u2014 username + API key, no phone number<br>' +
+        '\u2022 <b>Vonage</b> \u2014 no credit card, no phone number<br>' +
+        '\u2022 <b>Telnyx</b> \u2014 needs a rented phone number<br>' +
+        '\u2022 <b>Plivo</b> \u2014 needs a rented phone number<br>' +
+        '\u2022 <b>Twilio</b> \u2014 most popular, best docs; needs a rented phone number<br>' +
         '\u2022 <b>Generic webhook</b> \u2014 POST to any HTTPS endpoint; use this for any provider without a built-in preset<br>' +
-        '<font color="#888888">Current per-SMS and phone-number prices are shown in the SMS setup card and on each provider\'s site. Prices change \u2014 verify before committing.</font><br>' +
         'After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the <b>SMS recipients</b> section of Settings. Rules pick recipients by name via checkboxes. Click <b>Send test SMS</b> to verify.<br><br>' +
         '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
         '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +
@@ -1832,7 +1831,7 @@ function helpTopics_() {
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a 15-minute Cloudflare Worker walkthrough). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a <a href="https://emailsentinel.jjjjjenterprises.com/help#channels">15-minute Cloudflare Worker walkthrough</a>). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
     },
     pricing: {
       title: 'Gemini pricing & models',
