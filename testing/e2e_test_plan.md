@@ -275,19 +275,26 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ## 14 · Help Card Navigation
 
-*Verify the Help card opens the external help guide and shows contact info.*
+*Verify all five help topics load and contain accurate content.*
 
 - [ ] Click Help from the home card nav or the universal "⋮" menu.
 - [ ] Help card header reads: "emAIl Sentinel™ Help".
-- [ ] First section shows a brief description ("The full setup guide — quick start, rule examples, alert channel setup …") and a filled purple **Open full help guide** button.
-- [ ] Click **Open full help guide** — `https://emailsentinel.jjjjjenterprises.com/help.html` opens in a new tab/window. The page renders the dark-theme help guide with a Topics TOC and five sections (Quick start, Rule examples, Alert channel setup, Gemini pricing, Settings & troubleshooting). Anchor links in the TOC scroll to the correct sections.
-- [ ] Verify the **Alert channel setup** section on the website renders the Cloudflare Worker code as a properly formatted `<pre><code>` block and the Asana REST + MCP V2 walkthroughs are present.
-- [ ] Back in Gmail, the Help card shows a **Contact** section listing four routes:
+- [ ] **Search help** section appears at the top with a "Search all topics" input and a filled blue **Search** button.
+- [ ] Type `Reset baseline` in the search box and click **Search**. A results card opens with header `Search: "Reset baseline"`, a grey "1 topic matched." line, and the **Settings & troubleshooting** topic listed with a snippet that has "Reset baseline" bolded. Click **Open: Settings & troubleshooting** — the full topic loads.
+- [ ] Tap back, then type `scan` in the search box and click **Search**. Results card lists multiple topics matching, each with a snippet around the first occurrence.
+- [ ] Tap back, then click **Search** with the box empty. Toast: "Enter a search term first." (no results card pushed).
+- [ ] Tap back, then type `xyzzy123nonexistent` and click **Search**. Results card shows: "No matches in any help topic. Try a different keyword."
+- [ ] Tap back to the Help card. Five topic buttons present: "Quick start & writing rules", "Rule examples by channel", "Alert channel setup", "Gemini pricing & models", "Settings & troubleshooting".
+- [ ] Tap "Quick start & writing rules" — content loads with step-by-step setup instructions, the "Alert message content" field reference, the "Help me write the rule text" / "Help me write the alert text" buttons, and a **Searching help** section near the bottom that explains the search box.
+- [ ] Tap back, then "Rule examples by channel" — content shows SMS, Chat, Calendar, Sheets, Tasks, and External integrations examples (Custom MCP / Asana / Microsoft Teams).
+- [ ] Tap back, then "Alert channel setup" — content covers SMS (including named recipients managed via add/edit/delete cards), Google Chat webhook setup, Calendar/Sheets/Tasks defaults, External integrations brief, the Cloudflare Worker walkthrough numbered steps, the Authorization header format note, and the Asana REST + MCP V2 paths. The Worker JavaScript code itself is NOT inlined — step 3 shows the muted-grey note "[The 30-line Worker code is on the website — too long to embed here.]" followed by an "Open Cloudflare Worker walkthrough on the website" link that points to `https://emailsentinel.jjjjjenterprises.com/help.html#channels`. Click the link — the website opens in a new tab and the channels section is anchored at the top.
+- [ ] Tap back, then "Gemini pricing & models" — model list (gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro, gemini-2.0-flash-001), free-tier limits, and pay-as-you-go rates shown.
+- [ ] Tap back, then "Settings & troubleshooting" — content includes Business hours, Scan schedule, Max email age, Privacy, and troubleshooting. GitHub Issues support link is present and reads "https://github.com/StephenRJohns/email_sentinel/issues".
+- [ ] Bottom of Help card shows the **Contact** block with a three-email routing table:
   - Support: `support@jjjjjenterprises.com`
   - Legal / privacy: `legal@jjjjjenterprises.com`
   - Billing: `billing@jjjjjenterprises.com`
-  - Issues: GitHub issues link
-- [ ] Below the Contact block, a JJJJJ Enterprises image and a grey credit line ("emAIl Sentinel™ is a product of JJJJJ Enterprises, LLC.") are visible.
+- [ ] Below the Contact block, a grey trademark-attribution paragraph names Google, Slack, Microsoft, and Asana as trademark owners and states the project is not affiliated with or endorsed by any of these companies.
 
 ---
 

@@ -1639,36 +1639,304 @@ function handleCancelClearLog(e) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function buildHelpCard() {
-  // Help content lives on the marketing site at
-  // https://emailsentinel.jjjjjenterprises.com/help.html. The card uses a
-  // plain HTML hyperlink in a TextParagraph instead of a TextButton with
-  // setOpenLink \u2014 the FILLED+setBackgroundColor+setOpenLink combination
-  // triggered a "type cannot be used by the add-ons platform" rejection
-  // even on a tiny card; mailto/href links in TextParagraph are reliable
-  // (the Contact section below uses the same pattern).
   var card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'))
+    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
+
+  var searchSection = CardService.newCardSection()
+    .setHeader('<b>Search help</b>')
+    .addWidget(CardService.newTextInput()
+      .setFieldName('helpSearchQuery')
+      .setTitle('Search all topics')
+      .setHint('e.g. "Reset baseline", "scan", "Founding member"'))
+    .addWidget(CardService.newTextButton()
+      .setText(whiteText_('Search'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
+      .setOnClickAction(action_('handleSearchHelp')));
+  card.addSection(searchSection);
+
+  var section = CardService.newCardSection()
+    .setHeader('<b>Browse topics</b>')
+    .addWidget(CardService.newTextParagraph().setText(
+      'Tap a topic below for details.'));
+  var topics = [
+    { id: 'quickstart', label: 'Quick start & writing rules' },
+    { id: 'examples',   label: 'Rule examples by channel' },
+    { id: 'channels',   label: 'Alert channel setup' },
+    { id: 'pricing',    label: 'Gemini pricing & models' },
+    { id: 'settings',   label: 'Settings & troubleshooting' }
+  ];
+  topics.forEach(function(t) {
+    section.addWidget(CardService.newTextButton()
+      .setText(t.label)
+      .setOnClickAction(CardService.newAction()
+        .setFunctionName('handleShowHelpTopic')
+        .setParameters({ topic: t.id })));
+  });
+  card.addSection(section);
+  card.addSection(CardService.newCardSection()
+    .addWidget(CardService.newImage()
+      .setImageUrl('https://lh3.googleusercontent.com/d/1xFrN1fzRxfgND6ARCcY8hYZW31NqtSpc')
+      .setAltText('JJJJJ Enterprises, LLC'))
+    .addWidget(CardService.newTextParagraph().setText(
+      '<font color="#888888">emAIl Sentinel\u2122 is a product of JJJJJ Enterprises, LLC.</font>')));
+  return card.build();
+}
+
+function handleSearchHelp(e) {
+  var query = ((e.formInput && e.formInput.helpSearchQuery) || '').trim();
+  if (!query) {
+    return notificationResponse_('Enter a search term first.');
+  }
+
+  var topicMeta = [
+    { id: 'quickstart', label: 'Quick start & writing rules' },
+    { id: 'examples',   label: 'Rule examples by channel' },
+    { id: 'channels',   label: 'Alert channel setup' },
+    { id: 'pricing',    label: 'Gemini pricing & models' },
+    { id: 'settings',   label: 'Settings & troubleshooting' }
+  ];
+  var topics = helpTopics_();
+  var lowerQuery = query.toLowerCase();
+  var results = [];
+
+  topicMeta.forEach(function(meta) {
+    var topic = topics[meta.id];
+    if (!topic) return;
+    // Strip HTML tags and collapse whitespace for searching and snippet extraction.
+    var plain = topic.content.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
+    var lowerPlain = plain.toLowerCase();
+    var idx = lowerPlain.indexOf(lowerQuery);
+    if (idx === -1) return;
+
+    // Count total matches and pick a snippet around the first one.
+    var matchCount = 0;
+    var pos = 0;
+    while (pos !== -1) {
+      pos = lowerPlain.indexOf(lowerQuery, pos);
+      if (pos === -1) break;
+      matchCount++;
+      pos += lowerQuery.length;
+    }
+
+    var start = Math.max(0, idx - 60);
+    var end = Math.min(plain.length, idx + query.length + 100);
+    var prefix = start > 0 ? '\u2026' : '';
+    var suffix = end < plain.length ? '\u2026' : '';
+    var rawSnippet = plain.substring(start, end);
+    // Bold the first occurrence of the query within the snippet (case-insensitive).
+    var matchOffset = idx - start;
+    var snippet = escapeHtml_(rawSnippet.substring(0, matchOffset)) +
+                  '<b>' + escapeHtml_(rawSnippet.substring(matchOffset, matchOffset + query.length)) + '</b>' +
+                  escapeHtml_(rawSnippet.substring(matchOffset + query.length));
+
+    results.push({
+      id: meta.id,
+      title: meta.label,
+      snippet: prefix + snippet + suffix,
+      matchCount: matchCount
+    });
+  });
+
+  var resultsCard = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Search: "' + query + '"'));
+
+  if (results.length === 0) {
+    resultsCard.addSection(CardService.newCardSection()
+      .addWidget(CardService.newTextParagraph()
+        .setText('<i>No matches in any help topic. Try a different keyword.</i>')));
+  } else {
+    var summary = results.length + ' topic' + (results.length === 1 ? '' : 's') + ' matched.';
+    resultsCard.addSection(CardService.newCardSection()
+      .addWidget(CardService.newTextParagraph()
+        .setText('<font color="#888888">' + summary + '</font>')));
+    results.forEach(function(r) {
+      var countLabel = r.matchCount > 1 ? ' &nbsp;<font color="#888888">(' + r.matchCount + ' matches)</font>' : '';
+      resultsCard.addSection(CardService.newCardSection()
+        .setHeader('<b>' + escapeHtml_(r.title) + '</b>' + countLabel)
+        .addWidget(CardService.newTextParagraph().setText(r.snippet))
+        .addWidget(CardService.newTextButton()
+          .setText('Open: ' + r.title)
+          .setOnClickAction(CardService.newAction()
+            .setFunctionName('handleShowHelpTopic')
+            .setParameters({ topic: r.id }))));
+    });
+  }
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(resultsCard.build()))
+    .build();
+}
+
+function handleShowHelpTopic(e) {
+  var topicId = e.parameters.topic;
+  var topics = helpTopics_();
+  var topic = topics[topicId] || { title: 'Help', content: 'Topic not found.' };
+  var card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle(topic.title))
     .addSection(CardService.newCardSection()
-      .addWidget(CardService.newTextParagraph().setText(
-        'The full setup guide is on the website:<br><br>' +
-        '<a href="https://emailsentinel.jjjjjenterprises.com/help.html"><b>Open full help guide \u2192</b></a><br><br>' +
-        '<font color="#888888">Topics: quick start, rule examples, alert channel ' +
-        'setup (SMS, Chat, Calendar, Sheets, Tasks, MCP integrations), Gemini ' +
-        'pricing, and settings &amp; troubleshooting.</font>')))
-    .addSection(CardService.newCardSection()
-      .setHeader('<b>Contact</b>')
-      .addWidget(CardService.newTextParagraph().setText(
+      .addWidget(CardService.newTextParagraph().setText(topic.content)))
+    .build();
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(card))
+    .build();
+}
+
+function helpTopics_() {
+  return {
+    quickstart: {
+      title: 'Quick start & rules',
+      content:
+        '<b>Quick start</b><br>' +
+        '1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>' +
+        '2. (Optional) Configure SMS \u2014 pick a provider and add named SMS recipients in Settings.<br>' +
+        '3. (Optional) Add Google Chat spaces or MCP servers in Settings if you want to route alerts there.<br>' +
+        '4. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to tick channels and enable it.<br>' +
+        '5. On the home card, pick a scan interval from the <b>Scan email every</b> dropdown, then click <b>Start scheduled scans</b>. A time-driven trigger runs in the background even when Gmail is closed; the interval you pick is also saved into Settings.<br><br>' +
+        '<b>Writing a rule</b><br>' +
+        'Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>' +
+        '\u2022 "Any email from @example.com with a PDF that looks like an invoice."<br>' +
+        '\u2022 "Subject contains URGENT or CRITICAL."<br>' +
+        '\u2022 "Email from boss@example.com asking for a status update."<br><br>' +
+        'Each rule has an <b>Alert message content</b> field \u2014 plain-English instructions that tell Gemini how to format the alert. The default includes date, sender, subject, summary, and action items. Click <b>Help me write the rule text</b> or <b>Help me write the alert text</b> in the rule editor to have Gemini draft a starting point.<br><br>' +
+        '<b>Labels</b><br>' +
+        'Gmail uses labels rather than folders. Use INBOX for the inbox, or any label name as shown in Gmail. Multiple labels: comma-separated.<br><br>' +
+        '<b>Searching help</b><br>' +
+        'Use the <b>Search help</b> box at the top of the Help card to find any keyword or phrase across all topics — e.g. "Reset baseline", "scan", or "Founding member". Each result shows the topic name plus a snippet, and clicking opens the full topic.'
+    },
+    examples: {
+      title: 'Rule examples',
+      content:
+        '<b>SMS alerts</b> \u2014 urgent, time-sensitive<br>' +
+        '\u2022 <b>Server down:</b> "Automated email about a server outage or critical alert." \u2192 SMS to on-call<br>' +
+        '\u2022 <b>Wire transfer:</b> "Email from the bank confirming a wire transfer over $10,000." \u2192 SMS to CFO<br><br>' +
+        '<b>Google Chat</b> \u2014 team-visible<br>' +
+        '\u2022 <b>Sales lead:</b> "Email from a new contact mentioning pricing or demo." \u2192 Chat "Sales Leads"<br>' +
+        '\u2022 <b>Support escalation:</b> "Subject contains ESCALATION or P1." \u2192 Chat "Escalations"<br><br>' +
+        '<b>Calendar</b> \u2014 time-based follow-ups<br>' +
+        '\u2022 <b>Meeting request:</b> "Any email asking to schedule a meeting." \u2192 Calendar event<br>' +
+        '\u2022 <b>Deadline:</b> "Email mentioning a deadline or due date." \u2192 Calendar event<br><br>' +
+        '<b>Sheets</b> \u2014 audit trails<br>' +
+        '\u2022 <b>Compliance log:</b> "Email from a regulatory body or auditor." \u2192 Sheets row<br>' +
+        '\u2022 <b>Expense tracking:</b> "Emails with receipts or payment confirmations." \u2192 Sheets log<br><br>' +
+        '<b>Tasks</b> \u2014 to-do items<br>' +
+        '\u2022 <b>Action items:</b> "Email explicitly asking me to do, review, or approve something." \u2192 Task<br>' +
+        '\u2022 <b>Follow-up:</b> "Email saying \'let me know\' or \'awaiting your response\'." \u2192 Task<br><br>' +
+        '<b>External integrations</b> \u2014 route to external tools<br>' +
+        '\u2022 <b>Sales lead \u2192 Teams:</b> "Email mentioning pricing or demo from a new contact." \u2192 Microsoft Teams MCP<br>' +
+        '\u2022 <b>Support ticket \u2192 Asana:</b> "Customer email tagged P1 or ESCALATION." \u2192 Asana task<br>' +
+        '\u2022 <b>Custom downstream \u2192 Cloudflare Worker:</b> any rule \u2192 Custom MCP server you host yourself<br><br>' +
+        '<b>Combining channels</b><br>' +
+        '\u2022 <b>Critical vendor issue:</b> SMS + Chat + Calendar + Sheets<br>' +
+        '\u2022 <b>New hire onboarding:</b> Task + Sheets + Chat'
+    },
+    channels: {
+      title: 'Alert channel setup',
+      content:
+        '<b>SMS</b> \u2014 any provider you want. Six quick-start presets built in (see <b>SMS setup guide</b>); the Generic webhook handles anything else.<br>' +
+        '\u2022 <b>Textbelt</b> \u2014 easiest: 1 free SMS/day with key "textbelt", no sign-up<br>' +
+        '\u2022 <b>ClickSend</b> \u2014 free trial, username + API key, no phone number<br>' +
+        '\u2022 <b>Vonage</b> \u2014 free trial credits, no credit card<br>' +
+        '\u2022 <b>Telnyx</b> \u2014 cheapest per SMS at scale; needs a rented phone number<br>' +
+        '\u2022 <b>Plivo</b> \u2014 $10 free credit; needs a rented phone number<br>' +
+        '\u2022 <b>Twilio</b> \u2014 most popular and best docs; $15 free credit; needs a rented phone number<br>' +
+        '\u2022 <b>Generic webhook</b> \u2014 POST to any HTTPS endpoint; use this for any provider without a built-in preset<br>' +
+        '<font color="#888888">Current per-SMS and phone-number prices are shown in the SMS setup card and on each provider\'s site. Prices change \u2014 verify before committing.</font><br>' +
+        'After picking a provider, add named SMS recipients (e.g. "On-call", "CFO") in the <b>SMS recipients</b> section of Settings. Rules pick recipients by name via checkboxes. Click <b>Send test SMS</b> to verify.<br><br>' +
+        '<b>Google Chat</b> \u2014 requires a <b>Google Workspace paid account</b>.<br>' +
+        '1. Go to <a href="https://chat.google.com">chat.google.com</a> and create a Space<br>' +
+        '2. Click the space name in the header \u25b8 Apps & integrations \u25b8 Webhooks<br>' +
+        '3. Add a webhook, copy the URL, paste into Settings<br>' +
+        '4. Select the space name in each rule<br><br>' +
+        '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
+        '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
+        '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself. Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.<br><br>' +
+        '<b>Custom \u2014 Cloudflare Worker MCP server (recommended starting point)</b><br>' +
+        'This is the simplest reproducible MCP example. You deploy a 40-line JavaScript Worker on Cloudflare\'s free tier; the Worker speaks MCP JSON-RPC, accepts a bearer token you choose, and logs every alert to its console. No Slack workspace, no Asana account, no OAuth flow, no expiring tokens. Total setup: about 15 minutes one-time.<br>' +
+        '1. <b>Create a Cloudflare account.</b> Sign up free at <a href="https://cloudflare.com">cloudflare.com</a> if you do not already have one.<br>' +
+        '2. <b>Create a Worker.</b> From the dashboard sidebar pick <b>Workers &amp; Pages</b> \u2192 <b>Create application</b> \u2192 <b>Start with Hello World!</b>. Name it <code>es-demo-mcp</code> (or anything). Click <b>Deploy</b> to accept the default Hello World template.<br>' +
+        '3. <b>Replace the template with the MCP code.</b> After deploy, click <b>Edit code</b>. Delete the template and paste this:<br>' +
+        '<font color="#888888">[The 30-line Worker code is on the website — too long to embed here.]</font><br>' +
+        '<a href="https://emailsentinel.jjjjjenterprises.com/help.html#channels">Open Cloudflare Worker walkthrough on the website</a><br>' +
+        'Change the <code>SECRET</code> string to any value you like \u2014 that becomes your bearer token. Click <b>Deploy</b>.<br>' +
+        '4. <b>Copy the Worker URL.</b> After deploy, the URL appears at the top of the page (looks like <code>https://es-demo-mcp.&lt;your-subdomain&gt;.workers.dev</code>). Save it.<br>' +
+        '5. <b>Configure in e-mail Sentinel.</b> Settings \u2192 <b>+ Add external integration</b>. Server name: anything. Type: pick <b>Custom</b>, click <b>Load defaults</b>. Endpoint URL: paste the Worker URL from step 4. Authorization header value: paste <code>Bearer </code> followed by the value of <code>SECRET</code> from your Worker code (full field reads like <code>Bearer es-demo-token-change-me</code>). Tool name: <code>log_alert</code>. Tool args template: <code>{"message":"{{message}}"}</code>. Save.<br>' +
+        '6. <b>Test it.</b> Wire the new server onto a rule, send yourself a matching email, click <b>Scan email now</b>. In the Cloudflare dashboard, open the Worker \u2192 <b>Observability</b> tab \u2192 click <b>Live</b>. The line <code>[ALERT RECEIVED] &lt;your alert text&gt;</code> appears in real time. Done.<br><br>' +
+        '<b>Authorization header format (all integration types)</b><br>' +
+        'The <b>Authorization header value</b> field accepts the <i>full</i> header value, not just the token. For every type, paste literally <code>Bearer &lt;token&gt;</code> \u2014 capital <b>B</b>, single space, then the token. The dispatcher sends this string verbatim as the <code>Authorization</code> HTTP header. If you omit the <code>Bearer </code> prefix, every server above will reject with HTTP 401.<br><br>' +
+        '<b>Asana setup \u2014 REST API path (recommended)</b><br>' +
+        'Use this unless you specifically need MCP-protocol semantics.<br>' +
+        '1. <b>Get a Personal Access Token (PAT).</b> Open <a href="https://app.asana.com/0/my-apps">app.asana.com/0/my-apps</a>. Under <b>Personal access tokens</b>, click <b>Create new token</b>, name it (e.g. "e-mail Sentinel"), agree to the API terms, and copy the token immediately \u2014 Asana shows it only once.<br>' +
+        '2. <b>Get a project GID.</b> Open the Asana project where new tasks should land. The URL looks like <code>https://app.asana.com/1/&lt;workspace&gt;/project/1214322995210370/board/&lt;view&gt;</code> on current Asana. The project GID is the number directly after <code>/project/</code> \u2014 <i>not</i> the workspace GID after <code>/1/</code> and <i>not</i> the board view ID after <code>/board/</code>. Copy just the project GID.<br>' +
+        '3. <b>Configure in e-mail Sentinel.</b> Settings \u2192 <b>+ Add external integration</b>. Type: pick <b>Asana (REST API \u2014 easier)</b>, click <b>Load defaults</b>. The endpoint auto-fills to <code>https://app.asana.com/api/1.0/tasks</code>. Authorization header value: paste <code>Bearer </code> followed by your PAT. Tool args template: pre-filled \u2014 replace the literal text <code>PROJECT_ID</code> with your project GID; leave <code>{{subject}}</code> and <code>{{message}}</code> placeholders as they are. Save.<br><br>' +
+        '<b>Asana setup \u2014 MCP V2 path (advanced, OAuth required)</b><br>' +
+        'This is the true MCP-protocol path but requires an OAuth-issued access token. PATs do not work. Asana access tokens expire (typically 1 hour) and e-mail Sentinel does not currently refresh them automatically \u2014 for long-running setups, the REST API path above is more practical.<br>' +
+        '1. <b>Register an OAuth app in Asana.</b> Open <a href="https://app.asana.com/0/my-apps">app.asana.com/0/my-apps</a>. Switch to the <b>Apps</b> tab and click <b>+ New app</b>. Fill in the app name, redirect URI (a localhost URL is fine for personal use, e.g. <code>http://localhost:8080/callback</code>), and accept the API terms. Asana issues a <b>client ID</b> and <b>client secret</b> \u2014 save both.<br>' +
+        '2. <b>Perform an OAuth 2.0 authorization-code flow.</b> The simplest tool is <a href="https://www.postman.com/downloads/">Postman</a>. New request \u2192 Authorization tab \u2192 Type <i>OAuth 2.0</i> \u2192 <i>Get New Access Token</i>. Auth URL <code>https://app.asana.com/-/oauth_authorize</code>, Token URL <code>https://app.asana.com/-/oauth_token</code>, Client ID and Secret from step 1, Scope <code>default</code>, Redirect URI matching what you registered. Click <b>Get New Access Token</b>; Postman opens an Asana authorization page; approve. Postman captures the access token.<br>' +
+        '3. <b>Get a project GID</b> exactly as in step 2 of the REST walkthrough above.<br>' +
+        '4. <b>Configure in e-mail Sentinel.</b> Settings \u2192 <b>+ Add external integration</b>. Type: <b>Asana (MCP V2 \u2014 requires OAuth)</b>, click <b>Load defaults</b>. Endpoint auto-fills to <code>https://mcp.asana.com/v2/mcp</code>. Authorization header value: <code>Bearer </code> followed by the OAuth access token from Postman. Tool args template auto-fills \u2014 replace <code>PROJECT_ID</code> with your GID. Save.<br>' +
+        '5. <b>When the access token expires</b> (about an hour after issue), Asana V2 will start returning HTTP 401. Repeat step 2 to mint a fresh token, then edit the integration in Settings and replace the Authorization header value. To skip this loop, switch to the REST API path above.'
+    },
+    pricing: {
+      title: 'Gemini pricing & models',
+      content:
+        'emAIl Sentinel calls Gemini twice per email per rule: once to evaluate, once to format the alert.<br><br>' +
+        '<b>Models (select in Settings)</b><br>' +
+        '\u2022 <b>2.5 Flash</b> (default) \u2014 fast, highly capable, best for most users<br>' +
+        '\u2022 <b>2.5 Flash Lite</b> \u2014 ultra-low-cost, slightly less capable<br>' +
+        '\u2022 <b>2.5 Pro</b> \u2014 highest accuracy for complex rules, higher cost<br>' +
+        '\u2022 <b>2.0 Flash 001</b> \u2014 stable previous-generation Flash, reliable fallback<br><br>' +
+        '<b>Free tier</b><br>' +
+        'Get a key at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>. Free quota resets daily; at the limit Gemini returns 429 and calls resume next day.<br><br>' +
+        '<b>Estimate your usage</b><br>' +
+        'new emails/day \u00d7 active rules \u00d7 2 = daily API calls<br>' +
+        '\u2022 20 emails \u00d7 1 rule = 40 calls \u2014 well within free<br>' +
+        '\u2022 50 emails \u00d7 3 rules = 300 calls \u2014 well within free<br>' +
+        '\u2022 100 emails \u00d7 5 rules = 1,000 calls \u2014 approaching limit<br><br>' +
+        '<b>Paid rates</b> (verify at <a href="https://ai.google.dev/pricing">ai.google.dev/pricing</a>)<br>' +
+        '\u2022 Flash: ~$0.075/M input, ~$0.30/M output<br>' +
+        '\u2022 Flash Lite: ~$0.04/M input, ~$0.15/M output<br>' +
+        '\u2022 Pro: ~$1.25/M input, ~$5.00/M output<br>' +
+        '50 emails/day, 3 rules \u2248 under <b>$1/month</b>.<br><br>' +
+        '<b>Tips to minimize usage</b><br>' +
+        '\u2022 Enable <b>Business hours</b> \u2014 skips scans outside your window<br>' +
+        '\u2022 Lower <b>Max email age</b> (Settings \u25b8 Scan schedule) \u2014 skips older messages entirely<br>' +
+        '\u2022 Watch specific labels instead of INBOX<br>' +
+        '\u2022 Combine related conditions into one rule<br>' +
+        '\u2022 Keep alert format prompts concise'
+    },
+    settings: {
+      title: 'Settings & troubleshooting',
+      content:
+        '<b>Business hours</b><br>' +
+        'Restrict scans to a daily window. Outside hours, the trigger fires but skips the scan \u2014 no Gemini quota used.<br><br>' +
+        '<b>Scan schedule</b><br>' +
+        'Background scans: <b>Free</b> = every 3 hours minimum; <b>Pro</b> = every 1 hour minimum. The 1-hour hard floor is a <b>Google Workspace add-on platform limit</b>. We could scan faster by running our own backend that stores your Gmail tokens and reads your email on our servers \u2014 but we deliberately don\'t. The add-on runs entirely inside your own Google account; your email content never reaches our infrastructure. The scan-interval floor is the price of that privacy posture. Click <b>Scan email now</b> any time for an immediate on-demand scan. The first run baselines existing messages so you don\'t get a flood of alerts.<br><br>' +
+        '<b>Max email age</b><br>' +
+        'Controls how far back the Service looks when scanning a label. Default is 30 days. Emails older than this are ignored even if they\'re unread \u2014 useful for skipping long-dormant threads and cutting Gemini usage on busy labels.<br><br>' +
+        '<b>Reset baseline</b><br>' +
+        'The first time the Service checks a watched label, it records every existing message ID as a "seen" baseline so you don\'t get a flood of alerts on install \u2014 alerts only fire for mail that arrives after that point. Clicking <b>Reset baseline</b> in Settings deletes that stored set. On the next run, every label is treated as brand-new: existing messages are silently absorbed into a fresh baseline, and alerting resumes for mail that arrives after. Use it if alerts start firing for old mail (e.g. after changing labels or reinstalling), or any time you want a clean slate.<br><br>' +
+        '<b>Time zone for alerts</b><br>' +
+        'All dates rendered in alerts \u2014 the Sheets row Timestamp / Received columns, the Calendar event description, the Tasks notes, and any timestamp Gemini includes in the alert message \u2014 are formatted in your local time zone (taken from your primary Google Calendar). The format is <code>yyyy-MM-dd h:mm:ss AM/PM TZ</code>, e.g. <code>2026-04-27 5:29:58 PM CDT</code>. Underlying milliseconds are preserved internally for sorting; only the user-visible string is localized.<br><br>' +
+        '<b>Privacy</b><br>' +
+        'Settings, rules, seen messages, and the activity log are stored in UserProperties \u2014 private to your Google account. Email content goes only to Gemini and your configured alert channels.<br><br>' +
+        '<b>Troubleshooting</b><br>' +
+        '\u2022 <i>"No Gemini API key configured"</i> \u2014 open Settings, paste a key, click <b>Test Gemini</b><br>' +
+        '\u2022 <i>"Label \'...\' fetch failed"</i> \u2014 verify the label exists in Gmail (case-insensitive)<br>' +
+        '\u2022 <i>SMS not delivered</i> \u2014 check Activity Log for the provider\'s error<br>' +
+        '\u2022 <i>Alerts for old mail</i> \u2014 open Settings, click <b>Reset baseline</b><br>' +
+        '\u2022 <i>MCP target (Asana / Teams / Custom) not populated, no error in Activity Log</i> \u2014 push the latest version. The MCP dispatcher now parses Streamable-HTTP <code>text/event-stream</code> responses (Asana V2 returns this) and surfaces tool-level errors as <code>MCP alert to "&lt;name&gt;" FAILED: MCP "&lt;name&gt;" tool error: &lt;detail&gt;</code>. Common details: <i>Project not found</i> (bad <code>project_id</code>), <i>Forbidden</i> (PAT lacks workspace access), <i>Required field missing</i>. All MCP types expect the auth header literal <code>Bearer &lt;token&gt;</code> \u2014 capital B, single space, then the token.<br>' +
+        '\u2022 <i>Activity log times or alert dates look off by several hours</i> \u2014 dates use your primary Google Calendar\'s timezone. Fix at <a href="https://calendar.google.com/calendar/u/0/r/settings">calendar.google.com</a> \u25b8 Time zone, then re-run.<br>' +
+        '\u2022 <i>Lost edits in the rule or settings editor</i> \u2014 always click <b>Save</b> before tapping the back arrow. Google\'s add-on framework gives no event when the system back arrow is pressed, so the editor cannot prompt to save unsaved changes. Each editor card shows an amber notice at the top as a reminder.<br>' +
+        '\u2022 Still stuck? <b><a href="https://github.com/StephenRJohns/email_sentinel/issues">Open a GitHub issue</a></b> \u2014 issues are tracked, searchable, and get the fastest response.<br><br>' +
+        '<b>Contact</b><br>' +
         'Support: <a href="mailto:support@jjjjjenterprises.com">support@jjjjjenterprises.com</a><br>' +
         'Legal / privacy: <a href="mailto:legal@jjjjjenterprises.com">legal@jjjjjenterprises.com</a><br>' +
-        'Billing: <a href="mailto:billing@jjjjjenterprises.com">billing@jjjjjenterprises.com</a><br>' +
-        'Issues: <a href="https://github.com/StephenRJohns/email_sentinel/issues">github.com/StephenRJohns/email_sentinel/issues</a>')))
-    .addSection(CardService.newCardSection()
-      .addWidget(CardService.newImage()
-        .setImageUrl('https://lh3.googleusercontent.com/d/1xFrN1fzRxfgND6ARCcY8hYZW31NqtSpc')
-        .setAltText('JJJJJ Enterprises, LLC'))
-      .addWidget(CardService.newTextParagraph().setText(
-        '<font color="#888888">emAIl Sentinel\u2122 is a product of JJJJJ Enterprises, LLC.</font>')));
-  return card.build();
+        'Billing: <a href="mailto:billing@jjjjjenterprises.com">billing@jjjjjenterprises.com</a><br><br>' +
+        '<font color="#888888">Google, Gmail, Google Workspace, Google Chat, Google Calendar, Google Sheets, Google Tasks, and Gemini are trademarks of Google LLC. Microsoft and Teams are trademarks of Microsoft Corporation. Asana is a trademark of Asana, Inc. Not affiliated with or endorsed by any of these companies.</font>'
+    }
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
