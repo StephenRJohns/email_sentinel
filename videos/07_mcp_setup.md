@@ -45,12 +45,10 @@ Founding member tier, you have it included.
 ON-SCREEN: Help card opened — shows the search box and Browse
 topics buttons. Type "Integrations" into the search box, click
 Search. Results card shows "2 topics matched" — click
-"Open: Alert channel setup". Scroll to the bottom of the topic
-and click the "Open external integrations setup walkthroughs"
-link; the website help page opens in a new tab. Scroll to the
-Custom — Cloudflare Worker MCP server section and highlight the
-rendered Worker code block. Then show the actual Cloudflare
-dashboard with the Worker already deployed (named es-demo-mcp).
+"Open: Alert channel setup". Scroll to the Custom Cloudflare
+Worker walkthrough subsection and highlight the code block. Then
+show the actual Cloudflare dashboard with the Worker already
+deployed (named es-demo-mcp).
 VOICEOVER:
 For this video I am using my Cloudflare account because it is
 the easiest target to demo — Cloudflare Workers are free, no
@@ -124,12 +122,9 @@ link below.
 ## Production notes
 
 - Scene 3 navigates Help via search: type "Integrations" → Search
-  → "Open: Alert channel setup" → scroll to bottom → click "Open
-  external integrations setup walkthroughs" → the website page
-  opens with the Cloudflare Worker code rendered in a pre/code
-  block. Verify the link is present at the bottom of the channels
-  topic and the website page renders the Worker code before
-  recording.
+  → "Open: Alert channel setup" → scroll to the Cloudflare Worker
+  subsection. Verify that subsection and code block are present
+  before recording.
 - The Cloudflare dashboard log panel is the visual hero. Make
   sure you have clicked **Begin log stream** on the Worker's
   Logs tab before Scene 6, so the live tail is already running
@@ -166,8 +161,8 @@ already saved, side panel open on the home card.
 2. Open `https://modelcontextprotocol.io/` in a new tab. **Click anywhere on the page** (an empty area or the headline) and **scroll down once**, then scroll back up. This forces Guidde to capture the tab.
 3. Switch back to Gmail. **Click somewhere in the Gmail content area** (e.g., the inbox row count) so Guidde re-captures the Gmail tab.
 4. Click the **3-dot menu** → **Help**.
-5. In the Help card, click the **Search help** box, type `Integrations`, then click **Search**. The results card shows "2 topics matched." Click **Open: Alert channel setup**. Scroll to the bottom of the topic and click the **Open external integrations setup walkthroughs** link — the website page opens in a new tab; click anywhere on the page so Guidde captures it, then scroll to the **Custom — Cloudflare Worker MCP server** section and the Worker code block.
-6. Switch back to Gmail and click in the Gmail content area so Guidde re-captures the Gmail tab. Use the kebab "⋮" menu → **Home** to return to the home card.
+5. In the Help card, click the **Search help** box, type `Integrations`, then click **Search**. The results card shows "2 topics matched." Click **Open: Alert channel setup**. Scroll to the **Custom — Cloudflare Worker MCP server** subsection and click the code block (or any text within it) so it captures.
+6. Click the **Home** button on the Help card to return home.
 7. Switch to the **Cloudflare** Worker overview tab. **Click anywhere on the page** (e.g., on the page background or a non-action element) so Guidde captures the new tab before you interact with the URL.
 8. Hover the URL at the top of the page (`https://es-demo-mcp.jjjjj-enterprises-llc.workers.dev/`) for ~1 s.
 9. Click the copy icon next to the URL.

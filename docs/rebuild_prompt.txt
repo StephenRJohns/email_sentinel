@@ -39,18 +39,8 @@ appsscript.json   — Manifest: OAuth scopes, add-on descriptor, time-driven tri
 
 Help content lives inline in helpTopics_() in Cards.gs (5 topics: quickstart,
 examples, channels, pricing, settings). The Help card renders it via
-buildHelpCard / handleShowHelpTopic / handleSearchHelp.
-
-Exception — the channels topic ends with the External integrations brief
-paragraph plus a website link to setup walkthroughs. The Cloudflare Worker
-walkthrough (with its ~30-line MCP code), the Authorization header format
-note, and both Asana paths (REST and MCP V2) are NOT inlined in the
-channels topic; together they exceeded a CardService size limit and
-caused "type cannot be used by the add-ons platform" rejections on the
-topic detail card. Those walkthroughs live at
-https://emailsentinel.jjjjjenterprises.com/help.html#channels (source:
-../jjjjjenterprises.com/emailsentinel/help.html) which mirrors all five
-topics in full.
+buildHelpCard / handleShowHelpTopic / handleSearchHelp. There is no separate
+Help.html file — the card uses CardService text widgets, not HtmlService.
 
 (The public marketing website — including the emAIl Sentinel product landing
 page, all three HTML legal pages, sitemap.xml, and robots.txt — lives in a
@@ -98,7 +88,7 @@ External integrations: Settings section labeled "External integrations" covers M
 - Log buffering: startLogBuffering() + flushLog() batch writes during trigger runs
 - Concurrency guard: LockService.getUserLock(0ms timeout) in runMailCheck(); skip if locked
 - Cards are fully stateless: read UserProperties fresh on every render
-- No in-card Home button on root cards. Removed; users return home via the kebab "⋮" menu's Home universal action. The kebab menu is always present so the escape route works whether the card was opened via push (back arrow also available) or via universal action (no back arrow).
+- In-card Home button on the four root cards (Rules, Settings, Activity log, Help): unconditionally prepended via homeButtonSection_(). Wired to handleGoHome which does popToRoot + updateCard(buildHomeCard()). Always-on rather than conditional because Apps Script doesn't expose navigation-stack depth at handler time, so updateCard refreshes (rule toggle, log refresh, settings save) would silently drop a conditional Home button. Mild redundancy with Gmail's back arrow on push paths is accepted. Starter rules card is the one nav target without it — only reached via push from home, back arrow always available.
 - Polling grid: Gmail / Workspace add-on time-based triggers must fire >= 60 min apart. enforcePollFloor() snaps pollMinutes up to the nearest multiple of 60 (Free and Pro both have minPollMinutes=60). installTrigger() uses everyHours(targetHours) where targetHours = round(pollMinutes/60). runMailCheck() still applies a LAST_RUN_KEY elapsed-time skip-check for precise cadence when the user picks longer-than-1-hour intervals. runMailCheck({force: true}) bypasses the skip-check for manual "Scan email now" — the way users get sub-hour responsiveness on demand.
 - Home polling dropdown auto-saves: the home card "Scan email every" SelectionInput wires setOnChangeAction → handleHomePollChange, which persists the picked value to settings.pollMinutes the moment the user changes the selection (CardService doesn't auto-submit form inputs on navigation; without this the user could pick a value, navigate to Settings, and find the old value still selected). handleHomePollChange returns an empty ActionResponseBuilder so the save is silent — no toast, no card refresh. handleStartMonitoring re-saves the form value as defense-in-depth.
 - Action button color conventions (Cards.gs): BRAND_PURPLE_ #581c87 = primary FILLED CTAs (Save, Generate, + New rule, Start scheduled scans); BRAND_PURPLE_LIGHT_ #7c3aed = secondary FILLED CTA when a primary purple sits beside it (Scan email now); BRAND_RED_ #c62828 = every Delete button (rule list + 3 editor cards + their 4 confirmation cards = 8 total) with whiteText_ wrapper; BRAND_YELLOW_LIGHT_ #fde68a = rule toggle when the rule is currently enabled (button reads "Disable") with blackText_ wrapper. When the rule toggle reads "Enable" (rule is OFF) it stays plain text — enabling isn't cautionary. Text color must be wrapped explicitly via whiteText_ / blackText_ since CardService doesn't auto-pick contrasting text reliably for FILLED buttons with custom backgrounds.

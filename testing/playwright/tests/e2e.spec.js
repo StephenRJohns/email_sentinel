@@ -35,6 +35,9 @@ test('S2: home card loads with all status rows', async ({ page }) => {
 test('S2: Settings card opens', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Settings');
+  // Verify Settings card loaded. (S8 separately verifies the in-card Home
+  // button is unconditionally present on the four root cards so users have
+  // a reliable escape route regardless of how they reached the card.)
   await expect(getFrame(page).getByText('Gemini (rule evaluation)')).toBeVisible();
 });
 
@@ -122,6 +125,22 @@ test('S8: activity log has Refresh button', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Activity log');
   await expect(getFrame(page).getByRole('button', { name: 'Refresh' })).toBeVisible();
+});
+
+test('S8: in-card Home button present on every root card', async ({ page }) => {
+  // The four root navigation cards (Rules, Settings, Activity log, Help)
+  // unconditionally prepend a Home button as their first section. Apps Script
+  // doesn't expose navigation-stack depth at handler time, so conditional
+  // rendering would silently break on updateCard refreshes (rule toggle,
+  // log refresh, settings save) where the back-arrow state hasn't changed
+  // but the card is being re-rendered. Always-on Home guarantees an escape
+  // route regardless of entry path. Starter rules is excluded because it's
+  // only reachable via push from the home card and always has a back arrow.
+  for (const section of ['Rules', 'Settings', 'Help', 'Activity log']) {
+    const frame = await openAddon(page);
+    await clickButton(frame, section);
+    await expect(getFrame(page).getByRole('button', { name: /^Home$/i })).toBeVisible();
+  }
 });
 
 // ─── S14 · Help Card Navigation ──────────────────────────────────────────────

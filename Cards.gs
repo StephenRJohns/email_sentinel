@@ -52,6 +52,21 @@ const BRAND_YELLOW_LIGHT_ = '#fde68a';
 
 // Two navigation paths leave a destination card without Gmail's native back
 // arrow: kebab universal-action items use displayAddOnCards (which *replaces*
+// the navigation stack) and confirm-delete handlers use popToRoot(). Apps
+// Script doesn't expose navigation-stack depth at handler time, so we can't
+// reliably re-detect the no-back-arrow state on subsequent updateCard calls
+// (e.g. toggling a rule or refreshing the log) — the Home button would
+// disappear mid-session. To keep the escape hatch consistent we just
+// prepend this section unconditionally on the four root destinations
+// (Rules, Settings, Activity log, Help). When the back arrow is also
+// visible this is mild redundancy: back arrow steps one card up, Home
+// jumps to root.
+function homeButtonSection_() {
+  return CardService.newCardSection()
+    .addWidget(CardService.newTextButton()
+      .setText('Home')
+      .setOnClickAction(action_('handleGoHome')));
+}
 
 // CardService does not expose an event for the system back arrow, so an
 // editor cannot show a confirmation dialog before navigation pops it. This
@@ -323,6 +338,11 @@ function refreshHome_(message) {
     .build();
 }
 
+function handleGoHome(e) {
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildHomeCard()))
+    .build();
+}
 
 
 function buildPreScanCard_() {
@@ -373,25 +393,15 @@ function buildScanResultCard_(message, success) {
 function buildRulesCard() {
   const rules = loadRules();
   const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Rules'));
+    .setHeader(CardService.newCardHeader().setTitle('Rules'))
+    .addSection(homeButtonSection_());
 
-  const newRuleBtn = CardService.newTextButton()
-    .setText(whiteText_('+ New rule'))
-    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-    .setBackgroundColor(BRAND_PURPLE_)
-    .setOnClickAction(action_('handleNewRule'));
-  const newSection = CardService.newCardSection();
-  if (rules.length) {
-    newSection.addWidget(CardService.newButtonSet()
-      .addButton(newRuleBtn)
-      .addButton(CardService.newTextButton()
-        .setText(whiteText_('Delete all rules'))
-        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-        .setBackgroundColor(BRAND_RED_)
-        .setOnClickAction(action_('handleDeleteAllRules'))));
-  } else {
-    newSection.addWidget(newRuleBtn);
-  }
+  const newSection = CardService.newCardSection()
+    .addWidget(CardService.newTextButton()
+      .setText(whiteText_('+ New rule'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
+      .setOnClickAction(action_('handleNewRule')));
   card.addSection(newSection);
 
   if (!rules.length) {
@@ -461,23 +471,24 @@ function buildRuleSummarySection_(rule) {
     .setOnClickAction(actionWithRule_('handleToggleRule', rule.id));
   if (rule.enabled) {
     toggleBtn
-      .setText('Disable')
+      .setText(blackText_('Disable'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
       .setBackgroundColor(BRAND_YELLOW_LIGHT_);
   } else {
     toggleBtn.setText('Enable');
   }
 
-  section.addWidget(CardService.newButtonSet()
+  const buttons = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
       .setText('Edit')
       .setOnClickAction(actionWithRule_('handleEditRule', rule.id)))
     .addButton(toggleBtn)
     .addButton(CardService.newTextButton()
-      .setText('Delete')
+      .setText(whiteText_('Delete'))
       .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
       .setBackgroundColor(BRAND_RED_)
-      .setOnClickAction(actionWithRule_('handleDeleteRule', rule.id))));
+      .setOnClickAction(actionWithRule_('handleDeleteRule', rule.id)));
+  section.addWidget(buttons);
   return section;
 }
 
@@ -523,39 +534,6 @@ function handleConfirmDeleteRule(e) {
 function handleCancelDelete(e) {
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popCard())
-    .build();
-}
-
-function handleDeleteAllRules(e) {
-  const count = loadRules().length;
-  if (!count) return notificationResponse_('No rules to delete.');
-  const plural = count === 1 ? 'rule' : 'rules';
-  const section = CardService.newCardSection()
-    .addWidget(CardService.newTextParagraph()
-      .setText('Delete <b>all ' + count + ' ' + plural + '</b>? This cannot be undone.'))
-    .addWidget(CardService.newButtonSet()
-      .addButton(CardService.newTextButton()
-        .setText(whiteText_('Delete all'))
-        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-        .setBackgroundColor(BRAND_RED_)
-        .setOnClickAction(action_('handleConfirmDeleteAllRules')))
-      .addButton(CardService.newTextButton()
-        .setText('Cancel')
-        .setOnClickAction(action_('handleCancelDelete'))));
-  const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Confirm delete'))
-    .addSection(section)
-    .build();
-  return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().pushCard(card))
-    .build();
-}
-
-function handleConfirmDeleteAllRules(e) {
-  saveRules([]);
-  return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildRulesCard()))
-    .setNotification(CardService.newNotification().setText('All rules deleted.'))
     .build();
 }
 
@@ -1220,7 +1198,8 @@ function buildSettingsCard() {
         .setOnClickAction(action_('handleResetBaseline'))));
 
   const settingsBuilder = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Settings'));
+    .setHeader(CardService.newCardHeader().setTitle('Settings'))
+    .addSection(homeButtonSection_());
   return settingsBuilder
     .addSection(buildUnsavedChangesNotice_())
     .addSection(aiSection)
@@ -1539,7 +1518,8 @@ function buildActivityCard(offset) {
   offset = offset || 0;
   const entries = loadLog();
   const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Activity log'));
+    .setHeader(CardService.newCardHeader().setTitle('Activity log'))
+    .addSection(homeButtonSection_());
 
   const btnSet = CardService.newButtonSet();
   btnSet.addButton(CardService.newTextButton()
@@ -1640,7 +1620,8 @@ function handleCancelClearLog(e) {
 
 function buildHelpCard() {
   var card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
+    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'))
+    .addSection(homeButtonSection_());
 
   var searchSection = CardService.newCardSection()
     .setHeader('<b>Search help</b>')
@@ -1851,10 +1832,7 @@ function helpTopics_() {
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself. Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.<br><br>' +
-        '<b>Setup walkthroughs</b><br>' +
-        'Step-by-step setup for the Custom \u2014 Cloudflare Worker MCP server (recommended starting point), the Authorization header format, and both Asana paths (REST API and MCP V2 OAuth) lives on the website. Inlining all of it here exceeded a CardService size limit on this topic detail card.<br>' +
-        '<a href="https://emailsentinel.jjjjjenterprises.com/help.html#channels">Open external integrations setup walkthroughs</a>'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself (the Help card has a 15-minute Cloudflare Worker walkthrough). Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule.'
     },
     pricing: {
       title: 'Gemini pricing & models',
