@@ -42,6 +42,17 @@ examples, channels, pricing, settings). The Help card renders it via
 buildHelpCard / handleShowHelpTopic / handleSearchHelp. There is no separate
 Help.html file — the card uses CardService text widgets, not HtmlService.
 
+Community support is on GitHub Discussions:
+https://github.com/StephenRJohns/email_sentinel/discussions
+Reachable from inside the add-on three ways: (1) home-card "Community" nav
+button (plain TextButton.setOpenLink, opens FULL_SIZE), (2) kebab "⋮" menu
+"Community discussions" universal action (actionOpenDiscussions returns a
+UniversalActionResponseBuilder.setOpenLink — supported pattern for an external
+URL from a kebab item, no card render), (3) Help card → Settings &
+troubleshooting → "Still stuck?" links. The github.com/ prefix is whitelisted
+in appsscript.json openLinkUrlPrefixes. Use Discussions for usage Q&A and
+rule-recipe sharing, GitHub Issues for bugs/feature requests.
+
 (The public marketing website — including the emAIl Sentinel product landing
 page, all three HTML legal pages, sitemap.xml, and robots.txt — lives in a
 sibling repo: ../jjjjjenterprises.com/. This email_sentinel repo is now the

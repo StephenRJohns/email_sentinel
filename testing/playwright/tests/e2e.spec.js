@@ -162,11 +162,19 @@ test('S14: help footer shows JJJJJ Enterprises credit', async ({ page }) => {
   await expect(getFrame(page).getByText(/emAIl Sentinel.*product of JJJJJ Enterprises/i)).toBeVisible();
 });
 
-test('S14: Settings & troubleshooting topic shows GitHub Issues link', async ({ page }) => {
+test('S14: Settings & troubleshooting topic shows both support links', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Help');
   await clickButton(getFrame(page), 'Settings & troubleshooting');
+  // Two support paths now: Community Discussions for usage Q&A and rule
+  // recipes, GitHub Issues for bugs and feature requests.
+  await expect(getFrame(page).getByText('Community discussions')).toBeVisible();
   await expect(getFrame(page).getByText('Open a GitHub issue')).toBeVisible();
+});
+
+test('S14: home card has a Community button next to Help', async ({ page }) => {
+  const frame = await openAddon(page);
+  await expect(frame.getByRole('button', { name: /^Community$/i })).toBeVisible();
 });
 
 test('S14: help search finds a known phrase across topics', async ({ page }) => {

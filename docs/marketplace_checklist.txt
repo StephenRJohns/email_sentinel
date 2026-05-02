@@ -403,7 +403,7 @@ PART 4 — WHAT GOOGLE CHECKS DURING REVIEW
 --------------------------------------------------------------------------------
     [ ] Home card exists and is useful
     [ ] Universal actions all work (Rules, Settings, Activity Log, Help,
-        Scan email now)
+        Community discussions, Scan email now)
     [ ] UI fits within the ~300px add-on panel without horizontal scroll
     [ ] Text is not cut off with "..."
     [ ] No duplicate UI elements
