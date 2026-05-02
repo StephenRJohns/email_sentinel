@@ -239,6 +239,10 @@ function buildHomeCard() {
     .addSection(statusSection);
   if (setupSection) builder.addSection(setupSection);
   builder.addSection(navSection);
+  // Name the home card so Gmail's nav tracking treats kebab-menu →
+  // Home (which uses displayAddOnCards) as a stack-replacing root,
+  // which should suppress the back arrow on the resulting card.
+  builder.setName('home');
   return builder.build();
 }
 
