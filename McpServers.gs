@@ -62,10 +62,22 @@ const MCP_TYPE_DEFAULTS = {
     toolName: 'asana_create_task',
     toolNameHint: 'Asana MCP V2 exposes "asana_create_task" for creating a task in a project.',
     toolArgsTemplate: '{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}'
+  },
+  webhook: {
+    label: 'Generic webhook (HTTPS POST)',
+    description: 'Any HTTPS endpoint that accepts a JSON POST. Works with Slack incoming webhooks, Discord webhooks, n8n / Zapier / Make scenarios, custom internal APIs, and anything else that takes a JSON body. Not MCP — no tool-name field is used; the request body below is sent verbatim with placeholders substituted.',
+    defaultEndpoint: '',
+    toolName: '',
+    toolNameHint: 'Not used for generic webhooks — leave blank. The request body below is what gets POSTed.',
+    toolArgsTemplate: '{"text":"{{message}}"}'
   }
 };
 
-const MCP_TYPES = ['custom', 'teams', 'asana-rest', 'asana'];
+// Types whose dispatch is a direct HTTPS POST of the body template, with
+// no MCP JSON-RPC envelope. The Tool name field is unused for these.
+const DIRECT_POST_TYPES = ['asana-rest', 'webhook'];
+
+const MCP_TYPES = ['custom', 'teams', 'asana-rest', 'asana', 'webhook'];
 
 // ── Storage ─────────────────────────────────────────────────────────────────
 
@@ -122,17 +134,19 @@ function deleteMcpServer(id) {
  */
 function sendMcpAlert_(server, rule, emailData, message) {
   if (!server.endpoint || !/^https:\/\//i.test(server.endpoint)) {
-    throw new Error('MCP server "' + server.name + '" endpoint must be an HTTPS URL.');
+    throw new Error('External integration "' + server.name + '" endpoint must be an HTTPS URL.');
   }
-  // Asana REST is a non-MCP fork: posts directly to Asana's task-creation
-  // endpoint with a PAT in the Authorization header. Bypasses MCP entirely
-  // because Asana's V2 MCP gateway requires OAuth-issued tokens (rejecting
-  // the PATs that work everywhere else in the Asana API surface).
-  if (server.type === 'asana-rest') {
-    return sendAsanaRestTask_(server, rule, emailData, message);
+  // Direct-post types (asana-rest, webhook) skip the JSON-RPC envelope
+  // entirely. Asana V2 MCP requires OAuth-issued tokens and rejects PATs;
+  // the asana-rest path posts to /api/1.0/tasks directly with the PAT.
+  // Generic webhook serves Slack incoming webhooks, Discord webhooks,
+  // n8n / Zapier scenarios, and any other endpoint that accepts a plain
+  // JSON POST. Both share the same dispatch shape.
+  if (DIRECT_POST_TYPES.indexOf(server.type) >= 0) {
+    return sendDirectPost_(server, rule, emailData, message);
   }
   if (!server.toolName) {
-    throw new Error('MCP server "' + server.name + '" has no tool name configured.');
+    throw new Error('External integration "' + server.name + '" has no tool name configured.');
   }
 
   const subject  = (emailData && emailData.subject) || '';
@@ -242,4 +256,56 @@ function mcpJsonEsc_(s) {
     .replace(/\n/g, '\\n')
     .replace(/\r/g, '\\r')
     .replace(/\t/g, '\\t');
+}
+
+/**
+ * Direct HTTPS POST dispatch — used by non-MCP external-integration types
+ * (asana-rest, generic webhook). Substitutes placeholders into the body
+ * template, posts to the endpoint with the configured Authorization
+ * header, and surfaces non-2xx responses.
+ *
+ * No JSON-RPC envelope; the body template IS the request body.
+ */
+function sendDirectPost_(server, rule, emailData, message) {
+  const subject  = (emailData && emailData.subject) || '';
+  const from     = (emailData && emailData.from)    || '';
+  const ruleName = (rule && rule.name)              || '';
+
+  const template = server.toolArgsTemplate || '{"text":"{{message}}"}';
+  const bodyJson = template
+    .replace(/\{\{message\}\}/g, mcpJsonEsc_(message))
+    .replace(/\{\{subject\}\}/g, mcpJsonEsc_(subject))
+    .replace(/\{\{from\}\}/g,    mcpJsonEsc_(from))
+    .replace(/\{\{rule\}\}/g,    mcpJsonEsc_(ruleName));
+
+  // Validate JSON before sending so a bad template surfaces a clear error
+  // rather than a misleading "remote rejected the body" 4xx from the server.
+  try {
+    JSON.parse(bodyJson);
+  } catch (e) {
+    throw new Error(
+      'External integration "' + server.name +
+      '" body template produced invalid JSON: ' + e.message);
+  }
+
+  const headers = { 'Accept': 'application/json' };
+  if (server.authToken) headers['Authorization'] = server.authToken;
+
+  const resp = UrlFetchApp.fetch(server.endpoint, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: headers,
+    payload: bodyJson,
+    muteHttpExceptions: true
+  });
+
+  const code = resp.getResponseCode();
+  if (code < 200 || code >= 300) {
+    throw new Error(
+      'External integration "' + server.name + '" HTTP ' + code + ': ' +
+      resp.getContentText().substring(0, 200));
+  }
+  // 2xx with any body is treated as success. Slack incoming webhooks reply
+  // with literal "ok", Discord replies with an empty body or the posted
+  // message JSON, custom servers vary — we don't try to parse.
 }

@@ -2157,8 +2157,8 @@ function buildMcpServerEditorCard(server) {
 
   section.addWidget(CardService.newTextInput()
     .setFieldName('mcpEndpoint')
-    .setTitle('MCP server endpoint URL')
-    .setHint('HTTPS URL — e.g. https://your-mcp-server.example.com/mcp')
+    .setTitle('Endpoint URL')
+    .setHint('HTTPS URL — e.g. https://your-mcp-server.example.com/mcp or a Slack/Discord webhook URL')
     .setValue(sv.endpoint || ''));
 
   if (sv.authToken) {
@@ -2178,21 +2178,28 @@ function buildMcpServerEditorCard(server) {
       .setValue(''));
   }
 
-  section.addWidget(CardService.newTextInput()
-    .setFieldName('mcpToolName')
-    .setTitle('Tool name')
-    .setHint(def.toolNameHint || 'The MCP tool to call, e.g. slack_post_message')
-    .setValue(sv.toolName !== undefined ? sv.toolName : def.toolName));
+  // Tool name is only meaningful for true MCP types (Custom, Teams, Asana
+  // MCP V2). Direct-post types (asana-rest, generic webhook) skip the
+  // JSON-RPC envelope entirely, so the field is hidden to avoid confusing
+  // users — the body template below is what gets POSTed verbatim.
+  const isDirectPost = DIRECT_POST_TYPES.indexOf(type) >= 0;
+  if (!isDirectPost) {
+    section.addWidget(CardService.newTextInput()
+      .setFieldName('mcpToolName')
+      .setTitle('Tool name')
+      .setHint(def.toolNameHint || 'The MCP tool to call, e.g. slack_post_message')
+      .setValue(sv.toolName !== undefined ? sv.toolName : def.toolName));
+  }
 
   section.addWidget(CardService.newTextInput()
     .setFieldName('mcpToolArgsTemplate')
-    .setTitle('Tool arguments (JSON)')
+    .setTitle(isDirectPost ? 'Request body (JSON)' : 'Tool arguments (JSON)')
     .setHint('Placeholders: {{message}}, {{subject}}, {{from}}, {{rule}}')
     .setMultiline(true)
     .setValue(sv.toolArgsTemplate !== undefined ? sv.toolArgsTemplate : def.toolArgsTemplate));
 
   section.addWidget(CardService.newTextButton()
-    .setText('Suggest tool arguments')
+    .setText(isDirectPost ? 'Suggest request body' : 'Suggest tool arguments')
     .setOnClickAction(CardService.newAction()
       .setFunctionName('handleSuggestMcpArgs')
       .setParameters({ serverId: sv.id || '' })));
@@ -2278,8 +2285,10 @@ function handleSuggestMcpArgs(e) {
   const type = get('mcpType') || 'custom';
   const toolName = get('mcpToolName');
   const def = MCP_TYPE_DEFAULTS[type] || MCP_TYPE_DEFAULTS.custom;
+  const isDirectPost = DIRECT_POST_TYPES.indexOf(type) >= 0;
 
-  if (!toolName) {
+  // Tool name only required for true MCP types (Custom, Teams, Asana MCP V2).
+  if (!isDirectPost && !toolName) {
     return notificationResponse_('Enter a tool name before asking for a suggestion.');
   }
 
@@ -2291,21 +2300,38 @@ function handleSuggestMcpArgs(e) {
   const typeLabel = def.label;
   const typeDesc = def.description;
 
-  const prompt =
-    'You configure a JSON-RPC 2.0 Model Context Protocol (MCP) tool call. ' +
-    'The MCP server type is "' + typeLabel + '" (' + typeDesc + '). ' +
-    'The tool being called is named "' + toolName + '". ' +
-    'Generate a JSON object to pass as the "arguments" for tools/call that would post ' +
-    'an alert notification using that tool. ' +
-    'Use these literal placeholders where text content belongs:\n' +
-    '  {{message}} - the full alert text\n' +
-    '  {{subject}} - the original email subject\n' +
-    '  {{from}}    - the original sender address\n' +
-    '  {{rule}}    - the rule name\n' +
-    'For required identifier fields (channel ID, chat ID, project ID, etc.), ' +
-    'use an UPPERCASE placeholder like CHANNEL_ID or PROJECT_ID so the user can ' +
-    'replace it with a real value. ' +
-    'Output only the JSON object on a single line, no preamble, no code fences, no trailing commentary.';
+  const prompt = isDirectPost
+    ? (
+        'You configure a JSON request body for an HTTPS POST. The integration ' +
+        'type is "' + typeLabel + '" (' + typeDesc + '). ' +
+        'Generate a JSON object suitable as the request body that would post ' +
+        'an alert notification to a typical endpoint of that type. ' +
+        'Use these literal placeholders where text content belongs:\n' +
+        '  {{message}} - the full alert text\n' +
+        '  {{subject}} - the original email subject\n' +
+        '  {{from}}    - the original sender address\n' +
+        '  {{rule}}    - the rule name\n' +
+        'For required identifier fields (channel ID, project ID, etc.), use an ' +
+        'UPPERCASE placeholder like CHANNEL_ID or PROJECT_ID so the user can ' +
+        'replace it with a real value. ' +
+        'Output only the JSON object on a single line, no preamble, no code fences, no trailing commentary.'
+      )
+    : (
+        'You configure a JSON-RPC 2.0 Model Context Protocol (MCP) tool call. ' +
+        'The MCP server type is "' + typeLabel + '" (' + typeDesc + '). ' +
+        'The tool being called is named "' + toolName + '". ' +
+        'Generate a JSON object to pass as the "arguments" for tools/call that would post ' +
+        'an alert notification using that tool. ' +
+        'Use these literal placeholders where text content belongs:\n' +
+        '  {{message}} - the full alert text\n' +
+        '  {{subject}} - the original email subject\n' +
+        '  {{from}}    - the original sender address\n' +
+        '  {{rule}}    - the rule name\n' +
+        'For required identifier fields (channel ID, chat ID, project ID, etc.), ' +
+        'use an UPPERCASE placeholder like CHANNEL_ID or PROJECT_ID so the user can ' +
+        'replace it with a real value. ' +
+        'Output only the JSON object on a single line, no preamble, no code fences, no trailing commentary.'
+      );
 
   let suggestion;
   try {
@@ -2331,9 +2357,12 @@ function handleSuggestMcpArgs(e) {
   PropertiesService.getUserProperties()
     .setProperty('mailsentinel.tmp.mcpctx', JSON.stringify(ctx));
 
+  const heading = isDirectPost
+    ? '<b>Suggested request body:</b>'
+    : '<b>Suggested tool arguments for <i>' + escapeHtml_(toolName) + '</i>:</b>';
   const section = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph()
-      .setText('<b>Suggested tool arguments for <i>' + escapeHtml_(toolName) + '</i>:</b><br><br>' +
+      .setText(heading + '<br><br>' +
         '<font face="monospace">' + escapeHtml_(suggestion) + '</font><br><br>' +
         '<font color="#888888">Review and replace any UPPERCASE placeholders (e.g. CHANNEL_ID) with real values before saving.</font>'))
     .addWidget(CardService.newButtonSet()
@@ -2406,14 +2435,21 @@ function handleSaveMcpServer(e) {
 
   const name     = get('mcpName');
   const endpoint = get('mcpEndpoint');
+  const type     = get('mcpType') || 'custom';
   const toolName = get('mcpToolName');
+  const isDirectPost = DIRECT_POST_TYPES.indexOf(type) >= 0;
 
   if (!name)     return notificationResponse_('Please enter a server name.');
   if (!endpoint) return notificationResponse_('Please enter an endpoint URL.');
   if (!/^https:\/\//i.test(endpoint)) {
     return notificationResponse_('Endpoint must be an HTTPS URL.');
   }
-  if (!toolName) return notificationResponse_('Please enter a tool name.');
+  // Tool name is only required for true MCP types (Custom, Teams, Asana
+  // MCP V2). Direct-post types (asana-rest, webhook) don't render the
+  // field and don't use it during dispatch.
+  if (!isDirectPost && !toolName) {
+    return notificationResponse_('Please enter a tool name.');
+  }
 
   const serverId = e.parameters.serverId || '';
   // Preserve the existing authToken if the user left the field blank
@@ -2424,10 +2460,10 @@ function handleSaveMcpServer(e) {
   const server = {
     id: serverId || Utilities.getUuid(),
     name: name,
-    type: get('mcpType') || 'custom',
+    type: type,
     endpoint: endpoint,
     authToken: authToken,
-    toolName: toolName,
+    toolName: isDirectPost ? '' : toolName,
     toolArgsTemplate: get('mcpToolArgsTemplate') || '{"message":"{{message}}"}'
   };
 
@@ -2437,7 +2473,7 @@ function handleSaveMcpServer(e) {
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popCard().updateCard(buildSettingsCard()))
     .setNotification(CardService.newNotification()
-      .setText('MCP server "' + name + '" saved.'))
+      .setText('External integration "' + name + '" saved.'))
     .build();
 }
 
@@ -2446,7 +2482,7 @@ function handleDeleteMcpServerPrompt(e) {
   const name = server ? server.name : 'this server';
   const section = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph()
-      .setText('Delete MCP server <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
+      .setText('Delete external integration <b>' + escapeHtml_(name) + '</b>? This cannot be undone.'))
     .addWidget(CardService.newButtonSet()
       .addButton(CardService.newTextButton()
         .setText(whiteText_('Delete'))
@@ -2469,7 +2505,7 @@ function handleConfirmDeleteMcpServer(e) {
   deleteMcpServer(e.parameters.serverId);
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildSettingsCard()))
-    .setNotification(CardService.newNotification().setText('MCP server deleted.'))
+    .setNotification(CardService.newNotification().setText('External integration deleted.'))
     .build();
 }
 
