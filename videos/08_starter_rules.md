@@ -38,8 +38,8 @@ can configure channels before they start firing.
 
 ## Scene 3 — enable one (0:35–0:50)
 ON-SCREEN: Open the "Urgent emails" rule, add an SMS recipient,
-confirm the watched label is INBOX (or switch it), toggle Enable,
-click Save.
+confirm the watched label is INBOX (or switch it), Save, then on
+the Rules card click **On** for that rule.
 VOICEOVER:
 For each starter rule you want to use, confirm the Gmail label,
 pick your alert channels, and click On. The starter rule
@@ -86,8 +86,8 @@ saved in Settings, side panel open on the home card.
 8. Scroll to the SMS recipients section.
 9. Check at least one SMS recipient.
 10. Confirm the Gmail label is **INBOX** (or change it).
-11. Toggle **Enable**.
-12. Click **Save**.
+11. Click **Save**.
+12. (Back on the Rules card.) Click **On** to enable the rule (the toggle flips to **Off** and the section header shows ✅ ON).
 13. Hit **Stop capture** in Guidde.
 
 After capture: replace the auto-generated voiceover with the

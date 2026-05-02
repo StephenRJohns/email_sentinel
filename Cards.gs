@@ -1821,7 +1821,7 @@ function helpTopics_() {
         '1. Open <b>Settings</b> and paste your Gemini API key. Get one free at <a href="https://aistudio.google.com/app/apikey">aistudio.google.com/app/apikey</a>.<br>' +
         '2. (Optional) Configure SMS \u2014 pick a provider and add named SMS recipients in Settings.<br>' +
         '3. (Optional) Add Google Chat spaces or MCP servers in Settings if you want to route alerts there.<br>' +
-        '4. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to tick channels and enable it.<br>' +
+        '4. Open <b>Rules</b> and click <b>+ New rule</b>, or click <b>Starter rules</b> on the home card to create 5 pre-built rules (urgent emails, invoices, shipping updates, security alerts, subscription renewals). Starter rules are created disabled \u2014 edit each to tick channels, then tap <b>On</b> back on the Rules card.<br>' +
         '5. On the home card, pick a scan interval from the <b>Scan email every</b> dropdown, then click <b>Start scheduled scans</b>. A time-driven trigger runs in the background even when Gmail is closed; the interval you pick is also saved into Settings.<br><br>' +
         '<b>Writing a rule</b><br>' +
         'Rules are plain English. Be specific about senders, subjects, attachments, or body keywords. Examples:<br>' +

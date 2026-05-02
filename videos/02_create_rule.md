@@ -67,7 +67,7 @@ The default format works well, so we will leave it blank.
 
 ## Scene 7 — save and enable (1:50–2:00)
 ON-SCREEN: Click Save. Back on Rules card, the new rule shows as
-disabled. Toggle Enable.
+⏸ OFF. Click the **On** toggle.
 VOICEOVER:
 Save, then enable. The first time e-mail Sentinel sees the label
 it baselines existing messages — no flood of old alerts. New

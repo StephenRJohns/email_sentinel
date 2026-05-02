@@ -119,8 +119,8 @@ Calendar open in another tab.
 15. Click **Create starter rules**.
 16. In the Rules list, click the **Critical security alerts** rule.
 17. Check the **Calendar** alert channel.
-18. Toggle **Enable**.
-19. Click **Save**.
+18. Click **Save**.
+19. (Back on the Rules card.) Click the **On** toggle on the Critical security alerts rule.
 20. Open a new Gmail compose window. To: yourself. Subject: paste the
     AWS sample subject line. Body: paste the AWS sample body. Send.
 21. Wait ~5 s for the email to arrive in INBOX.
