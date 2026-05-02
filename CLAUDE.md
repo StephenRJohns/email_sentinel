@@ -61,7 +61,7 @@ There is no database, no backend, no external storage.
 
 ### Key design constraints
 
-**Apps Script execution limit:** Scripts time out at 6 minutes. `runMailCheck()` guards with `MAX_RUN_MS = 240000` (4 min) and `MAX_EVALS_PER_RUN = 100`. Messages that hit the limit have their IDs removed from `seen` so they are retried next run.
+**Apps Script execution limit:** Scripts time out at 6 minutes. `runMailCheck()` guards with `MAX_RUN_MS = 180000` (3 min) and `MAX_EVALS_PER_RUN = 100`. The 3-min cap leaves comfortable headroom — at 4 min, an in-flight Gemini call (with the 5 s 503 retry) plus a per-match alert-format Gemini call plus Calendar/Sheets dispatch could collectively overshoot the 6-min hard kill before the top-of-loop guard next ran. Messages that hit the limit have their IDs removed from `seen` so they are retried next run.
 
 **9 KB UserProperties limit:** `saveRules()` throws a user-visible error if rules JSON exceeds 9 KB. `saveSeen_()` auto-shrinks the seen-ID buffer by trimming to 60% of current size until it fits.
 

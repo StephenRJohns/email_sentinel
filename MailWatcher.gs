@@ -73,7 +73,12 @@ function runMailCheck(opts) {
 
     const MAX_EVALS_PER_RUN = 100;
     const runStart = Date.now();
-    const MAX_RUN_MS = 240000; // 4 minutes (leave headroom for 6-min Apps Script limit)
+    // 3 minutes — leaves 3 min headroom under the 6-min Apps Script limit.
+    // The previous 4-min cap was too close: in-flight Gemini calls (now
+    // with a 5 s 503 retry), Calendar/Sheets dispatch, and the per-message
+    // alert-format Gemini call can collectively overshoot before the
+    // top-of-loop guard at line 128 next gets a chance to fire.
+    const MAX_RUN_MS = 180000;
     var evalCount = 0;
     var matchCount = 0;
     var msgCount = 0;

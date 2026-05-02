@@ -83,7 +83,7 @@ External integrations: Settings section labeled "External integrations" covers M
 
 === KEY DESIGN CONSTRAINTS ===
 
-- Apps Script execution limit: 6 min. runMailCheck() guards with MAX_RUN_MS=240000, MAX_EVALS_PER_RUN=100
+- Apps Script execution limit: 6 min. runMailCheck() guards with MAX_RUN_MS=180000 (3 min), MAX_EVALS_PER_RUN=100
 - 9 KB UserProperties limit per key. saveRules() throws if over. saveSeen_() auto-shrinks buffer
 - Log buffering: startLogBuffering() + flushLog() batch writes during trigger runs
 - Concurrency guard: LockService.getUserLock(0ms timeout) in runMailCheck(); skip if locked
