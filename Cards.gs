@@ -2153,17 +2153,8 @@ function buildMcpServerEditorCard(server) {
   });
   section.addWidget(typeSelect);
 
-  // Render the per-Type description in the same small-grey style that
-  // setHint() uses under input fields. TextParagraph + <font size="1"> is
-  // ignored by the CardService renderer, but DecoratedText.setBottomLabel
-  // is the platform's documented "small grey label" widget piece — same
-  // typography as input hints. The main setText is left as a single
-  // non-breaking space so the row collapses to (effectively) just the
-  // bottomLabel; setText is required for DecoratedText to render at all.
-  section.addWidget(CardService.newDecoratedText()
-    .setText(' ')
-    .setBottomLabel(def.description)
-    .setWrapText(true));
+  section.addWidget(CardService.newTextParagraph()
+    .setText('<font color="#888888">' + escapeHtml_(def.description) + '</font>'));
 
   section.addWidget(CardService.newTextInput()
     .setFieldName('mcpEndpoint')
