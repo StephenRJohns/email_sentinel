@@ -23,7 +23,16 @@ function runMailCheck(opts) {
     console.info('Another check is still running — skipping.');
     return;
   }
-  startLogBuffering();
+  // Manual scans (force=true) skip log buffering so each activityLog
+  // call writes to UserProperties immediately. If the platform kills
+  // the function with "Exceeded maximum execution time", the finally
+  // block does NOT run on a hard kill — buffered entries are lost.
+  // Triggered scans keep buffering for performance; if they time out
+  // the activity log shows nothing, but at least we know the cadence
+  // from LAST_RUN_KEY. Manual runs are interactive, so the user is
+  // already paying for spinner time; ~1–2 s of extra UserProperties
+  // writes is worth the diagnostic visibility.
+  if (!force) startLogBuffering();
   try {
     const settings = loadSettings();
 
