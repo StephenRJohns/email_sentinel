@@ -54,7 +54,7 @@ The Cloudflare Workers free tier covers 100,000 requests/day. This loopback uses
 In the add-on, open **Settings → External integrations → + Add external integration** and create one entry per mode you want to test. For each:
 
 - **Name:** `Loopback <mode>` (e.g. `Loopback isError`)
-- **Type:** `Custom`
+- **Type:** `Custom MCP`
 - **Endpoint:** `https://<your-worker-url>/?mode=<mode>`
 - **Auth token:** any non-empty string (e.g. `Bearer test`); the loopback ignores the auth header entirely.
 - **Tool name:** `loopback_test_tool`

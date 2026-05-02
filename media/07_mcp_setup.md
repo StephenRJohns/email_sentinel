@@ -75,13 +75,13 @@ endpoint "e-mail Sentinel" will POST alerts to.
 ## Scene 5 — add the MCP server in "e-mail Sentinel" (1:30–2:15)
 ON-SCREEN: Switch back to Gmail. Settings → External integrations
 → "+ Add external integration" → server name "Demo MCP" → Type dropdown
-already shows "Custom" as default → click Load defaults → endpoint
+already shows "Custom MCP" as default → click Load defaults → endpoint
 URL paste the Worker URL → Authorization header value paste
 "Bearer es_mcp_demo" → Tool name "log_alert" → Tool
 args template stays "{"message":"{{message}}"}" → Save.
 VOICEOVER:
 Click Add external integration. Name it Demo MCP. The Type dropdown defaults
-to Custom — click Load defaults to populate the args template. In
+to Custom MCP — click Load defaults to populate the args template. In
 the endpoint URL field, paste the Worker URL we copied. In the
 Authorization header value field, paste the literal word Bearer,
 capital B, then a space, then the secret you set in the Worker
@@ -171,9 +171,9 @@ already saved, side panel open on the home card.
 12. Hover the **Pro plan only** badge for ~1 s.
 13. Click **+ Add external integration**.
 14. Click the **Server name** field, type `Demo MCP`.
-15. Confirm the **Type** dropdown reads **Custom** (default for new servers).
-16. Click **Load defaults**. Tool args template auto-fills to `{"message":"{{message}}"}`. Tool name field is blank for Custom by default.
-17. Click the **MCP server endpoint URL** field, paste the Worker URL from step 8.
+15. Confirm the **Type** dropdown reads **Custom MCP** (default for new entries).
+16. Click **Load defaults**. The **Tool arguments (JSON)** field auto-fills to `{"message":"{{message}}"}`. Tool name field is blank for Custom MCP by default.
+17. Click the **Endpoint URL** field, paste the Worker URL from step 8.
 18. Click the **Authorization header value** field. Paste the full header literally — the word `Bearer`, a single space, then your Worker `SECRET` value. Example: `Bearer es_mcp_demo`.
 19. Click the **Tool name** field, type `log_alert`.
 20. Click **Save**.
