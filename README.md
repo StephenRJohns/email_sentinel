@@ -94,7 +94,7 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 | AI-assisted alert content (*Help me write the alert text*) | ✅ | ✅ |
 | AI-assisted rule writing (*Help me write the rule text*) | — | ✅ |
 | Activity log retention | 30 days | Unlimited |
-| Support | GitHub Issues | GitHub Issues |
+| Support | GitHub Issues + Community Discussions | GitHub Issues + Community Discussions |
 
 **Founding-member lifetime tier** — $79 one-time for the first 500 buyers, then this tier is retired.
 
@@ -477,6 +477,13 @@ Nothing is stored on any third-party server. The add-on has no backend. The Goog
 | Want to see exactly what the trigger did | **Activity log** card — newest entries first |
 
 You can also peek at the trigger execution history in the Apps Script editor under **Executions** (left rail).
+
+### Where to ask for help
+
+- [**Community Discussions**](https://github.com/StephenRJohns/email_sentinel/discussions) — usage questions, rule-writing tips, sharing setups for SMS / Chat / MCP. Browse what other users are doing.
+- [**GitHub Issues**](https://github.com/StephenRJohns/email_sentinel/issues) — bugs and feature requests; the developer monitors these directly.
+
+Both are linked from inside the add-on: **Help** card → support links, and the kebab "⋮" menu → **Community discussions**. The home card also has a **Community** button next to **Help**.
 
 ---
 

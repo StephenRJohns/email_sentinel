@@ -52,12 +52,13 @@
         "enabled": true
       },
       "universalActions": [
-        { "label": "Home",           "runFunction": "actionShowHome" },
-        { "label": "Rules",          "runFunction": "actionShowRules" },
-        { "label": "Settings",       "runFunction": "actionShowSettings" },
-        { "label": "Activity Log",   "runFunction": "actionShowActivity" },
-        { "label": "Help",           "runFunction": "actionShowHelp" },
-        { "label": "Scan email now", "runFunction": "actionRunCheckNow" }
+        { "label": "Home",                  "runFunction": "actionShowHome" },
+        { "label": "Rules",                 "runFunction": "actionShowRules" },
+        { "label": "Settings",              "runFunction": "actionShowSettings" },
+        { "label": "Activity Log",          "runFunction": "actionShowActivity" },
+        { "label": "Help",                  "runFunction": "actionShowHelp" },
+        { "label": "Community discussions", "runFunction": "actionOpenDiscussions" },
+        { "label": "Scan email now",        "runFunction": "actionRunCheckNow" }
       ],
       "openLinkUrlPrefixes": [
         "https://textbelt.com/",

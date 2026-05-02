@@ -225,7 +225,12 @@ function buildHomeCard() {
       .setOnClickAction(navAction_('buildActivityCard')))
     .addWidget(CardService.newTextButton()
       .setText('Help')
-      .setOnClickAction(navAction_('buildHelpCard')));
+      .setOnClickAction(navAction_('buildHelpCard')))
+    .addWidget(CardService.newTextButton()
+      .setText('Community')
+      .setOpenLink(CardService.newOpenLink()
+        .setUrl('https://github.com/StephenRJohns/email_sentinel/discussions')
+        .setOpenAs(CardService.OpenAs.FULL_SIZE)));
 
   var builder = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader()
@@ -1934,7 +1939,9 @@ function helpTopics_() {
         '\u2022 <i>MCP target (Asana / Teams / Custom) not populated, no error in Activity Log</i> \u2014 push the latest version. The MCP dispatcher now parses Streamable-HTTP <code>text/event-stream</code> responses (Asana V2 returns this) and surfaces tool-level errors as <code>MCP alert to "&lt;name&gt;" FAILED: MCP "&lt;name&gt;" tool error: &lt;detail&gt;</code>. Common details: <i>Project not found</i> (bad <code>project_id</code>), <i>Forbidden</i> (PAT lacks workspace access), <i>Required field missing</i>. All MCP types expect the auth header literal <code>Bearer &lt;token&gt;</code> \u2014 capital B, single space, then the token.<br>' +
         '\u2022 <i>Activity log times or alert dates look off by several hours</i> \u2014 dates use your primary Google Calendar\'s timezone. Fix at <a href="https://calendar.google.com/calendar/u/0/r/settings">calendar.google.com</a> \u25b8 Time zone, then re-run.<br>' +
         '\u2022 <i>Lost edits in the rule or settings editor</i> \u2014 always click <b>Save</b> before tapping the back arrow. Google\'s add-on framework gives no event when the system back arrow is pressed, so the editor cannot prompt to save unsaved changes. Each editor card shows an amber notice at the top as a reminder.<br>' +
-        '\u2022 Still stuck? <b><a href="https://github.com/StephenRJohns/email_sentinel/issues">Open a GitHub issue</a></b> \u2014 issues are tracked, searchable, and get the fastest response.<br><br>' +
+        '\u2022 Still stuck? Two ways to get help:<br>' +
+        '\u2022 <b><a href="https://github.com/StephenRJohns/email_sentinel/discussions">Community discussions</a></b> \u2014 ask other users, share rule recipes, browse setup tips for SMS / Chat / MCP. Best for usage questions.<br>' +
+        '\u2022 <b><a href="https://github.com/StephenRJohns/email_sentinel/issues">Open a GitHub issue</a></b> \u2014 best for bugs and feature requests; tracked, searchable, get the fastest response from the developer.<br><br>' +
         '<b>Contact</b><br>' +
         'Support: <a href="mailto:support@jjjjjenterprises.com">support@jjjjjenterprises.com</a><br>' +
         'Legal / privacy: <a href="mailto:legal@jjjjjenterprises.com">legal@jjjjjenterprises.com</a><br>' +

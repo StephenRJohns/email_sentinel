@@ -25,6 +25,21 @@ function actionRunCheckNow(e) {
   return universalCardResponse_(buildPreScanCard_());
 }
 
+// Opens the GitHub Discussions page for the project in a new tab.
+// UniversalActionResponseBuilder.setOpenLink is the supported way for a
+// kebab-menu universal action to navigate to an external URL directly
+// (no card push, no displayAddOnCards). The github.com/ prefix is already
+// whitelisted in appsscript.json openLinkUrlPrefixes.
+const DISCUSSIONS_URL = 'https://github.com/StephenRJohns/email_sentinel/discussions';
+
+function actionOpenDiscussions(e) {
+  return CardService.newUniversalActionResponseBuilder()
+    .setOpenLink(CardService.newOpenLink()
+      .setUrl(DISCUSSIONS_URL)
+      .setOpenAs(CardService.OpenAs.FULL_SIZE))
+    .build();
+}
+
 function universalCardResponse_(card) {
   return CardService.newUniversalActionResponseBuilder()
     .displayAddOnCards([card])
