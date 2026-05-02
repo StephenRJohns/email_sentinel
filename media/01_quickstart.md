@@ -4,7 +4,7 @@
 
 This is the anchor video. Pin it on the YouTube channel and link it from
 the Marketplace listing description. Goal: a viewer who is never heard of
-e-mail Sentinel understands what it does, decides to install, and gets
+"e-mail Sentinel" understands what it does, decides to install, and gets
 their first alert — all in three minutes.
 
 ---
@@ -13,7 +13,7 @@ their first alert — all in three minutes.
 ON-SCREEN: Phone notification sliding in: "AWS — Unusual sign-in attempt
 blocked" — then cut to a Gmail inbox with the sidebar open.
 VOICEOVER:
-Important emails get buried. e-mail Sentinel reads your Gmail with AI
+Important emails get buried. "e-mail Sentinel" reads your Gmail with AI
 and texts you the ones you cannot afford to miss.
 
 ## Scene 1 — install (0:08–0:30)
@@ -25,7 +25,7 @@ inside your own Google account — your email never leaves Google's
 servers.
 
 ## Scene 2 — open in Gmail (0:30–0:50)
-ON-SCREEN: Gmail loads, the e-mail Sentinel sidebar icon appears on the
+ON-SCREEN: Gmail loads, the "e-mail Sentinel" sidebar icon appears on the
 right rail. Click it; the home card opens.
 VOICEOVER:
 Open Gmail and click the sidebar icon. The home card has everything
@@ -108,7 +108,7 @@ Calendar open in another tab.
 4. Click through the OAuth consent screen → **Allow**.
 5. Click **Done** when install completes.
 6. Switch to Gmail, refresh the tab.
-7. Click the **e-mail Sentinel sidebar icon** on the right rail.
+7. Click the **"e-mail Sentinel" sidebar icon** on the right rail.
 8. (Pause on the home card for ~2 s.)
 9. Click the **3-dot menu** → **Settings**.
 10. Click the **Gemini API key** field, paste your key.

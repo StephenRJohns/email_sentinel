@@ -11,7 +11,7 @@ before canceling and finishing with the defaults.
 ## Hook (0:00–0:05)
 ON-SCREEN: Rules card with "+ New rule" button highlighted.
 VOICEOVER:
-Rules are how e-mail Sentinel decides which emails get alerts.
+Rules are how "e-mail Sentinel" decides which emails get alerts.
 Here is how to write one.
 
 ## Scene 1 — open the editor (0:05–0:15)
@@ -26,7 +26,7 @@ ON-SCREEN: Type rule name "Customer Escalation". Pick the Gmail
 label — "support/escalations" — from the dropdown.
 VOICEOVER:
 Give it a short name you will recognize in alerts. Pick the Gmail
-label to watch — e-mail Sentinel only checks emails inside that
+label to watch — "e-mail Sentinel" only checks emails inside that
 label, so you control exactly what gets evaluated.
 
 ## Scene 3 — rule text (0:30–0:50)
@@ -69,14 +69,14 @@ The default format works well, so we will leave it blank.
 ON-SCREEN: Click Save. Back on Rules card, the new rule shows as
 ⏸ OFF. Click the **On** toggle.
 VOICEOVER:
-Save, then enable. The first time e-mail Sentinel sees the label
+Save, then enable. The first time "e-mail Sentinel" sees the label
 it baselines existing messages — no flood of old alerts. New
 mail from now on goes through Gemini.
 
 ## End card (2:00–2:05)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Plain English. No regex. Get e-mail Sentinel — link below.
+Plain English. No regex. Get "e-mail Sentinel" — link below.
 
 ---
 

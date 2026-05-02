@@ -34,11 +34,11 @@ Sentinel" → copy the URL.
 VOICEOVER:
 Open the Chat space where you want alerts to land. Settings,
 Apps and integrations, Webhooks, Add webhook. Name it something
-obvious — e-mail Sentinel — and copy the URL. That URL is the
+obvious — "e-mail Sentinel" — and copy the URL. That URL is the
 only thing the add-on needs.
 
 ## Scene 3 — paste it in Settings (0:50–1:10)
-ON-SCREEN: Back in e-mail Sentinel Settings → Chat spaces → "+ Add
+ON-SCREEN: Back in "e-mail Sentinel" Settings → Chat spaces → "+ Add
 Chat space" → name "Sentinel Alerts", paste URL → save.
 VOICEOVER:
 In Settings, click Add Chat space, name it, paste the URL, and
@@ -55,7 +55,7 @@ match posts to that space.
 ## End card (1:25–1:30)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Team alerts in Google Chat. Pro plan. Get e-mail Sentinel — link
+Team alerts in Google Chat. Pro plan. Get "e-mail Sentinel" — link
 below.
 
 ---
@@ -87,7 +87,7 @@ one rule already saved, side panel open on the home card.
 7. Click **Apps & integrations**.
 8. Click **Webhooks**.
 9. Click **Add webhook**.
-10. Click the **Name** field, type `e-mail Sentinel`.
+10. Click the **Name** field, type `"e-mail Sentinel"`.
 11. Click **Save**.
 12. Click the **Copy** icon next to the generated URL.
 13. Switch back to Gmail.

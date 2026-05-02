@@ -1,4 +1,4 @@
-# e-mail Sentinel — help-video scripts
+# "e-mail Sentinel" — help-video scripts
 
 Ten short scripts (60–180 s each) covering every user-facing flow. Designed
 to be recorded with one of:
@@ -36,7 +36,7 @@ VOICEOVER: "{narration}"
 ...
 
 ## End card (last 5 s)
-ON-SCREEN: e-mail Sentinel logo + Marketplace URL
+ON-SCREEN: "e-mail Sentinel" logo + Marketplace URL
 VOICEOVER: "{CTA}"
 ```
 

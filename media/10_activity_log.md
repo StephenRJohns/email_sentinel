@@ -68,7 +68,7 @@ rule changes, not in production.
 ## End card (1:55–2:00)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Full audit trail, no black box. Get e-mail Sentinel — link below.
+Full audit trail, no black box. Get "e-mail Sentinel" — link below.
 
 ---
 

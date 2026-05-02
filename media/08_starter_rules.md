@@ -48,7 +48,7 @@ text is a starting point — refine it once you see real alerts.
 ## End card (0:50–0:55)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Be alert-ready in thirty seconds. Get e-mail Sentinel — link below.
+Be alert-ready in thirty seconds. Get "e-mail Sentinel" — link below.
 
 ---
 

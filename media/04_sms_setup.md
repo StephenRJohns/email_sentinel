@@ -20,7 +20,7 @@ ON-SCREEN: Settings card → SMS provider dropdown showing Textbelt,
 Telnyx, Plivo, Twilio, ClickSend, Vonage, and Generic webhook.
 Hover each briefly. Pick Textbelt.
 VOICEOVER:
-e-mail Sentinel works with six SMS providers out of the box, plus
+"e-mail Sentinel" works with six SMS providers out of the box, plus
 a generic webhook for anything else. Textbelt has a free tier with
 one free SMS a day — perfect for testing. For volume, Telnyx and
 Plivo are the cheapest of the named providers.
@@ -31,7 +31,7 @@ the demo or paid key → back to Settings → paste.
 VOICEOVER:
 Click Get a key, sign up at the provider, copy your API key, and
 paste it into Settings. The key stays in your Google account —
-e-mail Sentinel does not store it on any server we control.
+"e-mail Sentinel" does not store it on any server we control.
 
 ## Scene 3 — add SMS recipients (1:00–1:35)
 ON-SCREEN: Settings → SMS recipients section → "+ Add SMS
@@ -66,7 +66,7 @@ ON-SCREEN: A small text overlay: "Approximate cost per SMS:
 Textbelt $0.05–0.10 · Telnyx $0.004 · Plivo $0.005 · Twilio $0.008
 · ClickSend $0.05 · Vonage $0.0067"
 VOICEOVER:
-SMS costs are not part of your e-mail Sentinel subscription —
+SMS costs are not part of your "e-mail Sentinel" subscription —
 you are paying the provider directly. For most providers it is
 under one cent per message. Set a budget alert with the provider
 if you are worried about runaway alerts.
@@ -74,7 +74,7 @@ if you are worried about runaway alerts.
 ## End card (2:55–3:00)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Real SMS alerts in three minutes. Get e-mail Sentinel — link below.
+Real SMS alerts in three minutes. Get "e-mail Sentinel" — link below.
 
 ---
 

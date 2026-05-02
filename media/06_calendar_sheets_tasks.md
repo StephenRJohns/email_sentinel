@@ -35,8 +35,8 @@ the columns: Timestamp, Rule, From, Subject, Received, Alert
 Message.
 VOICEOVER:
 Sheets builds you an audit log automatically. The first time
-a Sheets alert fires, e-mail Sentinel creates a spreadsheet in
-your Drive called 'e-mail Sentinel — Alert Log' and appends a
+a Sheets alert fires, "e-mail Sentinel" creates a spreadsheet in
+your Drive called '"e-mail Sentinel" — Alert Log' and appends a
 row for every match. Pivot it, filter it, share it with your
 team — it is just Google Sheets.
 
@@ -107,7 +107,7 @@ the side panel will do).
 12. Refresh; click the newly-created event so the description panel
     opens.
 13. Switch to the **Google Drive** tab.
-14. Click the file `e-mail Sentinel — Alert Log` (newly created).
+14. Click the file `"e-mail Sentinel" — Alert Log` (newly created).
 15. Hover the columns: Timestamp, Rule, From, Subject, Received,
     Alert Message.
 16. Switch back to **Gmail**.

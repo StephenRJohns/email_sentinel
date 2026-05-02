@@ -16,20 +16,20 @@ Help card so viewers do not need to pause and squint.
 ---
 
 ## Hook (0:00–0:08)
-ON-SCREEN: Split screen — e-mail Sentinel on the left firing an
+ON-SCREEN: Split screen — "e-mail Sentinel" on the left firing an
 alert, Cloudflare Worker logs panel on the right showing the
 [ALERT RECEIVED] line scroll in real time.
 VOICEOVER:
-Connect e-mail Sentinel to anything that speaks Model Context
+Connect "e-mail Sentinel" to anything that speaks Model Context
 Protocol. Microsoft Teams, Asana, your own server — same alert
 pipeline.
 
 ## Scene 1 — what MCP is (0:08–0:30)
-ON-SCREEN: A simple diagram — e-mail Sentinel → POST tools/call →
+ON-SCREEN: A simple diagram — "e-mail Sentinel" → POST tools/call →
 your MCP server → Teams / Asana / Custom downstream.
 VOICEOVER:
 MCP is an open protocol for AI agents to call external tools.
-e-mail Sentinel sends a JSON-RPC tools-slash-call request to any
+"e-mail Sentinel" sends a JSON-RPC call request to any
 MCP server you configure. If you have used Claude Desktop or
 another agent framework, you have already used the same protocol
 — this just wires your inbox to it.
@@ -58,7 +58,7 @@ You would connect to whichever MCP servers you actually need
 — Microsoft Teams, Asana, Slack via a self-hosted bridge,
 your own internal tools — and you would refer to that server's
 documentation for the specifics of its tool name, args, and
-authentication. The mechanics in e-mail Sentinel are the same
+authentication. The mechanics in "e-mail Sentinel" are the same
 regardless of the target. We will not write the Worker code on
 camera; the full listing is in the Help card under External
 integrations. What you see on the right is the deployed Worker,
@@ -70,9 +70,9 @@ the URL at the top (https://es-demo-mcp.jjjjj-enterprises-llc.workers.dev/)
 and pick "Copy link address" from the context menu.
 VOICEOVER:
 Copy the Worker URL from the top of the dashboard. This is the
-endpoint e-mail Sentinel will POST alerts to.
+endpoint "e-mail Sentinel" will POST alerts to.
 
-## Scene 5 — add the MCP server in e-mail Sentinel (1:30–2:15)
+## Scene 5 — add the MCP server in "e-mail Sentinel" (1:30–2:15)
 ON-SCREEN: Switch back to Gmail. Settings → External integrations
 → "+ Add external integration" → server name "Demo MCP" → Type dropdown
 already shows "Custom" as default → click Load defaults → endpoint
@@ -98,7 +98,7 @@ VOICEOVER:
 On any rule, check the integration, save, and trigger a match.
 The Cloudflare Worker logs panel shows the alert arriving in
 real time — the bracketed ALERT RECEIVED line is the Worker
-console-logging the message field e-mail Sentinel sent. From
+console-logging the message field "e-mail Sentinel" sent. From
 here, the Worker can do anything code can do — relay to Slack
 via webhook, write to a database, call another API.
 
@@ -107,14 +107,14 @@ ON-SCREEN: Activity log showing an MCP error like 'MCP "Demo MCP"
 HTTP 401: Unauthorized'.
 VOICEOVER:
 If the MCP server returns an error — bad token, missing
-permission, server down — e-mail Sentinel logs it in the Activity
+permission, server down — "e-mail Sentinel" logs it in the Activity
 log with the exact response. No silent failures. Other channels
 still fire, so a broken MCP does not take your alerts down.
 
 ## End card (2:55–3:05)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Connect anything that speaks MCP. Pro plan. Get e-mail Sentinel —
+Connect anything that speaks MCP. Pro plan. Get "e-mail Sentinel" —
 link below.
 
 ---
@@ -194,5 +194,5 @@ already saved, side panel open on the home card.
 After capture: blur the Authorization header value if the SECRET
 is something you do not want public. Replace the auto-generated
 voiceover with the storyboard VOICEOVER lines. The diagram for
-Scene 1 (e-mail Sentinel → MCP server → Teams / Asana / Custom)
+Scene 1 ("e-mail Sentinel" → MCP server → Teams / Asana / Custom)
 is a graphic, not a screen capture — drop it in during edit.

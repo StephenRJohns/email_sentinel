@@ -18,7 +18,7 @@ ON-SCREEN: Settings card showing the scan interval ("every 3
 hours" on Free, "every 1 hour" on Pro). Highlight the "Scan email
 now" hint paragraph.
 VOICEOVER:
-e-mail Sentinel polls Gmail in the background — every three hours
+"e-mail Sentinel" polls Gmail in the background — every three hours
 on the Free plan, every hour on Pro. That is a Google add-on
 platform limit, not a tier choice. But Scan email now bypasses
 the schedule entirely.
@@ -44,7 +44,7 @@ the spinner you will watch while Gemini works.
 ## End card (0:45–0:50)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Instant scans, anytime. Get e-mail Sentinel — link below.
+Instant scans, anytime. Get "e-mail Sentinel" — link below.
 
 ---
 
@@ -61,11 +61,11 @@ Instant scans, anytime. Get e-mail Sentinel — link below.
 ## Recording checklist (Guidde)
 
 Before you start: Gmail open, demo account, Screenshot mode ON, one
-SENTINEL_TEST email already sitting in INBOX, e-mail Sentinel side
+SENTINEL_TEST email already sitting in INBOX, "e-mail Sentinel" side
 panel open on the home card.
 
 1. Hit **Start capture** in the Guidde extension.
-2. Click the e-mail Sentinel side-panel icon (if not already open).
+2. Click the "e-mail Sentinel" side-panel icon (if not already open).
 3. Click the **3-dot menu** (kebab) at the top of the card.
 4. Click **Settings**.
 5. Scroll to the *Scan email every* dropdown — hover it for ~1 second.
