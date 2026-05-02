@@ -18,17 +18,17 @@ Describe what you want in a sentence. Gemini writes the rule.
 ON-SCREEN: Rule editor → "Help me write the rule text" button with the
 Pro-only badge.
 VOICEOVER:
-AI rule writing is a Pro-plan feature. The Free plan still
-writes rules — you just write the text yourself.
+AI rule writing is a Pro-plan feature. The Free plan still writes
+rules. You just write the rule text yourself.
 
 ## Scene 2 — the prompt (0:18–0:45)
 ON-SCREEN: Click "Help me write the rule text" → small input field opens
 → type "Alert me when a customer sounds angry or threatens to
 cancel". Click Generate.
 VOICEOVER:
-Click 'Help me write the rule text'. Describe what you want in plain
-English — the way you would ask a coworker. Be specific about
-the behavior you want to catch, not just the topic.
+Click Help me write the rule text. Describe what you want in plain
+English. Write it the way you would ask a coworker. Be specific
+about the behavior you want to catch, not just the topic.
 
 ## Scene 3 — review the suggestion (0:45–1:15)
 ON-SCREEN: Generated text appears in the rule field: "Email
@@ -37,25 +37,25 @@ or threatening to cancel, downgrade, leave a negative review,
 or escalate to a manager. Includes both explicit ('I am
 cancelling') and implicit ('this is unacceptable') signals."
 VOICEOVER:
-Gemini drafts a rule that captures explicit and implicit
-signals — both 'I am cancelling' and 'this is unacceptable'
-would match. Review it, edit anything you want, and save.
-The same helper exists for the alert text format if you want
-custom phrasing in your SMS or Chat messages.
+Gemini drafts a rule that captures both explicit and implicit
+signals. Phrases like I am cancelling and this is unacceptable
+would both match. Review the rule. Edit anything you want. Then
+save. The same helper exists for the alert text format. Use it if
+you want custom phrasing in your SMS or Chat messages.
 
 ## Scene 4 — refine (1:15–1:30)
 ON-SCREEN: Edit the generated rule — narrow it slightly: change
 "a customer" to "a customer of our paid plan". Save.
 VOICEOVER:
-AI suggestions are a starting point — your domain knowledge
-is in the edit. Tighten the criteria so Gemini does not fire
-on every passing complaint.
+AI suggestions are a starting point. Your domain knowledge is in
+the edit. Tighten the criteria so Gemini does not fire on every
+passing complaint.
 
 ## End card (1:30–1:35)
 ON-SCREEN: Logo + Marketplace URL
 VOICEOVER:
-Plain-English rules, written by Gemini. Pro plan. Get emAIl
-Sentinel — link below.
+Plain-English rules, written by Gemini. Pro plan. Get "e-mail
+Sentinel". Link below.
 
 ---
 

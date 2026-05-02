@@ -20,10 +20,10 @@ the first place to look.
 ON-SCREEN: 3-dots menu → Activity Log. Scroll through ~20
 entries.
 VOICEOVER:
-Open Activity Log from the kebab menu. Every check writes
-entries — when it ran, which labels it scanned, how many new
-emails it found, what each rule decided about each email, and
-any alert dispatch errors.
+Open Activity Log from the kebab menu. Every check writes entries.
+You see when it ran. Which labels it scanned. How many new emails
+it found. What each rule decided about each email. And any alert
+dispatch errors.
 
 ## Scene 2 — reading a match (0:25–0:50)
 ON-SCREEN: Highlight a multi-line block: timestamp →
@@ -32,38 +32,38 @@ ON-SCREEN: Highlight a multi-line block: timestamp →
 "MATCH! Email mentions a security incident from a known service"
 → "Calendar event created."
 VOICEOVER:
-Each new email shows you the From and Subject, then a line
-per rule it was evaluated against. A green MATCH means Gemini
-said yes — it shows the reason — and the lines after tell you
-which channels fired.
+Each new email shows the From address and Subject. Then a line per
+rule it was evaluated against. A green MATCH means Gemini said yes.
+The match line shows the reason. The lines after tell you which
+channels fired.
 
 ## Scene 3 — reading a no-match (0:50–1:10)
 ON-SCREEN: Highlight a block ending with "No match. The email is
 about a marketing newsletter, not a security incident."
 VOICEOVER:
-A No match line tells you why Gemini decided the email
-does not fit the rule. If you see No match for emails you
-*think* should match, the rule text needs sharpening — read
-the reason and adjust.
+A No match line tells you why Gemini decided the email does not
+fit the rule. If you see No match for emails you think should
+match, the rule text needs sharpening. Read the reason. Then
+adjust.
 
 ## Scene 4 — failures and the retry (1:10–1:30)
 ON-SCREEN: Highlight a red line — "MCP 'Asana' HTTP 401:
 Unauthorized" — followed by "Evaluation failed — will retry next
 run."
 VOICEOVER:
-Red lines are failures. Alert dispatch errors include the
-exact response from the channel. Evaluation failures —
-Gemini quota, transient network — automatically retry on the
-next run, so you do not lose alerts to a temporary glitch.
+Red lines are failures. Alert dispatch errors include the exact
+response from the channel. Evaluation failures from Gemini quota
+or transient network issues automatically retry on the next run.
+You do not lose alerts to a temporary glitch.
 
 ## Scene 5 — Reset baseline (1:30–1:55)
 ON-SCREEN: Settings card → Reset baseline button → confirmation.
 VOICEOVER:
 If you have changed rules and want to re-evaluate emails the
-add-on already saw, hit Reset baseline in Settings. Be
-careful — the next run will treat every recent message as
-brand new and may fire a flurry of alerts. Use it for testing
-rule changes, not in production.
+add-on already saw, hit Reset baseline in Settings. Be careful.
+The next run will treat every recent message as brand new. It may
+fire a flurry of alerts. Use Reset baseline for testing rule
+changes, not in production.
 
 ## End card (1:55–2:00)
 ON-SCREEN: Logo + Marketplace URL
