@@ -482,16 +482,16 @@ function buildRuleSummarySection_(rule) {
     .addWidget(CardService.newDecoratedText().setTopLabel('Rule').setText(escapeHtml_(ruleText)))
     .addWidget(CardService.newDecoratedText().setTopLabel('Channels').setText(channelSummaryHtml));
 
+  // Plain text style for both Enable and Disable so the toggle column
+  // width is identical regardless of rule state. CardService aligns
+  // column widths across sections within a card; if the enabled state
+  // used a FILLED button (extra padding), every section's toggle slot
+  // would inflate to that width and push Delete onto a second row even
+  // for currently-disabled rules. Trade-off: lose the BRAND_YELLOW_LIGHT_
+  // 'caution' color on Disable.
   const toggleBtn = CardService.newTextButton()
+    .setText(rule.enabled ? 'Disable' : 'Enable')
     .setOnClickAction(actionWithRule_('handleToggleRule', rule.id));
-  if (rule.enabled) {
-    toggleBtn
-      .setText(blackText_('Disable'))
-      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-      .setBackgroundColor(BRAND_YELLOW_LIGHT_);
-  } else {
-    toggleBtn.setText('Enable');
-  }
 
   const buttons = CardService.newButtonSet()
     .addButton(CardService.newTextButton()
