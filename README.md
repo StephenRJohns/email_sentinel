@@ -1,4 +1,4 @@
-<p align="center"><img src="images/JStar.png" width="80" alt="JJJJJ Enterprises, LLC"></p>
+<p align="center"><img src="images/JStar.svg" width="80" alt="JJJJJ Enterprises, LLC"></p>
 
 # emAIl Sentinel™
 
