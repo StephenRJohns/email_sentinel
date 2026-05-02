@@ -1164,7 +1164,7 @@ function buildSettingsCard() {
     });
   } else {
     mcpSection.addWidget(CardService.newTextParagraph().setText(
-      '<font color="#888888"><i>No MCP servers configured yet.</i></font>'));
+      '<font color="#888888"><i>No External integrations configured yet.</i></font>'));
   }
   mcpSection.addWidget(CardService.newTextButton()
     .setText('+ Add external integration')
