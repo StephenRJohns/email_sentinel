@@ -1657,7 +1657,7 @@ function buildHelpCard() {
   card.addSection(section);
   card.addSection(CardService.newCardSection()
     .addWidget(CardService.newImage()
-      .setImageUrl('https://lh3.googleusercontent.com/d/1LxponxSg1j51n9GFi5XGaxNKzLuoK_qb')
+      .setImageUrl('https://lh3.googleusercontent.com/d/1w4aeuDwiQuMFuiOAabmWJNYIwIJEG5Iu')
       .setAltText('JJJJJ Enterprises, LLC'))
     .addWidget(CardService.newTextParagraph().setText(
       '<font color="#888888">emAIl Sentinel\u2122 is a product of JJJJJ Enterprises, LLC.</font>')));
@@ -1832,7 +1832,7 @@ function helpTopics_() {
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself. Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule. Setup walkthroughs (Cloudflare Worker, Asana REST + MCP V2): emailsentinel.jjjjjenterprises.com/help.html'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself. Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule. Setup walkthroughs (Cloudflare Worker, Asana REST + MCP V2): emailsentinel.For a detailed walkthrough visit <b>emailsentinel.jjjjjenterprises.com/help.html#channels</b>.'
     },
     pricing: {
       title: 'Gemini pricing & models',
