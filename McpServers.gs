@@ -34,7 +34,7 @@ const MCP_SERVERS_KEY = 'mailsentinel.mcpservers';
 const MCP_TYPE_DEFAULTS = {
   custom: {
     label: 'Custom MCP',
-    description: 'Any HTTPS MCP server speaking JSON-RPC 2.0 (Streamable HTTP transport) that you host yourself. Recommended starting point — see the Help card for a 40-line Cloudflare Worker MCP server walkthrough that gets you a working endpoint in about 15 minutes with no third-party signup.',
+    description: 'Any HTTPS MCP server speaking JSON-RPC 2.0 (Streamable HTTP transport) that you host yourself.',
     defaultEndpoint: '',
     toolName: '',
     toolNameHint: 'The MCP tool to call on your server. For the Help-card Cloudflare Worker example, the tool name is "log_alert".',

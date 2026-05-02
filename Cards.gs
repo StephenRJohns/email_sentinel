@@ -2153,8 +2153,13 @@ function buildMcpServerEditorCard(server) {
   });
   section.addWidget(typeSelect);
 
+  // size="1" to match the smaller font CardService uses for setHint() text
+  // under input fields, so this per-Type description visually reads as a
+  // hint rather than a full paragraph. CardService TextParagraph supports
+  // <font size="N"> per the supported-HTML list (a/b/br/font/i/s/u + sub-
+  // attributes color and size).
   section.addWidget(CardService.newTextParagraph()
-    .setText('<font color="#888888">' + escapeHtml_(def.description) + '</font>'));
+    .setText('<font size="1" color="#888888">' + escapeHtml_(def.description) + '</font>'));
 
   section.addWidget(CardService.newTextInput()
     .setFieldName('mcpEndpoint')
