@@ -33,8 +33,8 @@ const MCP_SERVERS_KEY = 'mailsentinel.mcpservers';
  */
 const MCP_TYPE_DEFAULTS = {
   custom: {
-    label: 'Custom',
-    description: 'Any HTTPS MCP server speaking JSON-RPC 2.0 (Streamable HTTP transport). Recommended starting point — see the Help card for a 40-line Cloudflare Worker MCP server walkthrough that gets you a working endpoint in about 15 minutes with no third-party signup.',
+    label: 'Custom MCP',
+    description: 'Any HTTPS MCP server speaking JSON-RPC 2.0 (Streamable HTTP transport) that you host yourself. Recommended starting point — see the Help card for a 40-line Cloudflare Worker MCP server walkthrough that gets you a working endpoint in about 15 minutes with no third-party signup.',
     defaultEndpoint: '',
     toolName: '',
     toolNameHint: 'The MCP tool to call on your server. For the Help-card Cloudflare Worker example, the tool name is "log_alert".',
@@ -64,11 +64,11 @@ const MCP_TYPE_DEFAULTS = {
     toolArgsTemplate: '{"project_id":"PROJECT_ID","name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}'
   },
   webhook: {
-    label: 'Generic webhook (HTTPS POST)',
-    description: 'Any HTTPS endpoint that accepts a JSON POST. Works with Slack incoming webhooks, Discord webhooks, n8n / Zapier / Make scenarios, custom internal APIs, and anything else that takes a JSON body. Not MCP — no tool-name field is used; the request body below is sent verbatim with placeholders substituted.',
+    label: 'Custom webhook (HTTPS POST)',
+    description: 'Any HTTPS endpoint that accepts a JSON POST and that you provide the URL for yourself. Works with Slack incoming webhooks, Discord webhooks, n8n / Zapier / Make scenarios, custom internal APIs, and anything else that takes a JSON body. Not MCP — no tool-name field is used; the request body below is sent verbatim with placeholders substituted.',
     defaultEndpoint: '',
     toolName: '',
-    toolNameHint: 'Not used for generic webhooks — leave blank. The request body below is what gets POSTed.',
+    toolNameHint: 'Not used for custom webhooks — leave blank. The request body below is what gets POSTed.',
     toolArgsTemplate: '{"text":"{{message}}"}'
   }
 };
@@ -139,7 +139,7 @@ function sendMcpAlert_(server, rule, emailData, message) {
   // Direct-post types (asana-rest, webhook) skip the JSON-RPC envelope
   // entirely. Asana V2 MCP requires OAuth-issued tokens and rejects PATs;
   // the asana-rest path posts to /api/1.0/tasks directly with the PAT.
-  // Generic webhook serves Slack incoming webhooks, Discord webhooks,
+  // Custom webhook serves Slack incoming webhooks, Discord webhooks,
   // n8n / Zapier scenarios, and any other endpoint that accepts a plain
   // JSON POST. Both share the same dispatch shape.
   if (DIRECT_POST_TYPES.indexOf(server.type) >= 0) {
@@ -260,7 +260,7 @@ function mcpJsonEsc_(s) {
 
 /**
  * Direct HTTPS POST dispatch — used by non-MCP external-integration types
- * (asana-rest, generic webhook). Substitutes placeholders into the body
+ * (asana-rest, custom webhook). Substitutes placeholders into the body
  * template, posts to the endpoint with the configured Authorization
  * header, and surfaces non-2xx responses.
  *

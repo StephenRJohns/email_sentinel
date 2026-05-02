@@ -693,7 +693,7 @@ function buildRuleEditorCard(rule) {
   // External integrations (MCP servers + REST webhooks; Pro)
   if (!editorLimits.allowMcp) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">External integrations (Microsoft Teams, Asana, custom MCP, generic webhooks) \u2014 <b>Pro plan only</b>.</font>'));
+      .setText('<font color="#888888">External integrations (Microsoft Teams, Asana, custom MCP, custom webhooks) \u2014 <b>Pro plan only</b>.</font>'));
   } else {
     const configuredMcpServers = loadMcpServers();
     if (configuredMcpServers.length === 0) {
@@ -1861,7 +1861,7 @@ function helpTopics_() {
         '\u2022 <b>Sales lead \u2192 Teams:</b> "Email mentioning pricing or demo from a new contact." \u2192 Microsoft Teams MCP<br>' +
         '\u2022 <b>Support ticket \u2192 Asana:</b> "Customer email tagged P1 or ESCALATION." \u2192 Asana task<br>' +
         '\u2022 <b>Custom downstream \u2192 Cloudflare Worker:</b> any rule \u2192 Custom MCP server you host yourself<br>' +
-        '\u2022 <b>Slack channel via webhook:</b> any rule \u2192 Generic webhook with a Slack incoming-webhook URL (no MCP server needed)<br><br>' +
+        '\u2022 <b>Slack channel via webhook:</b> any rule \u2192 Custom webhook with a Slack incoming-webhook URL (no MCP server needed)<br><br>' +
         '<b>Combining channels</b><br>' +
         '\u2022 <b>Critical vendor issue:</b> SMS + Chat + Calendar + Sheets<br>' +
         '\u2022 <b>New hire onboarding:</b> Task + Sheets + Chat'
@@ -2180,7 +2180,7 @@ function buildMcpServerEditorCard(server) {
   }
 
   // Tool name is only meaningful for true MCP types (Custom, Teams, Asana
-  // MCP V2). Direct-post types (asana-rest, generic webhook) skip the
+  // MCP V2). Direct-post types (asana-rest, custom webhook) skip the
   // JSON-RPC envelope entirely, so the field is hidden to avoid confusing
   // users — the body template below is what gets POSTed verbatim.
   const isDirectPost = DIRECT_POST_TYPES.indexOf(type) >= 0;
