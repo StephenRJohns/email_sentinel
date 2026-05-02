@@ -400,12 +400,23 @@ function buildRulesCard() {
     .setHeader(CardService.newCardHeader().setTitle('Rules'))
     .addSection(homeButtonSection_());
 
-  const newSection = CardService.newCardSection()
-    .addWidget(CardService.newTextButton()
-      .setText(whiteText_('+ New rule'))
-      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
-      .setBackgroundColor(BRAND_PURPLE_)
-      .setOnClickAction(action_('handleNewRule')));
+  const newRuleBtn = CardService.newTextButton()
+    .setText(whiteText_('+ New rule'))
+    .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+    .setBackgroundColor(BRAND_PURPLE_)
+    .setOnClickAction(action_('handleNewRule'));
+  const newSection = CardService.newCardSection();
+  if (rules.length) {
+    newSection.addWidget(CardService.newButtonSet()
+      .addButton(newRuleBtn)
+      .addButton(CardService.newTextButton()
+        .setText(whiteText_('Delete all rules'))
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_RED_)
+        .setOnClickAction(action_('handleDeleteAllRules'))));
+  } else {
+    newSection.addWidget(newRuleBtn);
+  }
   card.addSection(newSection);
 
   if (!rules.length) {
@@ -538,6 +549,39 @@ function handleConfirmDeleteRule(e) {
 function handleCancelDelete(e) {
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popCard())
+    .build();
+}
+
+function handleDeleteAllRules(e) {
+  const count = loadRules().length;
+  if (!count) return notificationResponse_('No rules to delete.');
+  const plural = count === 1 ? 'rule' : 'rules';
+  const section = CardService.newCardSection()
+    .addWidget(CardService.newTextParagraph()
+      .setText('Delete <b>all ' + count + ' ' + plural + '</b>? This cannot be undone.'))
+    .addWidget(CardService.newButtonSet()
+      .addButton(CardService.newTextButton()
+        .setText(whiteText_('Delete all'))
+        .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+        .setBackgroundColor(BRAND_RED_)
+        .setOnClickAction(action_('handleConfirmDeleteAllRules')))
+      .addButton(CardService.newTextButton()
+        .setText('Cancel')
+        .setOnClickAction(action_('handleCancelDelete'))));
+  const card = CardService.newCardBuilder()
+    .setHeader(CardService.newCardHeader().setTitle('Confirm delete'))
+    .addSection(section)
+    .build();
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().pushCard(card))
+    .build();
+}
+
+function handleConfirmDeleteAllRules(e) {
+  saveRules([]);
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildRulesCard()))
+    .setNotification(CardService.newNotification().setText('All rules deleted.'))
     .build();
 }
 
