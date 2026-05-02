@@ -1880,6 +1880,9 @@ function helpTopics_() {
         '<b>Tasks</b> \u2014 to-do items<br>' +
         '\u2022 <b>Action items:</b> "Email explicitly asking me to do, review, or approve something." \u2192 Task<br>' +
         '\u2022 <b>Follow-up:</b> "Email saying \'let me know\' or \'awaiting your response\'." \u2192 Task<br><br>' +
+        '<b>Docs</b> \u2014 narrative log<br>' +
+        '\u2022 <b>Weekly digest:</b> "Newsletter from a key vendor or industry source." \u2192 Docs entry (build a running reading log)<br>' +
+        '\u2022 <b>Customer-feedback log:</b> "Email containing testimonial, NPS comment, or review excerpt." \u2192 Docs entry (one document grows with all feedback)<br><br>' +
         '<b>External integrations</b> \u2014 route to external tools<br>' +
         '\u2022 <b>Sales lead \u2192 Teams:</b> "Email mentioning pricing or demo from a new contact." \u2192 Microsoft Teams MCP<br>' +
         '\u2022 <b>Support ticket \u2192 Asana:</b> "Customer email tagged P1 or ESCALATION." \u2192 Asana task<br>' +

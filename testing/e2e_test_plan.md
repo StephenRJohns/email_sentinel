@@ -63,7 +63,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] Gmail labels field: enter `INBOX`
 - [ ] Rule text field (titled "Rule text (plain English)"): enter `Any email with SENTINEL_TEST anywhere in the subject line.`
 - [ ] Alert message content (titled "Alert message content (plain English)"): leave as default.
-- [ ] Leave all alert channel checkboxes unchecked for now (SMS, MCP servers, Google Chat, Calendar, Sheets, Tasks).
+- [ ] Leave all alert channel checkboxes unchecked for now (SMS, MCP servers, Google Chat, Calendar, Sheets, Tasks, Docs).
 - [ ] Click "Save". Toast reads: "Rule saved, but no alert channels configured. Edit the rule to add at least one."
 - [ ] Rule appears in the Rules list as ON (enabled by default).
 
@@ -169,21 +169,26 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ---
 
-## 12 · Google Sheets & Tasks Alert Channel Tests
+## 12 · Google Sheets, Tasks & Docs Alert Channel Tests
 
-*Optional — alerts are written to the spreadsheet specified in Settings ▸ Sheets ID (or auto-created if blank), and to the default Tasks list.*
+*Optional — alerts are written to the spreadsheet specified in Settings ▸ Sheets ID (or auto-created if blank), to the default Tasks list, and appended to the doc specified in Settings ▸ Docs ID (or auto-created if blank).*
 
 - [ ] [Optional] **Sheets ID — paste a URL.** In Settings, paste a full Google Sheets URL (e.g. `https://docs.google.com/spreadsheets/d/<ID>/edit?gid=0#gid=0`) into the Sheets ID field and click Save settings. (Note: the displayed value may not visually update until reload — the ID is used correctly at runtime regardless.)
 - [ ] [Optional] **Sheets per-rule override.** Edit "Test rule — E2E" → tick "Google Sheets — append a log row". A "Sheets ID or URL for this rule" field appears below the checkbox. Leave blank to use the global Settings value, or paste a different Sheets URL/ID to override per rule. Save.
 - [ ] [Optional] Send another test email (subject: `SENTINEL_TEST Sheets`) and click "Scan email now".
 - [ ] [Optional] Activity log: "Sheets row appended." (or "Auto-created alert spreadsheet: [ID]" the first time, if no Sheets ID was set anywhere).
 - [ ] [Optional] Open the target spreadsheet. The alert row is appended to the **first tab** (no separate "Alerts" tab is created). If the first tab was empty, headers are added: Timestamp, Rule, From, Subject, Received, Alert Message. The alert message column contains plain-text content (no `**markdown**` artifacts).
-- [ ] [Optional] **Local time zone in Sheets.** Both date columns (Timestamp and Received) render in your local timezone in `yyyy-MM-dd h:mm:ss AM/PM TZ` format (e.g. `2026-04-27 5:29:58 PM CDT`) — never UTC/Zulu (`...T22:29:58.636Z`). The timezone is taken from your primary Google Calendar; verify it matches what Gmail and Calendar display. The Calendar event description and Tasks note body for the same alert use the same format.
+- [ ] [Optional] **Local time zone in Sheets / Docs.** All date columns and entry headers (Sheets Timestamp / Received columns, Docs entry heading and Received line) render in your local timezone in `yyyy-MM-dd h:mm:ss AM/PM TZ` format (e.g. `2026-04-27 5:29:58 PM CDT`) — never UTC/Zulu (`...T22:29:58.636Z`). The timezone is taken from your primary Google Calendar; verify it matches what Gmail and Calendar display. The Calendar event description, Tasks note body, and Docs entry body for the same alert all use the same format.
 - [ ] [Optional] **Tasks per-rule override.** Edit "Test rule — E2E" → tick "Google Tasks — create a task". A "Tasks list ID for this rule" field appears below the checkbox. Leave blank to use the global Settings value (default `@default` = "My Tasks"), or paste a specific list ID. Save.
 - [ ] [Optional] Send another test email (subject: `SENTINEL_TEST Tasks`) and run check.
 - [ ] [Optional] Activity log: "Task created."
 - [ ] [Optional] Open Google Tasks (calendar.google.com/calendar/u/0/r/tasks or the Gmail sidebar → Tasks icon). Task "[emAIl Sentinel] Test rule — E2E: SENTINEL_TEST…" exists in "My Tasks" (default list). Task notes contain plain-text content.
 - [ ] [Optional] **Calendar per-rule override.** Same pattern — tick "Google Calendar — create an event" and a "Calendar ID for this rule" field appears. Blank uses the global Settings value (or `primary` if that's also blank).
+- [ ] [Optional] **Docs ID — paste a URL.** In Settings, paste a full Google Docs URL (e.g. `https://docs.google.com/document/d/<ID>/edit`) into the Google Docs ID field and click Save settings. Same URL-vs-ID flexibility as Sheets — the ID is auto-extracted from a pasted URL on save.
+- [ ] [Optional] **Docs per-rule override.** Edit "Test rule — E2E" → tick "Google Docs — append a log entry". A "Docs ID or URL for this rule" field appears below the checkbox. Leave blank to use the global Settings value, or paste a different Doc URL/ID to override per rule. Save.
+- [ ] [Optional] Send another test email (subject: `SENTINEL_TEST Docs`) and run check.
+- [ ] [Optional] Activity log: "Docs entry appended." (or "Auto-created alert doc: [ID]" the first time, if no Docs ID was set anywhere).
+- [ ] [Optional] Open the target doc. On a freshly auto-created doc, the top of the document has a TITLE-styled "emAIl Sentinel — Alert Log" heading and a one-line "Auto-created on …" subtitle. Each fired rule appends a horizontal-rule separator, a HEADING3 line `<timestamp>   |   Rule: <rule name>`, and plain paragraphs `From:`, `Subject:`, `Received:`, then the Gemini-formatted alert message. Multiple alerts accumulate at the bottom in chronological order.
 
 ---
 
@@ -480,7 +485,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] **AI Suggest alert content available on Free.** The "Help me write the alert text" button (no "(Pro)" suffix) is visible; clicking it produces a suggestion card from Gemini.
 - [ ] **Starter rules respect limit.** With 2 existing rules, click "Starter rules" → "Create starter rules". Toast reports 1 created and indicates 4 were skipped for the Free plan limit.
 - [ ] **SMS is allowed.** (Manual-only, see Section 9.) Configure any SMS provider and a recipient, attach to a rule, send a test — SMS dispatch works (SMS is included in the Free plan).
-- [ ] **Calendar / Sheets / Tasks allowed.** Enable each on a rule and verify alerts fire (covered by Sections 11 and 12).
+- [ ] **Calendar / Sheets / Tasks / Docs allowed.** Enable each on a rule and verify alerts fire (covered by Sections 11 and 12).
 
 ---
 
@@ -494,7 +499,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] **Chat channel available.** Rule editor shows the Google Chat space selection widget (or the prompt to configure Chat in Settings if none exist).
 - [ ] **MCP channel available.** Rule editor shows the MCP server selection widget (or the prompt to configure MCP in Settings).
 - [ ] **AI Help me write the rule text works.** The "Help me write the rule text" button no longer displays "(Pro)"; clicking it opens a card with a multi-line text input where you describe what kinds of emails should match. Clicking Generate sends it to Gemini and produces a suggestion card with **Use this** / **Try again** buttons.
-- [ ] **AI Help me write the alert text — channel-aware.** Open a rule with at least one alert channel ticked, then click "Help me write the alert text". The new card shows the selected channels in bold at the top ("Selected channels: Google Sheets log row, SMS text message"), a description input pre-populated with the existing alert prompt, and Generate / Cancel buttons. Click Generate — the suggestion card returned by Gemini reflects the channel context (e.g. brief for SMS, richer for Sheets).
+- [ ] **AI Help me write the alert text — channel-aware.** Open a rule with at least one alert channel ticked, then click "Help me write the alert text". The new card shows the selected channels in bold at the top (e.g. "Selected channels: Google Sheets log row, Google Docs entry, SMS text message"), a description input pre-populated with the existing alert prompt, and Generate / Cancel buttons. Click Generate — the suggestion card returned by Gemini reflects the channel context (e.g. brief for SMS, richer for Sheets/Docs).
 - [ ] **Downgrade path.** Run **`setTierFree`**. Home card reverts to Free. Existing Pro-only channel selections on rules are ignored but preserved; verify by re-flipping to Pro and confirming selections still present on rules. The scan interval is clamped to 3 hours on the next scheduled-scan start.
 - [ ] **License survives Settings save (regression).** While on Pro, open Settings, change any field (e.g. the scan interval), Save. Reload home card — Plan still shows "Pro". (Earlier bug: handleSaveSettings would silently drop `settings.license` on save, reverting tier to Free.)
 

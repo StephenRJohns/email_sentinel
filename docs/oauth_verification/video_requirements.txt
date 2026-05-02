@@ -45,7 +45,7 @@ The video must cover these key demonstrations, in order:
    - Show the Google OAuth consent screen for emAIl Sentinel
    - Pause on the consent screen long enough for reviewers to read it (~2-3 seconds)
    - Consent screen must show: app name "emAIl Sentinel", and all requested scopes
-     (gmail.readonly, Calendar, Sheets, Tasks, external requests)
+     (gmail.readonly, Calendar, Sheets, Tasks, Docs, external requests)
    - Complete the install by clicking Allow
 
 2. SETTINGS — API KEY STORAGE

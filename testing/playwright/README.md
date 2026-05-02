@@ -77,7 +77,7 @@ The following test plan sections are NOT automated. Verify these by hand against
 | S2 Polling dropdown options | Verifying which hour options the dropdown offers per tier requires reading the rendered option list, which Apps Script SelectionInput doesn't expose to Playwright reliably (custom Material control, not native `<select>`). Manual on the test plan. |
 | S4 Create test rule | Apps Script's FILLED-button rendering of "+ New rule" doesn't reliably expose the visible label as the accessible name in Playwright |
 | S6+S7 Send + verify match | Real outbound email send and inbox delivery; flaky in automation |
-| S9–S13 Alert channels | SMS/Chat/MCP/Calendar/Sheets/Tasks — would dispatch real alerts and burn provider credits |
+| S9–S13 Alert channels | SMS/Chat/MCP/Calendar/Sheets/Tasks/Docs — would dispatch real alerts and burn provider credits |
 | S15 Start scheduled scans | Depends on Gemini-key state and the time-driven trigger lifecycle |
 | S15 Home polling dropdown auto-save | Requires changing the SelectionInput value, which Apps Script renders as a custom Material control Playwright can't interact with reliably. The `setOnChangeAction` save path is exercised only via manual test. |
 | S16 Stop scheduled scans | Depends on S15 having run |

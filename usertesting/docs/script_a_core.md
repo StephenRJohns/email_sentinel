@@ -99,7 +99,7 @@ Please answer these aloud:
 1. In your own words, **what does this product do**? Could you explain it to a coworker?
 2. **What was confusing** during this session?
 3. **What did you expect to happen** that didn't?
-4. The product will cost **$4.99/month** (or $39/year) for unlimited rules and additional alert channels (SMS, Google Chat, Slack/Asana via MCP). The free tier covers 3 rules and Calendar/Sheets/Tasks/SMS alerts. **Would you pay $4.99/month for this?** Why or why not?
+4. The product will cost **$4.99/month** (or $39/year) for unlimited rules and additional alert channels (Google Chat + custom MCP/webhooks). The free tier covers 3 rules and SMS, Calendar, Sheets, Tasks, and Docs alerts. **Would you pay $4.99/month for this?** Why or why not?
 5. **Who do you know** who would benefit from this product? (Optional — names not needed, just job titles or scenarios.)
 
 ---

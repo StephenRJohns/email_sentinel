@@ -49,7 +49,7 @@ THEN RECORD:
    so reviewers can read it. It will show:
      - App name: emAIl Sentinel
      - Scopes requested: View your email messages and settings (gmail.readonly),
-       plus Calendar, Sheets, Tasks, and external requests
+       plus Calendar, Sheets, Tasks, Docs, and external requests
    [NARRATOR: This is the OAuth consent screen users see when installing emAIl Sentinel.
    All requested scopes are listed here — gmail.readonly is used solely to read the
    user's own messages for rule evaluation. No other Gmail access is requested.]
@@ -69,9 +69,9 @@ PART 2 — INITIAL SETUP IN SETTINGS (30 seconds)
    the last four characters are shown. The key never leaves the user's own Google
    account except when making calls to Google's Gemini API.]
 9. Scroll down briefly to show the SMS provider section (set to None) and the
-   Google alert channels section (Calendar, Sheets, Tasks checkboxes).
+   Google alert channels section (Calendar, Sheets, Tasks, Docs checkboxes).
    [NARRATOR: Alert channels are entirely user-configured. Here we can see SMS is
-   disabled. Alerts can be sent via Google Calendar, Sheets, or Tasks — all within
+   disabled. Alerts can be sent via Google Calendar, Sheets, Tasks, or Docs — all within
    the user's own Google account.]
 10. Click "Test Gemini". Toast appears: "Gemini OK — model responded."
     (This shows gmail.readonly data is sent only to Google's own Gemini API.)

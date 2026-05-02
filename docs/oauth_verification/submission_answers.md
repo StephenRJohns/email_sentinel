@@ -16,9 +16,10 @@ Google account (Google Apps Script). It monitors Gmail labels selected by
 the user, evaluates each new message against user-defined plain-English
 rules using the Google Gemini API, and — when a rule matches — delivers
 alerts through channels the user explicitly enables: Google Calendar,
-Google Sheets, Google Tasks, Google Chat webhooks, SMS via the user's
-choice of provider (six built-in presets plus a generic webhook for any
-other provider), or custom Model Context Protocol (MCP) endpoints.
+Google Sheets, Google Tasks, Google Docs, Google Chat webhooks, SMS via
+the user's choice of provider (six built-in presets plus a generic
+webhook for any other provider), or custom Model Context Protocol (MCP)
+endpoints / HTTPS webhooks.
 
 The add-on has no external backend database. Data is accessed and
 processed only to provide user-facing functionality requested by the user.
@@ -79,7 +80,20 @@ Google Tasks alert channel on a rule.
 
 ---
 
-### 6) https://www.googleapis.com/auth/script.external_request
+### 6) https://www.googleapis.com/auth/documents
+
+**Purpose:** Append structured alert entries to a Google Doc when the
+user enables the Google Docs alert channel on a rule. The Doc is
+auto-created in the user's Drive on first use (titled "emAIl Sentinel
+— Alert Log") if no Doc ID is configured. Each fired rule appends a
+heading with the timestamp + rule name and paragraphs for the email
+sender, subject, received time, and the Gemini-formatted alert body.
+**Control:** Only writes to the document the user has selected
+(or, on first use, creates a new document in the user's own Drive).
+
+---
+
+### 7) https://www.googleapis.com/auth/script.external_request
 
 **Purpose:** Make outbound HTTPS calls to user-enabled integrations:
   • Google Gemini API (generativelanguage.googleapis.com) — for rule
@@ -96,7 +110,7 @@ corresponding integration.
 
 ---
 
-### 7) https://www.googleapis.com/auth/script.scriptapp
+### 8) https://www.googleapis.com/auth/script.scriptapp
 
 **Purpose:** Create and manage time-driven triggers that schedule
 background email scans at the user-configured scan interval.

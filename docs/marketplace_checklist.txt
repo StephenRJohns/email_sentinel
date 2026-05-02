@@ -81,7 +81,7 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
 
    Never miss an important email. Describe rules in plain English; AI
    (Gemini) watches your Gmail and alerts you via SMS, Chat, Calendar,
-   Sheets, Tasks, or Slack.
+   Sheets, Tasks, Docs, or webhooks.
 
    (160 chars. Leads with the benefit, mentions AI, names the channels.)
 
@@ -130,7 +130,7 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
 
    PLANS
    • Free — up to 3 rules, 3-hour minimum automatic polling, SMS and
-     Google Calendar / Sheets / Tasks alerts, 30-day activity log.
+     Google Calendar / Sheets / Tasks / Docs alerts, 30-day activity log.
    • Pro ($4.99/month or $39/year) — unlimited rules, 1-hour minimum
      automatic polling (3x faster than Free), Google Chat and MCP server
      alerts, AI-assisted rule writing, unlimited log history.
@@ -474,7 +474,7 @@ PART 5 — SEO
 --------------------------------------------------------------------------------
     [x] Repo description set: "Gmail add-on: smart email management and
         alerting powered by AI (Gemini) — alerts via Chat, Calendar,
-        Sheets, Tasks, or SMS"
+        Sheets, Tasks, Docs, SMS, or webhooks"
     [x] Repo topics set: gmail, gmail-addon, google-workspace,
         google-apps-script, gemini, email-alerts, email-monitoring,
         email-management, sms-alerts, google-chat, workspace-addon,
