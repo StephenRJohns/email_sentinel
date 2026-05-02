@@ -42,7 +42,7 @@ confirm the watched label is INBOX (or switch it), toggle Enable,
 click Save.
 VOICEOVER:
 For each starter rule you want to use, confirm the Gmail label,
-pick your alert channels, and toggle Enable. The starter rule
+pick your alert channels, and click On. The starter rule
 text is a starting point — refine it once you see real alerts.
 
 ## End card (0:50–0:55)

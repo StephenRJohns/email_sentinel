@@ -482,15 +482,16 @@ function buildRuleSummarySection_(rule) {
     .addWidget(CardService.newDecoratedText().setTopLabel('Rule').setText(escapeHtml_(ruleText)))
     .addWidget(CardService.newDecoratedText().setTopLabel('Channels').setText(channelSummaryHtml));
 
-  // Plain text style for both Enable and Disable so the toggle column
-  // width is identical regardless of rule state. CardService aligns
-  // column widths across sections within a card; if the enabled state
-  // used a FILLED button (extra padding), every section's toggle slot
-  // would inflate to that width and push Delete onto a second row even
-  // for currently-disabled rules. Trade-off: lose the BRAND_YELLOW_LIGHT_
-  // 'caution' color on Disable.
+  // Toggle button label is the action the click will take, not the
+  // current state. 'Off' = currently on, click to turn off; 'On' = currently
+  // off, click to turn on. Short labels keep the toggle column narrow
+  // enough that Edit / toggle / Delete fit on one row at most card-section
+  // counts (CardService scales row widths down at higher section counts in
+  // ways we can't directly control, so shorter labels are the safest lever).
+  // The current rule state is always visible in the section header
+  // (✅ ON / ⏸ OFF) so the button doesn't need to duplicate it.
   const toggleBtn = CardService.newTextButton()
-    .setText(rule.enabled ? 'Disable' : 'Enable')
+    .setText(rule.enabled ? 'Off' : 'On')
     .setOnClickAction(actionWithRule_('handleToggleRule', rule.id));
 
   const buttons = CardService.newButtonSet()

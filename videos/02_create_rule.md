@@ -124,7 +124,7 @@ is not empty.
 16. (On the AI helper card.) Read the card briefly — note it lists the channels you selected.
 17. Click **Cancel** to return to the rule editor.
 18. Click **Save**.
-19. (Back on Rules card.) Toggle the **Enable** switch on the new rule.
+19. (Back on Rules card.) Click **On** on the new rule to enable it (the button flips to **Off** and the section header shows ✅ ON).
 20. Hit **Stop capture** in Guidde.
 
 After capture: in Guidde's editor, replace the auto-generated voiceover

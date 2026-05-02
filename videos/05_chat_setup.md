@@ -8,6 +8,8 @@ explicitly in the script.
 
 https://chat.googleapis.com/v1/spaces/AAQA9rAkYho/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=IhLYtHjS-DCelyeVFZQomi4pZsJkLjYS6gI2Hhk3b8Y
 
+https://chat.googleapis.com/v1/spaces/AAQAgwjCDOQ/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=poiPFOxdUoaCQvm2DvLTLoFSxKX03PuokZH1rqqPjfQ
+
 ---
 
 ## Hook (0:00–0:05)
@@ -105,3 +107,4 @@ the auto-generated voiceover on each step with the matching
 VOICEOVER lines from the scene script above. Insert the Hook shot
 (real Chat message arrival) at the front — record that separately
 after triggering a real match against the demo space.
+https://chat.googleapis.com/v1/spaces/AAQAgwjCDOQ/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=Fph3LFwQOk__iUPL2mXxwx8dg_wk3S35Slv0LfWEn4k

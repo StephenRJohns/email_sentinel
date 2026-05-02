@@ -375,7 +375,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] **Via kebab menu (replaced nav, no back arrow).** Click the "⋮" menu in the add-on header, then in turn pick Rules, Settings, Activity Log, Help. The Gmail back arrow at the top-left of the card is **NOT** shown — the stack was replaced rather than pushed. The first section on each card is a "Home" button. Clicking it returns to the home card. (This is the no-back-arrow case the Home button exists for.)
 - [ ] **After delete-rule (popToRoot path).** Open Rules (via either entry), click Delete on any rule, confirm. The Rules card re-renders without a back arrow (popToRoot replaced the stack), but the Home button is still the first section and clicking it returns to the home card.
 - [ ] **After clear-activity-log (popToRoot path).** Open Activity log, click Clear, confirm. The card re-renders without a back arrow but with the Home button. Click it — returns to the home card.
-- [ ] **After updateCard refreshes (rule toggle / settings save / log refresh).** On any root card, trigger an in-place update: toggle a rule's Enable switch on the Rules card; click Save on Settings; click Refresh on Activity log. The Home button stays visible across the re-render. (This is the case that drove the always-on choice — conditional rendering would have hidden the Home button on these updates because the navigation stack doesn't change.)
+- [ ] **After updateCard refreshes (rule toggle / settings save / log refresh).** On any root card, trigger an in-place update: tap a rule's On/Off toggle on the Rules card; click Save on Settings; click Refresh on Activity log. The Home button stays visible across the re-render. (This is the case that drove the always-on choice — conditional rendering would have hidden the Home button on these updates because the navigation stack doesn't change.)
 - [ ] **Starter rules card** has no Home button. It's only reachable via push from the home card, so Gmail's back arrow is always rendered. Verify this by opening Starter rules from the home card: back arrow visible, no in-card Home button.
 
 ---
@@ -400,26 +400,26 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 *An ON rule with no alert channels will fire on matches but produce nothing useful. The Channels row in the Rules list flags this misconfiguration in bold dark red; OFF rules in the same state stay plain (they aren't acting on anything).*
 
 - [ ] Create or pick a rule, ensure it is **ON** and has zero channels checked (no SMS, Chat, MCP, Calendar, Sheets, Tasks). Open Rules and locate that rule's summary section. The **Channels** row reads "None configured" in **bold** with **dark red** color (~`#b00020`).
-- [ ] Click "Disable" on the same rule (status flips to ⏸ OFF). The Channels row now reads "None configured" in **plain** styling (no bold, no red).
-- [ ] Re-enable the rule (status flips back to ✅ ON). Tick at least one channel in the editor and Save. The Channels row now lists the configured channel(s) and is no longer flagged.
+- [ ] Click the "Off" toggle on the same rule (status flips to ⏸ OFF; the toggle button now reads "On"). The Channels row now reads "None configured" in **plain** styling (no bold, no red).
+- [ ] Click "On" to re-enable the rule (status flips back to ✅ ON; the toggle button now reads "Off"). Tick at least one channel in the editor and Save. The Channels row now lists the configured channel(s) and is no longer flagged.
 
 ---
 
 ## 17f · Action Color Conventions on Buttons
 
-*Destructive and cautionary actions are color-coded so the user gets a visual warning before clicking. Codified in `Cards.gs` as `BRAND_RED_` (`#c62828`) for delete and `BRAND_YELLOW_LIGHT_` (`#fde68a`) for disable.*
+*Destructive actions are color-coded so the user gets a visual warning before clicking. Codified in `Cards.gs` as `BRAND_RED_` (`#c62828`) for delete buttons.*
 
 - [ ] **Delete buttons are red with white text.** Verify on every Delete button across the UI:
-  - Rules list — each rule's Delete button.
-  - Rule delete confirmation card — the Delete (confirm) button.
-  - MCP server editor (Settings → Add/Edit MCP server) — the Delete button on the editor.
+  - Rules list — each rule's Delete button **and** the new "Delete all rules" button beside "+ New rule".
+  - Rule delete confirmation cards (single rule + delete-all confirmations) — the Delete (confirm) button.
+  - MCP server editor (Settings → Add/Edit external integration) — the Delete button on the editor.
   - MCP server delete confirmation — the Delete (confirm) button.
   - SMS recipient editor (Settings → Add/Edit recipient) — the Delete button on the editor.
   - SMS recipient delete confirmation — the Delete (confirm) button.
   - Chat space editor (Settings → Add/Edit chat space) — the Delete button on the editor.
   - Chat space delete confirmation — the Delete (confirm) button.
-  All eight render as filled red buttons with white text.
-- [ ] **Disable button is light yellow with black text** when shown on a currently-enabled rule. Open Rules with at least one ON (✅) rule. The toggle button on that rule reads "Disable" with a filled light-yellow background and black text. Click to flip the rule to OFF (⏸) — the button now reads "Enable" with the **default** plain-text style (no fill, no color background) since enabling a rule isn't a cautionary action.
+  All render as filled red buttons with white text.
+- [ ] **Toggle button reads "Off" / "On" in plain text.** Open Rules with at least one ON (✅) rule. The toggle button on that rule reads "Off" (the action — click to turn off) in plain text. Click it; the rule flips to OFF (⏸) and the toggle now reads "On". Both states are plain text in identical style; the rule's current state is visible from the section header (✅ ON / ⏸ OFF). Short labels chosen because CardService scales row widths down at higher card-section counts and longer labels (Disable/Enable) wrapped the Delete button onto a second row at 5+ rules.
 - [ ] **Other buttons unchanged.** "Edit" stays plain text; "Save", "Generate", "+ New rule", "Start scheduled scans" stay filled brand purple; "Scan email now" stays filled brand-purple-light. No other buttons should have shifted color.
 
 ---
