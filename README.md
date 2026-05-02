@@ -35,7 +35,7 @@ Everything runs inside your Google account — no machine to keep running, no ex
 When a new email arrives in a watched Gmail label, emAIl Sentinel asks Gemini whether it matches one of your rules. If it does, it fires the alerts you configured for that rule:
 
 - **SMS** via your configured provider (bring your own — six quick-start presets plus a generic webhook for any other provider), to named recipients you define in Settings.
-- **Google Chat**, **Google Calendar**, **Google Sheets**, or **Google Tasks** — all within your own Google account, no extra sign-up needed.
+- **Google Chat**, **Google Calendar**, **Google Sheets**, **Google Tasks**, or **Google Docs** — all within your own Google account, no extra sign-up needed.
 - **External integrations** — Microsoft Teams, Asana, any custom Model Context Protocol endpoint over HTTPS, or **any HTTPS webhook** (Slack incoming webhooks, Discord, n8n / Zapier / Make scenarios, custom internal APIs).
 
 Rules are plain English. No regex, no code:
@@ -87,7 +87,7 @@ emAIl Sentinel is offered on a freemium model. It is designed for individuals, p
 | Active rules | Up to **3** | Unlimited |
 | Minimum automatic scan interval | Every **3 hours** | Every **1 hour** |
 | Manual on-demand check (*Scan email now*) | ✅ | ✅ |
-| Alert channels — Google Calendar, Sheets, Tasks | ✅ | ✅ |
+| Alert channels — Google Calendar, Sheets, Tasks, Docs | ✅ | ✅ |
 | Alert channels — SMS (any provider — 6 quick-start presets plus generic webhook) | ✅ | ✅ |
 | Alert channels — Google Chat webhook | — | ✅ |
 | Alert channels — External integrations (MCP servers, Asana REST, generic HTTPS webhooks for Slack/Discord/n8n/etc.) | — | ✅ |
@@ -121,7 +121,7 @@ email_sentinel/
 ├── Cards.gs               # All CardService UI (home, rules, editor, settings, log, help)
 ├── MailWatcher.gs         # Time-driven trigger handler — polls Gmail, dispatches matches
 ├── RuleEvaluator.gs       # Gemini REST calls (rule evaluation + alert formatting)
-├── AlertDispatcher.gs     # Alert dispatch: BYO SMS (presets + generic webhook), Chat, Calendar, Sheets, Tasks, MCP
+├── AlertDispatcher.gs     # Alert dispatch: BYO SMS (presets + generic webhook), Chat, Calendar, Sheets, Tasks, Docs, MCP
 ├── McpServers.gs          # MCP server CRUD + JSON-RPC 2.0 tool dispatch
 ├── RulesManager.gs        # CRUD for rules in UserProperties
 ├── SettingsManager.gs     # CRUD for settings; business-hours helpers

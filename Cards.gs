@@ -454,6 +454,7 @@ function buildRuleSummarySection_(rule) {
   if (rule.alerts.calendarEnabled) googleChannels.push('Calendar');
   if (rule.alerts.sheetsEnabled)   googleChannels.push('Sheets');
   if (rule.alerts.tasksEnabled)    googleChannels.push('Tasks');
+  if (rule.alerts.docsEnabled)     googleChannels.push('Docs');
 
   const allMcpServers = loadMcpServers();
   const mcpNames = (rule.alerts.mcpServerIds || [])
@@ -772,6 +773,16 @@ function buildRuleEditorCard(rule) {
     .setHint('Leave blank to use the Tasks list ID from Settings')
     .setValue(alerts.tasksListId || ''));
 
+  channelsSection.addWidget(CardService.newSelectionInput()
+    .setType(CardService.SelectionInputType.CHECK_BOX)
+    .setFieldName('docsEnabled')
+    .addItem('Google Docs \u2014 append a log entry', 'true', !!alerts.docsEnabled));
+  channelsSection.addWidget(CardService.newTextInput()
+    .setFieldName('docsIdOverride')
+    .setTitle('Docs ID or URL for this rule (blank = use global setting)')
+    .setHint('Paste the full URL or just the ID \u2014 blank uses the Docs ID from Settings')
+    .setValue(extractSheetId_(alerts.docsId || '')));
+
   // ── Section 3: Alert message content ──────────────────────────────────────
   const alertMsgSection = CardService.newCardSection();
 
@@ -838,9 +849,11 @@ function handleSaveRule(e) {
   const calendarEnabled = getCheckbox('calendarEnabled');
   const sheetsEnabled   = getCheckbox('sheetsEnabled');
   const tasksEnabled    = getCheckbox('tasksEnabled');
+  const docsEnabled     = getCheckbox('docsEnabled');
   const calendarId      = get('calendarIdOverride');
   const sheetsId        = extractSheetId_(get('sheetsIdOverride'));
   const tasksListId     = get('tasksListIdOverride');
+  const docsId          = extractSheetId_(get('docsIdOverride'));
   const mcpServerIds    = getMultiSelect('mcpServers'); // values are server IDs
 
   if (!name)     return notificationResponse_('Please enter a rule name.');
@@ -863,6 +876,8 @@ function handleSaveRule(e) {
     sheetsId: sheetsId,
     tasksEnabled: tasksEnabled,
     tasksListId: tasksListId,
+    docsEnabled: docsEnabled,
+    docsId: docsId,
     mcpServerIds: mcpServerIdsFinal
   };
 
@@ -884,7 +899,7 @@ function handleSaveRule(e) {
   catch (err) { return notificationResponse_('Save failed: ' + err); }
 
   const hasChannel = smsNumbers.length > 0 || chatSpacesFinal.length > 0 ||
-    calendarEnabled || sheetsEnabled || tasksEnabled || mcpServerIdsFinal.length > 0;
+    calendarEnabled || sheetsEnabled || tasksEnabled || docsEnabled || mcpServerIdsFinal.length > 0;
   let msg = hasChannel ? 'Rule saved.'
     : 'Rule saved, but no alert channels configured. Edit the rule to add at least one.';
   if (proBlocked) {
@@ -1191,6 +1206,13 @@ function buildSettingsCard() {
     .setHint('Leave blank to use your default task list')
     .setValue(s.tasksListId || ''));
 
+  // Docs
+  googleSection.addWidget(CardService.newTextInput()
+    .setFieldName('docsId')
+    .setTitle('Google Docs ID (blank = auto-create on first alert)')
+    .setHint('Paste the full URL or just the ID — URL is auto-converted on save')
+    .setValue(extractSheetId_(s.docsId || '')));
+
   // ── External integrations (MCP servers + REST webhooks) ─────────────────
   const mcpSection = CardService.newCardSection()
     .setHeader('<b>External integrations</b>')
@@ -1357,7 +1379,8 @@ function handleSaveSettings(e) {
     license: prev.license || {},
     calendarId: get('calendarId'),
     sheetsId: extractSheetId_(get('sheetsId')),
-    tasksListId: get('tasksListId')
+    tasksListId: get('tasksListId'),
+    docsId: extractSheetId_(get('docsId'))
   };
 
   if (next.businessHoursEnabled) {
@@ -2546,6 +2569,7 @@ function handleHelpWriteAlertText(e) {
   if (getCheckbox('calendarEnabled'))  channels.push('Google Calendar event');
   if (getCheckbox('sheetsEnabled'))    channels.push('Google Sheets log row');
   if (getCheckbox('tasksEnabled'))     channels.push('Google Task');
+  if (getCheckbox('docsEnabled'))      channels.push('Google Docs entry');
   if (mcpIds.length) {
     const allMcpServers = loadMcpServers();
     const mcpNamesList = mcpIds.map(function(id) {
@@ -2566,6 +2590,7 @@ function handleHelpWriteAlertText(e) {
     calendarEnabled:       getCheckbox('calendarEnabled'),
     sheetsEnabled:         getCheckbox('sheetsEnabled'),
     tasksEnabled:          getCheckbox('tasksEnabled'),
+    docsEnabled:           getCheckbox('docsEnabled'),
     mcpServerIds:          mcpIds
   };
   PropertiesService.getUserProperties()
@@ -2725,6 +2750,7 @@ function handleUseSuggestedFormat(e) {
         calendarEnabled: !!ctx.calendarEnabled,
         sheetsEnabled:   !!ctx.sheetsEnabled,
         tasksEnabled:    !!ctx.tasksEnabled,
+        docsEnabled:     !!ctx.docsEnabled,
         mcpServerIds:    Array.isArray(ctx.mcpServerIds)  ? ctx.mcpServerIds  : []
       }
     };
@@ -2777,6 +2803,7 @@ function handleHelpWriteRuleText(e) {
     calendarEnabled:    getCheckbox('calendarEnabled'),
     sheetsEnabled:      getCheckbox('sheetsEnabled'),
     tasksEnabled:       getCheckbox('tasksEnabled'),
+    docsEnabled:        getCheckbox('docsEnabled'),
     mcpServerIds:       getMultiSelect('mcpServers')
   };
   PropertiesService.getUserProperties()
@@ -2925,6 +2952,7 @@ function handleUseSuggestedRuleText(e) {
         calendarEnabled: !!ctx.calendarEnabled,
         sheetsEnabled:   !!ctx.sheetsEnabled,
         tasksEnabled:    !!ctx.tasksEnabled,
+        docsEnabled:     !!ctx.docsEnabled,
         mcpServerIds:    Array.isArray(ctx.mcpServerIds)  ? ctx.mcpServerIds  : []
       }
     };

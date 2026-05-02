@@ -108,6 +108,16 @@ function dispatchAlerts(rule, emailData, alertContent, matchReason, settings) {
     }
   }
 
+  // ── Google Docs ───────────────────────────────────────────────────────────
+  if (rule.alerts.docsEnabled) {
+    try {
+      sendDocsAlert_(rule, emailData, message, settings);
+      activityLog('  Docs entry appended.');
+    } catch (e) {
+      activityLog('  Docs alert FAILED: ' + e);
+    }
+  }
+
   // ── MCP servers ───────────────────────────────────────────────────────────
   const mcpServerIds = (rule.alerts.mcpServerIds || []).filter(Boolean);
   if (mcpServerIds.length) {
@@ -207,6 +217,60 @@ function sendSheetsAlert_(rule, emailData, message, settings) {
 function createAlertSpreadsheet_() {
   const ss = SpreadsheetApp.create('emAIl Sentinel — Alert Log');
   return ss.getId();
+}
+
+function sendDocsAlert_(rule, emailData, message, settings) {
+  const ruleOverride = extractDocId_((rule.alerts && rule.alerts.docsId) || '');
+  let docId = ruleOverride || extractDocId_(settings.docsId);
+  if (!docId) {
+    docId = createAlertDoc_();
+    const s = loadSettings();
+    s.docsId = docId;
+    saveSettings(s);
+    activityLog('  Auto-created alert doc: ' + docId);
+  }
+  const doc = DocumentApp.openById(docId);
+  const body = doc.getBody();
+
+  // Append a separator + structured entry. Newest entries land at the bottom
+  // (DocumentApp has no efficient "prepend" — readers can scroll or use Edit
+  // ▸ Find to jump to a date). Header line is bold; metadata + alert message
+  // are plain paragraphs so they remain searchable.
+  body.appendHorizontalRule();
+  const header = body.appendParagraph(
+    formatLocalDateTime_(new Date()) + '   |   Rule: ' + rule.name);
+  header.setHeading(DocumentApp.ParagraphHeading.HEADING3);
+  body.appendParagraph('From: ' + (emailData.from || ''));
+  body.appendParagraph('Subject: ' + (emailData.subject || ''));
+  if (emailData.receivedDateTime) {
+    body.appendParagraph('Received: ' + emailData.receivedDateTime);
+  }
+  body.appendParagraph('');
+  body.appendParagraph(NotifyLib.stripMarkdown(message));
+  body.appendParagraph('');
+}
+
+function createAlertDoc_() {
+  const doc = DocumentApp.create('emAIl Sentinel — Alert Log');
+  // Seed with a one-line title paragraph so the doc has a recognizable
+  // header before the first entry's horizontal rule lands.
+  const body = doc.getBody();
+  const title = body.appendParagraph('emAIl Sentinel — Alert Log');
+  title.setHeading(DocumentApp.ParagraphHeading.TITLE);
+  body.appendParagraph(
+    'Auto-created on ' + formatLocalDateTime_(new Date()) +
+    '. Each fired rule appends an entry below.');
+  return doc.getId();
+}
+
+// Extract a Google Drive file ID from a sharing URL (Sheets, Docs, Slides,
+// Forms — all use the same /d/{ID}/ pattern). Same as extractSheetId_;
+// kept as a separate name for caller readability since this lib now serves
+// both Sheets and Docs targets. extractSheetId_ delegates here.
+function extractDocId_(value) {
+  if (!value) return '';
+  var m = value.trim().match(/\/d\/([a-zA-Z0-9_-]{25,})/);
+  return m ? m[1] : value.trim();
 }
 
 function sendTasksAlert_(rule, emailData, message, settings) {

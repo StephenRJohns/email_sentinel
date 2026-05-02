@@ -3,7 +3,7 @@ Last updated: 2026-04-25
 
 === WHAT THIS PROJECT IS ===
 
-emAIl Sentinel (exact branding: lowercase e, lowercase m, uppercase A, uppercase I, lowercase l, space, uppercase S, lowercase entinel) is a production Google Workspace Gmail Add-on built with Google Apps Script (V8 runtime). It watches Gmail labels for new messages, evaluates each one against user-defined plain-English rules using the Google Gemini REST API, and dispatches alerts via SMS, Google Chat, Google Calendar, Google Sheets, Google Tasks, or MCP server endpoints.
+emAIl Sentinel (exact branding: lowercase e, lowercase m, uppercase A, uppercase I, lowercase l, space, uppercase S, lowercase entinel) is a production Google Workspace Gmail Add-on built with Google Apps Script (V8 runtime). It watches Gmail labels for new messages, evaluates each one against user-defined plain-English rules using the Google Gemini REST API, and dispatches alerts via SMS, Google Chat, Google Calendar, Google Sheets, Google Tasks, Google Docs, or MCP server endpoints.
 
 Operated by JJJJJ Enterprises, LLC (jjjjj_enterprises_llc@protonmail.com).
 
@@ -29,7 +29,7 @@ Cards.gs          — All CardService UI: home card, rules list, rule editor, se
                     dirty-state button, so this toast is the closest UX equivalent
 MailWatcher.gs    — Time-driven trigger handler: polls Gmail, diffs against seen-IDs, dispatches matches
 RuleEvaluator.gs  — Gemini REST calls: rule evaluation (match?) + alert message formatting
-AlertDispatcher.gs — Alert dispatch: BYO SMS (presets + generic webhook), Chat, Calendar, Sheets, Tasks, MCP
+AlertDispatcher.gs — Alert dispatch: BYO SMS (presets + generic webhook), Chat, Calendar, Sheets, Tasks, Docs, MCP
 McpServers.gs     — MCP server CRUD + JSON-RPC 2.0 tool dispatch over HTTPS
 RulesManager.gs   — CRUD for rules stored in UserProperties
 SettingsManager.gs — CRUD for settings; business-hours helpers
@@ -74,7 +74,7 @@ All state in PropertiesService.getUserProperties():
 
 === LICENSE / PRICING TIERS ===
 
-Free:  3 rules max, automatic polling in 60-min increments (min 180 — every 3 hours), SMS + Calendar + Sheets + Tasks, AI-assisted alert content, 30-day log, GitHub Issues support
+Free:  3 rules max, automatic polling in 60-min increments (min 180 — every 3 hours), SMS + Calendar + Sheets + Tasks + Docs, AI-assisted alert content, 30-day log, GitHub Issues support
 Pro:   Unlimited rules, automatic polling in 60-min increments (min 60 — every 1 hour, the Workspace add-on platform floor), all channels (+ Chat + MCP), AI-assisted rule writing, unlimited log, GitHub Issues support — $4.99/mo or $39/yr
 Both:  "Scan email now" button runs an immediate manual check regardless of polling cadence; bypasses the LAST_RUN_KEY skip-check via runMailCheck({force: true}).
 Note:  The 60-minute floor is a Google Workspace platform constraint on time-based triggers — cannot be bypassed at the add-on level.
@@ -116,7 +116,7 @@ Trademark: Pending at USPTO — serial number 99761473, filed 2026-04-23. Use �
 Operator: JJJJJ Enterprises, LLC
 Contact routing: legal@ / billing@ / support@ / admin@ / privacy@ @jjjjjenterprises.com
 Related products: PilotTrainerHQ (pilottrainerhq.com), PlaneFacts (planefacts.online)
-Google, Gmail, Google Workspace, Gemini, Google Chat, Calendar, Sheets, Tasks are trademarks of Google LLC
+Google, Gmail, Google Workspace, Gemini, Google Chat, Calendar, Sheets, Tasks, Docs are trademarks of Google LLC
 SMS provider names are trademarks of their respective owners
 emAIl Sentinel is not affiliated with or endorsed by any third-party service provider
 Geographic scope: launch is restricted to United States only. EU/UK/EEA/CH availability deferred until demand justifies an EU representative + lawyer review. Marketplace listing must be region-restricted at publish time. Legal docs (legal/TERMS.md §2, legal/PRIVACY.md §9) state US-only explicitly.

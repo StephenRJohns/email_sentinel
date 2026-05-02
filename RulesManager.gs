@@ -19,6 +19,7 @@
  *       calendarEnabled: boolean,
  *       sheetsEnabled:   boolean,
  *       tasksEnabled:    boolean,
+ *       docsEnabled:     boolean,
  *       mcpServerIds:    string[]   // UUIDs from mailsentinel.mcpservers
  *     }
  *   }
@@ -72,6 +73,7 @@ function createRule(name, labels, ruleText, alerts, alertMessagePrompt) {
       calendarEnabled: (alerts && alerts.calendarEnabled) || false,
       sheetsEnabled:   (alerts && alerts.sheetsEnabled)   || false,
       tasksEnabled:    (alerts && alerts.tasksEnabled)    || false,
+      docsEnabled:     (alerts && alerts.docsEnabled)     || false,
       mcpServerIds:    (alerts && alerts.mcpServerIds)   || []
     },
     enabled: true,
@@ -124,6 +126,7 @@ function migrateRule_(r) {
   if (r.alerts.calendarEnabled === undefined) r.alerts.calendarEnabled = false;
   if (r.alerts.sheetsEnabled === undefined) r.alerts.sheetsEnabled = false;
   if (r.alerts.tasksEnabled === undefined) r.alerts.tasksEnabled = false;
+  if (r.alerts.docsEnabled === undefined) r.alerts.docsEnabled = false;
   if (!r.alerts.mcpServerIds) r.alerts.mcpServerIds = [];
   if (!r.labels) r.labels = ['INBOX'];
   return r;
