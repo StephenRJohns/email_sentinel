@@ -191,7 +191,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 *Optional — send alerts to Asana, creating a task in a chosen project for every match.*
 
-> **Two Asana type options in the dropdown.** The Type dropdown in the MCP server editor offers two Asana entries (plus Custom and Microsoft Teams). Slack was removed from the dropdown because Slack does not host an MCP server; users wanting to alert Slack should self-host an MCP-to-Slack bridge and pick the Custom type. Microsoft 365 was renamed to Microsoft Teams since Teams chat is the actual alert surface. The two Asana entries are:
+> **Five Type-dropdown options.** The Type dropdown in the External integrations editor offers: Custom, Microsoft Teams, two Asana entries, and Generic webhook. Slack was removed as a named MCP type because Slack does not host an MCP server; Slack users now pick **Generic webhook** with their incoming-webhook URL. Microsoft 365 was renamed to Microsoft Teams since Teams chat is the actual alert surface. The two Asana entries are:
 >
 > - **Asana (REST API — easier)** — `asana-rest`. Posts directly to Asana's REST API at `https://app.asana.com/api/1.0/tasks`. Works with a Personal Access Token (PAT) — no OAuth flow needed. This is the **recommended** path and what these instructions test by default. Endpoint auto-fills on Load defaults.
 > - **Asana (MCP V2 — requires OAuth)** — `asana`. Posts JSON-RPC tools/call to `https://mcp.asana.com/v2/mcp`. PATs are rejected by V2 with `Invalid token signature - token was not issued by Asana OAuth`; you need an OAuth-issued access token from a registered Asana MCP client app. Most users should pick the REST path above.
@@ -210,11 +210,11 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 - [ ] [Optional] In the add-on, open Settings → **External integrations** → **+ Add external integration**.
 - [ ] [Optional] **Server name:** `E2E Asana`
-- [ ] [Optional] **Type:** pick **Asana (REST API — easier)** from the dropdown, then click **Load defaults**. The Endpoint URL auto-fills to `https://app.asana.com/api/1.0/tasks`, the Tool name is left blank (the REST path does not need it), and the Tool args template pre-fills with the Asana REST task body.
-- [ ] [Optional] **MCP server endpoint URL:** leave the auto-filled `https://app.asana.com/api/1.0/tasks`. Do not switch to the V1 SSE or V2 MCP endpoints — those are different paths.
+- [ ] [Optional] **Type:** pick **Asana (REST API — easier)** from the dropdown, then click **Load defaults**. The Endpoint URL auto-fills to `https://app.asana.com/api/1.0/tasks`, the **Tool name field is hidden entirely** (asana-rest is a direct-post type that doesn't use it), and the **Request body (JSON)** field pre-fills with the Asana REST task body.
+- [ ] [Optional] **Endpoint URL:** leave the auto-filled `https://app.asana.com/api/1.0/tasks`. Do not switch to the V1 SSE or V2 MCP endpoints — those are different paths.
 - [ ] [Optional] **Authorization header value:** paste `Bearer ` followed by the PAT from step 13a, with no quotes. The full field should read like `Bearer 1/123456789abcdef…` (legacy PAT format) or `Bearer 2/<workspace>/<user>:<hash>` (current format). The capital B and the single space between `Bearer` and the token are required — the dispatcher sends this string verbatim as the `Authorization` header. Without the `Bearer ` prefix, Asana rejects with HTTP 401.
-- [ ] [Optional] **Tool args template:** the Load-defaults click pre-fills this as `{"data":{"projects":["PROJECT_ID"],"name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}}`. Replace the literal text `PROJECT_ID` with your actual project GID from step 13a. Leave `{{subject}}` and `{{message}}` placeholders intact.
-- [ ] [Optional] Click **Save**. "E2E Asana" appears in the MCP server list.
+- [ ] [Optional] **Request body (JSON):** the Load-defaults click pre-fills this as `{"data":{"projects":["PROJECT_ID"],"name":"[emAIl Sentinel] {{subject}}","notes":"{{message}}"}}`. Replace the literal text `PROJECT_ID` with your actual project GID from step 13a. Leave `{{subject}}` and `{{message}}` placeholders intact.
+- [ ] [Optional] Click **Save**. "E2E Asana" appears in the External integrations list.
 
 ### 13b-alt · Configure the MCP server (MCP V2 path — only if you have an OAuth-issued token)
 
@@ -475,7 +475,7 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 - [ ] **Rule count limit.** Delete any extras so you have 2 rules. Create a third — save succeeds. With 3 rules now in place, click **+ New rule** for a fourth — the rule editor does NOT open; instead a toast fires immediately: "Rule limit reached for your plan (3 rules on free). Upgrade to Pro for unlimited rules." (The check now happens at editor-entry time so the user doesn't fill out a full rule only to be rejected on Save. The save-side check in `RulesManager.upsertRule` remains as defense-in-depth — bypassing the New-rule button via programmatic save still produces the same toast.)
 - [ ] **Scan-interval floor.** Open Settings and confirm the scan-schedule dropdown does NOT offer `1 hour` or `2 hours` (those options are Pro-only); the lowest available choice is `3 hours`.
 - [ ] **Chat channel gated.** Open the rule editor. The Google Chat section shows "Google Chat webhooks — Pro plan only." instead of the space selection widget.
-- [ ] **MCP channel gated.** Same editor shows "External integrations (Microsoft Teams, Asana, custom MCP) — Pro plan only." instead of the server selection widget.
+- [ ] **External integrations channel gated.** Same editor shows "External integrations (Microsoft Teams, Asana, custom MCP, generic webhooks) — Pro plan only." instead of the server selection widget.
 - [ ] **AI Help me write the rule text gated.** In the rule editor, the "Help me write the rule text (Pro)" button is visible; clicking it returns a toast: "Upgrade to Pro to use AI-assisted rule writing."
 - [ ] **AI Suggest alert content available on Free.** The "Help me write the alert text" button (no "(Pro)" suffix) is visible; clicking it produces a suggestion card from Gemini.
 - [ ] **Starter rules respect limit.** With 2 existing rules, click "Starter rules" → "Create starter rules". Toast reports 1 created and indicates 4 were skipped for the Free plan limit.

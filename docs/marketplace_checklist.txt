@@ -117,8 +117,9 @@ PART 2 — LISTING ASSETS (copy these into Cloud Console)
    • Google Calendar — creates an event with phone notifications
    • Google Sheets — appends a row for audit trails and searchable history
    • Google Tasks — creates a task in your Gmail sidebar
-   • MCP servers — Slack, Microsoft 365 / Teams, Asana, or any custom
-     Model Context Protocol endpoint (Pro)
+   • External integrations — Microsoft Teams, Asana (REST or MCP V2),
+     any custom Model Context Protocol endpoint, or any HTTPS webhook
+     (Slack incoming, Discord, n8n / Zapier, custom internal APIs) (Pro)
 
    HOW IT WORKS
    A background trigger checks Gmail on the interval you choose. For each

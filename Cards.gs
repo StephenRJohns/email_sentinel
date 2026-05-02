@@ -693,7 +693,7 @@ function buildRuleEditorCard(rule) {
   // External integrations (MCP servers + REST webhooks; Pro)
   if (!editorLimits.allowMcp) {
     channelsSection.addWidget(CardService.newTextParagraph()
-      .setText('<font color="#888888">External integrations (Microsoft Teams, Asana, custom MCP) \u2014 <b>Pro plan only</b>.</font>'));
+      .setText('<font color="#888888">External integrations (Microsoft Teams, Asana, custom MCP, generic webhooks) \u2014 <b>Pro plan only</b>.</font>'));
   } else {
     const configuredMcpServers = loadMcpServers();
     if (configuredMcpServers.length === 0) {
@@ -1860,7 +1860,8 @@ function helpTopics_() {
         '<b>External integrations</b> \u2014 route to external tools<br>' +
         '\u2022 <b>Sales lead \u2192 Teams:</b> "Email mentioning pricing or demo from a new contact." \u2192 Microsoft Teams MCP<br>' +
         '\u2022 <b>Support ticket \u2192 Asana:</b> "Customer email tagged P1 or ESCALATION." \u2192 Asana task<br>' +
-        '\u2022 <b>Custom downstream \u2192 Cloudflare Worker:</b> any rule \u2192 Custom MCP server you host yourself<br><br>' +
+        '\u2022 <b>Custom downstream \u2192 Cloudflare Worker:</b> any rule \u2192 Custom MCP server you host yourself<br>' +
+        '\u2022 <b>Slack channel via webhook:</b> any rule \u2192 Generic webhook with a Slack incoming-webhook URL (no MCP server needed)<br><br>' +
         '<b>Combining channels</b><br>' +
         '\u2022 <b>Critical vendor issue:</b> SMS + Chat + Calendar + Sheets<br>' +
         '\u2022 <b>New hire onboarding:</b> Task + Sheets + Chat'
@@ -1886,7 +1887,7 @@ function helpTopics_() {
         '<b>Calendar</b> \u2014 creates a 15-minute event with alert details. Phone notifications fire if calendar notifications are on.<br><br>' +
         '<b>Sheets</b> \u2014 appends a row to a spreadsheet (auto-created on first alert). Great for audit trails.<br><br>' +
         '<b>Tasks</b> \u2014 creates a task in Google Tasks. Shows in Gmail sidebar and the Tasks app.<br><br>' +
-        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana, or any custom MCP server you host yourself. Configure servers in Settings \u25b8 <b>External integrations</b>, then tick them per rule. Setup walkthroughs (Cloudflare Worker, Asana REST + MCP V2): emailsentinel.For a detailed walkthrough visit <b>emailsentinel.jjjjjenterprises.com/help.html#channels</b>.'
+        '<b>External integrations</b> \u2014 route alerts to Microsoft Teams, Asana (REST or MCP), a custom MCP server, or any HTTPS webhook (Slack, Discord, n8n, custom APIs). Configure in Settings \u25b8 <b>External integrations</b>, then tick them per rule. Setup walkthroughs at <b>emailsentinel.jjjjjenterprises.com/help.html#channels</b>.'
     },
     pricing: {
       title: 'Gemini pricing & models',
