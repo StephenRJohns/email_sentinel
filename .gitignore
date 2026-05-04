@@ -25,3 +25,10 @@ usertesting/incoming/*
 !usertesting/outgoing/README.md
 !usertesting/incoming/.gitkeep
 !usertesting/incoming/README.md
+
+# Marketing internal strategy (not for public repo)
+marketing/marketing_plan.md
+
+# Large binary media files (video, PDF) — store outside git or use LFS
+marketing/media/**/*.mp4
+marketing/media/**/*.pdf
