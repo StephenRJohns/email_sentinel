@@ -32,9 +32,19 @@
 const RULES_KEY = 'mailsentinel.rules';
 
 const DEFAULT_ALERT_MESSAGE_PROMPT =
-  'Include the date and time received (in 12-hour AM/PM format, not 24-hour), ' +
-  'subject, sender, a short summary of the email, and a list of action items ' +
-  'and due dates if any are present.';
+  'Write a plain-text alert. Always include every section below — ' +
+  'if a field is missing from the email, infer a reasonable value from context or write "Not specified".\n\n' +
+  'RECEIVED: [date and time, 12-hour AM/PM format]\n' +
+  'FROM: [sender name and email]\n' +
+  'SUBJECT: [full subject line]\n' +
+  'PRIORITY: [High / Medium / Low — judge from urgency keywords, deadlines, or sender domain]\n\n' +
+  'SUMMARY: [3–4 sentences: what this email is about, who sent it, why it matters]\n\n' +
+  'ACTION ITEMS:\n' +
+  '[Numbered list of every action, decision, or deadline. ' +
+  'If none are explicit, state the most logical next step based on the subject and sender.]\n\n' +
+  'KEY DETAILS:\n' +
+  '[Bullet list of amounts, IDs, dates, names, or links. ' +
+  'If none are present, write "None identified."]';
 
 function loadRules() {
   const raw = PropertiesService.getUserProperties().getProperty(RULES_KEY);

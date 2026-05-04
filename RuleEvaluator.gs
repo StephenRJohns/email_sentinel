@@ -78,7 +78,7 @@ function generateAlertMessage(emailData, rule, apiKey, model) {
     '</email>\n\n' +
     'Generate the alert message now, following the format instructions exactly.';
 
-  const text = callGemini_(apiKey, model, prompt, 500);
+  const text = callGemini_(apiKey, model, prompt, 1024);
   if (text === null) return fallbackAlertMessage_(emailData);
   return text;
 }
@@ -98,7 +98,8 @@ function callGemini_(apiKey, model, prompt, maxTokens) {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       maxOutputTokens: maxTokens,
-      temperature: 0.2
+      temperature: 0.2,
+      thinkingConfig: { thinkingBudget: 0 }
     }
   };
 
