@@ -1275,16 +1275,54 @@ function buildSettingsCard() {
 
   const settingsBuilder = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Settings'))
-    .addSection(homeButtonSection_());
-  return settingsBuilder
+    .addSection(homeButtonSection_())
     .addSection(buildUnsavedChangesNotice_())
     .addSection(aiSection)
     .addSection(pollSection)
     .addSection(bizSection)
     .addSection(smsSection)
     .addSection(googleSection)
-    .addSection(mcpSection)
-    .addSection(buttons)
+    .addSection(mcpSection);
+  if (!isPro() && getPromoServiceUrl_()) settingsBuilder.addSection(buildPromoSection_());
+  return settingsBuilder.addSection(buttons).build();
+}
+
+function buildPromoSection_() {
+  return CardService.newCardSection()
+    .setHeader('<b>Promo code</b>')
+    .addWidget(CardService.newTextInput()
+      .setFieldName('promoCode')
+      .setTitle('Enter promo code')
+      .setHint('Format: SENT-XXXX-XXXX — case-insensitive'))
+    .addWidget(CardService.newTextButton()
+      .setText(whiteText_('Redeem code'))
+      .setTextButtonStyle(CardService.TextButtonStyle.FILLED)
+      .setBackgroundColor(BRAND_PURPLE_)
+      .setOnClickAction(action_('handleRedeemPromoCode')));
+}
+
+function handleRedeemPromoCode(e) {
+  const inputs = e.commonEventObject.formInputs || {};
+  const getRaw = function(key) {
+    const v = inputs[key];
+    if (!v || !v.stringInputs || !v.stringInputs.value) return '';
+    return (v.stringInputs.value[0] || '').trim();
+  };
+
+  const code = getRaw('promoCode').toUpperCase().replace(/\s+/g, '');
+  if (!code) return notificationResponse_('Enter a promo code first.');
+
+  const result = redeemPromoCode_(code);
+  if (!result.ok) {
+    return notificationResponse_(result.error || 'Invalid code — check for typos and try again.');
+  }
+
+  setTier_('pro');
+  activityLog('Pro plan activated via promo code.');
+
+  return CardService.newActionResponseBuilder()
+    .setNavigation(CardService.newNavigation().updateCard(buildSettingsCard()))
+    .setNotification(CardService.newNotification().setText('Pro plan activated. Welcome!'))
     .build();
 }
 
