@@ -505,12 +505,38 @@ Sections 9–13 are optional alert-channel tests. Section 21 is required only wh
 
 ---
 
-## 22 · Sign-Off & Cleanup
+## 22 · Promo Redemption Service Self-Test (server-side, no UI)
+
+*Exercises every code-path branch in `scripts/PromoCodeService.gs` (`doPost` auth + parse, `redeemCode_` data-layer state machine, and the `normalizeCode_` helper) against a temporary scratch sheet that the test creates and deletes itself. Hermetic — production `Codes` rows are never touched. Logs structured per-test PASS / FAIL plus an aggregate summary, and returns a structured result object so scheduled remote agents can read pass count programmatically.*
+
+**Prerequisite:** the standalone admin/service Apps Script project must already have `PROMO_SHEET_ID` and `SERVICE_TOKEN` set in Script Properties (i.e. `configureAdmin` and `configureService` have already been run once). The standalone project must also contain `PromoCodeServiceTests.gs` alongside `PromoCodeService.gs` and `PromoCodeAdmin.gs`.
+
+- [ ] Open the **standalone admin/service Apps Script project** at script.google.com — NOT the add-on project. (The add-on only ever reads `PROMO_SERVICE_URL` from its own Script Properties; the redemption service and tests live in the developer's private project.)
+- [ ] Open `PromoCodeServiceTests.gs`. In the function dropdown above the editor, pick **`runPromoServiceTests`**. Click **Run**. (First run prompts for OAuth consent on the Spreadsheets scope — approve.)
+- [ ] Wait ~10–20 seconds for the function to complete (one Sheet round-trip per assertion). The Executions panel shows the function returning `{passed: 18, total: 18, allPassed: true, results: [...]}`.
+- [ ] In the same editor, open **View → Logs**. The output should contain:
+  - `=== Promo service self-test ===` header line.
+  - One `[PASS]` line per assertion across three layers: 7 `redeemCode_` data-layer branches, 7 `doPost` auth/parse branches, 4 `normalizeCode_` pure-logic branches.
+  - Final summary: `Promo service self-test: 18/18 passed`.
+- [ ] Open the spreadsheet referenced by `PROMO_SHEET_ID` and confirm the `_PromoTest_` worksheet is no longer present (the test creates it at start and deletes it in `finally`). If a tab named `_PromoTest_` is still present, a previous run crashed mid-flight; delete it manually before re-running, or re-run the test (it auto-cleans orphan tabs at the start of every run).
+- [ ] **Failure interpretation.** A `[FAIL]` line names the assertion and shows the offending JSON-RPC reply or row contents. Common failure causes:
+  - `valid first redemption` fails with `"Service busy"` → another script execution holds `LockService.getScriptLock()`. Wait 30 s and re-run.
+  - `redemption persists status, email, and timestamp` fails → the `setValue(...)` calls in `redeemCode_` regressed (column index drift, wrong sheet object, or a missing implicit flush before the read-back).
+  - `second redemption of same code is blocked` fails (returns `ok=true`) → the `if (status === 'redeemed') return jsonError_(...)` guard regressed; this is the **single-use-code guarantee** the whole feature exists to enforce. Treat as a P0 bug.
+  - `voided code is rejected` fails → the `voided` status branch regressed.
+  - `unknown status is rejected` fails → the explicit `status !== 'unused'` guard regressed; without it, future status values added to the schema would default to allowing redemption.
+  - Any of the three `doPost ... Unauthorized` lines fail → the token comparison in `doPost` regressed and the Web App is now redeemable without a valid token. **Treat this as a security incident** and rotate `SERVICE_TOKEN` immediately after fixing.
+  - `doPost all-junk code strips to empty …` fails → `normalizeCode_` either does not strip aggressively enough (allowing punctuation injection) or strips too aggressively (breaking valid `SENT-XXXX-XXXX` codes); cross-check against the `normalizeCode_ preserves hyphens` line.
+- [ ] **Optional — automate via scheduled remote agent.** Same playbook as Section 13f: create a routine that uses the Apps Script API `scripts.run` method against the standalone admin/service project, with the function name `runPromoServiceTests`, and posts a GitHub issue if `result.allPassed === false`. Recommended cadence: weekly. Do not exceed daily — each run holds the script-wide lock for ~10–20 seconds, blocking any real buyer redemption attempts that land in that window.
+
+---
+
+## 23 · Sign-Off & Cleanup
 
 *Confirm all required flows passed and restore the add-on to production configuration.*
 
 - [ ] All items in Sections 1–8, 14–20 are checked (no skipped required items).
-- [ ] Any optional sections attempted (9–13, 21): all checked items passed.
+- [ ] Any optional sections attempted (9–13, 21, 22): all checked items passed.
 - [ ] Starter rules reviewed — edit and enable any you want active.
 - [ ] Business hours set to desired production value (or disabled).
 - [ ] Scan interval set to desired production value.

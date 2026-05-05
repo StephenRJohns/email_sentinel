@@ -93,7 +93,7 @@ function doPost(e) {
       return jsonError_('Invalid request.');
     }
 
-    const code  = (body.code  || '').toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    const code  = normalizeCode_(body.code);
     const email = (body.email || '').trim();
     if (!code || !email) return jsonError_('Missing fields.');
 
@@ -109,7 +109,7 @@ function doPost(e) {
 // PRIVATE HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 
-function redeemCode_(code, email) {
+function redeemCode_(code, email, sheetName) {
   const sheetId = PropertiesService.getScriptProperties().getProperty('PROMO_SHEET_ID');
   if (!sheetId) return jsonError_('Service not configured.');
 
@@ -122,7 +122,7 @@ function redeemCode_(code, email) {
 
   try {
     const ss    = SpreadsheetApp.openById(sheetId);
-    const sheet = ss.getSheetByName('Codes');
+    const sheet = ss.getSheetByName(sheetName || 'Codes');
     if (!sheet) return jsonError_('Service not configured.');
 
     const data = sheet.getDataRange().getValues();
@@ -152,6 +152,10 @@ function redeemCode_(code, email) {
 function jsonError_(msg) {
   return ContentService.createTextOutput(JSON.stringify({ ok: false, error: msg }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function normalizeCode_(raw) {
+  return (raw || '').toUpperCase().replace(/[^A-Z0-9-]/g, '');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
