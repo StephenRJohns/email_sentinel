@@ -1,0 +1,10 @@
+# clasp push (from this dir) targets the standalone admin/service Apps Script
+# project that hosts the promo redemption Web App. Allowlist only the three
+# .gs files that belong in that project plus the manifest. FoundingMemberMonitor.gs
+# is intentionally excluded — it is unrelated dev tooling for a different
+# personal monitoring script.
+**/**
+!appsscript.json
+!PromoCodeAdmin.gs
+!PromoCodeService.gs
+!PromoCodeServiceTests.gs

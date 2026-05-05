@@ -70,7 +70,7 @@ const CODE_CHARS_ = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 function configureAdmin() {
   // Fill in below, run ONCE from the editor, then REVERT TO EMPTY STRINGS
   // before committing. Values are stored in Script Properties.
-  const sheetId = '17-0DdbGV8uZlSZ0SPcSWAo1R5m5MXm-IZZ8ib1aC4xM';
+  const sheetId = '';
   if (!sheetId) throw new Error('Fill in sheetId before running configureAdmin.');
   PropertiesService.getScriptProperties().setProperty('PROMO_SHEET_ID', sheetId);
   Logger.log('Admin configured. PROMO_SHEET_ID stored in Script Properties.');
