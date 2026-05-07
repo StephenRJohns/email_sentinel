@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Promo Code Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+  <h1>Promo Code Admin</h1>
+  <nav>
+    <a href="{{ url_for('index') }}" {% if not current_batch %}class="active"{% endif %}>All</a>
+    {% for b in batches %}
+    <a href="{{ url_for('by_batch', batch=b.batch) }}"
+       {% if current_batch == b.batch %}class="active"{% endif %}>
+       {{ b.batch }}
+       <span class="counts">{{ b.unused }}/{{ b.assigned }}/{{ b.redeemed }}/{{ b.voided }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, msg in messages %}
+      <div class="flash flash-{{ category }}">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<section class="mint-form">
+  <h2>Mint a new batch</h2>
+  <form method="post" action="{{ url_for('mint') }}">
+    <label>Batch name <input name="batch" required placeholder="e.g. usertest-round-002"></label>
+    <label>Qty <input name="qty" type="number" min="1" max="1000" value="10" required></label>
+    <label>Label (optional) <input name="label" placeholder="e.g. UserTesting Round 2 — minted 2026-06-01"></label>
+    <button type="submit">Mint</button>
+  </form>
+</section>
+
+{% if current_batch %}
+<section class="batch-actions">
+  <h2>Batch: {{ current_batch }}</h2>
+  <form method="post" action="{{ url_for('void_batch', batch=current_batch) }}"
+        onsubmit="return confirm('Void all unused codes in batch {{ current_batch }}? Redeemed codes are kept.');">
+    <button class="btn-danger" type="submit">Void all unused in this batch</button>
+  </form>
+</section>
+{% endif %}
+
+<table class="codes">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Batch</th>
+      <th>Status</th>
+      <th>Assigned To</th>
+      <th>Redeemed By</th>
+      <th>Created</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in rows %}
+    <tr class="status-{{ r.status }}">
+      <td class="code">{{ r.code }}</td>
+      <td>{{ r.batch }}</td>
+      <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+      <td>{{ r.assigned_to or '—' }}</td>
+      <td>{{ r.redeemed_by or '—' }}</td>
+      <td class="ts">{{ r.created[:10] if r.created else '—' }}</td>
+      <td class="actions">
+        {% if r.status == 'unused' %}
+          <details>
+            <summary>{% if r.assigned_to %}Reassign{% else %}Assign{% endif %}</summary>
+            <form method="post" action="{{ url_for('assign', code=r.code) }}">
+              <input name="name"        placeholder="Name (optional)">
+              <input name="email"       placeholder="Email (optional)">
+              <input name="ut_session"  placeholder="UT session ID (optional)">
+              <input name="notes"       placeholder="Notes (optional)">
+              <button type="submit">Save</button>
+            </form>
+          </details>
+          <form class="inline" method="post" action="{{ url_for('void', code=r.code) }}"
+                onsubmit="return confirm('Void {{ r.code }}?');">
+            <button class="btn-danger" type="submit">Void</button>
+          </form>
+        {% elif r.status == 'redeemed' %}
+          <span class="muted">redeemed {{ r.redeemed_at[:10] if r.redeemed_at else '' }}</span>
+        {% elif r.status == 'voided' %}
+          <span class="muted">voided</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7" class="empty">No codes yet. Use the Mint form above.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<footer>
+  <small>
+    Counts after each batch name show <code>unused / assigned / redeemed / voided</code>.
+    Server: {{ request.host }} (set PROMO_BIND_HOST in .env to change).
+  </small>
+</footer>
+
+</body>
+</html>

@@ -26,10 +26,18 @@ usertesting/incoming/*
 !usertesting/incoming/.gitkeep
 !usertesting/incoming/README.md
 
-# Pro promo codes minted for paid UserTesting rounds. Each code is single-
-# use and grants Pro tier on redemption. Treat as round-scoped credentials
-# (mint / pass to one tester / void unredeemed at round close). Never commit.
-usertesting/promo_codes/
+# Pro promo codes minted for any batch (UserTesting rounds, founding-member
+# offers, customer gifts, refund-replacement codes, etc.). Each code is
+# single-use and grants Pro tier on redemption. Treat as batch-scoped
+# credentials (mint / assign to one recipient / void unredeemed at batch
+# close). Never commit.
+promo_codes/
+
+# Local Python admin tool — env file holds PROMO_ADMIN_TOKEN (a master key
+# that can mint / void / assign codes) and PROMO_SERVICE_URL.
+tools/promo/.env
+tools/promo/__pycache__/
+tools/promo/**/__pycache__/
 
 # Marketing internal strategy (not for public repo)
 marketing/marketing_plan.md

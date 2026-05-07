@@ -140,13 +140,28 @@ Time budget: 30 min self-test + up to 60 min script trimming / minor add-on edit
 
 ### 4a. Mint per-tester promo codes
 
-Each tester needs a **unique single-use Pro promo code** so Task 2b's redemption flow flips them to Pro and unlocks the Google Chat channel. Codes are minted in the standalone admin/service Apps Script project (NOT this add-on project):
+Each tester needs a **unique single-use Pro promo code** so Task 2b's redemption flow flips them to Pro and unlocks the Google Chat channel. Two ways to mint:
+
+**Recommended — local Python admin tool at `tools/promo/`** (one-time `.env` + `ADMIN_TOKEN` setup; see `tools/promo/__init__.py` docstring):
+
+```bash
+# CLI:
+python -m tools.promo.cli mint usertest-round-002 11 --label "Round 2 — minted YYYY-MM-DD"
+
+# Or web UI (Mint form + per-row Assign buttons):
+python -m tools.promo.server   # http://127.0.0.1:5057
+```
+
+Either path auto-creates a tracking file at `promo_codes/<batch>.txt` with all codes pre-populated. The web UI's per-row Assign button lets you click into a row and enter Name / Email / UT session — both the Sheet and the local file update in one shot.
+
+**Fallback — Apps Script editor** (works without Python tool setup):
 
 1. Open the standalone admin/service project at script.google.com — same project that hosts `PromoCodeService.gs`.
-2. Pick the `mintCodes_` (or equivalent batch-mint) function from the dropdown — see `scripts/PromoCodeAdmin.gs` for the canonical helper.
-3. Generate **11 codes** total (10 for testers + 1 reserved for your own pre-flight self-test in Step 3a).
-4. Save them in your password manager labeled `UserTesting Round 1 — promo codes — minted <YYYY-MM-DD>`. Do not commit them anywhere; they go into UserTesting's per-session task assignments individually in Step 4c below.
-5. Confirm `PROMO_SERVICE_URL` is set in the **add-on project's** Script Properties (not the standalone project) — without it the redemption section in Settings does not render.
+2. In `scripts/PromoCodeAdmin.gs`, edit `BATCH_NAME`, `BATCH_QTY`, `BATCH_LABEL` at the top of the file.
+3. Pick `runGenerateBatch` from the function dropdown; click Run.
+4. Logger output lists the new codes; the Sheet has new rows. **Revert** the constants before any future commit.
+
+Either path: generate **11 codes** total (10 for testers + 1 reserved for your own pre-flight self-test in Step 3a). Save them outside git — `promo_codes/<batch>.txt` is auto-created and gitignored if you used the Python tool, or your password manager for the editor path. Confirm `PROMO_SERVICE_URL` is set in the **add-on project's** Script Properties (not the standalone project) — without it the redemption section in Settings does not render.
 
 ### 4b. Fill placeholders
 

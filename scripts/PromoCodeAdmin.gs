@@ -59,6 +59,15 @@ const COL_STATUS_       = 3;  // 'unused' | 'redeemed' | 'voided'
 const COL_REDEEMED_BY_  = 4;
 const COL_REDEEMED_AT_  = 5;
 const COL_LABEL_        = 6;
+const COL_ASSIGNED_TO_  = 7;  // free-text — name, email, UT session, etc.
+const COL_ASSIGNED_AT_  = 8;  // ISO timestamp set when 'assign' admin action runs
+
+// Total column count for header-row generation. Bumping this value here is
+// the only schema-extension needed — ensureColumnsUpToDate_ widens existing
+// sheets on next admin-action invocation.
+const CODES_COL_COUNT_  = 9;
+const CODES_HEADER_ROW_ = ['Code', 'Batch', 'Created', 'Status', 'Redeemed By',
+                           'Redeemed At', 'Label', 'Assigned To', 'Assigned At'];
 
 // Characters used in generated codes — visually distinct (no 0/O/1/I/L).
 const CODE_CHARS_ = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -130,14 +139,17 @@ function runListCodes() {
     if (row[COL_STATUS_] === 'redeemed') {
       line += ' | by: ' + row[COL_REDEEMED_BY_] + ' | at: ' + row[COL_REDEEMED_AT_];
     }
-    if (row[COL_LABEL_]) line += ' | note: ' + row[COL_LABEL_];
+    if (row[COL_ASSIGNED_TO_]) {
+      line += ' | assigned: ' + row[COL_ASSIGNED_TO_];
+    }
+    if (row[COL_LABEL_]) line += ' | label: ' + row[COL_LABEL_];
     Logger.log(line);
   });
   Logger.log(rows.length + ' code(s) shown.');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// VOID A CODE — set VOID_TARGET below, then run runVoidCode
+// VOID A SINGLE CODE — set VOID_TARGET below, then run runVoidCode
 // ─────────────────────────────────────────────────────────────────────────────
 
 const VOID_TARGET = ''; // e.g. 'SENT-AB3K-XY2M'
@@ -158,6 +170,47 @@ function runVoidCode() {
     }
   }
   Logger.log('Code not found: ' + VOID_TARGET);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VOID ALL UNUSED CODES IN A BATCH — set VOID_BATCH_TARGET, then run
+// runVoidBatch. Round-close cleanup helper: voids every 'unused' code in
+// the named batch in one pass. Redeemed codes are skipped (the per-user
+// Pro tier flip is persistent in the add-on's UserProperties and cannot
+// be revoked remotely). Already-voided codes are skipped (idempotent).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const VOID_BATCH_TARGET = ''; // e.g. 'usertest-round-001'
+
+function runVoidBatch() {
+  if (!VOID_BATCH_TARGET) {
+    throw new Error('Set VOID_BATCH_TARGET to the batch name whose unused codes you want to void.');
+  }
+  const sheet = getCodesSheet_();
+  const data = sheet.getDataRange().getValues();
+  const batchName = VOID_BATCH_TARGET.trim();
+  const voidedCodes = [];
+  let skippedRedeemed = 0;
+  let skippedAlreadyVoided = 0;
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][COL_BATCH_] !== batchName) continue;
+    const status = data[i][COL_STATUS_];
+    if (status === 'redeemed') { skippedRedeemed++; continue; }
+    if (status === 'voided')   { skippedAlreadyVoided++; continue; }
+    sheet.getRange(i + 1, COL_STATUS_ + 1).setValue('voided');
+    voidedCodes.push(data[i][COL_CODE_]);
+  }
+
+  Logger.log('=== Batch void: "' + batchName + '" ===');
+  if (voidedCodes.length === 0 && skippedRedeemed === 0 && skippedAlreadyVoided === 0) {
+    Logger.log('No rows matched batch name "' + batchName + '" — check for typos.');
+    return;
+  }
+  Logger.log('Voided ' + voidedCodes.length + ' code(s):');
+  voidedCodes.forEach(function(c) { Logger.log('  ' + c); });
+  Logger.log('Skipped (already redeemed): ' + skippedRedeemed);
+  Logger.log('Skipped (already voided): ' + skippedAlreadyVoided);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -205,12 +258,38 @@ function getCodesSheet_() {
   let sheet = ss.getSheetByName(CODES_SHEET_NAME_);
   if (!sheet) {
     sheet = ss.insertSheet(CODES_SHEET_NAME_);
-    sheet.appendRow(['Code', 'Batch', 'Created', 'Status', 'Redeemed By', 'Redeemed At', 'Label']);
-    sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+    sheet.appendRow(CODES_HEADER_ROW_);
+    sheet.getRange(1, 1, 1, CODES_COL_COUNT_).setFontWeight('bold');
     sheet.setFrozenRows(1);
     sheet.setColumnWidth(1, 140);
     sheet.setColumnWidth(4, 80);
     sheet.setColumnWidth(5, 220);
+    sheet.setColumnWidth(8, 220);
   }
+  ensureColumnsUpToDate_(sheet);
   return sheet;
+}
+
+// Existing sheets created before a schema bump have a shorter header row.
+// Detect that and widen them on next access. Idempotent — no-op when the
+// header is already current. Adds missing header cells in their proper
+// position; user-entered data in those cells (if any pre-existed) is
+// preserved because we only write cells whose current value is empty.
+function ensureColumnsUpToDate_(sheet) {
+  const lastCol = sheet.getLastColumn();
+  if (lastCol >= CODES_COL_COUNT_) {
+    // Even when wide enough, fill any blank header cells (defensive).
+    const headerRange = sheet.getRange(1, 1, 1, CODES_COL_COUNT_);
+    const current = headerRange.getValues()[0];
+    let needWrite = false;
+    for (let i = 0; i < CODES_COL_COUNT_; i++) {
+      if (!current[i] && CODES_HEADER_ROW_[i]) { current[i] = CODES_HEADER_ROW_[i]; needWrite = true; }
+    }
+    if (needWrite) headerRange.setValues([current]);
+    return;
+  }
+  // Sheet is narrower than the schema — extend it.
+  for (let c = lastCol + 1; c <= CODES_COL_COUNT_; c++) {
+    sheet.getRange(1, c).setValue(CODES_HEADER_ROW_[c - 1]).setFontWeight('bold');
+  }
 }
