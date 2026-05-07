@@ -14,11 +14,6 @@ async function openAddon(page) {
   // Wait for Gmail's main content to render before the add-on rail initializes.
   // On the first load of a fresh Chrome profile this can take 30-60 seconds.
   await page.waitForSelector('[role="main"]', { timeout: 60_000 }).catch(() => {});
-  // Defensive: Gmail intermittently pops a Gemini "Ask anything" overlay on
-  // load that intercepts clicks. If present, click its Dismiss button so the
-  // following addon-icon click reaches Gmail's sidebar rail. Silent no-op
-  // when the overlay isn't there.
-  await page.getByRole('button', { name: 'Dismiss' }).click({ timeout: 2_000 }).catch(() => {});
   // The add-on tab carries aria-label="emAIl Sentinel". In narrow Gmail layouts
   // it can be CSS-hidden (aria-hidden="true" + the aT5-aOt-I collapsed class),
   // so we wait only for DOM attachment and force-click to bypass visibility.

@@ -50,24 +50,6 @@ function blackText_(s) {
 const BRAND_RED_ = '#c62828';
 const BRAND_YELLOW_LIGHT_ = '#fde68a';
 
-// Two navigation paths leave a destination card without Gmail's native back
-// arrow: kebab universal-action items use displayAddOnCards (which *replaces*
-// the navigation stack) and confirm-delete handlers use popToRoot(). Apps
-// Script doesn't expose navigation-stack depth at handler time, so we can't
-// reliably re-detect the no-back-arrow state on subsequent updateCard calls
-// (e.g. toggling a rule or refreshing the log) — the Home button would
-// disappear mid-session. To keep the escape hatch consistent we just
-// prepend this section unconditionally on the four root destinations
-// (Rules, Settings, Activity log, Help). When the back arrow is also
-// visible this is mild redundancy: back arrow steps one card up, Home
-// jumps to root.
-function homeButtonSection_() {
-  return CardService.newCardSection()
-    .addWidget(CardService.newTextButton()
-      .setText('Home')
-      .setOnClickAction(action_('handleGoHome')));
-}
-
 // CardService does not expose an event for the system back arrow, so an
 // editor cannot show a confirmation dialog before navigation pops it. This
 // notice is the user-facing mitigation — each editor card adds it at the top
@@ -347,13 +329,6 @@ function refreshHome_(message) {
     .build();
 }
 
-function handleGoHome(e) {
-  return CardService.newActionResponseBuilder()
-    .setNavigation(CardService.newNavigation().popToRoot().updateCard(buildHomeCard()))
-    .build();
-}
-
-
 function buildPreScanCard_() {
   const card = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Scan email now'));
@@ -402,8 +377,7 @@ function buildScanResultCard_(message, success) {
 function buildRulesCard() {
   const rules = loadRules();
   const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Rules'))
-    .addSection(homeButtonSection_());
+    .setHeader(CardService.newCardHeader().setTitle('Rules'));
 
   const newRuleBtn = CardService.newTextButton()
     .setText(whiteText_('+ New rule'))
@@ -1275,7 +1249,6 @@ function buildSettingsCard() {
 
   const settingsBuilder = CardService.newCardBuilder()
     .setHeader(CardService.newCardHeader().setTitle('Settings'))
-    .addSection(homeButtonSection_())
     .addSection(buildUnsavedChangesNotice_())
     .addSection(aiSection)
     .addSection(pollSection)
@@ -1633,8 +1606,7 @@ function buildActivityCard(offset) {
   offset = offset || 0;
   const entries = loadLog();
   const card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('Activity log'))
-    .addSection(homeButtonSection_());
+    .setHeader(CardService.newCardHeader().setTitle('Activity log'));
 
   const btnSet = CardService.newButtonSet();
   btnSet.addButton(CardService.newTextButton()
@@ -1735,8 +1707,7 @@ function handleCancelClearLog(e) {
 
 function buildHelpCard() {
   var card = CardService.newCardBuilder()
-    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'))
-    .addSection(homeButtonSection_());
+    .setHeader(CardService.newCardHeader().setTitle('emAIl Sentinel\u2122 Help'));
 
   var searchSection = CardService.newCardSection()
     .setHeader('<b>Search help</b>')

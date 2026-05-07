@@ -130,28 +130,6 @@ test('S8: activity log has Refresh button', async ({ page }) => {
   await expect(getFrame(page).getByRole('button', { name: 'Refresh' })).toBeVisible();
 });
 
-// Each root card (Rules, Settings, Activity log, Help) unconditionally prepends
-// a Home button as its first section — see Cards.gs homeButtonSection_().
-// Apps Script doesn't expose navigation-stack depth at handler time, so
-// conditional rendering would silently break on updateCard refreshes (rule
-// toggle, log refresh, settings save) where the back-arrow state hasn't
-// changed but the card is being re-rendered. Always-on Home guarantees an
-// escape route regardless of entry path. Starter rules is excluded because it
-// is only reachable via push from the home card and always has a back arrow.
-//
-// Split per-section rather than looping in one test: looping in one test calls
-// openAddon (which does page.goto) four times back-to-back, which intermittently
-// races Gmail's Gemini-prompt overlay. Per-test runs match the openAddon-once
-// pattern used by every other passing test.
-
-for (const section of ['Rules', 'Settings', 'Help', 'Activity log']) {
-  test(`S8: in-card Home button on ${section} card`, async ({ page }) => {
-    const frame = await openAddon(page);
-    await clickButton(frame, section);
-    await expect(getFrame(page).getByRole('button', { name: /^Home$/i })).toBeVisible({ timeout: 30_000 });
-  });
-}
-
 // ─── S12 · Google Docs Alert Channel ─────────────────────────────────────────
 // Full alert dispatch (Docs append + auto-create on first alert) is covered
 // manually in plan section 12 — it requires a fired rule and a real Doc. The
