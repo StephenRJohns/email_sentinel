@@ -207,6 +207,51 @@ table.codes th {
 table.codes td.code {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.code-text { margin-right: 6px; }
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #777;
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+}
+
+.copy-btn:hover {
+  color: #581c87;
+  border-color: #ddd;
+  background: #f5eafd;
+}
+
+.copy-btn svg { display: block; }
+
+#copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%) translateY(8px);
+  background: #2e2e2e;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease, transform 120ms ease;
+  z-index: 1000;
+}
+
+#copy-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 table.codes td.ts {
@@ -226,6 +271,7 @@ table.codes tr.status-voided   { background: #fafafa; color: #888; }
 }
 
 .badge-unused   { background: #e3f2fd; color: #0d47a1; }
+.badge-assigned { background: #fff3cd; color: #664d03; }
 .badge-redeemed { background: #e6f4ea; color: #155724; }
 .badge-voided   { background: #f5f5f5; color: #666; }
 

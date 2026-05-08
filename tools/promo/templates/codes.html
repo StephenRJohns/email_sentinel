@@ -64,16 +64,23 @@
 {% endif %}
 {% endif %}
 
-<form method="post" action="{{ url_for('void_many') }}" id="bulk-form">
-  <div class="bulk-toolbar" id="bulk-toolbar">
-    <label class="select-all-label">
-      <input type="checkbox" id="select-all"> Select all unused
-    </label>
-    <button class="btn-danger" type="submit" id="void-selected-btn" disabled
-            onclick="return confirm('Void selected codes?');">
-      Void selected (<span id="selected-count">0</span>)
-    </button>
-  </div>
+<!-- Bulk-void form is intentionally NOT wrapping the table. Per-row Assign and
+     per-row Void are themselves <form> elements; nesting them inside another
+     form is invalid HTML and browsers silently submit only the outer one,
+     which routed every per-row Save/Void to /void_many and flashed
+     "No codes selected." Row checkboxes and the "Void selected" submit
+     associate with this form via the HTML5 form="bulk-form" attribute. -->
+<form method="post" action="{{ url_for('void_many') }}" id="bulk-form"></form>
+
+<div class="bulk-toolbar" id="bulk-toolbar">
+  <label class="select-all-label">
+    <input type="checkbox" id="select-all"> Select all unused
+  </label>
+  <button class="btn-danger" type="submit" id="void-selected-btn" form="bulk-form" disabled
+          onclick="return confirm('Void selected codes?');">
+    Void selected (<span id="selected-count">0</span>)
+  </button>
+</div>
 
   <table class="codes">
     <thead>
@@ -93,19 +100,34 @@
       <tr class="status-{{ r.status }}">
         <td class="col-check">
           {% if r.status == 'unused' %}
-          <input type="checkbox" name="codes" value="{{ r.code }}" class="row-check">
+          <input type="checkbox" name="codes" value="{{ r.code }}" class="row-check" form="bulk-form">
           {% endif %}
         </td>
-        <td class="code">{{ r.code }}</td>
+        <td class="code">
+          <span class="code-text">{{ r.code }}</span>
+          <button type="button" class="copy-btn" data-code="{{ r.code }}" title="Copy code" aria-label="Copy {{ r.code }}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </td>
         <td>{{ r.batch }}</td>
-        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        <td>
+          {# Derived display: a code that is technically still 'unused' in the
+             redemption lifecycle but has an assigned_to value reads as
+             'assigned' in the table. The underlying status field on the
+             backend stays 'unused' — only the badge changes. #}
+          {% set display_status = 'assigned' if (r.status == 'unused' and r.assigned_to) else r.status %}
+          <span class="badge badge-{{ display_status }}">{{ display_status }}</span>
+        </td>
         <td>{{ r.assigned_to or '—' }}</td>
         <td>{{ r.redeemed_by or '—' }}</td>
         <td class="ts">{{ r.created[:10] if r.created else '—' }}</td>
         <td class="actions">
           {% if r.status == 'unused' %}
             <details class="assign-details">
-              <summary>{% if r.assigned_to %}Reassign{% else %}Assign{% endif %}</summary>
+              <summary data-code="{{ r.code }}">{% if r.assigned_to %}Reassign{% else %}Assign{% endif %}</summary>
               <form method="post" action="{{ url_for('assign', code=r.code) }}">
                 <input name="name"        placeholder="Name (optional)">
                 <input name="email"       placeholder="Email (optional)">
@@ -130,7 +152,8 @@
     {% endfor %}
     </tbody>
   </table>
-</form>
+
+<div id="copy-toast" role="status" aria-live="polite"></div>
 
 <footer>
   <small>
@@ -184,6 +207,62 @@
 
   document.addEventListener('change', function (e) {
     if (e.target.classList.contains('row-check')) updateToolbar();
+  });
+})();
+
+// Copy-to-clipboard + transient toast.
+(function () {
+  const toast = document.getElementById('copy-toast');
+  let toastTimer = null;
+
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add('visible');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('visible'), 1500);
+  }
+
+  function copy(code) {
+    // Show the toast synchronously so it always renders, even on clicks
+    // whose default action (e.g. <details> toggle on a summary click) runs
+    // alongside an async clipboard promise. The clipboard write is
+    // fire-and-forget for UI purposes — we only override the toast text
+    // if the write reports a failure.
+    showToast('Copied ' + code);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(code).catch(() => {
+        showToast('Copy failed — select manually');
+      });
+      return;
+    }
+    // Fallback for non-secure contexts: hidden textarea + execCommand.
+    const ta = document.createElement('textarea');
+    ta.value = code;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (_) { showToast('Copy failed — select manually'); }
+    ta.remove();
+  }
+
+  // Copy-icon button next to each code.
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.copy-btn');
+    if (btn) {
+      e.preventDefault();
+      copy(btn.dataset.code);
+      return;
+    }
+    // The Assign / Reassign summary copies the row's code in addition to
+    // toggling the details panel open. Same UX as the copy icon — typical
+    // workflow is "click Assign, then paste the code into a tester DM".
+    const sum = e.target.closest('summary[data-code]');
+    if (sum) {
+      copy(sum.dataset.code);
+      // Do NOT preventDefault — the browser still needs to toggle the
+      // <details> element open/closed.
+    }
   });
 })();
 </script>

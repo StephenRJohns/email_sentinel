@@ -34,6 +34,10 @@ app = Flask(__name__)
 # session-stable random value is fine.
 import secrets as _secrets
 app.secret_key = _secrets.token_hex(16)
+# Re-read templates from disk on every render so editing codes.html does not
+# require a full server restart. Cheap on a 3-template, single-user tool.
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.jinja_env.auto_reload = True
 
 client = AppsScriptClient(config.PROMO_SERVICE_URL, config.PROMO_ADMIN_TOKEN)
 
