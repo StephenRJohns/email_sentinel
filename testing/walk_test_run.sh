@@ -109,7 +109,7 @@ walk() {
   echo "$total unchecked item(s). Answer p(ass) / f(ail) / s(kip) / q(uit) for each."
   echo ""
 
-  local last_section="" answered=0 lineno=0
+  local last_section="" skip_section="" answered=0 lineno=0
 
   while true; do
     mapfile -t lines < "$filepath"
@@ -136,11 +136,22 @@ walk() {
     done
 
     if [[ -n "$current_section" && "$current_section" != "$last_section" ]]; then
+      skip_section=""   # entering a new section; reset section-skip
       echo ""
       echo "$current_section"
       local sep_len=$(( ${#current_section} < 78 ? ${#current_section} : 78 ))
       printf '%*s\n' "$sep_len" '' | tr ' ' '-'
       last_section="$current_section"
+    fi
+
+    # Auto-skip the rest of a section after the user skipped one item in it
+    if [[ -n "$skip_section" && "$skip_section" == "$current_section" ]]; then
+      echo ""
+      echo "  $text"
+      echo "  → skipped"
+      answered=$(( answered + 1 ))
+      lineno=$(( lineno + 1 ))
+      continue
     fi
 
     echo ""
@@ -159,6 +170,7 @@ walk() {
 
     case "$ans" in
       s)
+        skip_section="$current_section"   # skip the rest of this section
         answered=$(( answered + 1 ))
         lineno=$(( lineno + 1 ))
         ;;
