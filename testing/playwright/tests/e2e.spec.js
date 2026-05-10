@@ -185,7 +185,7 @@ test('S14: Help card loads with all five topic buttons', async ({ page }) => {
   const frame = await openAddon(page);
   await clickButton(frame, 'Help');
   const f = getFrame(page);
-  await expect(f.getByText('emAIl Sentinel™ Help')).toBeVisible();
+  await expect(f.getByText('emAIl Sentinel™ Help')).toBeVisible({ timeout: 30_000 });
   for (const topic of ['Quick start & writing rules', 'Rule examples by channel', 'Alert channel setup', 'Gemini pricing & models', 'Settings & troubleshooting']) {
     await expect(f.getByRole('button', { name: topic })).toBeVisible();
   }

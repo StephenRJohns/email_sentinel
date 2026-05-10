@@ -115,6 +115,7 @@ test('Task 2c · add Chat space saves with the supplied webhook URL', async ({ p
 // resolution rather than logic bugs.
 
 test('Task 3 · create rule with all five Google channels ticked', async ({ page }) => {
+  test.skip(process.env.TEST_TIER !== 'pro', 'Free tier 3-rule quota is filled by S3 starter rules — Task 3 requires Pro');
   test.setTimeout(180_000);
   const frame = await openAddon(page);
   await clickButton(frame, 'Rules', { exact: true });
@@ -200,7 +201,7 @@ test('Task 4 · self-send DEMO email and Scan email now reports a match', async 
   }
 
   await expect(getFrame(page).locator('body')).toContainText(
-    /Scan complete.*\b1\b.*match|Scan complete.*match/i,
+    /Scan complete[^.]*\b[1-9]\d*\s+match/i,
     { timeout: 240_000 }
   );
 });
