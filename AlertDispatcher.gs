@@ -304,6 +304,9 @@ function testSms(toNumber) {
     if (msg.includes('30054') || msg.includes('Unregistered')) {
       return 'SMS error (30054): Unregistered phone number. With Twilio, register for A2P 10DLC: https://support.twilio.com/hc/en-us/articles/360041025133';
     }
+    if (msg.includes('401') || msg.includes('Authenticate') || msg.includes('authenticate')) {
+      return 'Test SMS FAILED: ' + msg + '\n\nHint: "Test SMS" uses saved credentials — click "Save settings" first if you just entered a new auth token.';
+    }
     return 'Test SMS FAILED: ' + msg;
   }
 }

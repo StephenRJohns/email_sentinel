@@ -189,6 +189,7 @@ EOF
     --no-default-browser-check \
     --disable-restore-session-state \
     --hide-crash-restore-bubble \
+    --disable-sync \
     "$START_URL" \
     > /dev/null 2>&1 &
   CHROME_PID=$!
