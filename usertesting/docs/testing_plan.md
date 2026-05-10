@@ -108,6 +108,30 @@ Script C testers must already have an active account with the assigned provider.
 
 Target to contact per provider: 4–6 candidates to land 1–2 completed sessions.
 
+#### Sourcing channel comparison
+
+Sorted by likelihood of finding a qualified match. All channels are free unless noted.
+
+| Channel | Likelihood | Why | Providers covered | Monetary cost | Time to post | Follow-up effort |
+|---|---|---|---|---|---|---|
+| **r/Twilio** | **Very high** | Every member has an active Twilio account — it is the only reason to be in that sub | Twilio only | Free | 5 min | Low — replies are self-selecting |
+| **GitHub cold outreach** | **High** | You verify account use before contacting — only reach out to people with recent commits using the provider's SDK | All six providers | Free | 30–60 min per provider to find candidates | Medium — manual DMs, ~10–20% reply rate |
+| **Twilio / Telnyx Discord** | **High** | Official developer Discords; everyone present uses the product | Twilio, Telnyx | Free | 5 min per server | Low — one post, replies come to you |
+| **Indie Hackers** | **Medium-high** | SaaS founders skew heavily toward Twilio and SMS notifications; high engagement with "looking for testers" posts | Twilio, Telnyx, Vonage, Plivo | Free | 10 min | Low — public post, self-selecting |
+| **WIP / Startup Study Group Slack** | **Medium** | Active indie maker communities; members build products with SMS features regularly | Twilio, Telnyx, ClickSend | Free | 10 min per community | Low — post once |
+| **r/SaaS / r/webdev** | **Medium** | Broad developer audience; SMS users are present but not the majority | All providers | Free | 5 min | Medium — lower signal, more screening needed |
+| **Product Hunt makers** | **Medium-low** | Founder-heavy but skews toward product and marketing roles more than technical SMS integration | Twilio, ClickSend | Free | 10 min | Medium — engagement varies widely by timing |
+| **LinkedIn cold outreach** | **Low** | Cannot verify account use before contacting; ~5–10% reply rate; InMail costs money beyond free tier | All providers | Free (connection request) or ~$10–15/InMail | 30 min per provider | High — low signal, high volume needed |
+
+**Key takeaways:**
+
+- Start with r/Twilio and the Twilio/Telnyx Discords — highest certainty per minute spent, covers your two highest-priority providers.
+- GitHub cold outreach is the most reliable path for the remaining four providers (ClickSend, Vonage, Plivo, Textbelt) because those communities have no dedicated forum. Pre-verification means you do not waste scripts on people who cannot complete the session.
+- Indie Hackers fills the gap — one post can surface candidates for multiple providers simultaneously.
+- Skip LinkedIn unless the other channels fail to fill Vonage or Plivo slots. The effort-to-result ratio is the worst of the group.
+
+---
+
 #### Where to find candidates
 
 **Reddit (free, highest volume)**
