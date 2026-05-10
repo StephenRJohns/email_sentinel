@@ -200,6 +200,7 @@ test('Task 3 · create rule with SMS recipient ticked', async ({ page }) => {
 test('Task 4 · self-send DEMO email and Scan email now reports a match', async ({ page }) => {
   const email = process.env.GOOGLE_EMAIL;
   test.skip(!email, 'GOOGLE_EMAIL not set in e2e.config.env');
+  test.skip(process.env.TEST_TIER !== 'pro', 'Task 3 is skipped on Free tier (no DEMO rule created), so scan will find 0 matches');
   test.setTimeout(300_000);
   await sendTestEmail(page, SCRIPT_B_EMAIL_SUBJECT, email);
   await page.waitForTimeout(10_000);

@@ -169,6 +169,7 @@ test('Task 3 · create rule with all five Google channels ticked', async ({ page
 test('Task 4 · self-send DEMO email and Scan email now reports a match', async ({ page }) => {
   const email = process.env.GOOGLE_EMAIL;
   test.skip(!email, 'GOOGLE_EMAIL not set in e2e.config.env');
+  test.skip(process.env.TEST_TIER !== 'pro', 'Task 3 is skipped on Free tier (no DEMO rule created), so scan will find 0 matches');
   test.setTimeout(300_000);
   await sendTestEmail(page, SCRIPT_A_EMAIL_SUBJECT, email);
   // 10s for the message to land in the inbox label that the rule watches.
